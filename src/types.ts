@@ -27,6 +27,14 @@ export type PeriodMode = "last" | "week" | "month" | "custom";
 export type ForecastProviderId = "biorhythm" | "humanDesign" | "astrology" | "planetaryTransits" | "aiPatternForecast";
 export type ForecastScaleId = "physical" | "emotional" | "intellectual";
 export type ForecastDisplayMode = "compact" | "cards" | "minimal";
+export type GridColorSettings = {
+  mode: "theme" | "custom";
+  bg: string;
+  head: string;
+  cell: string;
+  today: string;
+  line: string;
+};
 
 export type Habit = {
   id: string;
@@ -121,6 +129,8 @@ export type UserSettings = {
   gridTheme: GridTheme;
   gridDisplayMode: GridDisplayMode;
   gridDensity: Density;
+  statusIcons: Record<HabitStatus, string>;
+  gridColors: GridColorSettings;
   forecast: ForecastSettings;
   focusMode: boolean;
   rightPanel: boolean;

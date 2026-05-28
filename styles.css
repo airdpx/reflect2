@@ -14,6 +14,7 @@
   --grid-cell: #f7f5ef;
   --grid-cell-empty: #f1eee6;
   --grid-today: #e9efe8;
+  --grid-line: var(--line);
   --status-done-bg: #dcebdc;
   --status-partial-bg: #f0e4bd;
   --status-skipped-bg: #e7e1d6;
@@ -729,9 +730,9 @@ button {
   grid-template-columns: repeat(7, minmax(118px, 1fr));
   gap: var(--grid-gap);
   overflow: hidden;
-  border: 1px solid var(--line);
+  border: 1px solid var(--grid-line);
   border-radius: var(--radius);
-  background: var(--line);
+  background: var(--grid-line);
 }
 
 .compact-calendar {
@@ -816,17 +817,26 @@ button {
 
 .compact-mark {
   min-height: var(--mark-height);
-  grid-template-columns: 1fr;
+  grid-template-columns: minmax(0, 1fr) auto;
   justify-items: stretch;
   gap: 0;
   padding: 0;
   border-radius: 999px;
+  overflow: hidden;
 }
 
 .compact-mark > i {
   width: 100%;
   height: 14px;
   opacity: 0.95;
+}
+
+.compact-mark em {
+  width: 18px;
+  min-width: 18px;
+  height: 18px;
+  margin: 1px;
+  background: color-mix(in srgb, var(--surface) 54%, transparent);
 }
 
 .calendar-mark:hover {
@@ -883,14 +893,14 @@ button {
 
 .week-matrix {
   overflow: hidden;
-  border: 1px solid var(--line);
+  border: 1px solid var(--grid-line);
   border-radius: var(--radius);
   background: var(--grid-bg);
 }
 
 .week-matrix-title {
   padding: 8px 10px;
-  border-bottom: 1px solid var(--line);
+  border-bottom: 1px solid var(--grid-line);
   background: var(--grid-head);
   color: var(--muted);
   font-size: 12px;
@@ -900,6 +910,7 @@ button {
 .week-matrix-grid {
   display: grid;
   grid-template-columns: minmax(145px, 0.8fr) repeat(var(--days), minmax(38px, 1fr));
+  grid-template-rows: var(--grid-head-row);
   grid-auto-rows: var(--grid-row);
 }
 
@@ -908,9 +919,9 @@ button {
   grid-template-columns: repeat(7, minmax(112px, 1fr));
   gap: var(--grid-gap);
   overflow: hidden;
-  border: 1px solid var(--line);
+  border: 1px solid var(--grid-line);
   border-radius: var(--radius);
-  background: var(--line);
+  background: var(--grid-line);
 }
 
 .week-focus-day {
@@ -1132,8 +1143,8 @@ button {
   display: flex;
   align-items: center;
   justify-content: center;
-  border-right: 1px solid var(--line);
-  border-bottom: 1px solid var(--line);
+  border-right: 1px solid var(--grid-line);
+  border-bottom: 1px solid var(--grid-line);
   font-size: 12px;
   line-height: 1;
 }
@@ -1147,7 +1158,7 @@ button {
   justify-content: flex-start;
   gap: 8px;
   padding: 0 10px;
-  background: var(--surface);
+  background: var(--grid-bg);
   box-shadow: 10px 0 18px rgba(48, 45, 37, 0.05);
 }
 
@@ -1191,7 +1202,7 @@ button {
   align-items: flex-start;
   justify-content: center;
   padding-left: 10px;
-  background: var(--surface);
+  background: var(--grid-head);
   font-size: 12px;
   text-transform: none;
   box-shadow: 10px 0 18px rgba(48, 45, 37, 0.05);
@@ -1209,7 +1220,8 @@ button {
 
 .grid-cell {
   height: var(--grid-row);
-  background: var(--grid-bg);
+  overflow: hidden;
+  background: var(--grid-cell);
 }
 
 .grid-cell.today {
@@ -1621,6 +1633,7 @@ button {
   --grid-cell: #22261f;
   --grid-cell-empty: #242820;
   --grid-today: #263225;
+  --grid-line: #34382f;
   --status-done-bg: #405d43;
   --status-partial-bg: #d7a919;
   --status-skipped-bg: #6c7280;
@@ -1664,8 +1677,10 @@ button {
   --danger: #b6655f;
   --grid-bg: #fbf5eb;
   --grid-head: #efe4d3;
+  --grid-cell: #f7eddd;
   --grid-cell-empty: #efe4d3;
   --grid-today: #eadaca;
+  --grid-line: #d8c5aa;
   --status-done-bg: #dedfc5;
   --status-partial-bg: #ead7ad;
   --status-skipped-bg: #e5dccf;
@@ -1686,8 +1701,10 @@ button {
   --danger: #ad6965;
   --grid-bg: #f5f9f2;
   --grid-head: #e3ecdd;
+  --grid-cell: #eef5ea;
   --grid-cell-empty: #e8efe3;
   --grid-today: #d6e5d0;
+  --grid-line: #c7d7bf;
   --status-done-bg: #d2e3cd;
   --status-partial-bg: #e5ddb8;
   --status-skipped-bg: #dce4d7;
@@ -1708,8 +1725,10 @@ button {
   --danger: #ff5c7c;
   --grid-bg: #0b1627;
   --grid-head: #142238;
+  --grid-cell: #101d31;
   --grid-cell-empty: #152238;
   --grid-today: #12352d;
+  --grid-line: #29405d;
   --status-done-bg: #19c37d;
   --status-partial-bg: #fbbf24;
   --status-skipped-bg: #64748b;
@@ -1731,8 +1750,10 @@ button {
   --danger: #ff6b6b;
   --grid-bg: #321427;
   --grid-head: #46213a;
+  --grid-cell: #3a1830;
   --grid-cell-empty: #4a223d;
   --grid-today: #59311a;
+  --grid-line: #6b3554;
   --status-done-bg: #2dd4bf;
   --status-partial-bg: #ffb703;
   --status-skipped-bg: #7c5266;
@@ -1752,10 +1773,12 @@ button {
   --accent-soft: #bdf4dc;
   --warn: #f59e0b;
   --danger: #e11d48;
-  --grid-bg: #f6fffb;
-  --grid-head: #dff8ee;
+  --grid-bg: #eafff6;
+  --grid-head: #cbf2e3;
+  --grid-cell: #def8ee;
   --grid-cell-empty: #d8f7eb;
   --grid-today: #c2f2dc;
+  --grid-line: #9bd8c4;
   --status-done-bg: #34d399;
   --status-partial-bg: #fde047;
   --status-skipped-bg: #cbd5e1;
@@ -1776,8 +1799,10 @@ button {
   --danger: #fb7185;
   --grid-bg: #1d1234;
   --grid-head: #2a1a49;
+  --grid-cell: #25183f;
   --grid-cell-empty: #321f56;
   --grid-today: #3b2354;
+  --grid-line: #4c2d73;
   --status-done-bg: #34d399;
   --status-partial-bg: #fbbf24;
   --status-skipped-bg: #76568f;
@@ -1797,10 +1822,12 @@ button {
   --accent-soft: #fed7aa;
   --warn: #eab308;
   --danger: #dc2626;
-  --grid-bg: #fffdf4;
-  --grid-head: #fff0c2;
+  --grid-bg: #fff1bd;
+  --grid-head: #ffe39a;
+  --grid-cell: #fff6d3;
   --grid-cell-empty: #ffedbf;
   --grid-today: #ffe4a3;
+  --grid-line: #e7b94e;
   --status-done-bg: #84cc16;
   --status-partial-bg: #facc15;
   --status-skipped-bg: #d6c39a;
@@ -1821,8 +1848,10 @@ button {
   --danger: #fb7185;
   --grid-bg: #082f39;
   --grid-head: #104550;
+  --grid-cell: #0d3f4a;
   --grid-cell-empty: #14525e;
   --grid-today: #165e63;
+  --grid-line: #276b78;
   --status-done-bg: #2dd4bf;
   --status-partial-bg: #facc15;
   --status-skipped-bg: #4b8791;
@@ -1844,8 +1873,10 @@ button {
   --danger: #ef4444;
   --grid-bg: #171717;
   --grid-head: #262626;
+  --grid-cell: #1f1f1f;
   --grid-cell-empty: #2a2a2a;
   --grid-today: #263315;
+  --grid-line: #3f3f46;
   --status-done-bg: #84cc16;
   --status-partial-bg: #eab308;
   --status-skipped-bg: #52525b;
@@ -1865,10 +1896,12 @@ button {
   --accent-soft: #fecdd3;
   --warn: #f97316;
   --danger: #be123c;
-  --grid-bg: #fff8f8;
-  --grid-head: #ffe4e6;
+  --grid-bg: #fff0f2;
+  --grid-head: #ffd6dc;
+  --grid-cell: #ffe8ec;
   --grid-cell-empty: #ffe4e6;
   --grid-today: #fbcfe8;
+  --grid-line: #f8b7c2;
   --status-done-bg: #86efac;
   --status-partial-bg: #fde68a;
   --status-skipped-bg: #f0c8d0;
@@ -1889,8 +1922,10 @@ button {
   --danger: #fb7185;
   --grid-bg: #1b1231;
   --grid-head: #2a1a49;
+  --grid-cell: #24153d;
   --grid-cell-empty: #32205a;
   --grid-today: #3a2a65;
+  --grid-line: #4c3575;
   --status-done-bg: #34d399;
   --status-partial-bg: #fbbf24;
   --status-skipped-bg: #6d5b8c;
@@ -1912,8 +1947,10 @@ button {
   --danger: #f87171;
   --grid-bg: #12251b;
   --grid-head: #1b3125;
+  --grid-cell: #17291f;
   --grid-cell-empty: #20382a;
   --grid-today: #1f4930;
+  --grid-line: #315a43;
   --status-done-bg: #22c55e;
   --status-partial-bg: #eab308;
   --status-skipped-bg: #4b6b59;
@@ -1933,10 +1970,12 @@ button {
   --accent-soft: #b6e4dd;
   --warn: #b45309;
   --danger: #b91c1c;
-  --grid-bg: #fff8e8;
-  --grid-head: #eddcb8;
+  --grid-bg: #f6e3bb;
+  --grid-head: #e6cf9e;
+  --grid-cell: #fbedd0;
   --grid-cell-empty: #ead9b7;
   --grid-today: #d4eadb;
+  --grid-line: #cfad74;
   --status-done-bg: #99f6e4;
   --status-partial-bg: #fde68a;
   --status-skipped-bg: #d6c7aa;
@@ -1957,8 +1996,10 @@ button {
   --danger: #fb7185;
   --grid-bg: #0b1527;
   --grid-head: #16233a;
+  --grid-cell: #121b31;
   --grid-cell-empty: #1b2b4a;
   --grid-today: #173052;
+  --grid-line: #29476d;
   --status-done-bg: #2dd4bf;
   --status-partial-bg: #fbbf24;
   --status-skipped-bg: #526987;
@@ -2122,6 +2163,12 @@ button {
   --surface-soft: #e3ecef;
   --accent: #52768d;
   --accent-soft: #d9e8ee;
+  --grid-bg: #eaf2f5;
+  --grid-head: #d8e6ec;
+  --grid-cell: #eef5f7;
+  --grid-cell-empty: #dce9ee;
+  --grid-today: #d2e7f0;
+  --grid-line: #bfd2da;
 }
 
 .custom-theme-editor {
@@ -2311,6 +2358,48 @@ button {
   width: 27px;
   height: 27px;
   color: var(--muted);
+}
+
+.quick-subsection {
+  padding-top: 8px;
+  border-top: 1px solid var(--line);
+}
+
+.quick-subsection summary {
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.status-icon-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(78px, 1fr));
+  gap: 7px;
+  margin-top: 8px;
+}
+
+.status-icon-grid label {
+  display: grid;
+  gap: 4px;
+  color: var(--muted);
+  font-size: 10px;
+}
+
+.status-icon-grid input {
+  width: 100%;
+  height: 30px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--surface-soft);
+  color: var(--text);
+  text-align: center;
+  font-size: 15px;
+  font-weight: 900;
+}
+
+.grid-color-grid {
+  margin-top: 8px;
 }
 
 .module-panel {

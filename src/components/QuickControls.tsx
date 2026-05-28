@@ -1,5 +1,5 @@
-import type { AppActions, AppState, GridDisplayMode, InterfaceTheme, UserSettings } from "../types";
-import { themeOptions } from "../lib/defaults";
+import type { AppActions, AppState, GridDisplayMode, HabitStatus, InterfaceTheme, UserSettings } from "../types";
+import { statusMeta, themeOptions } from "../lib/defaults";
 
 const gridModes: Array<{ id: GridDisplayMode; icon: string; title: string }> = [
   { id: "calendar", icon: "▦", title: "Календарь" },
@@ -21,6 +21,14 @@ const customThemeLabels: Record<keyof UserSettings["customTheme"], string> = {
   skipped: "Skip",
   missed: "Miss",
   planned: "Plan"
+};
+
+const gridColorLabels: Record<keyof Omit<UserSettings["gridColors"], "mode">, string> = {
+  bg: "Фон",
+  head: "Шапка",
+  cell: "Ячейка",
+  today: "Сегодня",
+  line: "Линии"
 };
 
 export function QuickControls({ state, actions }: { state: AppState; actions: AppActions }) {
@@ -96,6 +104,42 @@ export function QuickControls({ state, actions }: { state: AppState; actions: Ap
             <button className={state.settings.gridClickAction === "cycle" ? "active" : ""} onClick={() => actions.updateSetting("gridClickAction", "cycle")}>✓ цикл</button>
             <button className={state.settings.gridClickAction === "details" ? "active" : ""} onClick={() => actions.updateSetting("gridClickAction", "details")}>⋯ детали</button>
           </div>
+          <details className="quick-subsection">
+            <summary>Иконки отметок</summary>
+            <div className="status-icon-grid">
+              {(Object.keys(statusMeta) as HabitStatus[]).map((status) => (
+                <label key={status}>
+                  <span>{statusMeta[status].label}</span>
+                  <input
+                    maxLength={2}
+                    value={state.settings.statusIcons[status] || statusMeta[status].short}
+                    onChange={(event) => actions.updateSetting("statusIcons", { ...state.settings.statusIcons, [status]: event.target.value.slice(0, 2) })}
+                  />
+                </label>
+              ))}
+            </div>
+          </details>
+          <details className="quick-subsection">
+            <summary>Цвета таблицы</summary>
+            <div className="icon-choice-row">
+              <button className={state.settings.gridColors.mode === "theme" ? "active" : ""} onClick={() => actions.updateSetting("gridColors", { ...state.settings.gridColors, mode: "theme" })}>тема</button>
+              <button className={state.settings.gridColors.mode === "custom" ? "active" : ""} onClick={() => actions.updateSetting("gridColors", { ...state.settings.gridColors, mode: "custom" })}>свои</button>
+            </div>
+            {state.settings.gridColors.mode === "custom" && (
+              <div className="mini-color-grid grid-color-grid">
+                {(Object.keys(gridColorLabels) as Array<keyof Omit<UserSettings["gridColors"], "mode">>).map((key) => (
+                  <label key={key}>
+                    <span>{gridColorLabels[key]}</span>
+                    <input
+                      type="color"
+                      value={state.settings.gridColors[key]}
+                      onChange={(event) => actions.updateSetting("gridColors", { ...state.settings.gridColors, [key]: event.target.value })}
+                    />
+                  </label>
+                ))}
+              </div>
+            )}
+          </details>
         </div>
       </details>
     </div>

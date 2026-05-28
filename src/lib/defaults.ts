@@ -155,7 +155,7 @@ export const habitTemplates: HabitTemplate[] = [
 
 export function createDefaults(): AppState {
   return {
-    schemaVersion: 5,
+    schemaVersion: 6,
     view: "today",
     selectedDate: todayKey(),
     habits: [],
@@ -201,6 +201,21 @@ export function createDefaults(): AppState {
       gridTheme: "soft",
       gridDisplayMode: "calendar",
       gridDensity: "standard",
+      statusIcons: {
+        done: "✓",
+        partial: "◐",
+        skipped: "–",
+        missed: "×",
+        planned: "·"
+      },
+      gridColors: {
+        mode: "theme",
+        bg: "#fbfaf7",
+        head: "#f2f0e9",
+        cell: "#f7f5ef",
+        today: "#e9efe8",
+        line: "#dedbd1"
+      },
       forecast: {
         enabled: false,
         provider: "biorhythm",

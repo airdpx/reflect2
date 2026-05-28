@@ -2,7 +2,7 @@ import type { AppState } from "../types";
 import { createDefaults } from "./defaults";
 
 export const STORAGE_KEY = "habit-calendar-next-mvp-v1";
-export const SCHEMA_VERSION = 5;
+export const SCHEMA_VERSION = 6;
 
 export function loadStoredState(): AppState {
   const defaults = createDefaults();
@@ -48,6 +48,14 @@ function mergeState(defaults: AppState, stored: Partial<AppState>): AppState {
       customTheme: {
         ...defaults.settings.customTheme,
         ...stored.settings?.customTheme
+      },
+      statusIcons: {
+        ...defaults.settings.statusIcons,
+        ...stored.settings?.statusIcons
+      },
+      gridColors: {
+        ...defaults.settings.gridColors,
+        ...stored.settings?.gridColors
       },
       forecast: {
         ...defaults.settings.forecast,
@@ -95,6 +103,14 @@ function migrateState(state: AppState): AppState {
       customTheme: {
         ...defaults.settings.customTheme,
         ...state.settings.customTheme
+      },
+      statusIcons: {
+        ...defaults.settings.statusIcons,
+        ...state.settings.statusIcons
+      },
+      gridColors: {
+        ...defaults.settings.gridColors,
+        ...state.settings.gridColors
       },
       forecast: {
         ...defaults.settings.forecast,

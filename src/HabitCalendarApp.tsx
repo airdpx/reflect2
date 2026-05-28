@@ -98,7 +98,8 @@ export default function HabitCalendarApp() {
   };
 
   const appClass = `app density-${state.settings.density} theme-${state.settings.interfaceTheme} ${state.settings.focusMode ? "focus" : ""}`;
-  const customThemeStyle = state.settings.interfaceTheme === "custom" ? {
+  const customThemeStyle = {
+    ...(state.settings.interfaceTheme === "custom" ? {
     "--bg": state.settings.customTheme.bg,
     "--surface": state.settings.customTheme.surface,
     "--surface-soft": state.settings.customTheme.surface,
@@ -110,7 +111,16 @@ export default function HabitCalendarApp() {
     "--status-skipped-bg": state.settings.customTheme.skipped,
     "--status-missed-bg": state.settings.customTheme.missed,
     "--status-planned-bg": state.settings.customTheme.planned
-  } as React.CSSProperties : undefined;
+    } : {}),
+    ...(state.settings.gridColors.mode === "custom" ? {
+      "--grid-bg": state.settings.gridColors.bg,
+      "--grid-head": state.settings.gridColors.head,
+      "--grid-cell": state.settings.gridColors.cell,
+      "--grid-cell-empty": state.settings.gridColors.cell,
+      "--grid-today": state.settings.gridColors.today,
+      "--grid-line": state.settings.gridColors.line
+    } : {})
+  } as React.CSSProperties;
   const editingHabit = draftHabit || (editingHabitId ? state.habits.find((habit) => habit.id === editingHabitId) || null : null);
 
   return (

@@ -135,7 +135,7 @@ function CalendarMonthGrid({
         ) : <div className="calendar-day empty-day" key={`empty-${index}`} />)}
       </div>
       <div className="legend">
-        {state.settings.activeStatuses.map((status) => <span key={status}><i className={statusMeta[status].className} />{statusMeta[status].label}</span>)}
+        {state.settings.activeStatuses.map((status) => <span key={status}><i className={statusMeta[status].className} />{state.settings.statusIcons[status] || statusMeta[status].short} {statusMeta[status].label}</span>)}
       </div>
     </div>
   );
@@ -175,9 +175,10 @@ function CalendarHabitMark({
       onDoubleClick={() => actions.openCellSheet({ habitId: habit.id, date })}
     >
       {state.settings.visibleGrid.color && <i style={{ background: habit.color }} />}
+      {compact && status !== "planned" && <em>{statusIcon(status, state)}</em>}
       {!compact && <span className="calendar-mark-title">{state.settings.visibleGrid.icon ? habit.icon : ""} {habit.title}</span>}
-      {!compact && state.settings.visibleGrid.statusText && <em>{statusMeta[status].short}</em>}
-      {!compact && !state.settings.visibleGrid.statusText && status !== "planned" && <em>{statusMeta[status].short}</em>}
+      {!compact && state.settings.visibleGrid.statusText && <em>{statusIcon(status, state)}</em>}
+      {!compact && !state.settings.visibleGrid.statusText && status !== "planned" && <em>{statusIcon(status, state)}</em>}
       {state.settings.visibleGrid.noteMarker && log?.note && <small className="marker-note-inline" />}
       {!compact && state.settings.visibleGrid.type && <small>{habitTypeLabels[habit.type]}</small>}
       {!compact && state.settings.visibleGrid.target && habit.target > 1 && <small>{habit.target}</small>}
@@ -223,7 +224,7 @@ function WeekMatrixGrid({
         ))}
       </div>
       <div className="legend">
-        {state.settings.activeStatuses.map((status) => <span key={status}><i className={statusMeta[status].className} />{statusMeta[status].label}</span>)}
+        {state.settings.activeStatuses.map((status) => <span key={status}><i className={statusMeta[status].className} />{state.settings.statusIcons[status] || statusMeta[status].short} {statusMeta[status].label}</span>)}
       </div>
     </div>
   );
@@ -261,14 +262,14 @@ function WeekFocusGrid({
                 >
                   <i style={{ background: habit.color }} />
                   <span>{state.settings.visibleGrid.icon ? habit.icon : ""} {habit.title}</span>
-                  <b>{statusMeta[selectors.getLog(habit.id, date)?.status || "planned"].short}</b>
+                  <b>{statusIcon(selectors.getLog(habit.id, date)?.status || "planned", state)}</b>
                 </button>
               ))}
             </div>
           </div>
         ))}
       </div>
-      <Legend statuses={state.settings.activeStatuses} />
+      <Legend statuses={state.settings.activeStatuses} state={state} />
     </div>
   );
 }
@@ -308,13 +309,13 @@ function HabitTimelineGrid({
                 onDoubleClick={() => actions.openCellSheet({ habitId: habit.id, date })}
               >
                 <span>{formatDate(date, "short")}</span>
-                <b>{statusMeta[selectors.getLog(habit.id, date)?.status || "planned"].short}</b>
+                <b>{statusIcon(selectors.getLog(habit.id, date)?.status || "planned", state)}</b>
               </button>
             ))}
           </div>
         ))}
       </div>
-      <Legend statuses={state.settings.activeStatuses} />
+      <Legend statuses={state.settings.activeStatuses} state={state} />
     </div>
   );
 }
@@ -354,7 +355,7 @@ function TimelineGrid({
           </div>
         ))}
       </div>
-      <Legend statuses={state.settings.activeStatuses} />
+      <Legend statuses={state.settings.activeStatuses} state={state} />
     </div>
   );
 }
@@ -398,7 +399,7 @@ function HeatGrid({
           );
         })}
       </div>
-      <Legend statuses={state.settings.activeStatuses} />
+      <Legend statuses={state.settings.activeStatuses} state={state} />
     </div>
   );
 }
@@ -428,8 +429,8 @@ function GridCell({
         title={`${habit.title} · ${formatDate(date)} · ${state.settings.gridClickAction === "cycle" ? "быстрая смена статуса" : "детали"}`}
         onClick={() => state.settings.gridClickAction === "cycle" ? actions.cycleHabitStatus(habit.id, date) : actions.openCellSheet({ habitId: habit.id, date })}
       >
-        {state.settings.gridTheme === "classic" && status === "done" ? "✓" : ""}
-        {state.settings.gridTheme !== "classic" && visibleStatus && status && status !== "planned" ? statusMeta[status].short : ""}
+        {state.settings.gridTheme === "classic" && status === "done" ? statusIcon(status, state) : ""}
+        {state.settings.gridTheme !== "classic" && visibleStatus && status && status !== "planned" ? statusIcon(status, state) : ""}
         {state.settings.visibleGrid.noteMarker && log?.note && <i className="marker-note" />}
         {state.settings.visibleGrid.moodMarker && (log?.mood || state.notes[date]?.mood) && <i className="marker-mood" />}
       </button>
@@ -453,10 +454,14 @@ function statusClass(status?: HabitStatus) {
   return status ? statusMeta[status].className : "";
 }
 
-function Legend({ statuses }: { statuses: HabitStatus[] }) {
+function statusIcon(status: HabitStatus, state: AppState) {
+  return state.settings.statusIcons[status] || statusMeta[status].short;
+}
+
+function Legend({ statuses, state }: { statuses: HabitStatus[]; state?: AppState }) {
   return (
     <div className="legend">
-      {statuses.map((status) => <span key={status}><i className={statusMeta[status].className} />{statusMeta[status].label}</span>)}
+      {statuses.map((status) => <span key={status}><i className={statusMeta[status].className} />{state ? `${statusIcon(status, state)} ` : ""}{statusMeta[status].label}</span>)}
     </div>
   );
 }
