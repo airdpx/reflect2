@@ -25,7 +25,7 @@
   --status-skipped-text: #322f29;
   --status-missed-text: #4a1515;
   --status-planned-text: #17334a;
-  --shadow: 0 18px 45px rgba(48, 45, 37, 0.09);
+  --shadow: none;
   --radius: 8px;
   --cell: 42px;
   --grid-name-width: 230px;
@@ -164,8 +164,8 @@ button {
   align-items: center;
   justify-content: center;
   gap: 8px;
-  min-height: 38px;
-  padding: 9px 13px;
+  min-height: 36px;
+  padding: 8px 12px;
   border-radius: var(--radius);
   background: var(--surface-soft);
   color: var(--text);
@@ -190,7 +190,7 @@ button {
 .icon-btn {
   width: 38px;
   height: 38px;
-  border-radius: var(--radius);
+  border-radius: 999px;
   background: var(--surface-soft);
 }
 
@@ -210,13 +210,13 @@ button {
 .modal-card,
 .sheet-card {
   background: var(--surface);
-  border: 1px solid var(--line);
+  border: 1px solid color-mix(in srgb, var(--line) 78%, transparent);
   border-radius: var(--radius);
   box-shadow: var(--shadow);
 }
 
 .panel {
-  padding: 16px;
+  padding: 14px;
 }
 
 .panel h3 {
@@ -575,6 +575,72 @@ button {
 .field label {
   color: var(--muted);
   font-size: 13px;
+}
+
+.icon-input {
+  text-align: center;
+  font-size: 20px;
+  font-weight: 900;
+}
+
+.picker-panel {
+  display: grid;
+  gap: 12px;
+  padding: 10px;
+  border: 1px solid color-mix(in srgb, var(--line) 70%, transparent);
+  border-radius: var(--radius);
+  background: color-mix(in srgb, var(--surface-soft) 62%, transparent);
+}
+
+.picker-label {
+  display: block;
+  margin-bottom: 7px;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.preset-icon-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(34px, 1fr));
+  gap: 6px;
+}
+
+.preset-icon-grid button {
+  display: grid;
+  place-items: center;
+  min-height: 34px;
+  border: 1px solid transparent;
+  border-radius: 999px;
+  background: var(--surface);
+  color: var(--text);
+  font-size: 17px;
+  font-weight: 900;
+}
+
+.preset-icon-grid button.active,
+.category-chip-row button.active,
+.tiny-preset-row button.active {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+  color: var(--text);
+}
+
+.category-chip-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.category-chip-row button {
+  min-height: 30px;
+  padding: 5px 9px;
+  border: 1px solid transparent;
+  border-radius: 999px;
+  background: var(--surface);
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 700;
 }
 
 .input,
@@ -2374,8 +2440,8 @@ button {
 
 .status-icon-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(78px, 1fr));
-  gap: 7px;
+  grid-template-columns: repeat(auto-fit, minmax(96px, 1fr));
+  gap: 8px;
   margin-top: 8px;
 }
 
@@ -2395,6 +2461,25 @@ button {
   color: var(--text);
   text-align: center;
   font-size: 15px;
+  font-weight: 900;
+}
+
+.tiny-preset-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.tiny-preset-row button {
+  min-width: 24px;
+  height: 24px;
+  display: grid;
+  place-items: center;
+  border: 1px solid color-mix(in srgb, var(--line) 65%, transparent);
+  border-radius: 999px;
+  background: var(--surface);
+  color: var(--text);
+  font-size: 12px;
   font-weight: 900;
 }
 

@@ -25,6 +25,18 @@ export const habitTypeHints: Record<HabitType, string> = {
   reflection: "Запись или заметка считается выполнением."
 };
 
+export const habitIconPresets = ["○", "●", "◌", "✓", "☼", "☾", "✎", "◇", "△", "◉", "▣", "✦", "✚", "⌁", "∞", "·", "×", "↑", "↓", "↻"];
+
+export const habitCategoryPresets = ["Здоровье", "Состояние", "Быт", "Фокус", "Развитие", "Самонаблюдение", "Сон", "Спорт", "Питание", "Работа", "Отдых", "Отношения"];
+
+export const statusIconPresets: Record<HabitStatus, string[]> = {
+  done: ["✓", "●", "✔", "＋", "↑"],
+  partial: ["◐", "◒", "◍", "≈", "±"],
+  skipped: ["–", "○", "↷", "·", "…"],
+  missed: ["×", "✕", "↓", "!", "□"],
+  planned: ["·", "○", "□", "◌", "•"]
+};
+
 export const themeOptions = [
   { id: "dark", title: "Dark Calm", colors: ["#151713", "#1e211d", "#9caf88", "#ede9df"] },
   { id: "contrast", title: "Bright Contrast", colors: ["#07111f", "#0f1b2e", "#33d69f", "#f8fbff"] },

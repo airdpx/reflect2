@@ -1,7 +1,8 @@
+import { useState } from "react";
 import type { FormEvent } from "react";
 import type { AppActions, Habit, HabitType } from "../types";
 import { Field } from "./Common";
-import { habitTypeHints, habitTypeLabels } from "../lib/defaults";
+import { habitCategoryPresets, habitIconPresets, habitTypeHints, habitTypeLabels } from "../lib/defaults";
 import { todayKey } from "../lib/date";
 
 export function HabitModal({
@@ -24,6 +25,9 @@ export function HabitModal({
     schedule: [1, 2, 3, 4, 5, 6, 0],
     warningThreshold: 4
   };
+  const [icon, setIcon] = useState(h.icon);
+  const [category, setCategory] = useState(h.category);
+  const [type, setType] = useState<HabitType>(h.type);
 
   function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -34,8 +38,8 @@ export function HabitModal({
       title: String(form.get("title") || "").trim(),
       description: String(form.get("description") || ""),
       color: String(form.get("color") || "#9caf88"),
-      icon: String(form.get("icon") || "○"),
-      category: String(form.get("category") || ""),
+      icon: String(form.get("icon") || icon || "○"),
+      category: String(form.get("category") || category || ""),
       type: String(form.get("type") || "boolean") as HabitType,
       target: Number(form.get("target") || 1),
       schedule: schedule.length ? schedule : [1, 2, 3, 4, 5, 6, 0],
@@ -56,23 +60,42 @@ export function HabitModal({
         <form className="stack" onSubmit={submit}>
           <div className="form-grid">
             <Field label="Название"><input className="input" name="title" required defaultValue={h.title} /></Field>
-            <Field label="Категория"><input className="input" name="category" defaultValue={h.category} /></Field>
-            <Field label="Иконка"><input className="input" name="icon" defaultValue={h.icon} /></Field>
+            <Field label="Категория">
+              <input className="input" name="category" value={category} list="habit-category-presets" onChange={(event) => setCategory(event.target.value)} />
+              <datalist id="habit-category-presets">
+                {habitCategoryPresets.map((item) => <option key={item} value={item} />)}
+              </datalist>
+            </Field>
+            <Field label="Иконка"><input className="input icon-input" name="icon" value={icon} maxLength={2} onChange={(event) => setIcon(event.target.value.slice(0, 2))} /></Field>
             <Field label="Цвет"><input className="input" type="color" name="color" defaultValue={h.color} /></Field>
             <Field label="Тип">
-              <select className="select" name="type" defaultValue={h.type}>
+              <select className="select" name="type" value={type} onChange={(event) => setType(event.target.value as HabitType)}>
                 {(Object.keys(habitTypeLabels) as HabitType[]).map((type) => <option key={type} value={type}>{habitTypeLabels[type]}</option>)}
               </select>
             </Field>
             <Field label="Цель / количество"><input className="input" type="number" min="1" name="target" defaultValue={h.target} /></Field>
             <Field label="Порог внимания, дней"><input className="input" type="number" min="1" name="warningThreshold" defaultValue={h.warningThreshold} /></Field>
           </div>
+          <div className="picker-panel">
+            <div>
+              <span className="picker-label">Иконки</span>
+              <div className="preset-icon-grid">
+                {habitIconPresets.map((item) => <button type="button" key={item} className={icon === item ? "active" : ""} onClick={() => setIcon(item)}>{item}</button>)}
+              </div>
+            </div>
+            <div>
+              <span className="picker-label">Категории</span>
+              <div className="category-chip-row">
+                {habitCategoryPresets.map((item) => <button type="button" key={item} className={category === item ? "active" : ""} onClick={() => setCategory(item)}>{item}</button>)}
+              </div>
+            </div>
+          </div>
           <Field label="Описание"><textarea className="textarea" name="description" defaultValue={h.description} /></Field>
           <div className="hint-grid">
-            {(Object.keys(habitTypeHints) as HabitType[]).map((type) => (
-              <div className={`hint-card ${h.type === type ? "active" : ""}`} key={type}>
-                <b>{habitTypeLabels[type]}</b>
-                <span>{habitTypeHints[type]}</span>
+            {(Object.keys(habitTypeHints) as HabitType[]).map((itemType) => (
+              <div className={`hint-card ${itemType === type ? "active" : ""}`} key={itemType}>
+                <b>{habitTypeLabels[itemType]}</b>
+                <span>{habitTypeHints[itemType]}</span>
               </div>
             ))}
           </div>

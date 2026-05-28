@@ -1,5 +1,5 @@
 import type { AppActions, AppState, GridDisplayMode, HabitStatus, InterfaceTheme, UserSettings } from "../types";
-import { statusMeta, themeOptions } from "../lib/defaults";
+import { statusIconPresets, statusMeta, themeOptions } from "../lib/defaults";
 
 const gridModes: Array<{ id: GridDisplayMode; icon: string; title: string }> = [
   { id: "calendar", icon: "▦", title: "Календарь" },
@@ -115,6 +115,18 @@ export function QuickControls({ state, actions }: { state: AppState; actions: Ap
                     value={state.settings.statusIcons[status] || statusMeta[status].short}
                     onChange={(event) => actions.updateSetting("statusIcons", { ...state.settings.statusIcons, [status]: event.target.value.slice(0, 2) })}
                   />
+                  <div className="tiny-preset-row">
+                    {statusIconPresets[status].map((icon) => (
+                      <button
+                        type="button"
+                        key={icon}
+                        className={state.settings.statusIcons[status] === icon ? "active" : ""}
+                        onClick={() => actions.updateSetting("statusIcons", { ...state.settings.statusIcons, [status]: icon })}
+                      >
+                        {icon}
+                      </button>
+                    ))}
+                  </div>
                 </label>
               ))}
             </div>
