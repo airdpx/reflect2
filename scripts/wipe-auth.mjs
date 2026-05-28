@@ -1,6 +1,4 @@
-import { PrismaClient } from "@prisma/client";
 import { Pool } from "pg";
-import { PrismaPg } from "@prisma/adapter-pg";
 
 const url = process.env.DATABASE_URL;
 
@@ -10,18 +8,19 @@ if (!url) {
 }
 
 const pool = new Pool({ connectionString: url });
-const prisma = new PrismaClient({ adapter: new PrismaPg(pool) });
 
 try {
-  await prisma.passwordResetToken.deleteMany();
-  await prisma.session.deleteMany();
-  await prisma.userState.deleteMany();
-  await prisma.user.deleteMany();
+  await pool.query("BEGIN");
+  await pool.query('DELETE FROM "PasswordResetToken"');
+  await pool.query('DELETE FROM "Session"');
+  await pool.query('DELETE FROM "UserState"');
+  await pool.query('DELETE FROM "User"');
+  await pool.query("COMMIT");
   console.log("Auth tables wiped clean.");
 } catch (error) {
+  await pool.query("ROLLBACK").catch(() => undefined);
   console.error(error);
   process.exitCode = 1;
 } finally {
-  await prisma.$disconnect();
   await pool.end();
 }
