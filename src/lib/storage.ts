@@ -1,5 +1,5 @@
 import type { AppState } from "../types";
-import { createDefaults } from "./defaults";
+import { createDefaults, defaultCustomGridColors } from "./defaults";
 
 export const STORAGE_KEY = "habit-calendar-next-mvp-v1";
 export const SCHEMA_VERSION = 6;
@@ -75,6 +75,19 @@ function mergeState(defaults: AppState, stored: Partial<AppState>): AppState {
 function migrateState(state: AppState): AppState {
   const previousVersion = state.schemaVersion || 1;
   const defaults = createDefaults();
+  const legacyLightGridColors = {
+    mode: "custom" as const,
+    bg: "#fbfaf7",
+    head: "#f2f0e9",
+    cell: "#f7f5ef",
+    today: "#e9efe8",
+    line: "#dedbd1"
+  };
+  const gridColors =
+    state.settings.gridColors?.mode === "custom" &&
+    Object.entries(legacyLightGridColors).every(([key, value]) => state.settings.gridColors?.[key as keyof typeof legacyLightGridColors] === value)
+      ? { ...defaultCustomGridColors }
+      : state.settings.gridColors;
   const migratedVisibleGrid = {
     ...defaults.settings.visibleGrid,
     ...state.settings.visibleGrid
@@ -110,7 +123,7 @@ function migrateState(state: AppState): AppState {
       },
       gridColors: {
         ...defaults.settings.gridColors,
-        ...state.settings.gridColors
+        ...gridColors
       },
       forecast: {
         ...defaults.settings.forecast,

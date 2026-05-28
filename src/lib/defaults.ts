@@ -37,6 +37,15 @@ export const statusIconPresets: Record<HabitStatus, string[]> = {
   planned: ["·", "○", "□", "◌", "•"]
 };
 
+export const defaultCustomGridColors = {
+  mode: "custom" as const,
+  bg: "#111827",
+  head: "#182235",
+  cell: "#161f31",
+  today: "#1d2a3a",
+  line: "#25324a"
+};
+
 export const themeOptions = [
   { id: "dark", title: "Dark Calm", colors: ["#151713", "#1e211d", "#9caf88", "#ede9df"] },
   { id: "contrast", title: "Bright Contrast", colors: ["#07111f", "#0f1b2e", "#33d69f", "#f8fbff"] },
@@ -222,11 +231,11 @@ export function createDefaults(): AppState {
       },
       gridColors: {
         mode: "theme",
-        bg: "#fbfaf7",
-        head: "#f2f0e9",
-        cell: "#f7f5ef",
-        today: "#e9efe8",
-        line: "#dedbd1"
+        bg: defaultCustomGridColors.bg,
+        head: defaultCustomGridColors.head,
+        cell: defaultCustomGridColors.cell,
+        today: defaultCustomGridColors.today,
+        line: defaultCustomGridColors.line
       },
       forecast: {
         enabled: false,
