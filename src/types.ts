@@ -21,6 +21,20 @@ export type Habit = {
   createdAt: string;
 };
 
+export type HabitTemplate = {
+  id: string;
+  title: string;
+  description: string;
+  color: string;
+  icon: string;
+  category: string;
+  type: HabitType;
+  target: number;
+  schedule: number[];
+  warningThreshold: number;
+  helper: string;
+};
+
 export type HabitLog = {
   habitId: string;
   date: string;
@@ -89,6 +103,7 @@ export type AppActions = {
   setView: (view: View) => void;
   setSelectedDate: (date: string) => void;
   setLog: (habitId: string, date: string, patch: Partial<HabitLog>) => void;
+  clearLog: (habitId: string, date: string) => void;
   setNoteField: (key: keyof DailyNote, value: string | number) => void;
   setPeriod: (patch: Partial<UserSettings["defaultPeriod"]>) => void;
   applyPreset: (preset: UserSettings["preset"]) => void;
@@ -108,12 +123,14 @@ export type AppActions = {
   resetSettings: () => void;
   resetAll: () => void;
   openHabitModal: (habitId: string | null) => void;
+  openHabitTemplate: (templateId: string) => void;
   openCellSheet: (cell: { habitId: string; date: string } | null) => void;
 };
 
 export type AppSelectors = {
   activeHabits: Habit[];
   periodDates: string[];
+  hasAnyLogs: boolean;
   getLog: (habitId: string, date: string) => HabitLog | null;
   isDue: (habit: Habit, date: string) => boolean;
   calculateStats: (habit: Habit, dates?: string[]) => HabitStats;

@@ -11,14 +11,16 @@ import { GridView } from "./views/GridView";
 import { DiaryView } from "./views/DiaryView";
 import { AnalyticsView } from "./views/AnalyticsView";
 import { SettingsView } from "./views/SettingsView";
-import { createDefaults, statusMeta } from "./lib/defaults";
+import { createDefaults, habitTemplates, statusMeta } from "./lib/defaults";
 import { calculateHabitStats, getAttentionHabits, getPeriodDates, getPeriodLabel, isHabitDue, logKey } from "./lib/analytics";
 import { clearStoredState, loadStoredState, parseImportedState, saveStoredState } from "./lib/storage";
+import { todayKey } from "./lib/date";
 
 export default function HabitCalendarApp() {
   const [state, setState] = useState<AppState>(() => createDefaults());
   const [hydrated, setHydrated] = useState(false);
   const [editingHabitId, setEditingHabitId] = useState<string | null>(null);
+  const [draftHabit, setDraftHabit] = useState<Habit | null>(null);
   const [activeCell, setActiveCell] = useState<{ habitId: string; date: string } | null>(null);
   const [bulkUndo, setBulkUndo] = useState<Record<string, HabitLog | undefined> | null>(null);
   const [isMobile, setIsMobile] = useState(false);
@@ -55,6 +57,7 @@ export default function HabitCalendarApp() {
   const selectors: AppSelectors = {
     activeHabits,
     periodDates,
+    hasAnyLogs: Object.keys(state.logs).length > 0,
     getLog: (habitId, date) => state.logs[logKey(habitId, date)] || null,
     isDue: isHabitDue,
     calculateStats: (habit, dates = periodDates) => calculateHabitStats(habit, dates, state.logs),
@@ -66,6 +69,7 @@ export default function HabitCalendarApp() {
     setView,
     setSelectedDate,
     setLog,
+    clearLog,
     setNoteField,
     setPeriod,
     applyPreset,
@@ -84,12 +88,13 @@ export default function HabitCalendarApp() {
     deleteHabit,
     resetSettings,
     resetAll,
-    openHabitModal: setEditingHabitId,
+    openHabitModal,
+    openHabitTemplate,
     openCellSheet: setActiveCell
   };
 
   const appClass = `app density-${state.settings.density} theme-${state.settings.interfaceTheme} ${state.settings.focusMode ? "focus" : ""}`;
-  const editingHabit = editingHabitId ? state.habits.find((habit) => habit.id === editingHabitId) || null : null;
+  const editingHabit = draftHabit || (editingHabitId ? state.habits.find((habit) => habit.id === editingHabitId) || null : null);
 
   return (
     <div className={appClass}>
@@ -104,7 +109,7 @@ export default function HabitCalendarApp() {
       </main>
       {state.settings.rightPanel && !state.settings.focusMode && <Inspector state={state} selectors={selectors} />}
       <MobileNav view={state.view} onView={actions.setView} />
-      {editingHabitId && <HabitModal habit={editingHabitId === "new" ? null : editingHabit} actions={actions} />}
+      {editingHabitId && <HabitModal habit={editingHabit} isTemplateDraft={Boolean(draftHabit)} actions={actions} />}
       {activeCell && <CellSheet cell={activeCell} state={state} selectors={selectors} actions={actions} />}
     </div>
   );
@@ -127,6 +132,13 @@ export default function HabitCalendarApp() {
     updateState((draft) => {
       const key = logKey(habitId, date);
       draft.logs[key] = { ...(draft.logs[key] || { habitId, date }), ...patch, updatedAt: new Date().toISOString() };
+      return draft;
+    });
+  }
+
+  function clearLog(habitId: string, date: string) {
+    updateState((draft) => {
+      delete draft.logs[logKey(habitId, date)];
       return draft;
     });
   }
@@ -301,6 +313,7 @@ export default function HabitCalendarApp() {
       return draft;
     });
     setEditingHabitId(null);
+    setDraftHabit(null);
   }
 
   function deleteHabit(habitId: string) {
@@ -311,6 +324,32 @@ export default function HabitCalendarApp() {
       return draft;
     });
     setEditingHabitId(null);
+    setDraftHabit(null);
+  }
+
+  function openHabitModal(habitId: string | null) {
+    setDraftHabit(null);
+    setEditingHabitId(habitId);
+  }
+
+  function openHabitTemplate(templateId: string) {
+    const template = habitTemplates.find((item) => item.id === templateId);
+    if (!template) return;
+    setDraftHabit({
+      id: crypto.randomUUID(),
+      title: template.title,
+      description: template.description,
+      color: template.color,
+      icon: template.icon,
+      category: template.category,
+      type: template.type,
+      target: template.target,
+      schedule: template.schedule,
+      archived: false,
+      warningThreshold: template.warningThreshold,
+      createdAt: todayKey()
+    });
+    setEditingHabitId("new");
   }
 
   function resetSettings() {

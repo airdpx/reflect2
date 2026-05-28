@@ -2,6 +2,7 @@ import type { AppActions, AppSelectors, AppState, Habit } from "../types";
 import { HabitCard } from "../components/HabitCard";
 import { DiaryPanel } from "./DiaryView";
 import { StatsPanel } from "./AnalyticsView";
+import { habitTemplates } from "../lib/defaults";
 
 export function TodayView({
   state,
@@ -18,6 +19,10 @@ export function TodayView({
   const completed = dueHabits.filter((habit) => selectors.getLog(habit.id, state.selectedDate)?.status === "done");
   const open = dueHabits.filter((habit) => selectors.getLog(habit.id, state.selectedDate)?.status !== "done" && !attentionIds.has(habit.id));
   const dueAttention = dueHabits.filter((habit) => attentionIds.has(habit.id) && selectors.getLog(habit.id, state.selectedDate)?.status !== "done");
+
+  if (!selectors.activeHabits.length) {
+    return <OnboardingPanel actions={actions} />;
+  }
 
   return (
     <div className="grid-two">
@@ -43,7 +48,17 @@ export function TodayView({
                 <HabitGroup title="Завершено" habits={completed} tone="done" state={state} selectors={selectors} actions={actions} />
               </>
             ) : (
-              <div className="empty">На этот день ничего не запланировано.</div>
+              <div className="empty action-empty">
+                <div>
+                  <b>На этот день ничего не запланировано</b>
+                  <span>Можно добавить привычку, выбрать шаблон или перейти к дневнику дня.</span>
+                </div>
+                <div className="quick-actions">
+                  <button className="btn primary" onClick={() => actions.openHabitModal("new")}>Создать привычку</button>
+                  <button className="btn ghost" onClick={() => actions.openHabitTemplate("journal")}>Шаблон дневника</button>
+                  <button className="btn ghost" onClick={() => actions.setView("diary")}>Открыть дневник</button>
+                </div>
+              </div>
             )}
           </div>
         )}
@@ -61,8 +76,49 @@ export function TodayView({
             )) : <div className="empty">Пока нет мягких сигналов.</div>}
           </div>
         )}
-        {state.settings.visibleBlocks.analytics && <StatsPanel selectors={selectors} />}
+        {state.settings.visibleBlocks.analytics && selectors.hasAnyLogs && <StatsPanel selectors={selectors} />}
       </section>
+    </div>
+  );
+}
+
+function OnboardingPanel({ actions }: { actions: AppActions }) {
+  return (
+    <section className="stack">
+      <div className="panel onboarding-panel">
+        <div>
+          <h3>Начните с одной спокойной привычки</h3>
+          <p className="muted">Можно создать свою или взять шаблон, а потом отредактировать цвет, расписание и цель.</p>
+        </div>
+        <div className="quick-actions onboarding-actions">
+          <button className="btn primary" onClick={() => actions.openHabitModal("new")}>Создать привычку</button>
+          <button className="btn ghost" onClick={() => actions.openHabitTemplate("journal")}>Открыть шаблон дневника</button>
+          <button className="btn ghost" onClick={() => actions.setView("diary")}>Дневник дня</button>
+        </div>
+      </div>
+      <TemplateChooser actions={actions} />
+    </section>
+  );
+}
+
+export function TemplateChooser({ actions }: { actions: AppActions }) {
+  return (
+    <div className="panel">
+      <div className="section-head">
+        <div>
+          <h3>Шаблоны привычек</h3>
+          <p className="muted">Быстрый старт без пустой формы. Любой шаблон можно изменить перед сохранением.</p>
+        </div>
+      </div>
+      <div className="template-grid">
+        {habitTemplates.map((template) => (
+          <button className="template-card" key={template.id} onClick={() => actions.openHabitTemplate(template.id)}>
+            <i style={{ background: template.color }}>{template.icon}</i>
+            <b>{template.title}</b>
+            <span>{template.helper}</span>
+          </button>
+        ))}
+      </div>
     </div>
   );
 }

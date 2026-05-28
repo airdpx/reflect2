@@ -3,6 +3,7 @@ import type React from "react";
 import type { AppActions, AppSelectors, AppState, Habit } from "../types";
 import { formatDate, todayKey, weekdayShort } from "../lib/date";
 import { statusMeta } from "../lib/defaults";
+import { TemplateChooser } from "./TodayView";
 
 export function GridView({
   state,
@@ -58,8 +59,21 @@ function CalendarGrid({
   selectors: AppSelectors;
   actions: AppActions;
 }) {
-  if (!selectors.activeHabits.length) return <div className="empty">Сетка появится после добавления первой привычки.</div>;
-  if (!selectors.periodDates.length) return <div className="empty">В выбранном периоде нет дат.</div>;
+  if (!selectors.activeHabits.length) {
+    return (
+      <div className="stack">
+        <div className="empty action-empty">
+          <div>
+            <b>Сетка появится после первой привычки</b>
+            <span>Создайте привычку с нуля или начните с готового шаблона.</span>
+          </div>
+          <button className="btn primary" onClick={() => actions.openHabitModal("new")}>Создать привычку</button>
+        </div>
+        <TemplateChooser actions={actions} />
+      </div>
+    );
+  }
+  if (!selectors.periodDates.length) return <div className="empty action-empty"><b>В выбранном периоде нет дат</b><span>Проверьте диапазон или верните выходные в настройках сетки.</span></div>;
   return (
     <div>
       <div className="calendar-wrap">

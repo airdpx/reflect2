@@ -1,14 +1,16 @@
 import type { FormEvent } from "react";
 import type { AppActions, Habit, HabitType } from "../types";
 import { Field } from "./Common";
-import { habitTypeLabels } from "../lib/defaults";
+import { habitTypeHints, habitTypeLabels } from "../lib/defaults";
 import { todayKey } from "../lib/date";
 
 export function HabitModal({
   habit,
+  isTemplateDraft = false,
   actions
 }: {
   habit: Habit | null;
+  isTemplateDraft?: boolean;
   actions: AppActions;
 }) {
   const h = habit || {
@@ -47,7 +49,8 @@ export function HabitModal({
     <div className="modal open">
       <div className="modal-card">
         <div className="modal-head">
-          <h3>{habit ? "Редактировать привычку" : "Новая привычка"}</h3>
+          <h3>{isTemplateDraft ? "Новая привычка из шаблона" : habit ? "Редактировать привычку" : "Новая привычка"}</h3>
+          {isTemplateDraft && <span className="badge">шаблон можно изменить</span>}
           <button className="icon-btn" onClick={() => actions.openHabitModal(null)}>×</button>
         </div>
         <form className="stack" onSubmit={submit}>
@@ -65,6 +68,14 @@ export function HabitModal({
             <Field label="Порог внимания, дней"><input className="input" type="number" min="1" name="warningThreshold" defaultValue={h.warningThreshold} /></Field>
           </div>
           <Field label="Описание"><textarea className="textarea" name="description" defaultValue={h.description} /></Field>
+          <div className="hint-grid">
+            {(Object.keys(habitTypeHints) as HabitType[]).map((type) => (
+              <div className={`hint-card ${h.type === type ? "active" : ""}`} key={type}>
+                <b>{habitTypeLabels[type]}</b>
+                <span>{habitTypeHints[type]}</span>
+              </div>
+            ))}
+          </div>
           <div className="field">
             <label>Дни недели</label>
             <div className="weekdays">
@@ -75,7 +86,7 @@ export function HabitModal({
           </div>
           <div className="toolbar">
             <button className="btn primary" type="submit">Сохранить</button>
-            {habit && <button className="btn danger" type="button" onClick={() => actions.deleteHabit(habit.id)}>Удалить</button>}
+            {habit && !isTemplateDraft && <button className="btn danger" type="button" onClick={() => actions.deleteHabit(habit.id)}>Удалить</button>}
           </div>
         </form>
       </div>

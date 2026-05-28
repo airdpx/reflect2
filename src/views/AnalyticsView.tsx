@@ -1,6 +1,17 @@
 import type { AppSelectors } from "../types";
 
 export function StatsPanel({ selectors }: { selectors: AppSelectors }) {
+  if (!selectors.hasAnyLogs) {
+    return (
+      <div className="panel">
+        <h3>Краткая аналитика</h3>
+        <div className="empty action-empty">
+          <b>Аналитика появится после первых отметок</b>
+          <span>Пока здесь не будет нулей как оценки. Сделайте несколько спокойных отметок, и статистика станет полезной.</span>
+        </div>
+      </div>
+    );
+  }
   const rows = selectors.activeHabits.map((habit) => selectors.calculateStats(habit));
   const avg = rows.length ? Math.round(rows.reduce((sum, item) => sum + item.completion, 0) / rows.length) : 0;
   const streak = rows.reduce((max, item) => Math.max(max, item.streak), 0);
@@ -20,6 +31,13 @@ export function StatsPanel({ selectors }: { selectors: AppSelectors }) {
 }
 
 export function AnalyticsView({ selectors }: { selectors: AppSelectors }) {
+  if (!selectors.hasAnyLogs) {
+    return (
+      <section className="stack">
+        <StatsPanel selectors={selectors} />
+      </section>
+    );
+  }
   return (
     <section className="stack">
       <StatsPanel selectors={selectors} />

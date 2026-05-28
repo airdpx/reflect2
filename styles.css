@@ -698,6 +698,107 @@ button {
   font-size: 12px;
 }
 
+.selected-status {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin: 10px 0;
+  padding: 10px 12px;
+  border-radius: var(--radius);
+  background: var(--accent-soft);
+}
+
+.selected-status span {
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.history-list {
+  display: grid;
+  gap: 4px;
+  margin-top: 14px;
+}
+
+.history-list h4 {
+  margin: 0 0 4px;
+  font-size: 14px;
+}
+
+.detail-footer {
+  justify-content: flex-start;
+  margin-top: 12px;
+}
+
+.onboarding-panel {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+  align-items: center;
+}
+
+.onboarding-panel h3 {
+  margin-bottom: 6px;
+  font-size: 22px;
+}
+
+.onboarding-panel p {
+  max-width: 620px;
+}
+
+.onboarding-actions {
+  justify-content: flex-start;
+  max-width: none;
+}
+
+.template-grid,
+.hint-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+  gap: 10px;
+}
+
+.template-card,
+.hint-card {
+  display: grid;
+  gap: 7px;
+  min-height: 116px;
+  padding: 12px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--surface-soft);
+  color: var(--text);
+  text-align: left;
+}
+
+.template-card i {
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 999px;
+  color: var(--surface);
+  font-style: normal;
+}
+
+.template-card span,
+.hint-card span,
+.action-empty span {
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.35;
+}
+
+.hint-card {
+  min-height: auto;
+  box-shadow: none;
+}
+
+.hint-card.active {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+}
+
 .inspector {
   position: sticky;
   top: 0;
@@ -838,6 +939,17 @@ button {
   border: 1px dashed var(--line);
   border-radius: var(--radius);
   background: rgba(255, 255, 255, 0.4);
+}
+
+.action-empty {
+  align-content: center;
+  gap: 12px;
+  padding: 18px;
+}
+
+.action-empty > div {
+  display: grid;
+  gap: 4px;
 }
 
 .theme-dark {
@@ -1094,6 +1206,16 @@ button {
 
   .period-range {
     grid-template-columns: max-content minmax(130px, 1fr) minmax(130px, 1fr) max-content;
+  }
+
+  .onboarding-panel {
+    grid-template-columns: 1fr;
+  }
+
+  .onboarding-actions {
+    justify-self: stretch;
+    justify-content: flex-start;
+    max-width: none;
   }
 }
 

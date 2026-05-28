@@ -21,6 +21,11 @@ export function CellSheet({
   const completedCount = log?.completedCount || 0;
   const numericProgress = Math.min(100, Math.round((numericValue / Math.max(1, habit.target)) * 100));
   const countProgress = Math.min(100, Math.round((completedCount / Math.max(1, habit.target)) * 100));
+  const stats = selectors.calculateStats(habit);
+  const history = Object.values(state.logs)
+    .filter((item) => item.habitId === habit.id)
+    .sort((a, b) => b.date.localeCompare(a.date))
+    .slice(0, 6);
   return (
     <div className="sheet open">
       <div className="sheet-card">
@@ -29,6 +34,10 @@ export function CellSheet({
           <button className="icon-btn" onClick={() => actions.openCellSheet(null)}>×</button>
         </div>
         <p className="muted">{formatDate(cell.date)}</p>
+        <div className="selected-status">
+          <span>Текущая отметка</span>
+          <b>{log?.status ? `${statusMeta[log.status].short} ${statusMeta[log.status].label}` : "нет отметки"}</b>
+        </div>
         <div className="quick-actions detail-actions">
           {state.settings.activeStatuses.map((status) => (
             <button className={`btn ${log?.status === status ? "primary" : ""}`} key={status} onClick={() => { actions.setLog(cell.habitId, cell.date, { status }); actions.openCellSheet(null); }}>
@@ -40,6 +49,11 @@ export function CellSheet({
           <span>Тип: <b>{habitTypeLabels[habit.type]}</b></span>
           <span>Цель: <b>{habit.target}</b></span>
           <span>Статус: <b>{log?.status ? statusMeta[log.status].label : "нет"}</b></span>
+        </div>
+        <div className="cell-summary">
+          <span>Streak: <b>{stats.streak}</b></span>
+          <span>Лучший: <b>{stats.bestStreak}</b></span>
+          <span>Последнее: <b>{stats.lastDone ? formatDate(stats.lastDone, "short") : "нет"}</b></span>
         </div>
         {habit.type === "numeric" && (
           <div className="type-control">
@@ -72,7 +86,19 @@ export function CellSheet({
         {habit.type === "reflection" && <p className="muted">Для reflection-привычки запись сама считается выполнением.</p>}
         <Field label="Заметка к отметке"><textarea className="textarea" value={log?.note || ""} onChange={(event) => actions.setLog(cell.habitId, cell.date, { note: event.target.value, ...(habit.type === "reflection" && event.target.value.trim() ? { status: "done" } : {}) })} /></Field>
         <Field label="Настроение в этой отметке"><input type="range" min="1" max="5" value={log?.mood || 3} onChange={(event) => actions.setLog(cell.habitId, cell.date, { mood: Number(event.target.value) })} /></Field>
-        <button className="btn ghost" onClick={() => { actions.openHabitModal(habit.id); actions.openCellSheet(null); }}>Редактировать привычку</button>
+        <div className="history-list">
+          <h4>Последние отметки</h4>
+          {history.length ? history.map((item) => (
+            <div className="settings-row" key={`${item.habitId}-${item.date}`}>
+              <span><b>{formatDate(item.date, "short")}</b><br /><small className="muted">{item.note || (item.value ? `значение ${item.value}` : item.completedCount ? `${item.completedCount}/${habit.target}` : "без заметки")}</small></span>
+              <span className="badge">{item.status ? statusMeta[item.status].label : "нет"}</span>
+            </div>
+          )) : <div className="empty">История появится после первых отметок.</div>}
+        </div>
+        <div className="toolbar detail-footer">
+          <button className="btn ghost" onClick={() => { actions.openHabitModal(habit.id); actions.openCellSheet(null); }}>Редактировать привычку</button>
+          <button className="btn ghost" onClick={() => actions.clearLog(cell.habitId, cell.date)}>Очистить отметку</button>
+        </div>
       </div>
     </div>
   );
