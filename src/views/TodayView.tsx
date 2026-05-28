@@ -3,6 +3,7 @@ import { HabitCard } from "../components/HabitCard";
 import { DiaryPanel } from "./DiaryView";
 import { StatsPanel } from "./AnalyticsView";
 import { habitTemplates } from "../lib/defaults";
+import { TodayForecastPanel } from "../components/Forecast";
 
 export function TodayView({
   state,
@@ -27,6 +28,7 @@ export function TodayView({
   const leftColumn = (
     <section className="stack">
       <TodayModulesPanel state={state} actions={actions} />
+      {state.settings.visibleBlocks.forecast && <TodayForecastPanel state={state} actions={actions} />}
       {state.settings.visibleBlocks.today && (
         <div className="panel">
           <div className="section-head">
@@ -110,6 +112,7 @@ function TodayModulesPanel({ state, actions }: { state: AppState; actions: AppAc
           {[
             ["today", "Привычки"],
             ["diary", "Дневник"],
+            ["forecast", "Прогноз"],
             ["attention", "Внимание"],
             ["analytics", "Аналитика"]
           ].map(([key, label]) => (

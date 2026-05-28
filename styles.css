@@ -223,6 +223,197 @@ button {
   font-size: 17px;
 }
 
+.forecast-panel {
+  display: grid;
+  gap: 12px;
+  box-shadow: none;
+  background:
+    linear-gradient(135deg, color-mix(in srgb, var(--accent) 9%, transparent), transparent 58%),
+    var(--surface);
+}
+
+.forecast-panel.empty-forecast {
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+}
+
+.forecast-score {
+  min-width: 72px;
+  display: grid;
+  place-items: center;
+  gap: 0;
+  padding: 7px 10px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--surface-soft);
+  color: var(--text);
+  text-align: center;
+}
+
+.forecast-score strong {
+  font-size: 20px;
+  line-height: 1;
+}
+
+.forecast-score span {
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.forecast-tone-high {
+  border-color: color-mix(in srgb, var(--status-done-bg) 70%, var(--accent));
+  background: color-mix(in srgb, var(--status-done-bg) 70%, var(--surface));
+  color: var(--status-done-text);
+}
+
+.forecast-tone-steady {
+  border-color: color-mix(in srgb, var(--status-planned-bg) 65%, var(--accent));
+  background: color-mix(in srgb, var(--status-planned-bg) 65%, var(--surface));
+  color: var(--status-planned-text);
+}
+
+.forecast-tone-low {
+  border-color: color-mix(in srgb, var(--status-skipped-bg) 70%, var(--accent));
+  background: color-mix(in srgb, var(--status-skipped-bg) 70%, var(--surface));
+  color: var(--status-skipped-text);
+}
+
+.forecast-tone-high span,
+.forecast-tone-steady span,
+.forecast-tone-low span {
+  color: currentColor;
+  opacity: 0.78;
+}
+
+.forecast-scales {
+  display: grid;
+  gap: 8px;
+}
+
+.forecast-mode-cards .forecast-scales {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.forecast-scale {
+  display: grid;
+  grid-template-columns: minmax(94px, 0.8fr) minmax(90px, 1fr) 34px;
+  align-items: center;
+  gap: 8px;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.forecast-scale div {
+  height: 7px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: var(--surface-soft);
+}
+
+.forecast-scale i {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+}
+
+.forecast-scale b {
+  color: var(--text);
+  text-align: right;
+}
+
+.phase-high i {
+  background: linear-gradient(90deg, var(--status-done-bg), var(--accent));
+}
+
+.phase-steady i {
+  background: linear-gradient(90deg, var(--status-planned-bg), var(--accent));
+}
+
+.phase-low i {
+  background: linear-gradient(90deg, var(--status-skipped-bg), color-mix(in srgb, var(--accent) 55%, var(--surface)));
+}
+
+.forecast-strip {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 36px;
+  padding: 7px 9px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--surface-soft);
+  color: var(--text);
+  font-size: 12px;
+}
+
+.forecast-strip > span {
+  color: var(--muted);
+}
+
+.forecast-strip > div {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-left: auto;
+}
+
+.forecast-strip button {
+  margin-left: auto;
+  background: transparent;
+  color: var(--accent);
+  font-weight: 700;
+}
+
+.forecast-pill {
+  width: 28px;
+  height: 22px;
+  display: inline-grid;
+  place-items: center;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  color: var(--text);
+  font-style: normal;
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.forecast-pill.phase-high {
+  background: var(--status-done-bg);
+  color: var(--status-done-text);
+}
+
+.forecast-pill.phase-steady {
+  background: var(--status-planned-bg);
+  color: var(--status-planned-text);
+}
+
+.forecast-pill.phase-low {
+  background: var(--status-skipped-bg);
+  color: var(--status-skipped-text);
+}
+
+.forecast-day-marker {
+  width: 7px;
+  height: 7px;
+  flex: 0 0 auto;
+  border-radius: 999px;
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--surface) 70%, transparent);
+}
+
+.forecast-marker-high {
+  background: var(--status-done-bg);
+}
+
+.forecast-marker-steady {
+  background: var(--status-planned-bg);
+}
+
+.forecast-marker-low {
+  background: var(--status-skipped-bg);
+}
+
 .section-head {
   display: flex;
   align-items: flex-start;

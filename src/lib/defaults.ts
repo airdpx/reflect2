@@ -155,7 +155,7 @@ export const habitTemplates: HabitTemplate[] = [
 
 export function createDefaults(): AppState {
   return {
-    schemaVersion: 4,
+    schemaVersion: 5,
     view: "today",
     selectedDate: todayKey(),
     habits: [],
@@ -175,6 +175,7 @@ export function createDefaults(): AppState {
         noteText: true,
         helped: true,
         blocked: true,
+        forecast: true,
         analytics: true,
         streak: true,
         completion: true,
@@ -200,6 +201,21 @@ export function createDefaults(): AppState {
       gridTheme: "soft",
       gridDisplayMode: "calendar",
       gridDensity: "standard",
+      forecast: {
+        enabled: false,
+        provider: "biorhythm",
+        birthDate: "",
+        visibleScales: {
+          physical: true,
+          emotional: true,
+          intellectual: true
+        },
+        showInToday: true,
+        showInDiary: true,
+        showInInspector: true,
+        showInGrid: false,
+        displayMode: "compact"
+      },
       focusMode: false,
       rightPanel: true,
       showWeekends: true,

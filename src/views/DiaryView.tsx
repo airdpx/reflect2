@@ -1,4 +1,5 @@
 import type { AppActions, AppState, DailyNote } from "../types";
+import { DiaryForecastStrip } from "../components/Forecast";
 
 export function DiaryPanel({ state, actions }: { state: AppState; actions: AppActions }) {
   const note = state.notes[state.selectedDate] || {};
@@ -32,6 +33,7 @@ export function DiaryPanel({ state, actions }: { state: AppState; actions: AppAc
           ))}
         </div>
       </details>
+      <DiaryForecastStrip state={state} actions={actions} />
       <div className="stack">
         <div className="form-grid">
           <RangeField name="mood" label="Настроение" value={note.mood ?? 3} state={state} actions={actions} />

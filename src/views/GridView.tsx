@@ -3,6 +3,7 @@ import type React from "react";
 import type { AppActions, AppSelectors, AppState, GridDisplayMode, Habit, HabitStatus } from "../types";
 import { formatDate, todayKey, weekdayShort } from "../lib/date";
 import { habitTypeLabels, statusMeta } from "../lib/defaults";
+import { forecastTone, getForecast } from "../lib/forecast";
 import { TemplateChooser } from "./TodayView";
 
 export function GridView({
@@ -124,6 +125,7 @@ function CalendarMonthGrid({
               <b>{formatDate(date, "short")}</b>
               <span>{weekdayShort(date)}</span>
             </div>
+            <ForecastDayMarker date={date} state={state} />
             <div className="calendar-day-list">
               {habits.filter((habit) => selectors.isDue(habit, date)).map((habit) => (
                 <CalendarHabitMark key={`${habit.id}-${date}`} habit={habit} date={date} compact={compact} state={state} selectors={selectors} actions={actions} />
@@ -137,6 +139,13 @@ function CalendarMonthGrid({
       </div>
     </div>
   );
+}
+
+function ForecastDayMarker({ date, state }: { date: string; state: AppState }) {
+  if (!state.settings.forecast.enabled || !state.settings.forecast.showInGrid) return null;
+  const forecast = getForecast(date, state.settings.forecast);
+  if (!forecast) return null;
+  return <i className={`forecast-day-marker forecast-marker-${forecastTone(forecast.summaryScore)}`} title={`Прогноз дня: ${forecast.summaryScore}%`} />;
 }
 
 function CalendarHabitMark({

@@ -24,6 +24,9 @@ export type InterfaceTheme =
 export type GridTheme = "soft" | "classic" | "journal" | "minimal";
 export type GridDisplayMode = "calendar" | "compact" | "matrix" | "week" | "habit" | "timeline" | "heat";
 export type PeriodMode = "last" | "week" | "month" | "custom";
+export type ForecastProviderId = "biorhythm" | "humanDesign" | "astrology" | "planetaryTransits" | "aiPatternForecast";
+export type ForecastScaleId = "physical" | "emotional" | "intellectual";
+export type ForecastDisplayMode = "compact" | "cards" | "minimal";
 
 export type Habit = {
   id: string;
@@ -74,6 +77,34 @@ export type DailyNote = {
   blocked?: string;
 };
 
+export type ForecastSettings = {
+  enabled: boolean;
+  provider: ForecastProviderId;
+  birthDate: string;
+  visibleScales: Record<ForecastScaleId, boolean>;
+  showInToday: boolean;
+  showInDiary: boolean;
+  showInInspector: boolean;
+  showInGrid: boolean;
+  displayMode: ForecastDisplayMode;
+};
+
+export type ForecastScale = {
+  id: ForecastScaleId;
+  label: string;
+  value: number;
+  phase: "low" | "steady" | "high";
+};
+
+export type ForecastResult = {
+  date: string;
+  summaryScore: number;
+  summaryLabel: "низкий" | "ровный" | "сильный";
+  scales: ForecastScale[];
+  notes: string[];
+  source: ForecastProviderId;
+};
+
 export type UserSettings = {
   preset: "Simple" | "Balanced" | "Journal" | "Analytical" | "Focus";
   activeStatuses: HabitStatus[];
@@ -90,6 +121,7 @@ export type UserSettings = {
   gridTheme: GridTheme;
   gridDisplayMode: GridDisplayMode;
   gridDensity: Density;
+  forecast: ForecastSettings;
   focusMode: boolean;
   rightPanel: boolean;
   showWeekends: boolean;

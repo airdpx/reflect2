@@ -1,5 +1,5 @@
 import { useState } from "react";
-import type { AppActions, AppState, Density, GridDisplayMode, GridTheme, HabitStatus, UserSettings, View } from "../types";
+import type { AppActions, AppState, Density, ForecastDisplayMode, ForecastProviderId, ForecastScaleId, ForecastSettings, GridDisplayMode, GridTheme, HabitStatus, UserSettings, View } from "../types";
 import { SelectControl, Toggle } from "../components/Common";
 import { statusMeta } from "../lib/defaults";
 
@@ -13,6 +13,7 @@ const blockLabels: Record<string, string> = {
   noteText: "Короткая заметка",
   helped: "Что помогло",
   blocked: "Что мешало",
+  forecast: "Прогноз дня",
   analytics: "Аналитика",
   streak: "Streak",
   completion: "Процент выполнения",
@@ -33,6 +34,19 @@ const gridLabels: Record<string, string> = {
   noteMarker: "Маркер заметки",
   moodMarker: "Маркер настроения"
 };
+
+const forecastPlacementOptions: Array<[keyof Pick<ForecastSettings, "showInToday" | "showInDiary" | "showInInspector" | "showInGrid">, string]> = [
+  ["showInToday", "Сегодня"],
+  ["showInDiary", "Дневник"],
+  ["showInInspector", "Правая панель"],
+  ["showInGrid", "Маркер в сетке"]
+];
+
+const forecastScaleOptions: Array<[ForecastScaleId, string]> = [
+  ["physical", "Физическая"],
+  ["emotional", "Эмоциональная"],
+  ["intellectual", "Интеллектуальная"]
+];
 
 export function SettingsView({ state, actions }: { state: AppState; actions: AppActions }) {
   const [presetName, setPresetName] = useState("");
@@ -107,6 +121,39 @@ export function SettingsView({ state, actions }: { state: AppState; actions: App
               onChange={(checked) => actions.toggleStatus(status, checked)}
             />
           ))}
+        </div>
+        <div className="panel settings-card">
+          <div className="section-head">
+            <div>
+              <h3>Прогноз дня</h3>
+              <p className="muted">Мягкий ориентир на основе биоритмов. Будущие источники подключатся сюда же.</p>
+            </div>
+          </div>
+          <Toggle label="Включить прогноз" checked={state.settings.forecast.enabled} onChange={(checked) => actions.updateSetting("forecast", { ...state.settings.forecast, enabled: checked })} />
+          <div className="form-grid">
+            <div className="field">
+              <label>Дата рождения</label>
+              <input className="input" type="date" value={state.settings.forecast.birthDate} onChange={(event) => actions.updateSetting("forecast", { ...state.settings.forecast, birthDate: event.target.value })} />
+            </div>
+            <SelectControl label="Источник" value={state.settings.forecast.provider} options={["biorhythm"]} onChange={(value) => actions.updateSetting("forecast", { ...state.settings.forecast, provider: value as ForecastProviderId })} />
+            <SelectControl label="Вид" value={state.settings.forecast.displayMode} options={["compact", "cards", "minimal"]} onChange={(value) => actions.updateSetting("forecast", { ...state.settings.forecast, displayMode: value as ForecastDisplayMode })} />
+          </div>
+          <div className="module-toggle-grid">
+            {forecastPlacementOptions.map(([key, label]) => (
+              <label key={key}>
+                <input type="checkbox" checked={state.settings.forecast[key]} onChange={(event) => actions.updateSetting("forecast", { ...state.settings.forecast, [key]: event.target.checked })} />
+                <span>{label}</span>
+              </label>
+            ))}
+          </div>
+          <div className="module-toggle-grid">
+            {forecastScaleOptions.map(([key, label]) => (
+              <label key={key}>
+                <input type="checkbox" checked={state.settings.forecast.visibleScales[key]} onChange={(event) => actions.updateSetting("forecast", { ...state.settings.forecast, visibleScales: { ...state.settings.forecast.visibleScales, [key]: event.target.checked } })} />
+                <span>{label}</span>
+              </label>
+            ))}
+          </div>
         </div>
         <div className="panel settings-card">
           <h3>Мои пресеты</h3>

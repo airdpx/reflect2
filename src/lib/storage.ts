@@ -2,7 +2,7 @@ import type { AppState } from "../types";
 import { createDefaults } from "./defaults";
 
 export const STORAGE_KEY = "habit-calendar-next-mvp-v1";
-export const SCHEMA_VERSION = 4;
+export const SCHEMA_VERSION = 5;
 
 export function loadStoredState(): AppState {
   const defaults = createDefaults();
@@ -48,6 +48,14 @@ function mergeState(defaults: AppState, stored: Partial<AppState>): AppState {
       customTheme: {
         ...defaults.settings.customTheme,
         ...stored.settings?.customTheme
+      },
+      forecast: {
+        ...defaults.settings.forecast,
+        ...stored.settings?.forecast,
+        visibleScales: {
+          ...defaults.settings.forecast.visibleScales,
+          ...stored.settings?.forecast?.visibleScales
+        }
       }
     },
     habits: stored.habits || defaults.habits,
@@ -87,6 +95,14 @@ function migrateState(state: AppState): AppState {
       customTheme: {
         ...defaults.settings.customTheme,
         ...state.settings.customTheme
+      },
+      forecast: {
+        ...defaults.settings.forecast,
+        ...state.settings.forecast,
+        visibleScales: {
+          ...defaults.settings.forecast.visibleScales,
+          ...state.settings.forecast?.visibleScales
+        }
       },
       gridDisplayMode: previousVersion < 3 ? "calendar" : state.settings.gridDisplayMode || defaults.settings.gridDisplayMode,
       gridDensity: state.settings.gridDensity || defaults.settings.gridDensity,
