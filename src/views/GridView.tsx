@@ -216,16 +216,16 @@ function WeekMatrixGrid({
   selectors: AppSelectors;
   actions: AppActions;
 }) {
-  const weeks = chunkWeeks(selectors.periodDates);
+  const weeks = chunkBySeven(selectors.periodDates);
   return (
     <div>
       <div className="week-matrix-stack">
         {weeks.map((week, index) => (
           <div className="week-matrix" key={index}>
-            <div className="week-matrix-title">Неделя {index + 1}</div>
-            <div className="week-matrix-grid" style={{ "--days": 7 } as React.CSSProperties & Record<"--days", number>}>
+            <div className="week-matrix-title">Дни {index * 7 + 1}-{index * 7 + week.length}</div>
+            <div className="week-matrix-grid" style={{ "--days": week.length } as React.CSSProperties & Record<"--days", number>}>
               <div className="grid-head">Привычка</div>
-              {week.map((date, dayIndex) => date ? <div className={`grid-head ${date === todayKey() ? "today" : ""}`} key={date}><span>{weekdayShort(date)}</span><b>{formatDate(date, "short")}</b></div> : <div className="grid-head muted-head" key={`empty-head-${dayIndex}`} />)}
+              {week.map((date) => <div className={`grid-head ${date === todayKey() ? "today" : ""}`} key={date}><span>{weekdayShort(date)}</span><b>{formatDate(date, "short")}</b></div>)}
               {habits.map((habit) => (
                 <Fragment key={`${habit.id}-${index}`}>
                   <div className="grid-name matrix-name">
@@ -235,7 +235,7 @@ function WeekMatrixGrid({
                       <span>{gridHabitMeta(habit, state, selectors)}</span>
                     </div>
                   </div>
-                  {week.map((date, dayIndex) => date ? <GridCell key={`${habit.id}-${date}`} habit={habit} date={date} state={state} selectors={selectors} actions={actions} /> : <div className="grid-cell muted-cell" key={`${habit.id}-empty-${dayIndex}`} />)}
+                  {week.map((date) => <GridCell key={`${habit.id}-${date}`} habit={habit} date={date} state={state} selectors={selectors} actions={actions} />)}
                 </Fragment>
               ))}
             </div>
@@ -306,6 +306,12 @@ function chunkWeeks(dates: string[]) {
   const weeks: Array<Array<string | null>> = [];
   for (let index = 0; index < cells.length; index += 7) weeks.push(cells.slice(index, index + 7));
   return weeks;
+}
+
+function chunkBySeven(dates: string[]) {
+  const groups: string[][] = [];
+  for (let index = 0; index < dates.length; index += 7) groups.push(dates.slice(index, index + 7));
+  return groups;
 }
 
 function clampDays(value: string) {

@@ -1,7 +1,7 @@
 import { useState } from "react";
-import type { AppActions, AppState, Density, GridDisplayMode, GridTheme, HabitStatus, InterfaceTheme, UserSettings, View } from "../types";
+import type { AppActions, AppState, Density, GridDisplayMode, GridTheme, HabitStatus, UserSettings, View } from "../types";
 import { SelectControl, Toggle } from "../components/Common";
-import { statusMeta, themeOptions } from "../lib/defaults";
+import { statusMeta } from "../lib/defaults";
 
 const blockLabels: Record<string, string> = {
   today: "Сегодня",
@@ -34,18 +34,6 @@ const gridLabels: Record<string, string> = {
   moodMarker: "Маркер настроения"
 };
 
-const customThemeLabels: Record<keyof UserSettings["customTheme"], string> = {
-  bg: "Фон",
-  surface: "Поверхность",
-  text: "Текст",
-  accent: "Акцент",
-  done: "Выполнено",
-  partial: "Частично",
-  skipped: "Пропуск",
-  missed: "Не выполнено",
-  planned: "План"
-};
-
 export function SettingsView({ state, actions }: { state: AppState; actions: AppActions }) {
   const [presetName, setPresetName] = useState("");
   const [importText, setImportText] = useState("");
@@ -64,7 +52,6 @@ export function SettingsView({ state, actions }: { state: AppState; actions: App
           <div className="form-grid">
             <SelectControl label="Display preset" value={state.settings.preset} options={["Simple", "Balanced", "Journal", "Analytical", "Focus"]} onChange={(value) => actions.applyPreset(value as UserSettings["preset"])} />
             <SelectControl label="Плотность" value={state.settings.density} options={["compact", "standard", "comfortable"]} onChange={(value) => actions.updateSetting("density", value as Density)} />
-            <SelectControl label="Тема интерфейса" value={state.settings.interfaceTheme} options={themeOptions.map((theme) => theme.id)} onChange={(value) => actions.updateSetting("interfaceTheme", value as InterfaceTheme)} />
             <SelectControl label="Тема сетки" value={state.settings.gridTheme} options={["soft", "classic", "journal", "minimal"]} onChange={(value) => actions.updateSetting("gridTheme", value as GridTheme)} />
             <SelectControl label="Вид сетки на ПК" value={state.settings.gridDisplayMode} options={["calendar", "compact", "matrix"]} onChange={(value) => actions.updateSetting("gridDisplayMode", value as GridDisplayMode)} />
             <SelectControl label="Клик по ячейке" value={state.settings.gridClickAction} options={["details", "cycle"]} onChange={(value) => actions.updateSetting("gridClickAction", value as "details" | "cycle")} />
@@ -82,20 +69,8 @@ export function SettingsView({ state, actions }: { state: AppState; actions: App
           </div>
         </div>
         <div className="panel settings-card">
-          <h3>Превью тем</h3>
-          <div className="theme-preview-grid">
-            {themeOptions.map((theme) => (
-              <button
-                key={theme.id}
-                className={`theme-preview theme-preview-${theme.id} ${state.settings.interfaceTheme === theme.id ? "active" : ""}`}
-                onClick={() => actions.updateSetting("interfaceTheme", theme.id as InterfaceTheme)}
-              >
-                <span className="theme-preview-swatches">{theme.colors.slice(0, 3).map((color) => <i key={color} style={{ background: color }} />)}</span>
-                <b>{theme.title}</b>
-                <small>{theme.id === "custom" ? "ваши цвета" : "готовая палитра"}</small>
-              </button>
-            ))}
-          </div>
+          <h3>Стили сетки</h3>
+          <p className="muted">Цветовая тема теперь переключается через круглую кнопку в углу экрана.</p>
           <div className="theme-preview-grid grid-theme-previews">
             {[
               ["soft", "Soft Grid"],
@@ -113,16 +88,6 @@ export function SettingsView({ state, actions }: { state: AppState; actions: App
               </button>
             ))}
           </div>
-          {state.settings.interfaceTheme === "custom" && (
-            <div className="custom-theme-editor">
-              {(Object.keys(state.settings.customTheme) as Array<keyof UserSettings["customTheme"]>).map((key) => (
-                <label className="color-field" key={key}>
-                  <span>{customThemeLabels[key]}</span>
-                  <input type="color" value={state.settings.customTheme[key]} onChange={(event) => actions.updateSetting("customTheme", { ...state.settings.customTheme, [key]: event.target.value })} />
-                </label>
-              ))}
-            </div>
-          )}
         </div>
         <div className="panel settings-card">
           <div className="section-head">
