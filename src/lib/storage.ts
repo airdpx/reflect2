@@ -2,7 +2,7 @@ import type { AppState } from "../types";
 import { createDefaults, defaultCustomGridColors } from "./defaults";
 
 export const STORAGE_KEY = "habit-calendar-next-mvp-v1";
-export const SCHEMA_VERSION = 9;
+export const SCHEMA_VERSION = 10;
 
 export function loadStoredState(): AppState {
   const defaults = createDefaults();
@@ -123,6 +123,9 @@ function migrateState(state: AppState): AppState {
     migratedVisibleGrid.daysSince = false;
     migratedVisibleGrid.statusText = true;
   }
+  if (previousVersion < 10) {
+    migratedVisibleGrid.category = false;
+  }
   return {
     ...state,
     schemaVersion: SCHEMA_VERSION,
@@ -158,7 +161,9 @@ function migrateState(state: AppState): AppState {
           ...legacySafeSettings.forecast?.visibleScales
         }
       },
-      gridDisplayMode: previousVersion < 3 ? "calendar" : legacySafeSettings.gridDisplayMode || defaults.settings.gridDisplayMode,
+      gridDisplayMode: previousVersion < 10 && (!legacySafeSettings.gridDisplayMode || legacySafeSettings.gridDisplayMode === "calendar")
+        ? "matrix"
+        : legacySafeSettings.gridDisplayMode || defaults.settings.gridDisplayMode,
       gridDensity: legacySafeSettings.gridDensity || defaults.settings.gridDensity,
       gridClickAction: previousVersion < 3 ? "cycle" : legacySafeSettings.gridClickAction || defaults.settings.gridClickAction,
       selectedHabitId: legacySafeSettings.selectedHabitId || defaults.settings.selectedHabitId,

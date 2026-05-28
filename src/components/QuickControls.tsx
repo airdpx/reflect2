@@ -1,15 +1,5 @@
-import type { AppActions, AppState, GridDisplayMode, InterfaceTheme, UserSettings } from "../types";
+import type { AppActions, AppState, InterfaceTheme, UserSettings } from "../types";
 import { themeOptions } from "../lib/defaults";
-
-const gridModes: Array<{ id: GridDisplayMode; icon: string; title: string }> = [
-  { id: "calendar", icon: "🗓️", title: "Календарь" },
-  { id: "compact", icon: "🔹", title: "Компактно" },
-  { id: "matrix", icon: "▦", title: "Таблица" },
-  { id: "week", icon: "7", title: "Неделя" },
-  { id: "habit", icon: "✨", title: "Привычка" },
-  { id: "timeline", icon: "〰️", title: "Лента" },
-  { id: "heat", icon: "🔥", title: "Heat" }
-];
 
 const customThemeLabels: Record<keyof UserSettings["customTheme"], string> = {
   bg: "Фон",
@@ -59,44 +49,6 @@ export function QuickControls({ state, actions }: { state: AppState; actions: Ap
               ))}
             </div>
           )}
-        </div>
-      </details>
-      <details className="quick-popover">
-        <summary className="quick-icon" title="Режим календаря">🗓️</summary>
-        <div className="quick-panel quick-panel-narrow">
-          <div className="quick-panel-head">
-            <b>Календарь</b>
-            <span>{gridModes.find((mode) => mode.id === state.settings.gridDisplayMode)?.title}</span>
-          </div>
-          <div className="grid-icon-row">
-            {gridModes.map((mode) => (
-              <button
-                key={mode.id}
-                className={state.settings.gridDisplayMode === mode.id ? "active" : ""}
-                title={mode.title}
-                onClick={() => actions.updateSetting("gridDisplayMode", mode.id)}
-              >
-                {mode.icon}
-              </button>
-            ))}
-          </div>
-          <div className="grid-icon-row density-icon-row">
-            {(["compact", "standard", "comfortable"] as const).map((density) => (
-              <button
-                key={density}
-                className={state.settings.gridDensity === density ? "active" : ""}
-                title={`Плотность: ${density}`}
-                onClick={() => actions.updateSetting("gridDensity", density)}
-              >
-                {density === "compact" ? "·" : density === "standard" ? "•" : "●"}
-              </button>
-            ))}
-          </div>
-          <div className="icon-choice-row">
-            <button className={state.settings.gridClickAction === "cycle" ? "active" : ""} onClick={() => actions.updateSetting("gridClickAction", "cycle")}>✓ цикл</button>
-            <button className={state.settings.gridClickAction === "details" ? "active" : ""} onClick={() => actions.updateSetting("gridClickAction", "details")}>⋯ детали</button>
-          </div>
-          <p className="quick-hint">Цвета таблицы, иконки отметок и видимые элементы теперь настраиваются в разделе «Календарь».</p>
         </div>
       </details>
     </div>

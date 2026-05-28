@@ -176,7 +176,7 @@ export const habitTemplates: HabitTemplate[] = [
 
 export function createDefaults(): AppState {
   return {
-    schemaVersion: 9,
+    schemaVersion: 10,
     view: "today",
     selectedDate: todayKey(),
     habits: [],
@@ -206,7 +206,7 @@ export function createDefaults(): AppState {
       visibleGrid: {
         color: true,
         icon: true,
-        category: true,
+        category: false,
         type: false,
         target: false,
         statusText: false,
@@ -221,7 +221,7 @@ export function createDefaults(): AppState {
       density: "standard",
       interfaceTheme: "dark",
       gridTheme: "soft",
-      gridDisplayMode: "calendar",
+      gridDisplayMode: "matrix",
       gridDensity: "standard",
       statusIcons: {
         done: "✅",

@@ -28,7 +28,6 @@ export function TodayView({
   const leftColumn = (
     <section className="stack">
       <TodayModulesPanel state={state} actions={actions} />
-      {state.settings.visibleBlocks.forecast && <TodayForecastPanel state={state} actions={actions} />}
       {state.settings.visibleBlocks.today && (
         <div className="panel">
           <div className="section-head">
@@ -70,6 +69,7 @@ export function TodayView({
 
   const rightColumn = (
     <section className="stack">
+      {state.settings.visibleBlocks.forecast && <TodayForecastPanel state={state} actions={actions} />}
       {state.settings.visibleBlocks.attention && (
         <div className="panel">
           <h3>Требует внимания</h3>

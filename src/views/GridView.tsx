@@ -94,7 +94,7 @@ export function GridView({
 
 function CalendarSettingsPanel({ state, actions }: { state: AppState; actions: AppActions }) {
   return (
-    <details className="panel module-panel calendar-settings-panel">
+    <details className="panel module-panel calendar-settings-panel" open>
       <summary>Настроить календарь и таблицу</summary>
       <div className="module-controls">
         <div className="calendar-settings-grid">
@@ -104,7 +104,33 @@ function CalendarSettingsPanel({ state, actions }: { state: AppState; actions: A
           <SelectControl label="Клик по ячейке" value={state.settings.gridClickAction} options={["cycle", "details"]} onChange={(value) => actions.updateSetting("gridClickAction", value as "cycle" | "details")} />
           <SelectControl label="Дней на мобильном" value={String(state.settings.mobileGridDays)} options={["7", "14", "30"]} onChange={(value) => actions.updateSetting("mobileGridDays", Number(value) as 7 | 14 | 30)} />
         </div>
+        <div className="calendar-mode-row">
+          {gridModes.map(([mode, label]) => (
+            <button
+              key={mode}
+              className={state.settings.gridDisplayMode === mode ? "active" : ""}
+              title={label}
+              onClick={() => actions.updateSetting("gridDisplayMode", mode)}
+            >
+              <b>{modeIcon(mode)}</b>
+              <span>{label}</span>
+            </button>
+          ))}
+        </div>
         <Toggle label="Показывать выходные" checked={state.settings.showWeekends} onChange={(checked) => actions.updateSetting("showWeekends", checked)} />
+        <div className="status-preview-strip">
+          {(Object.keys(statusMeta) as HabitStatus[]).map((status) => (
+            <button
+              key={status}
+              className={`${statusMeta[status].className} ${state.settings.activeStatuses.includes(status) || status === "planned" ? "active" : ""}`}
+              onClick={() => status !== "planned" && actions.toggleStatus(status, !state.settings.activeStatuses.includes(status))}
+              title={status === "planned" ? "План показывается в календаре как пустая ожидающая отметка" : "Включить или выключить статус"}
+            >
+              <b>{state.settings.statusIcons[status] || statusMeta[status].short}</b>
+              <span>{statusMeta[status].label}</span>
+            </button>
+          ))}
+        </div>
         <div className="theme-preview-grid grid-theme-previews">
           {[
             ["soft", "Soft"],
@@ -259,9 +285,7 @@ function CalendarMonthGrid({
           </div>
         ) : <div className="calendar-day empty-day" key={`empty-${index}`} />)}
       </div>
-      <div className="legend">
-        {state.settings.activeStatuses.map((status) => <span key={status}><i className={statusMeta[status].className} />{state.settings.statusIcons[status] || statusMeta[status].short} {statusMeta[status].label}</span>)}
-      </div>
+      <Legend statuses={state.settings.activeStatuses} state={state} />
     </div>
   );
 }
@@ -348,9 +372,7 @@ function WeekMatrixGrid({
           </div>
         ))}
       </div>
-      <div className="legend">
-        {state.settings.activeStatuses.map((status) => <span key={status}><i className={statusMeta[status].className} />{state.settings.statusIcons[status] || statusMeta[status].short} {statusMeta[status].label}</span>)}
-      </div>
+      <Legend statuses={state.settings.activeStatuses} state={state} />
     </div>
   );
 }
@@ -583,10 +605,24 @@ function statusIcon(status: HabitStatus, state: AppState) {
   return state.settings.statusIcons[status] || statusMeta[status].short;
 }
 
+function modeIcon(mode: GridDisplayMode) {
+  const icons: Record<GridDisplayMode, string> = {
+    calendar: "🗓️",
+    compact: "🔹",
+    matrix: "▦",
+    week: "7",
+    habit: "✨",
+    timeline: "〰️",
+    heat: "🔥"
+  };
+  return icons[mode];
+}
+
 function Legend({ statuses, state }: { statuses: HabitStatus[]; state?: AppState }) {
+  const visibleStatuses = Array.from(new Set([...statuses, "planned" as HabitStatus]));
   return (
     <div className="legend">
-      {statuses.map((status) => <span key={status}><i className={statusMeta[status].className} />{state ? `${statusIcon(status, state)} ` : ""}{statusMeta[status].label}</span>)}
+      {visibleStatuses.map((status) => <span key={status}><i className={statusMeta[status].className} />{state ? `${statusIcon(status, state)} ` : ""}{statusMeta[status].label}</span>)}
     </div>
   );
 }
