@@ -1,8 +1,12 @@
 import type { AppActions, AppState, DailyNote } from "../types";
 import { DiaryForecastStrip } from "../components/Forecast";
+import { formatDate } from "../lib/date";
 
 export function DiaryPanel({ state, actions }: { state: AppState; actions: AppActions }) {
   const note = state.notes[state.selectedDate] || {};
+  const history = Object.entries(state.notes)
+    .filter(([date]) => date <= state.selectedDate)
+    .sort((a, b) => b[0].localeCompare(a[0]));
   return (
     <div className="panel">
       <div className="section-head">
@@ -53,6 +57,25 @@ export function DiaryPanel({ state, actions }: { state: AppState; actions: AppAc
             <label>Что мешало</label>
             <textarea className={`textarea ${state.settings.diaryLayout === "compact" ? "compact-textarea" : ""}`} value={note.blocked || ""} onChange={(event) => actions.setNoteField("blocked", event.target.value)} />
           </div>}
+        </div>
+        <div className="panel nested-panel diary-history-panel">
+          <div className="section-head">
+            <div>
+              <h3>История заметок</h3>
+              <p className="muted">Список дневниковых записей по дням.</p>
+            </div>
+          </div>
+          <div className="history-list">
+            {history.length ? history.map(([date, entry]) => (
+              <button className="settings-row diary-history-row" key={date} onClick={() => actions.setSelectedDate(date)}>
+                <span>
+                  <b>{formatDate(date, "short")}</b><br />
+                  <small className="muted">{entry.text || "Без текста"}</small>
+                </span>
+                <span className="badge">{entry.mood || entry.energy || entry.stress ? `м:${entry.mood || "–"} э:${entry.energy || "–"} с:${entry.stress || "–"}` : "заметка"}</span>
+              </button>
+            )) : <div className="empty">Пока нет заметок за другие дни.</div>}
+          </div>
         </div>
       </div>
     </div>

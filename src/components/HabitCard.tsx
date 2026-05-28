@@ -28,7 +28,6 @@ export function HabitCard({
         <div className="habit-meta">
           <span>{habitTypeLabels[habit.type]}</span>
           <span>{statusLabel}</span>
-          {state.settings.visibleGrid.streak && <span>streak {stats.streak}</span>}
           {state.settings.visibleGrid.daysSince && <span>{stats.daysSince ?? "нет"} дней с выполнения</span>}
           {needsAttention && <span className="signal">внимание</span>}
         </div>

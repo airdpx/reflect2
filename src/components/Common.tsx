@@ -30,16 +30,18 @@ export function Toggle({
   checked,
   disabled,
   hint,
+  className,
   onChange
 }: {
   label: string;
   checked: boolean;
   disabled?: boolean;
   hint?: string;
+  className?: string;
   onChange: (checked: boolean) => void;
 }) {
   return (
-    <div className="check-row">
+    <div className={`check-row ${className || ""}`.trim()}>
       <span>
         {label}
         {hint ? (

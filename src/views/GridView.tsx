@@ -1,6 +1,6 @@
 import { Fragment } from "react";
 import type React from "react";
-import type { AppActions, AppSelectors, AppState, Density, GridDisplayMode, GridTheme, Habit, HabitStatus, UserSettings } from "../types";
+import type { AppActions, AppSelectors, AppState, Density, GridDisplayMode, Habit, HabitStatus } from "../types";
 import { formatDate, todayKey, weekdayShort } from "../lib/date";
 import { habitTypeLabels, statusIconPresets, statusMeta } from "../lib/defaults";
 import { forecastTone, getForecast } from "../lib/forecast";
@@ -14,8 +14,6 @@ const gridLabels: Record<string, string> = {
   type: "Тип",
   target: "Цель",
   statusText: "Иконка статуса",
-  categoryGroups: "Группы категорий",
-  streak: "Streak",
   completion: "Процент",
   daysSince: "Дней с выполнения",
   noteMarker: "Маркер заметки",
@@ -31,14 +29,6 @@ const gridModes: Array<[GridDisplayMode, string]> = [
   ["timeline", "Лента"],
   ["heat", "Тепло"]
 ];
-
-const gridColorLabels: Record<keyof Omit<UserSettings["gridColors"], "mode">, string> = {
-  bg: "Фон",
-  head: "Шапка",
-  cell: "Ячейка",
-  today: "Сегодня",
-  line: "Линии"
-};
 
 export function GridView({
   state,
@@ -100,7 +90,6 @@ function CalendarSettingsPanel({ state, actions }: { state: AppState; actions: A
       <summary>Настроить календарь и таблицу</summary>
       <div className="module-controls">
         <div className="calendar-settings-grid">
-          <SelectControl label="Тема сетки" value={state.settings.gridTheme} options={["soft", "classic", "journal", "minimal"]} onChange={(value) => actions.updateSetting("gridTheme", value as GridTheme)} />
           <SelectControl label="Плотность сетки" value={state.settings.gridDensity} options={["compact", "standard", "comfortable"]} onChange={(value) => actions.updateSetting("gridDensity", value as Density)} />
           <SelectControl label="Клик по ячейке" value={state.settings.gridClickAction} options={["cycle", "details"]} onChange={(value) => actions.updateSetting("gridClickAction", value as "cycle" | "details")} />
           <SelectControl label="Дней на мобильном" value={String(state.settings.mobileGridDays)} options={["7", "14", "30"]} onChange={(value) => actions.updateSetting("mobileGridDays", Number(value) as 7 | 14 | 30)} />
@@ -118,7 +107,7 @@ function CalendarSettingsPanel({ state, actions }: { state: AppState; actions: A
             </button>
           ))}
         </div>
-        <Toggle label="Показывать выходные" checked={state.settings.showWeekends} onChange={(checked) => actions.updateSetting("showWeekends", checked)} />
+        <Toggle label="Показывать выходные" checked={state.settings.showWeekends} className="compact-check-row" onChange={(checked) => actions.updateSetting("showWeekends", checked)} />
         <div className="status-preview-strip">
           {(Object.keys(statusMeta) as HabitStatus[]).map((status) => (
             <button
@@ -169,23 +158,6 @@ function CalendarSettingsPanel({ state, actions }: { state: AppState; actions: A
               </label>
             ))}
           </div>
-        </details>
-        <details className="quick-subsection">
-          <summary>Цвета таблицы</summary>
-          <div className="icon-choice-row">
-            <button className={state.settings.gridColors.mode === "theme" ? "active" : ""} onClick={() => actions.updateSetting("gridColors", { ...state.settings.gridColors, mode: "theme" })}>из темы</button>
-            <button className={state.settings.gridColors.mode === "custom" ? "active" : ""} onClick={() => actions.updateSetting("gridColors", { ...state.settings.gridColors, mode: "custom" })}>свои цвета</button>
-          </div>
-          {state.settings.gridColors.mode === "custom" && (
-            <div className="mini-color-grid grid-color-grid">
-              {(Object.keys(gridColorLabels) as Array<keyof Omit<UserSettings["gridColors"], "mode">>).map((key) => (
-                <label key={key}>
-                  <span>{gridColorLabels[key]}</span>
-                  <input type="color" value={state.settings.gridColors[key]} onChange={(event) => actions.updateSetting("gridColors", { ...state.settings.gridColors, [key]: event.target.value })} />
-                </label>
-              ))}
-            </div>
-          )}
         </details>
       </div>
     </details>
@@ -575,7 +547,6 @@ function gridHabitMeta(habit: Habit, state: AppState, selectors: AppSelectors) {
   if (state.settings.visibleGrid.category && habit.category) parts.push(habit.category);
   if (state.settings.visibleGrid.type) parts.push(habitTypeLabels[habit.type]);
   if (state.settings.visibleGrid.target && habit.target > 1) parts.push(`цель ${habit.target}`);
-  if (state.settings.visibleGrid.streak) parts.push(`streak ${stats.streak}`);
   if (state.settings.visibleGrid.completion) parts.push(`${stats.completion}%`);
   if (state.settings.visibleGrid.daysSince) parts.push(`${stats.daysSince ?? "нет"} дн.`);
   return parts.join(" · ");
@@ -606,7 +577,7 @@ function Legend({ statuses, state }: { statuses: HabitStatus[]; state?: AppState
   const visibleStatuses = Array.from(new Set([...statuses, "planned" as HabitStatus]));
   return (
     <div className="legend">
-      {visibleStatuses.map((status) => <span key={status}><i className={statusMeta[status].className} />{state ? `${statusIcon(status, state)} ` : ""}{statusMeta[status].label}</span>)}
+      {visibleStatuses.map((status) => <span key={status}>{state ? `${statusIcon(status, state)} ` : ""}{statusMeta[status].label}</span>)}
     </div>
   );
 }

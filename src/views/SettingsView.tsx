@@ -15,7 +15,6 @@ const blockLabels: Record<string, string> = {
   blocked: "Что мешало",
   forecast: "Прогноз дня",
   analytics: "Аналитика",
-  streak: "Streak",
   completion: "Процент выполнения",
   lastDone: "Последнее выполнение"
 };

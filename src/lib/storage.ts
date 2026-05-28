@@ -119,13 +119,14 @@ function migrateState(state: AppState): AppState {
   const { localUsers: _legacyLocalUsers, activeUserId: _legacyActiveUserId, ...legacySafeSettings } = legacySettings;
   if (previousVersion < 3) {
     migratedVisibleGrid.noteMarker = false;
-    migratedVisibleGrid.streak = false;
     migratedVisibleGrid.daysSince = false;
     migratedVisibleGrid.statusText = true;
   }
   if (previousVersion < 10) {
     migratedVisibleGrid.category = false;
   }
+  delete migratedVisibleGrid.categoryGroups;
+  delete migratedVisibleGrid.streak;
   return {
     ...state,
     schemaVersion: SCHEMA_VERSION,

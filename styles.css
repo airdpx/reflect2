@@ -906,6 +906,20 @@ button {
   grid-template-columns: repeat(2, minmax(130px, 1fr));
 }
 
+.compact-check-row {
+  min-height: 34px;
+  padding: 6px 0;
+}
+
+.compact-check-row span {
+  font-size: 12px;
+}
+
+.nested-panel {
+  padding: 12px;
+  background: var(--surface-soft);
+}
+
 .period-range {
   grid-template-columns: max-content 150px 150px max-content;
 }
@@ -1543,12 +1557,6 @@ button {
   font-size: 13px;
 }
 
-.legend i {
-  width: 14px;
-  height: 14px;
-  border-radius: 4px;
-}
-
 .stats {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -1724,6 +1732,21 @@ button {
   margin: 0;
   color: var(--text);
   line-height: 1.45;
+}
+
+.diary-history-panel {
+  margin-top: 12px;
+}
+
+.diary-history-row {
+  width: 100%;
+  text-align: left;
+  border: 1px solid var(--line);
+  background: var(--surface);
+}
+
+.diary-history-row span:last-child {
+  white-space: nowrap;
 }
 
 .habit-admin-card > i,

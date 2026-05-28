@@ -199,7 +199,6 @@ export function createDefaults(): AppState {
         blocked: true,
         forecast: true,
         analytics: true,
-        streak: true,
         completion: true,
         lastDone: true
       },
@@ -211,8 +210,6 @@ export function createDefaults(): AppState {
         target: false,
         statusText: false,
         compactMeta: true,
-        categoryGroups: true,
-        streak: false,
         completion: false,
         daysSince: false,
         noteMarker: false,
