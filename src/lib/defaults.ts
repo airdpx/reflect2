@@ -155,7 +155,7 @@ export const habitTemplates: HabitTemplate[] = [
 
 export function createDefaults(): AppState {
   return {
-    schemaVersion: 3,
+    schemaVersion: 4,
     view: "today",
     selectedDate: todayKey(),
     habits: [],
@@ -199,11 +199,13 @@ export function createDefaults(): AppState {
       interfaceTheme: "dark",
       gridTheme: "soft",
       gridDisplayMode: "calendar",
+      gridDensity: "standard",
       focusMode: false,
       rightPanel: true,
       showWeekends: true,
       gridClickAction: "cycle",
       selectedCategory: "all",
+      selectedHabitId: "",
       defaultView: "today",
       mobileGridDays: 14,
       todayLayout: "split",

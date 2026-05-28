@@ -1,6 +1,6 @@
 import { Fragment } from "react";
 import type React from "react";
-import type { AppActions, AppSelectors, AppState, Habit } from "../types";
+import type { AppActions, AppSelectors, AppState, GridDisplayMode, Habit, HabitStatus } from "../types";
 import { formatDate, todayKey, weekdayShort } from "../lib/date";
 import { habitTypeLabels, statusMeta } from "../lib/defaults";
 import { TemplateChooser } from "./TodayView";
@@ -28,11 +28,6 @@ export function GridView({
               <option value="all">Все категории</option>
               {selectors.categories.map((category) => <option key={category} value={category}>{category}</option>)}
             </select>
-            <div className="segmented">
-              <button className={state.settings.gridDisplayMode === "calendar" ? "active" : ""} onClick={() => actions.updateSetting("gridDisplayMode", "calendar")}>Календарь</button>
-              <button className={state.settings.gridDisplayMode === "compact" ? "active" : ""} onClick={() => actions.updateSetting("gridDisplayMode", "compact")}>Компактно</button>
-              <button className={state.settings.gridDisplayMode === "matrix" ? "active" : ""} onClick={() => actions.updateSetting("gridDisplayMode", "matrix")}>Таблица</button>
-            </div>
           </div>
         </div>
         <div className="period-layout">
@@ -87,40 +82,16 @@ function CalendarGrid({
   }
   if (!visibleHabits.length) return <div className="empty action-empty"><b>В этой категории пока нет привычек</b><span>Выберите другую категорию или добавьте привычку в текущую.</span></div>;
   if (!selectors.periodDates.length) return <div className="empty action-empty"><b>В выбранном периоде нет дат</b><span>Проверьте диапазон или верните выходные в настройках сетки.</span></div>;
-  if (state.settings.gridDisplayMode === "calendar") {
-    return <CalendarMonthGrid habits={visibleHabits} compact={false} state={state} selectors={selectors} actions={actions} />;
-  }
-  if (state.settings.gridDisplayMode === "compact") {
-    return <CalendarMonthGrid habits={visibleHabits} compact state={state} selectors={selectors} actions={actions} />;
-  }
-  if (state.settings.gridDisplayMode === "matrix") {
-    return <WeekMatrixGrid habits={visibleHabits} state={state} selectors={selectors} actions={actions} />;
-  }
-  return (
-    <div>
-      <div className="calendar-wrap">
-        <div className="calendar-grid" style={{ "--days": selectors.periodDates.length } as React.CSSProperties & Record<"--days", number>}>
-          <div className="grid-head">Привычка</div>
-          {selectors.periodDates.map((date) => <div className={`grid-head ${date === todayKey() ? "today" : ""}`} key={date}><span>{weekdayShort(date)}</span><b>{formatDate(date, "short")}</b></div>)}
-          {visibleHabits.map((habit) => (
-            <Fragment key={habit.id}>
-              <div className="grid-name">
-                {state.settings.visibleGrid.color && <i className="habit-dot" style={{ height: 20, background: habit.color }} />}
-                <div className="grid-habit-text">
-                  <strong>{state.settings.visibleGrid.icon ? habit.icon : ""} {habit.title}</strong>
-                  <span>{gridHabitMeta(habit, state, selectors)}</span>
-                </div>
-              </div>
-              {selectors.periodDates.map((date) => <GridCell key={`${habit.id}-${date}`} habit={habit} date={date} state={state} selectors={selectors} actions={actions} />)}
-            </Fragment>
-          ))}
-        </div>
-      </div>
-      <div className="legend">
-        {state.settings.activeStatuses.map((status) => <span key={status}><i className={statusMeta[status].className} />{statusMeta[status].label}</span>)}
-      </div>
-    </div>
-  );
+  const renderers: Record<GridDisplayMode, React.ReactNode> = {
+    calendar: <CalendarMonthGrid habits={visibleHabits} compact={false} state={state} selectors={selectors} actions={actions} />,
+    compact: <CalendarMonthGrid habits={visibleHabits} compact state={state} selectors={selectors} actions={actions} />,
+    matrix: <WeekMatrixGrid habits={visibleHabits} state={state} selectors={selectors} actions={actions} />,
+    week: <WeekFocusGrid habits={visibleHabits} state={state} selectors={selectors} actions={actions} />,
+    habit: <HabitTimelineGrid habits={visibleHabits} state={state} selectors={selectors} actions={actions} />,
+    timeline: <TimelineGrid habits={visibleHabits} state={state} selectors={selectors} actions={actions} />,
+    heat: <HeatGrid habits={visibleHabits} state={state} selectors={selectors} actions={actions} />
+  };
+  return <div className={`grid-mode density-grid-${state.settings.gridDensity}`}>{renderers[state.settings.gridDisplayMode] || renderers.calendar}</div>;
 }
 
 function CalendarMonthGrid({
@@ -249,6 +220,180 @@ function WeekMatrixGrid({
   );
 }
 
+function WeekFocusGrid({
+  habits,
+  state,
+  selectors,
+  actions
+}: {
+  habits: Habit[];
+  state: AppState;
+  selectors: AppSelectors;
+  actions: AppActions;
+}) {
+  const dates = selectors.periodDates.slice(-7);
+  return (
+    <div>
+      <div className="week-focus-grid">
+        {dates.map((date) => (
+          <div className={`week-focus-day ${date === todayKey() ? "today" : ""}`} key={date}>
+            <div className="calendar-day-head">
+              <b>{formatDate(date, "short")}</b>
+              <span>{weekdayShort(date)}</span>
+            </div>
+            <div className="week-focus-list">
+              {habits.filter((habit) => selectors.isDue(habit, date)).map((habit) => (
+                <button
+                  className={`week-check ${statusClass(selectors.getLog(habit.id, date)?.status || "planned")}`}
+                  key={habit.id}
+                  title={`${habit.title} · ${formatDate(date)}`}
+                  onClick={() => state.settings.gridClickAction === "cycle" ? actions.cycleHabitStatus(habit.id, date) : actions.openCellSheet({ habitId: habit.id, date })}
+                  onDoubleClick={() => actions.openCellSheet({ habitId: habit.id, date })}
+                >
+                  <i style={{ background: habit.color }} />
+                  <span>{state.settings.visibleGrid.icon ? habit.icon : ""} {habit.title}</span>
+                  <b>{statusMeta[selectors.getLog(habit.id, date)?.status || "planned"].short}</b>
+                </button>
+              ))}
+            </div>
+          </div>
+        ))}
+      </div>
+      <Legend statuses={state.settings.activeStatuses} />
+    </div>
+  );
+}
+
+function HabitTimelineGrid({
+  habits,
+  state,
+  selectors,
+  actions
+}: {
+  habits: Habit[];
+  state: AppState;
+  selectors: AppSelectors;
+  actions: AppActions;
+}) {
+  const habit = habits.find((item) => item.id === state.settings.selectedHabitId) || habits[0];
+  return (
+    <div className="habit-timeline">
+      <div className="section-head compact-head">
+        <div>
+          <h3>{habit.icon} {habit.title}</h3>
+          <p className="muted">{gridHabitMeta(habit, state, selectors) || habit.category || "История выбранной привычки"}</p>
+        </div>
+        <select className="select compact-select" value={habit.id} onChange={(event) => actions.updateSetting("selectedHabitId", event.target.value)}>
+          {habits.map((item) => <option key={item.id} value={item.id}>{item.icon} {item.title}</option>)}
+        </select>
+      </div>
+      <div className="habit-strip">
+        {chunkBySeven(selectors.periodDates).map((group, index) => (
+          <div className="habit-strip-row" key={index}>
+            {group.map((date) => (
+              <button
+                className={`habit-day-chip ${statusClass(selectors.getLog(habit.id, date)?.status || (selectors.isDue(habit, date) ? "planned" : undefined))}`}
+                key={date}
+                title={`${habit.title} · ${formatDate(date)}`}
+                onClick={() => state.settings.gridClickAction === "cycle" ? actions.cycleHabitStatus(habit.id, date) : actions.openCellSheet({ habitId: habit.id, date })}
+                onDoubleClick={() => actions.openCellSheet({ habitId: habit.id, date })}
+              >
+                <span>{formatDate(date, "short")}</span>
+                <b>{statusMeta[selectors.getLog(habit.id, date)?.status || "planned"].short}</b>
+              </button>
+            ))}
+          </div>
+        ))}
+      </div>
+      <Legend statuses={state.settings.activeStatuses} />
+    </div>
+  );
+}
+
+function TimelineGrid({
+  habits,
+  state,
+  selectors,
+  actions
+}: {
+  habits: Habit[];
+  state: AppState;
+  selectors: AppSelectors;
+  actions: AppActions;
+}) {
+  return (
+    <div>
+      <div className="timeline-grid">
+        {selectors.periodDates.map((date) => (
+          <div className={`timeline-day ${date === todayKey() ? "today" : ""}`} key={date}>
+            <div className="timeline-date">
+              <b>{formatDate(date, "short")}</b>
+              <span>{weekdayShort(date)}</span>
+            </div>
+            <div className="timeline-dots">
+              {habits.filter((habit) => selectors.isDue(habit, date)).map((habit) => (
+                <button
+                  className={`timeline-dot ${statusClass(selectors.getLog(habit.id, date)?.status || "planned")}`}
+                  key={habit.id}
+                  title={`${habit.title} · ${formatDate(date)}`}
+                  style={{ "--habit-color": habit.color } as React.CSSProperties & Record<"--habit-color", string>}
+                  onClick={() => state.settings.gridClickAction === "cycle" ? actions.cycleHabitStatus(habit.id, date) : actions.openCellSheet({ habitId: habit.id, date })}
+                  onDoubleClick={() => actions.openCellSheet({ habitId: habit.id, date })}
+                />
+              ))}
+            </div>
+          </div>
+        ))}
+      </div>
+      <Legend statuses={state.settings.activeStatuses} />
+    </div>
+  );
+}
+
+function HeatGrid({
+  habits,
+  state,
+  selectors,
+  actions
+}: {
+  habits: Habit[];
+  state: AppState;
+  selectors: AppSelectors;
+  actions: AppActions;
+}) {
+  return (
+    <div>
+      <div className="heat-grid">
+        {selectors.periodDates.map((date) => {
+          const dueHabits = habits.filter((habit) => selectors.isDue(habit, date));
+          const done = dueHabits.filter((habit) => selectors.getLog(habit.id, date)?.status === "done").length;
+          const intensity = dueHabits.length ? Math.max(1, Math.ceil((done / dueHabits.length) * 4)) : 0;
+          return (
+            <div className={`heat-day heat-${intensity} ${date === todayKey() ? "today" : ""}`} key={date}>
+              <div className="calendar-day-head">
+                <b>{formatDate(date, "short")}</b>
+                <span>{done}/{dueHabits.length}</span>
+              </div>
+              <div className="heat-actions">
+                {dueHabits.map((habit) => (
+                  <button
+                    className={`heat-dot ${statusClass(selectors.getLog(habit.id, date)?.status || "planned")}`}
+                    key={habit.id}
+                    title={`${habit.title} · ${formatDate(date)}`}
+                    onClick={() => state.settings.gridClickAction === "cycle" ? actions.cycleHabitStatus(habit.id, date) : actions.openCellSheet({ habitId: habit.id, date })}
+                    onDoubleClick={() => actions.openCellSheet({ habitId: habit.id, date })}
+                  />
+                ))}
+              </div>
+            </div>
+          );
+        })}
+      </div>
+      <Legend statuses={state.settings.activeStatuses} />
+    </div>
+  );
+}
+
 function GridCell({
   habit,
   date,
@@ -293,6 +438,18 @@ function gridHabitMeta(habit: Habit, state: AppState, selectors: AppSelectors) {
   if (state.settings.visibleGrid.completion) parts.push(`${stats.completion}%`);
   if (state.settings.visibleGrid.daysSince) parts.push(`${stats.daysSince ?? "нет"} дн.`);
   return parts.join(" · ");
+}
+
+function statusClass(status?: HabitStatus) {
+  return status ? statusMeta[status].className : "";
+}
+
+function Legend({ statuses }: { statuses: HabitStatus[] }) {
+  return (
+    <div className="legend">
+      {statuses.map((status) => <span key={status}><i className={statusMeta[status].className} />{statusMeta[status].label}</span>)}
+    </div>
+  );
 }
 
 function chunkWeeks(dates: string[]) {

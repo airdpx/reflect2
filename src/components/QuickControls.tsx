@@ -3,8 +3,12 @@ import { themeOptions } from "../lib/defaults";
 
 const gridModes: Array<{ id: GridDisplayMode; icon: string; title: string }> = [
   { id: "calendar", icon: "▦", title: "Календарь" },
-  { id: "compact", icon: "▪", title: "Компактно" },
-  { id: "matrix", icon: "☷", title: "Таблица" }
+  { id: "compact", icon: "●", title: "Компактно" },
+  { id: "matrix", icon: "☷", title: "Таблица" },
+  { id: "week", icon: "▤", title: "Неделя" },
+  { id: "habit", icon: "◉", title: "Привычка" },
+  { id: "timeline", icon: "⋯", title: "Лента" },
+  { id: "heat", icon: "▥", title: "Heat" }
 ];
 
 const customThemeLabels: Record<keyof UserSettings["customTheme"], string> = {
@@ -62,9 +66,9 @@ export function QuickControls({ state, actions }: { state: AppState; actions: Ap
         <div className="quick-panel quick-panel-narrow">
           <div className="quick-panel-head">
             <b>Сетка</b>
-            <span>переключается сразу</span>
+            <span>{gridModes.find((mode) => mode.id === state.settings.gridDisplayMode)?.title}</span>
           </div>
-          <div className="icon-choice-row">
+          <div className="grid-icon-row">
             {gridModes.map((mode) => (
               <button
                 key={mode.id}
@@ -72,8 +76,19 @@ export function QuickControls({ state, actions }: { state: AppState; actions: Ap
                 title={mode.title}
                 onClick={() => actions.updateSetting("gridDisplayMode", mode.id)}
               >
-                <b>{mode.icon}</b>
-                <span>{mode.title}</span>
+                {mode.icon}
+              </button>
+            ))}
+          </div>
+          <div className="grid-icon-row density-icon-row">
+            {(["compact", "standard", "comfortable"] as const).map((density) => (
+              <button
+                key={density}
+                className={state.settings.gridDensity === density ? "active" : ""}
+                title={`Плотность: ${density}`}
+                onClick={() => actions.updateSetting("gridDensity", density)}
+              >
+                {density === "compact" ? "·" : density === "standard" ? "•" : "●"}
               </button>
             ))}
           </div>

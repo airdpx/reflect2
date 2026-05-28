@@ -22,7 +22,7 @@ export type InterfaceTheme =
   | "aurora"
   | "custom";
 export type GridTheme = "soft" | "classic" | "journal" | "minimal";
-export type GridDisplayMode = "calendar" | "compact" | "matrix";
+export type GridDisplayMode = "calendar" | "compact" | "matrix" | "week" | "habit" | "timeline" | "heat";
 export type PeriodMode = "last" | "week" | "month" | "custom";
 
 export type Habit = {
@@ -89,11 +89,13 @@ export type UserSettings = {
   interfaceTheme: InterfaceTheme;
   gridTheme: GridTheme;
   gridDisplayMode: GridDisplayMode;
+  gridDensity: Density;
   focusMode: boolean;
   rightPanel: boolean;
   showWeekends: boolean;
   gridClickAction: "details" | "cycle";
   selectedCategory: string;
+  selectedHabitId: string;
   defaultView: View;
   mobileGridDays: 7 | 14 | 30;
   todayLayout: "split" | "single" | "reverse";

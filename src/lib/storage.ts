@@ -2,7 +2,7 @@ import type { AppState } from "../types";
 import { createDefaults } from "./defaults";
 
 export const STORAGE_KEY = "habit-calendar-next-mvp-v1";
-export const SCHEMA_VERSION = 3;
+export const SCHEMA_VERSION = 4;
 
 export function loadStoredState(): AppState {
   const defaults = createDefaults();
@@ -89,7 +89,9 @@ function migrateState(state: AppState): AppState {
         ...state.settings.customTheme
       },
       gridDisplayMode: previousVersion < 3 ? "calendar" : state.settings.gridDisplayMode || defaults.settings.gridDisplayMode,
+      gridDensity: state.settings.gridDensity || defaults.settings.gridDensity,
       gridClickAction: previousVersion < 3 ? "cycle" : state.settings.gridClickAction || defaults.settings.gridClickAction,
+      selectedHabitId: state.settings.selectedHabitId || defaults.settings.selectedHabitId,
       todayLayout: state.settings.todayLayout || defaults.settings.todayLayout,
       diaryLayout: state.settings.diaryLayout || defaults.settings.diaryLayout,
       localUsers: state.settings.localUsers?.length ? state.settings.localUsers : defaults.settings.localUsers,
