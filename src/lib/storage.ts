@@ -1,5 +1,5 @@
 import type { AppState } from "../types";
-import { createDefaults, defaultCustomGridColors } from "./defaults";
+import { createDefaults } from "./defaults";
 
 export const STORAGE_KEY = "habit-calendar-next-mvp-v1";
 export const SCHEMA_VERSION = 11;
@@ -94,7 +94,7 @@ function migrateState(state: AppState): AppState {
   const gridColors =
     state.settings.gridColors?.mode === "custom" &&
     Object.entries(legacyLightGridColors).every(([key, value]) => state.settings.gridColors?.[key as keyof typeof legacyLightGridColors] === value)
-      ? { ...defaultCustomGridColors }
+      ? { ...defaults.settings.gridColors, mode: "theme" as const }
       : state.settings.gridColors;
   const normalizedGridColors = previousVersion < 9 && gridColors?.mode === "custom"
     ? { ...defaults.settings.gridColors, mode: "theme" as const }
