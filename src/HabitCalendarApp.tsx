@@ -110,6 +110,7 @@ export default function HabitCalendarApp({ initialState }: HabitCalendarAppProps
     resetSettings,
     resetAll,
     signOut,
+    reorderHabit,
     openHabitModal,
     openHabitTemplate,
     openCellSheet: setActiveCell
@@ -419,6 +420,18 @@ export default function HabitCalendarApp({ initialState }: HabitCalendarAppProps
   function signOut() {
     fetch("/api/auth/logout", { method: "POST" }).finally(() => {
       window.location.reload();
+    });
+  }
+
+  function reorderHabit(habitId: string, targetHabitId: string) {
+    if (habitId === targetHabitId) return;
+    updateState((draft) => {
+      const from = draft.habits.findIndex((habit) => habit.id === habitId);
+      const to = draft.habits.findIndex((habit) => habit.id === targetHabitId);
+      if (from < 0 || to < 0) return draft;
+      const [habit] = draft.habits.splice(from, 1);
+      draft.habits.splice(to, 0, habit);
+      return draft;
     });
   }
 }

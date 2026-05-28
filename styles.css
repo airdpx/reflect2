@@ -765,7 +765,16 @@ button {
 
 .period-panel {
   display: grid;
-  gap: 10px;
+  gap: 8px;
+  padding: 12px;
+}
+
+.period-panel .section-head {
+  margin-bottom: 4px;
+}
+
+.period-panel h3 {
+  font-size: 15px;
 }
 
 .calendar-settings-panel {
@@ -845,9 +854,16 @@ button {
 }
 
 .period-layout {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr);
-  gap: 12px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.compact-period-layout .chip {
+  min-height: 28px;
+  padding: 5px 9px;
+  font-size: 12px;
 }
 
 .period-custom,
@@ -856,6 +872,38 @@ button {
   grid-template-columns: max-content 110px max-content;
   align-items: center;
   gap: 8px;
+}
+
+.compact-period-field {
+  grid-template-columns: max-content 78px;
+}
+
+.compact-period-field .input {
+  min-height: 32px;
+  padding: 6px 8px;
+}
+
+.period-range-details {
+  position: relative;
+}
+
+.period-range-details summary {
+  min-height: 30px;
+  display: inline-flex;
+  align-items: center;
+  padding: 5px 10px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--surface-soft);
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.period-range-details .period-range {
+  margin-top: 8px;
+  grid-template-columns: repeat(2, minmax(130px, 1fr));
 }
 
 .period-range {
@@ -1646,13 +1694,36 @@ button {
 
 .habit-admin-card {
   display: grid;
-  grid-template-columns: 38px minmax(0, 1fr) auto;
+  grid-template-columns: 20px 38px minmax(0, 1fr) auto;
   gap: 10px;
   align-items: center;
   padding: 10px;
   border: 1px solid var(--line);
   border-radius: var(--radius);
   background: var(--surface-soft);
+}
+
+.habit-admin-card.dragging {
+  opacity: 0.48;
+}
+
+.drag-handle {
+  display: grid;
+  place-items: center;
+  width: 18px;
+  height: 34px;
+  border-radius: 999px;
+  color: var(--muted);
+  background: color-mix(in srgb, var(--surface) 70%, transparent);
+  cursor: grab;
+  font-size: 12px;
+  letter-spacing: -3px;
+}
+
+.today-note-preview p {
+  margin: 0;
+  color: var(--text);
+  line-height: 1.45;
 }
 
 .habit-admin-card > i,
@@ -2959,7 +3030,9 @@ button {
   }
 
   .period-custom,
-  .period-range {
+  .period-range,
+  .compact-period-field,
+  .period-range-details .period-range {
     grid-template-columns: 1fr;
   }
 

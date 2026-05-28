@@ -30,11 +30,11 @@ export const habitIconPresets = ["💧", "🚶", "🌙", "📖", "📝", "🧘",
 export const habitCategoryPresets = ["Здоровье", "Состояние", "Быт", "Фокус", "Развитие", "Самонаблюдение", "Сон", "Спорт", "Питание", "Работа", "Отдых", "Отношения"];
 
 export const statusIconPresets: Record<HabitStatus, string[]> = {
-  done: ["✅", "✓", "🌱", "💚", "✨"],
-  partial: ["🟡", "◐", "🌗", "➗", "⚡"],
-  skipped: ["➖", "⏸️", "🌫️", "↷", "…"],
-  missed: ["✖️", "×", "🔻", "▫️", "⛔"],
-  planned: ["📍", "·", "○", "🕓", "•"]
+  done: ["✅", "🟢", "🌿", "💚", "🎉"],
+  partial: ["🌓", "🟡", "◐", "⚡", "🧩"],
+  skipped: ["⏭️", "💤", "➖", "🌫️", "⏸️"],
+  missed: ["❌", "🔴", "⛔", "🔻", "🚧"],
+  planned: ["🗓️", "📍", "🕓", "🔵", "○"]
 };
 
 export const defaultCustomGridColors = {
@@ -176,7 +176,7 @@ export const habitTemplates: HabitTemplate[] = [
 
 export function createDefaults(): AppState {
   return {
-    schemaVersion: 10,
+    schemaVersion: 11,
     view: "today",
     selectedDate: todayKey(),
     habits: [],
@@ -225,10 +225,10 @@ export function createDefaults(): AppState {
       gridDensity: "standard",
       statusIcons: {
         done: "✅",
-        partial: "🟡",
-        skipped: "➖",
-        missed: "✖️",
-        planned: "📍"
+        partial: "🌓",
+        skipped: "⏭️",
+        missed: "❌",
+        planned: "🗓️"
       },
       gridColors: {
         mode: "theme",

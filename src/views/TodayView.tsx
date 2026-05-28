@@ -1,6 +1,5 @@
 import type { AppActions, AppSelectors, AppState, Habit } from "../types";
 import { HabitCard } from "../components/HabitCard";
-import { DiaryPanel } from "./DiaryView";
 import { StatsPanel } from "./AnalyticsView";
 import { habitTemplates } from "../lib/defaults";
 import { TodayForecastPanel } from "../components/Forecast";
@@ -28,6 +27,7 @@ export function TodayView({
   const leftColumn = (
     <section className="stack">
       <TodayModulesPanel state={state} actions={actions} />
+      {state.settings.visibleBlocks.forecast && <TodayForecastPanel state={state} actions={actions} />}
       {state.settings.visibleBlocks.today && (
         <div className="panel">
           <div className="section-head">
@@ -63,13 +63,12 @@ export function TodayView({
           )}
         </div>
       )}
-      {state.settings.visibleBlocks.diary && <DiaryPanel state={state} actions={actions} />}
+      <TodayNotePreview state={state} actions={actions} />
     </section>
   );
 
   const rightColumn = (
     <section className="stack">
-      {state.settings.visibleBlocks.forecast && <TodayForecastPanel state={state} actions={actions} />}
       {state.settings.visibleBlocks.attention && (
         <div className="panel">
           <h3>Требует внимания</h3>
@@ -111,7 +110,6 @@ function TodayModulesPanel({ state, actions }: { state: AppState; actions: AppAc
         <div className="module-toggle-grid">
           {[
             ["today", "Привычки"],
-            ["diary", "Дневник"],
             ["forecast", "Прогноз"],
             ["attention", "Внимание"],
             ["analytics", "Аналитика"]
@@ -124,6 +122,23 @@ function TodayModulesPanel({ state, actions }: { state: AppState; actions: AppAc
         </div>
       </div>
     </details>
+  );
+}
+
+function TodayNotePreview({ state, actions }: { state: AppState; actions: AppActions }) {
+  const note = state.notes[state.selectedDate];
+  if (!note?.text) return null;
+  return (
+    <div className="panel today-note-preview">
+      <div className="section-head">
+        <div>
+          <h3>Заметка дня</h3>
+          <p className="muted">Короткая запись из дневника.</p>
+        </div>
+        <button className="btn ghost" onClick={() => actions.setView("diary")}>Открыть</button>
+      </div>
+      <p>{note.text}</p>
+    </div>
   );
 }
 

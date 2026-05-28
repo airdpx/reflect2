@@ -65,7 +65,7 @@ export function GridView({
             </select>
           </div>
         </div>
-        <div className="period-layout">
+        <div className="period-layout compact-period-layout">
           <div className="chips">
             {[7, 14, 30, 90].map((days) => (
               <button className={`chip ${p.mode === "last" && p.days === days ? "active" : ""}`} key={days} onClick={() => actions.setPeriod({ mode: "last", days })}>
@@ -75,15 +75,17 @@ export function GridView({
             <button className={`chip ${p.mode === "week" ? "active" : ""}`} onClick={() => actions.setPeriod({ mode: "week" })}>Неделя</button>
             <button className={`chip ${p.mode === "month" ? "active" : ""}`} onClick={() => actions.setPeriod({ mode: "month" })}>Месяц</button>
           </div>
-          <div className="period-custom">
-            <label>Последние дни</label>
+          <div className="period-custom compact-period-field">
+            <label>N дней</label>
             <input className="input" type="number" min="1" max="365" value={p.days} onChange={(event) => actions.setPeriod({ mode: "last", days: clampDays(event.target.value) })} />
           </div>
-          <div className="period-range">
-            <label>Диапазон</label>
-            <input className="input" type="date" value={p.start} onChange={(event) => actions.setPeriod({ mode: "custom", start: event.target.value })} />
-            <input className="input" type="date" value={p.end} onChange={(event) => actions.setPeriod({ mode: "custom", end: event.target.value })} />
-          </div>
+          <details className="period-range-details">
+            <summary>Диапазон</summary>
+            <div className="period-range">
+              <input className="input" type="date" value={p.start} onChange={(event) => actions.setPeriod({ mode: "custom", start: event.target.value })} />
+              <input className="input" type="date" value={p.end} onChange={(event) => actions.setPeriod({ mode: "custom", end: event.target.value })} />
+            </div>
+          </details>
         </div>
       </div>
       <CalendarSettingsPanel state={state} actions={actions} />
@@ -99,7 +101,6 @@ function CalendarSettingsPanel({ state, actions }: { state: AppState; actions: A
       <div className="module-controls">
         <div className="calendar-settings-grid">
           <SelectControl label="Тема сетки" value={state.settings.gridTheme} options={["soft", "classic", "journal", "minimal"]} onChange={(value) => actions.updateSetting("gridTheme", value as GridTheme)} />
-          <SelectControl label="Вид отображения" value={state.settings.gridDisplayMode} options={gridModes.map(([mode]) => mode)} onChange={(value) => actions.updateSetting("gridDisplayMode", value as GridDisplayMode)} />
           <SelectControl label="Плотность сетки" value={state.settings.gridDensity} options={["compact", "standard", "comfortable"]} onChange={(value) => actions.updateSetting("gridDensity", value as Density)} />
           <SelectControl label="Клик по ячейке" value={state.settings.gridClickAction} options={["cycle", "details"]} onChange={(value) => actions.updateSetting("gridClickAction", value as "cycle" | "details")} />
           <SelectControl label="Дней на мобильном" value={String(state.settings.mobileGridDays)} options={["7", "14", "30"]} onChange={(value) => actions.updateSetting("mobileGridDays", Number(value) as 7 | 14 | 30)} />
@@ -128,23 +129,6 @@ function CalendarSettingsPanel({ state, actions }: { state: AppState; actions: A
             >
               <b>{state.settings.statusIcons[status] || statusMeta[status].short}</b>
               <span>{statusMeta[status].label}</span>
-            </button>
-          ))}
-        </div>
-        <div className="theme-preview-grid grid-theme-previews">
-          {[
-            ["soft", "Soft"],
-            ["classic", "Check"],
-            ["journal", "Mood"],
-            ["minimal", "Mono"]
-          ].map(([theme, title]) => (
-            <button
-              key={theme}
-              className={`grid-theme-preview ${state.settings.gridTheme === theme ? "active" : ""}`}
-              onClick={() => actions.updateSetting("gridTheme", theme as GridTheme)}
-            >
-              <b>{title}</b>
-              <span><i /><i /><i /><i /><i /></span>
             </button>
           ))}
         </div>

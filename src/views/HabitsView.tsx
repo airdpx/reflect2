@@ -1,3 +1,4 @@
+import { useState } from "react";
 import type { AppActions, AppSelectors, AppState, Habit } from "../types";
 import { habitTemplates, habitTypeLabels } from "../lib/defaults";
 
@@ -10,6 +11,7 @@ export function HabitsView({
   selectors: AppSelectors;
   actions: AppActions;
 }) {
+  const [draggedHabitId, setDraggedHabitId] = useState<string | null>(null);
   const active = state.habits.filter((habit) => !habit.archived);
   const archived = state.habits.filter((habit) => habit.archived);
   return (
@@ -23,8 +25,8 @@ export function HabitsView({
       </div>
       <div className="grid-two habits-layout">
         <div className="stack">
-          <HabitList title="Активные" habits={active} state={state} selectors={selectors} actions={actions} />
-          <HabitList title="Архив" habits={archived} state={state} selectors={selectors} actions={actions} />
+          <HabitList title="Активные" habits={active} state={state} selectors={selectors} actions={actions} draggedHabitId={draggedHabitId} onDrag={setDraggedHabitId} />
+          <HabitList title="Архив" habits={archived} state={state} selectors={selectors} actions={actions} draggedHabitId={draggedHabitId} onDrag={setDraggedHabitId} />
         </div>
         <div className="panel">
           <div className="section-head">
@@ -53,13 +55,17 @@ function HabitList({
   habits,
   state,
   selectors,
-  actions
+  actions,
+  draggedHabitId,
+  onDrag
 }: {
   title: string;
   habits: Habit[];
   state: AppState;
   selectors: AppSelectors;
   actions: AppActions;
+  draggedHabitId: string | null;
+  onDrag: (habitId: string | null) => void;
 }) {
   return (
     <div className="panel">
@@ -74,7 +80,20 @@ function HabitList({
           {habits.map((habit) => {
             const stats = selectors.calculateStats(habit);
             return (
-              <article className="habit-admin-card" key={habit.id}>
+              <article
+                className={`habit-admin-card ${draggedHabitId === habit.id ? "dragging" : ""}`}
+                key={habit.id}
+                draggable
+                onDragStart={() => onDrag(habit.id)}
+                onDragEnd={() => onDrag(null)}
+                onDragOver={(event) => event.preventDefault()}
+                onDrop={(event) => {
+                  event.preventDefault();
+                  if (draggedHabitId) actions.reorderHabit(draggedHabitId, habit.id);
+                  onDrag(null);
+                }}
+              >
+                <b className="drag-handle" title="Перетащить">⋮⋮</b>
                 <i style={{ background: habit.color }}>{habit.icon}</i>
                 <div>
                   <strong>{habit.title}</strong>

@@ -208,6 +208,7 @@ export type AppActions = {
   resetSettings: () => void;
   resetAll: () => void;
   signOut: () => void;
+  reorderHabit: (habitId: string, targetHabitId: string) => void;
   openHabitModal: (habitId: string | null) => void;
   openHabitTemplate: (templateId: string) => void;
   openCellSheet: (cell: { habitId: string; date: string } | null) => void;

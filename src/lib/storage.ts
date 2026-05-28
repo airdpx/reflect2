@@ -2,7 +2,7 @@ import type { AppState } from "../types";
 import { createDefaults, defaultCustomGridColors } from "./defaults";
 
 export const STORAGE_KEY = "habit-calendar-next-mvp-v1";
-export const SCHEMA_VERSION = 10;
+export const SCHEMA_VERSION = 11;
 
 export function loadStoredState(): AppState {
   const defaults = createDefaults();
@@ -147,7 +147,7 @@ function migrateState(state: AppState): AppState {
       },
       statusIcons: {
         ...defaults.settings.statusIcons,
-        ...(previousVersion < 9 ? {} : legacySafeSettings.statusIcons)
+        ...(previousVersion < 11 ? {} : legacySafeSettings.statusIcons)
       },
       gridColors: {
         ...defaults.settings.gridColors,
