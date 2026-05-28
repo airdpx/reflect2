@@ -90,6 +90,8 @@ function migrateState(state: AppState): AppState {
       },
       gridDisplayMode: previousVersion < 3 ? "calendar" : state.settings.gridDisplayMode || defaults.settings.gridDisplayMode,
       gridClickAction: previousVersion < 3 ? "cycle" : state.settings.gridClickAction || defaults.settings.gridClickAction,
+      todayLayout: state.settings.todayLayout || defaults.settings.todayLayout,
+      diaryLayout: state.settings.diaryLayout || defaults.settings.diaryLayout,
       localUsers: state.settings.localUsers?.length ? state.settings.localUsers : defaults.settings.localUsers,
       activeUserId: state.settings.activeUserId || defaults.settings.activeUserId,
       customPresets: state.settings.customPresets || {}

@@ -30,6 +30,7 @@ export function GridView({
             </select>
             <div className="segmented">
               <button className={state.settings.gridDisplayMode === "calendar" ? "active" : ""} onClick={() => actions.updateSetting("gridDisplayMode", "calendar")}>Календарь</button>
+              <button className={state.settings.gridDisplayMode === "compact" ? "active" : ""} onClick={() => actions.updateSetting("gridDisplayMode", "compact")}>Компактно</button>
               <button className={state.settings.gridDisplayMode === "matrix" ? "active" : ""} onClick={() => actions.updateSetting("gridDisplayMode", "matrix")}>Таблица</button>
             </div>
           </div>
@@ -87,7 +88,13 @@ function CalendarGrid({
   if (!visibleHabits.length) return <div className="empty action-empty"><b>В этой категории пока нет привычек</b><span>Выберите другую категорию или добавьте привычку в текущую.</span></div>;
   if (!selectors.periodDates.length) return <div className="empty action-empty"><b>В выбранном периоде нет дат</b><span>Проверьте диапазон или верните выходные в настройках сетки.</span></div>;
   if (state.settings.gridDisplayMode === "calendar") {
-    return <CalendarMonthGrid habits={visibleHabits} state={state} selectors={selectors} actions={actions} />;
+    return <CalendarMonthGrid habits={visibleHabits} compact={false} state={state} selectors={selectors} actions={actions} />;
+  }
+  if (state.settings.gridDisplayMode === "compact") {
+    return <CalendarMonthGrid habits={visibleHabits} compact state={state} selectors={selectors} actions={actions} />;
+  }
+  if (state.settings.gridDisplayMode === "matrix") {
+    return <WeekMatrixGrid habits={visibleHabits} state={state} selectors={selectors} actions={actions} />;
   }
   return (
     <div>
@@ -118,11 +125,13 @@ function CalendarGrid({
 
 function CalendarMonthGrid({
   habits,
+  compact,
   state,
   selectors,
   actions
 }: {
   habits: Habit[];
+  compact: boolean;
   state: AppState;
   selectors: AppSelectors;
   actions: AppActions;
@@ -130,7 +139,7 @@ function CalendarMonthGrid({
   const weeks = chunkWeeks(selectors.periodDates);
   return (
     <div>
-      <div className="month-calendar">
+      <div className={`month-calendar ${compact ? "compact-calendar" : ""}`}>
         <div className="month-week-head">Пн</div>
         <div className="month-week-head">Вт</div>
         <div className="month-week-head">Ср</div>
@@ -146,7 +155,7 @@ function CalendarMonthGrid({
             </div>
             <div className="calendar-day-list">
               {habits.filter((habit) => selectors.isDue(habit, date)).map((habit) => (
-                <CalendarHabitMark key={`${habit.id}-${date}`} habit={habit} date={date} state={state} selectors={selectors} actions={actions} />
+                <CalendarHabitMark key={`${habit.id}-${date}`} habit={habit} date={date} compact={compact} state={state} selectors={selectors} actions={actions} />
               ))}
             </div>
           </div>
@@ -162,12 +171,14 @@ function CalendarMonthGrid({
 function CalendarHabitMark({
   habit,
   date,
+  compact,
   state,
   selectors,
   actions
 }: {
   habit: Habit;
   date: string;
+  compact: boolean;
   state: AppState;
   selectors: AppSelectors;
   actions: AppActions;
@@ -178,19 +189,63 @@ function CalendarHabitMark({
   const title = `${habit.title} · ${formatDate(date)} · ${state.settings.gridClickAction === "cycle" ? "клик меняет статус" : "детали отметки"}`;
   return (
     <button
-      className={`calendar-mark ${className}`}
+      className={`calendar-mark ${compact ? "compact-mark" : ""} ${className}`}
       title={title}
       onClick={() => state.settings.gridClickAction === "cycle" ? actions.cycleHabitStatus(habit.id, date) : actions.openCellSheet({ habitId: habit.id, date })}
       onDoubleClick={() => actions.openCellSheet({ habitId: habit.id, date })}
     >
       {state.settings.visibleGrid.color && <i style={{ background: habit.color }} />}
-      <span className="calendar-mark-title">{state.settings.visibleGrid.icon ? habit.icon : ""} {habit.title}</span>
-      {state.settings.visibleGrid.statusText && <em>{statusMeta[status].short}</em>}
-      {!state.settings.visibleGrid.statusText && status !== "planned" && <em>{statusMeta[status].short}</em>}
+      {!compact && <span className="calendar-mark-title">{state.settings.visibleGrid.icon ? habit.icon : ""} {habit.title}</span>}
+      {!compact && state.settings.visibleGrid.statusText && <em>{statusMeta[status].short}</em>}
+      {!compact && !state.settings.visibleGrid.statusText && status !== "planned" && <em>{statusMeta[status].short}</em>}
       {state.settings.visibleGrid.noteMarker && log?.note && <small className="marker-note-inline" />}
-      {state.settings.visibleGrid.type && <small>{habitTypeLabels[habit.type]}</small>}
-      {state.settings.visibleGrid.target && habit.target > 1 && <small>{habit.target}</small>}
+      {!compact && state.settings.visibleGrid.type && <small>{habitTypeLabels[habit.type]}</small>}
+      {!compact && state.settings.visibleGrid.target && habit.target > 1 && <small>{habit.target}</small>}
     </button>
+  );
+}
+
+function WeekMatrixGrid({
+  habits,
+  state,
+  selectors,
+  actions
+}: {
+  habits: Habit[];
+  state: AppState;
+  selectors: AppSelectors;
+  actions: AppActions;
+}) {
+  const weeks = chunkWeeks(selectors.periodDates);
+  return (
+    <div>
+      <div className="week-matrix-stack">
+        {weeks.map((week, index) => (
+          <div className="week-matrix" key={index}>
+            <div className="week-matrix-title">Неделя {index + 1}</div>
+            <div className="week-matrix-grid" style={{ "--days": 7 } as React.CSSProperties & Record<"--days", number>}>
+              <div className="grid-head">Привычка</div>
+              {week.map((date, dayIndex) => date ? <div className={`grid-head ${date === todayKey() ? "today" : ""}`} key={date}><span>{weekdayShort(date)}</span><b>{formatDate(date, "short")}</b></div> : <div className="grid-head muted-head" key={`empty-head-${dayIndex}`} />)}
+              {habits.map((habit) => (
+                <Fragment key={`${habit.id}-${index}`}>
+                  <div className="grid-name matrix-name">
+                    {state.settings.visibleGrid.color && <i className="habit-dot" style={{ height: 18, background: habit.color }} />}
+                    <div className="grid-habit-text">
+                      <strong>{state.settings.visibleGrid.icon ? habit.icon : ""} {habit.title}</strong>
+                      <span>{gridHabitMeta(habit, state, selectors)}</span>
+                    </div>
+                  </div>
+                  {week.map((date, dayIndex) => date ? <GridCell key={`${habit.id}-${date}`} habit={habit} date={date} state={state} selectors={selectors} actions={actions} /> : <div className="grid-cell muted-cell" key={`${habit.id}-empty-${dayIndex}`} />)}
+                </Fragment>
+              ))}
+            </div>
+          </div>
+        ))}
+      </div>
+      <div className="legend">
+        {state.settings.activeStatuses.map((status) => <span key={status}><i className={statusMeta[status].className} />{statusMeta[status].label}</span>)}
+      </div>
+    </div>
   );
 }
 

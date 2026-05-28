@@ -25,6 +25,27 @@ export const habitTypeHints: Record<HabitType, string> = {
   reflection: "Запись или заметка считается выполнением."
 };
 
+export const themeOptions = [
+  { id: "dark", title: "Dark Calm", colors: ["#151713", "#1e211d", "#9caf88", "#ede9df"] },
+  { id: "contrast", title: "Bright Contrast", colors: ["#07111f", "#0f1b2e", "#33d69f", "#f8fbff"] },
+  { id: "sunset", title: "Sunset", colors: ["#2a1020", "#3a1830", "#ffb703", "#fff7ed"] },
+  { id: "mint", title: "Mint Pop", colors: ["#ecfff7", "#ffffff", "#00a86b", "#0d2b25"] },
+  { id: "berry", title: "Berry Ink", colors: ["#170f2b", "#25183f", "#f472b6", "#fff1f8"] },
+  { id: "citrus", title: "Citrus Fresh", colors: ["#fff8e1", "#ffffff", "#f97316", "#2b2417"] },
+  { id: "lagoon", title: "Lagoon", colors: ["#062b34", "#0d3f4a", "#22d3ee", "#ecfeff"] },
+  { id: "graphite", title: "Graphite Lime", colors: ["#111111", "#1f1f1f", "#a3e635", "#f5f5f5"] },
+  { id: "rose", title: "Rose Milk", colors: ["#fff1f2", "#ffffff", "#e11d48", "#32151d"] },
+  { id: "violet", title: "Violet Night", colors: ["#160f29", "#24153d", "#a78bfa", "#f5f3ff"] },
+  { id: "forest", title: "Forest", colors: ["#0f1f17", "#17291f", "#4ade80", "#ecfdf5"] },
+  { id: "sand", title: "Sand & Teal", colors: ["#f7ecd3", "#fffaf0", "#0f766e", "#2d2517"] },
+  { id: "aurora", title: "Aurora", colors: ["#08111f", "#121b31", "#60a5fa", "#f0f9ff"] },
+  { id: "light", title: "Light Neutral", colors: ["#f7f6f2", "#ffffff", "#557b66", "#262621"] },
+  { id: "warm", title: "Warm Journal", colors: ["#f4efe5", "#fffaf1", "#a86f55", "#2d2820"] },
+  { id: "sage", title: "Sage Natural", colors: ["#eef3ec", "#fbfdf8", "#647d5c", "#20271f"] },
+  { id: "blue", title: "Calm Blue", colors: ["#f2f6f7", "#ffffff", "#52768d", "#1f2933"] },
+  { id: "custom", title: "Custom", colors: ["#111827", "#182235", "#22c55e", "#f8fafc"] }
+] as const;
+
 export const habitTemplates: HabitTemplate[] = [
   {
     id: "water",
@@ -151,6 +172,9 @@ export function createDefaults(): AppState {
         mood: true,
         energy: true,
         stress: true,
+        noteText: true,
+        helped: true,
+        blocked: true,
         analytics: true,
         streak: true,
         completion: true,
@@ -182,6 +206,8 @@ export function createDefaults(): AppState {
       selectedCategory: "all",
       defaultView: "today",
       mobileGridDays: 14,
+      todayLayout: "split",
+      diaryLayout: "compact",
       customTheme: {
         bg: "#111827",
         surface: "#182235",

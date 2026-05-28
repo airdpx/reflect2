@@ -1,7 +1,7 @@
 import { useState } from "react";
 import type { AppActions, AppState, Density, GridDisplayMode, GridTheme, HabitStatus, InterfaceTheme, UserSettings, View } from "../types";
 import { SelectControl, Toggle } from "../components/Common";
-import { statusMeta } from "../lib/defaults";
+import { statusMeta, themeOptions } from "../lib/defaults";
 
 const blockLabels: Record<string, string> = {
   today: "Сегодня",
@@ -10,6 +10,9 @@ const blockLabels: Record<string, string> = {
   mood: "Настроение",
   energy: "Энергия",
   stress: "Стресс",
+  noteText: "Короткая заметка",
+  helped: "Что помогло",
+  blocked: "Что мешало",
   analytics: "Аналитика",
   streak: "Streak",
   completion: "Процент выполнения",
@@ -61,9 +64,9 @@ export function SettingsView({ state, actions }: { state: AppState; actions: App
           <div className="form-grid">
             <SelectControl label="Display preset" value={state.settings.preset} options={["Simple", "Balanced", "Journal", "Analytical", "Focus"]} onChange={(value) => actions.applyPreset(value as UserSettings["preset"])} />
             <SelectControl label="Плотность" value={state.settings.density} options={["compact", "standard", "comfortable"]} onChange={(value) => actions.updateSetting("density", value as Density)} />
-            <SelectControl label="Тема интерфейса" value={state.settings.interfaceTheme} options={["light", "blue", "dark", "warm", "sage", "contrast", "sunset", "mint", "custom"]} onChange={(value) => actions.updateSetting("interfaceTheme", value as InterfaceTheme)} />
+            <SelectControl label="Тема интерфейса" value={state.settings.interfaceTheme} options={themeOptions.map((theme) => theme.id)} onChange={(value) => actions.updateSetting("interfaceTheme", value as InterfaceTheme)} />
             <SelectControl label="Тема сетки" value={state.settings.gridTheme} options={["soft", "classic", "journal", "minimal"]} onChange={(value) => actions.updateSetting("gridTheme", value as GridTheme)} />
-            <SelectControl label="Вид сетки на ПК" value={state.settings.gridDisplayMode} options={["calendar", "matrix"]} onChange={(value) => actions.updateSetting("gridDisplayMode", value as GridDisplayMode)} />
+            <SelectControl label="Вид сетки на ПК" value={state.settings.gridDisplayMode} options={["calendar", "compact", "matrix"]} onChange={(value) => actions.updateSetting("gridDisplayMode", value as GridDisplayMode)} />
             <SelectControl label="Клик по ячейке" value={state.settings.gridClickAction} options={["details", "cycle"]} onChange={(value) => actions.updateSetting("gridClickAction", value as "details" | "cycle")} />
             <SelectControl label="Стартовый экран" value={state.settings.defaultView} options={["today", "grid", "diary", "analytics", "settings"]} onChange={(value) => actions.updateSetting("defaultView", value as View)} />
             <SelectControl label="Дней сетки на мобильном" value={String(state.settings.mobileGridDays)} options={["7", "14", "30"]} onChange={(value) => actions.updateSetting("mobileGridDays", Number(value) as 7 | 14 | 30)} />
@@ -81,25 +84,15 @@ export function SettingsView({ state, actions }: { state: AppState; actions: App
         <div className="panel settings-card">
           <h3>Превью тем</h3>
           <div className="theme-preview-grid">
-            {[
-              ["dark", "Dark Calm", "вечерний спокойный режим"],
-              ["contrast", "Bright Contrast", "ярко и читаемо"],
-              ["sunset", "Sunset", "теплый контраст"],
-              ["mint", "Mint Pop", "свежий яркий режим"],
-              ["light", "Light Neutral", "чистый базовый вид"],
-              ["warm", "Warm Journal", "мягкий дневниковый тон"],
-              ["sage", "Sage Natural", "природный спокойный тон"],
-              ["blue", "Calm Blue", "нейтральный digital"],
-              ["custom", "Custom", "ваши цвета"]
-            ].map(([theme, title, text]) => (
+            {themeOptions.map((theme) => (
               <button
-                key={theme}
-                className={`theme-preview theme-preview-${theme} ${state.settings.interfaceTheme === theme ? "active" : ""}`}
-                onClick={() => actions.updateSetting("interfaceTheme", theme as InterfaceTheme)}
+                key={theme.id}
+                className={`theme-preview theme-preview-${theme.id} ${state.settings.interfaceTheme === theme.id ? "active" : ""}`}
+                onClick={() => actions.updateSetting("interfaceTheme", theme.id as InterfaceTheme)}
               >
-                <span className="theme-preview-swatches"><i /><i /><i /></span>
-                <b>{title}</b>
-                <small>{text}</small>
+                <span className="theme-preview-swatches">{theme.colors.slice(0, 3).map((color) => <i key={color} style={{ background: color }} />)}</span>
+                <b>{theme.title}</b>
+                <small>{theme.id === "custom" ? "ваши цвета" : "готовая палитра"}</small>
               </button>
             ))}
           </div>

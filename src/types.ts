@@ -2,9 +2,27 @@ export type View = "today" | "grid" | "diary" | "analytics" | "settings";
 export type HabitType = "boolean" | "numeric" | "multiple" | "avoid" | "reflection";
 export type HabitStatus = "done" | "partial" | "skipped" | "missed" | "planned";
 export type Density = "compact" | "standard" | "comfortable";
-export type InterfaceTheme = "light" | "blue" | "dark" | "warm" | "sage" | "contrast" | "sunset" | "mint" | "custom";
+export type InterfaceTheme =
+  | "light"
+  | "blue"
+  | "dark"
+  | "warm"
+  | "sage"
+  | "contrast"
+  | "sunset"
+  | "mint"
+  | "berry"
+  | "citrus"
+  | "lagoon"
+  | "graphite"
+  | "rose"
+  | "violet"
+  | "forest"
+  | "sand"
+  | "aurora"
+  | "custom";
 export type GridTheme = "soft" | "classic" | "journal" | "minimal";
-export type GridDisplayMode = "calendar" | "matrix";
+export type GridDisplayMode = "calendar" | "compact" | "matrix";
 export type PeriodMode = "last" | "week" | "month" | "custom";
 
 export type Habit = {
@@ -78,6 +96,8 @@ export type UserSettings = {
   selectedCategory: string;
   defaultView: View;
   mobileGridDays: 7 | 14 | 30;
+  todayLayout: "split" | "single" | "reverse";
+  diaryLayout: "compact" | "full";
   customTheme: {
     bg: string;
     surface: string;

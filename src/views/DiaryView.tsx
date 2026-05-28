@@ -4,26 +4,53 @@ export function DiaryPanel({ state, actions }: { state: AppState; actions: AppAc
   const note = state.notes[state.selectedDate] || {};
   return (
     <div className="panel">
-      <h3>Дневник дня</h3>
+      <div className="section-head">
+        <div>
+          <h3>Дневник дня</h3>
+          <p className="muted">Компактные отметки состояния и свободные заметки.</p>
+        </div>
+        <div className="segmented">
+          <button className={state.settings.diaryLayout === "compact" ? "active" : ""} onClick={() => actions.updateSetting("diaryLayout", "compact")}>Компактно</button>
+          <button className={state.settings.diaryLayout === "full" ? "active" : ""} onClick={() => actions.updateSetting("diaryLayout", "full")}>Полно</button>
+        </div>
+      </div>
+      <details className="module-panel inline-module-panel">
+        <summary>Поля дневника</summary>
+        <div className="module-toggle-grid">
+          {[
+            ["mood", "Настроение"],
+            ["energy", "Энергия"],
+            ["stress", "Стресс"],
+            ["noteText", "Заметка"],
+            ["helped", "Помогло"],
+            ["blocked", "Мешало"]
+          ].map(([key, label]) => (
+            <label key={key}>
+              <input type="checkbox" checked={state.settings.visibleBlocks[key]} onChange={(event) => actions.updateVisible("visibleBlocks", key, event.target.checked)} />
+              <span>{label}</span>
+            </label>
+          ))}
+        </div>
+      </details>
       <div className="stack">
         <div className="form-grid">
           <RangeField name="mood" label="Настроение" value={note.mood ?? 3} state={state} actions={actions} />
           <RangeField name="energy" label="Энергия" value={note.energy ?? 3} state={state} actions={actions} />
           <RangeField name="stress" label="Стресс" value={note.stress ?? 3} state={state} actions={actions} />
         </div>
-        <div className="field">
+        {state.settings.visibleBlocks.noteText && <div className="field">
           <label>Короткая заметка</label>
-          <textarea className="textarea" value={note.text || ""} onChange={(event) => actions.setNoteField("text", event.target.value)} />
-        </div>
-        <div className="form-grid">
-          <div className="field">
+          <textarea className={`textarea ${state.settings.diaryLayout === "compact" ? "compact-textarea" : ""}`} value={note.text || ""} onChange={(event) => actions.setNoteField("text", event.target.value)} />
+        </div>}
+        <div className={`form-grid ${state.settings.diaryLayout === "compact" ? "compact-diary-grid" : ""}`}>
+          {state.settings.visibleBlocks.helped && <div className="field">
             <label>Что помогло</label>
-            <textarea className="textarea" value={note.helped || ""} onChange={(event) => actions.setNoteField("helped", event.target.value)} />
-          </div>
-          <div className="field">
+            <textarea className={`textarea ${state.settings.diaryLayout === "compact" ? "compact-textarea" : ""}`} value={note.helped || ""} onChange={(event) => actions.setNoteField("helped", event.target.value)} />
+          </div>}
+          {state.settings.visibleBlocks.blocked && <div className="field">
             <label>Что мешало</label>
-            <textarea className="textarea" value={note.blocked || ""} onChange={(event) => actions.setNoteField("blocked", event.target.value)} />
-          </div>
+            <textarea className={`textarea ${state.settings.diaryLayout === "compact" ? "compact-textarea" : ""}`} value={note.blocked || ""} onChange={(event) => actions.setNoteField("blocked", event.target.value)} />
+          </div>}
         </div>
       </div>
     </div>
@@ -49,9 +76,13 @@ function RangeField({
 }) {
   if (!state.settings.visibleBlocks[name]) return null;
   return (
-    <div className="field">
+    <div className="field compact-scale-field">
       <label>{label}: <b>{value}</b></label>
-      <input type="range" min="1" max="5" value={value} onChange={(event) => actions.setNoteField(name, Number(event.target.value))} />
+      <div className="scale-buttons">
+        {[1, 2, 3, 4, 5].map((item) => (
+          <button key={item} className={value === item ? "active" : ""} onClick={() => actions.setNoteField(name, item)}>{item}</button>
+        ))}
+      </div>
     </div>
   );
 }

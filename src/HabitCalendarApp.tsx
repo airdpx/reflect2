@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import type React from "react";
 import type { AppActions, AppSelectors, AppState, DailyNote, Habit, HabitLog, HabitStatus, UserSettings, View } from "./types";
 import { MobileNav, Sidebar, Topbar } from "./components/Navigation";
+import { QuickControls } from "./components/QuickControls";
 import { Inspector } from "./components/Inspector";
 import { HabitModal } from "./components/HabitModal";
 import { CellSheet } from "./components/CellSheet";
@@ -125,6 +126,7 @@ export default function HabitCalendarApp() {
       </main>
       {state.settings.rightPanel && !state.settings.focusMode && <Inspector state={state} selectors={selectors} />}
       <MobileNav view={state.view} onView={actions.setView} />
+      <QuickControls state={state} actions={actions} />
       {editingHabitId && <HabitModal habit={editingHabit} isTemplateDraft={Boolean(draftHabit)} actions={actions} />}
       {activeCell && <CellSheet cell={activeCell} state={state} selectors={selectors} actions={actions} />}
     </div>
