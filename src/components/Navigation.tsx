@@ -2,11 +2,12 @@ import type { AppState, View } from "../types";
 import { formatDate, todayKey } from "../lib/date";
 
 const navItems: Array<[View, string, string]> = [
-  ["today", "Сегодня", "☼"],
-  ["grid", "Сетка", "▦"],
-  ["diary", "Дневник", "✎"],
-  ["analytics", "Аналитика", "⌁"],
-  ["settings", "Настройки", "⚙"]
+  ["today", "Сегодня", "☀️"],
+  ["grid", "Календарь", "🗓️"],
+  ["habits", "Привычки", "✨"],
+  ["diary", "Дневник", "✍️"],
+  ["analytics", "Аналитика", "📊"],
+  ["settings", "Настройки", "🎛️"]
 ];
 
 export function Sidebar({ view, onView }: { view: View; onView: (view: View) => void }) {
@@ -51,10 +52,11 @@ export function Topbar({
 }) {
   const titles: Record<View, [string, string]> = {
     today: ["Сегодня", formatDate(state.selectedDate)],
-    grid: ["Календарная сетка", "Настраиваемые периоды и мягкие статусы"],
+    grid: ["Календарь", "Периоды, режимы сетки и мягкие статусы"],
+    habits: ["Привычки", "Шаблоны, категории, иконки и расписание"],
     diary: ["Дневник", "Настроение, энергия и заметки за день"],
     analytics: ["Аналитика", "Мягкая история регулярности"],
-    settings: ["Настройки", "Статусы, периоды, темы и видимость блоков"]
+    settings: ["Настройки", "Профиль, статусы, прогноз и видимость блоков"]
   };
   const [title, subtitle] = titles[state.view];
   return (

@@ -25,16 +25,16 @@ export const habitTypeHints: Record<HabitType, string> = {
   reflection: "Запись или заметка считается выполнением."
 };
 
-export const habitIconPresets = ["○", "●", "◌", "✓", "☼", "☾", "✎", "◇", "△", "◉", "▣", "✦", "✚", "⌁", "∞", "·", "×", "↑", "↓", "↻"];
+export const habitIconPresets = ["💧", "🚶", "🌙", "📖", "📝", "🧘", "🏃", "🥗", "☕", "🌿", "🎯", "🔥", "✨", "💪", "🧠", "🎧", "🛏️", "🚫", "💊", "🪴", "🎨", "🧩", "📚", "❤️"];
 
 export const habitCategoryPresets = ["Здоровье", "Состояние", "Быт", "Фокус", "Развитие", "Самонаблюдение", "Сон", "Спорт", "Питание", "Работа", "Отдых", "Отношения"];
 
 export const statusIconPresets: Record<HabitStatus, string[]> = {
-  done: ["✓", "●", "✔", "＋", "↑"],
-  partial: ["◐", "◒", "◍", "≈", "±"],
-  skipped: ["–", "○", "↷", "·", "…"],
-  missed: ["×", "✕", "↓", "!", "□"],
-  planned: ["·", "○", "□", "◌", "•"]
+  done: ["✅", "✓", "🌱", "💚", "✨"],
+  partial: ["🟡", "◐", "🌗", "➗", "⚡"],
+  skipped: ["➖", "⏸️", "🌫️", "↷", "…"],
+  missed: ["✖️", "×", "🔻", "▫️", "⛔"],
+  planned: ["📍", "·", "○", "🕓", "•"]
 };
 
 export const defaultCustomGridColors = {
@@ -72,8 +72,8 @@ export const habitTemplates: HabitTemplate[] = [
     id: "water",
     title: "Вода",
     description: "Несколько мягких отметок в течение дня.",
-    color: "#8ea9bd",
-    icon: "◌",
+    color: "#38bdf8",
+    icon: "💧",
     category: "Быт",
     type: "multiple",
     target: 5,
@@ -85,8 +85,8 @@ export const habitTemplates: HabitTemplate[] = [
     id: "walk",
     title: "Прогулка",
     description: "Спокойное движение без давления.",
-    color: "#9caf88",
-    icon: "○",
+    color: "#22c55e",
+    icon: "🚶",
     category: "Здоровье",
     type: "boolean",
     target: 1,
@@ -98,8 +98,8 @@ export const habitTemplates: HabitTemplate[] = [
     id: "sleep",
     title: "Сон",
     description: "Отметить спокойный режим сна или подъёма.",
-    color: "#8796b0",
-    icon: "☾",
+    color: "#818cf8",
+    icon: "🌙",
     category: "Здоровье",
     type: "boolean",
     target: 1,
@@ -111,8 +111,8 @@ export const habitTemplates: HabitTemplate[] = [
     id: "reading",
     title: "Чтение",
     description: "Страницы, минуты или короткая сессия.",
-    color: "#c0aa73",
-    icon: "◇",
+    color: "#f59e0b",
+    icon: "📖",
     category: "Развитие",
     type: "numeric",
     target: 20,
@@ -124,8 +124,8 @@ export const habitTemplates: HabitTemplate[] = [
     id: "journal",
     title: "Дневник состояния",
     description: "Короткая заметка о дне.",
-    color: "#b39ac8",
-    icon: "✎",
+    color: "#ec4899",
+    icon: "📝",
     category: "Самонаблюдение",
     type: "reflection",
     target: 1,
@@ -137,8 +137,8 @@ export const habitTemplates: HabitTemplate[] = [
     id: "meditation",
     title: "Медитация",
     description: "Несколько минут тишины или дыхания.",
-    color: "#88a8a0",
-    icon: "·",
+    color: "#14b8a6",
+    icon: "🧘",
     category: "Состояние",
     type: "numeric",
     target: 10,
@@ -150,8 +150,8 @@ export const habitTemplates: HabitTemplate[] = [
     id: "sport",
     title: "Спорт",
     description: "Тренировка или короткая активность.",
-    color: "#b98f72",
-    icon: "△",
+    color: "#f97316",
+    icon: "🏃",
     category: "Здоровье",
     type: "boolean",
     target: 1,
@@ -163,8 +163,8 @@ export const habitTemplates: HabitTemplate[] = [
     id: "avoid-scroll",
     title: "Без лишнего скролла",
     description: "Отметить день без нежелательной привычки.",
-    color: "#b88a84",
-    icon: "×",
+    color: "#ef4444",
+    icon: "🚫",
     category: "Фокус",
     type: "avoid",
     target: 1,
@@ -176,7 +176,7 @@ export const habitTemplates: HabitTemplate[] = [
 
 export function createDefaults(): AppState {
   return {
-    schemaVersion: 8,
+    schemaVersion: 9,
     view: "today",
     selectedDate: todayKey(),
     habits: [],
@@ -224,11 +224,11 @@ export function createDefaults(): AppState {
       gridDisplayMode: "calendar",
       gridDensity: "standard",
       statusIcons: {
-        done: "✓",
-        partial: "◐",
-        skipped: "–",
-        missed: "×",
-        planned: "·"
+        done: "✅",
+        partial: "🟡",
+        skipped: "➖",
+        missed: "✖️",
+        planned: "📍"
       },
       gridColors: {
         mode: "theme",

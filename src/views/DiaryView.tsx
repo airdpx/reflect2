@@ -78,13 +78,21 @@ function RangeField({
 }) {
   if (!state.settings.visibleBlocks[name]) return null;
   return (
-    <div className="field compact-scale-field">
-      <label>{label}: <b>{value}</b></label>
-      <div className="scale-buttons">
-        {[1, 2, 3, 4, 5].map((item) => (
-          <button key={item} className={value === item ? "active" : ""} onClick={() => actions.setNoteField(name, item)}>{item}</button>
-        ))}
+    <div className="field compact-scale-field scale-slider-field">
+      <label>{label}</label>
+      <div className="scale-slider-row">
+        <input
+          className="range-input"
+          type="range"
+          min="1"
+          max="5"
+          step="1"
+          value={value}
+          onChange={(event) => actions.setNoteField(name, Number(event.target.value))}
+        />
+        <b className="scale-value">{value}</b>
       </div>
+      <div className="scale-ticks"><span>1</span><span>3</span><span>5</span></div>
     </div>
   );
 }

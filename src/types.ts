@@ -1,4 +1,4 @@
-export type View = "today" | "grid" | "diary" | "analytics" | "settings";
+export type View = "today" | "grid" | "habits" | "diary" | "analytics" | "settings";
 export type HabitType = "boolean" | "numeric" | "multiple" | "avoid" | "reflection";
 export type HabitStatus = "done" | "partial" | "skipped" | "missed" | "planned";
 export type Density = "compact" | "standard" | "comfortable";

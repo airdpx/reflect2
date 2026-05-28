@@ -18,7 +18,7 @@ export function HabitModal({
     title: "",
     description: "",
     color: "#9caf88",
-    icon: "○",
+    icon: "💧",
     category: "",
     type: "boolean" as HabitType,
     target: 1,
@@ -38,7 +38,7 @@ export function HabitModal({
       title: String(form.get("title") || "").trim(),
       description: String(form.get("description") || ""),
       color: String(form.get("color") || "#9caf88"),
-      icon: String(form.get("icon") || icon || "○"),
+      icon: String(form.get("icon") || icon || "💧"),
       category: String(form.get("category") || category || ""),
       type: String(form.get("type") || "boolean") as HabitType,
       target: Number(form.get("target") || 1),
@@ -66,7 +66,7 @@ export function HabitModal({
                 {habitCategoryPresets.map((item) => <option key={item} value={item} />)}
               </datalist>
             </Field>
-            <Field label="Иконка"><input className="input icon-input" name="icon" value={icon} maxLength={2} onChange={(event) => setIcon(event.target.value.slice(0, 2))} /></Field>
+            <Field label="Иконка"><input className="input icon-input" name="icon" value={icon} maxLength={4} onChange={(event) => setIcon(event.target.value.slice(0, 4))} /></Field>
             <Field label="Цвет"><input className="input" type="color" name="color" defaultValue={h.color} /></Field>
             <Field label="Тип">
               <select className="select" name="type" value={type} onChange={(event) => setType(event.target.value as HabitType)}>

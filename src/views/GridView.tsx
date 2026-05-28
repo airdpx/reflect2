@@ -1,10 +1,44 @@
 import { Fragment } from "react";
 import type React from "react";
-import type { AppActions, AppSelectors, AppState, GridDisplayMode, Habit, HabitStatus } from "../types";
+import type { AppActions, AppSelectors, AppState, Density, GridDisplayMode, GridTheme, Habit, HabitStatus, UserSettings } from "../types";
 import { formatDate, todayKey, weekdayShort } from "../lib/date";
-import { habitTypeLabels, statusMeta } from "../lib/defaults";
+import { habitTypeLabels, statusIconPresets, statusMeta } from "../lib/defaults";
 import { forecastTone, getForecast } from "../lib/forecast";
 import { TemplateChooser } from "./TodayView";
+import { SelectControl, Toggle } from "../components/Common";
+
+const gridLabels: Record<string, string> = {
+  color: "Цвет привычки",
+  icon: "Иконка привычки",
+  category: "Категория",
+  type: "Тип",
+  target: "Цель",
+  statusText: "Иконка статуса",
+  categoryGroups: "Группы категорий",
+  streak: "Streak",
+  completion: "Процент",
+  daysSince: "Дней с выполнения",
+  noteMarker: "Маркер заметки",
+  moodMarker: "Маркер настроения"
+};
+
+const gridModes: Array<[GridDisplayMode, string]> = [
+  ["calendar", "Календарь"],
+  ["compact", "Мини"],
+  ["matrix", "Таблица"],
+  ["week", "Неделя"],
+  ["habit", "Привычка"],
+  ["timeline", "Лента"],
+  ["heat", "Тепло"]
+];
+
+const gridColorLabels: Record<keyof Omit<UserSettings["gridColors"], "mode">, string> = {
+  bg: "Фон",
+  head: "Шапка",
+  cell: "Ячейка",
+  today: "Сегодня",
+  line: "Линии"
+};
 
 export function GridView({
   state,
@@ -52,8 +86,99 @@ export function GridView({
           </div>
         </div>
       </div>
+      <CalendarSettingsPanel state={state} actions={actions} />
       <CalendarGrid state={state} selectors={selectors} actions={actions} />
     </section>
+  );
+}
+
+function CalendarSettingsPanel({ state, actions }: { state: AppState; actions: AppActions }) {
+  return (
+    <details className="panel module-panel calendar-settings-panel">
+      <summary>Настроить календарь и таблицу</summary>
+      <div className="module-controls">
+        <div className="calendar-settings-grid">
+          <SelectControl label="Тема сетки" value={state.settings.gridTheme} options={["soft", "classic", "journal", "minimal"]} onChange={(value) => actions.updateSetting("gridTheme", value as GridTheme)} />
+          <SelectControl label="Вид отображения" value={state.settings.gridDisplayMode} options={gridModes.map(([mode]) => mode)} onChange={(value) => actions.updateSetting("gridDisplayMode", value as GridDisplayMode)} />
+          <SelectControl label="Плотность сетки" value={state.settings.gridDensity} options={["compact", "standard", "comfortable"]} onChange={(value) => actions.updateSetting("gridDensity", value as Density)} />
+          <SelectControl label="Клик по ячейке" value={state.settings.gridClickAction} options={["cycle", "details"]} onChange={(value) => actions.updateSetting("gridClickAction", value as "cycle" | "details")} />
+          <SelectControl label="Дней на мобильном" value={String(state.settings.mobileGridDays)} options={["7", "14", "30"]} onChange={(value) => actions.updateSetting("mobileGridDays", Number(value) as 7 | 14 | 30)} />
+        </div>
+        <Toggle label="Показывать выходные" checked={state.settings.showWeekends} onChange={(checked) => actions.updateSetting("showWeekends", checked)} />
+        <div className="theme-preview-grid grid-theme-previews">
+          {[
+            ["soft", "Soft"],
+            ["classic", "Check"],
+            ["journal", "Mood"],
+            ["minimal", "Mono"]
+          ].map(([theme, title]) => (
+            <button
+              key={theme}
+              className={`grid-theme-preview ${state.settings.gridTheme === theme ? "active" : ""}`}
+              onClick={() => actions.updateSetting("gridTheme", theme as GridTheme)}
+            >
+              <b>{title}</b>
+              <span><i /><i /><i /><i /><i /></span>
+            </button>
+          ))}
+        </div>
+        <details className="quick-subsection">
+          <summary>Видимые элементы</summary>
+          <div className="module-toggle-grid">
+            {Object.entries(gridLabels).map(([key, label]) => (
+              <label key={key}>
+                <input type="checkbox" checked={state.settings.visibleGrid[key]} onChange={(event) => actions.updateVisible("visibleGrid", key, event.target.checked)} />
+                <span>{label}</span>
+              </label>
+            ))}
+          </div>
+        </details>
+        <details className="quick-subsection">
+          <summary>Иконки отметок</summary>
+          <div className="status-icon-grid">
+            {(Object.keys(statusMeta) as HabitStatus[]).map((status) => (
+              <label key={status}>
+                <span>{statusMeta[status].label}</span>
+                <input
+                  maxLength={4}
+                  value={state.settings.statusIcons[status] || statusMeta[status].short}
+                  onChange={(event) => actions.updateSetting("statusIcons", { ...state.settings.statusIcons, [status]: event.target.value.slice(0, 4) })}
+                />
+                <div className="tiny-preset-row">
+                  {statusIconPresets[status].map((icon) => (
+                    <button
+                      type="button"
+                      key={icon}
+                      className={state.settings.statusIcons[status] === icon ? "active" : ""}
+                      onClick={() => actions.updateSetting("statusIcons", { ...state.settings.statusIcons, [status]: icon })}
+                    >
+                      {icon}
+                    </button>
+                  ))}
+                </div>
+              </label>
+            ))}
+          </div>
+        </details>
+        <details className="quick-subsection">
+          <summary>Цвета таблицы</summary>
+          <div className="icon-choice-row">
+            <button className={state.settings.gridColors.mode === "theme" ? "active" : ""} onClick={() => actions.updateSetting("gridColors", { ...state.settings.gridColors, mode: "theme" })}>из темы</button>
+            <button className={state.settings.gridColors.mode === "custom" ? "active" : ""} onClick={() => actions.updateSetting("gridColors", { ...state.settings.gridColors, mode: "custom" })}>свои цвета</button>
+          </div>
+          {state.settings.gridColors.mode === "custom" && (
+            <div className="mini-color-grid grid-color-grid">
+              {(Object.keys(gridColorLabels) as Array<keyof Omit<UserSettings["gridColors"], "mode">>).map((key) => (
+                <label key={key}>
+                  <span>{gridColorLabels[key]}</span>
+                  <input type="color" value={state.settings.gridColors[key]} onChange={(event) => actions.updateSetting("gridColors", { ...state.settings.gridColors, [key]: event.target.value })} />
+                </label>
+              ))}
+            </div>
+          )}
+        </details>
+      </div>
+    </details>
   );
 }
 

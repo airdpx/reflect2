@@ -23,7 +23,7 @@ export function DiaryForecastStrip({ state, actions }: { state: AppState; action
   const tone = forecastTone(forecast.summaryScore);
   return (
     <div className={`forecast-strip forecast-tone-${tone}`}>
-      <span>Прогноз: {forecast.summaryLabel}</span>
+      <span>Биоритмы: {forecast.summaryLabel}</span>
       <b>{forecast.summaryScore}%</b>
       <div>{forecast.scales.map((scale) => <ForecastPill key={scale.id} scale={scale} />)}</div>
     </div>
@@ -77,7 +77,7 @@ function ForecastShell({
       <div className="section-head">
         <div>
           <h3>{title}</h3>
-          <p className="muted">Ориентир для самонаблюдения, без давления.</p>
+          <p className="muted">Биоритмы · ориентир для самонаблюдения, без давления.</p>
         </div>
         <div className={`forecast-score forecast-tone-${tone}`}>
           <strong>{forecast.summaryScore}%</strong>

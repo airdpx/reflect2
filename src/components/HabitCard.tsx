@@ -41,7 +41,7 @@ export function HabitCard({
             title={statusMeta[status].label}
             onClick={() => actions.setLog(habit.id, state.selectedDate, { status })}
           >
-            {statusMeta[status].short}
+            {state.settings.statusIcons[status] || statusMeta[status].short}
           </button>
         ))}
         <button className="status-btn" title="Детали" onClick={() => actions.openCellSheet({ habitId: habit.id, date: state.selectedDate })}>

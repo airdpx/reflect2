@@ -1,5 +1,5 @@
 import { useState } from "react";
-import type { AppActions, AppState, Density, ForecastDisplayMode, ForecastProviderId, ForecastScaleId, ForecastSettings, GridDisplayMode, GridTheme, HabitStatus, UserSettings, View } from "../types";
+import type { AppActions, AppState, Density, ForecastDisplayMode, ForecastProviderId, ForecastScaleId, ForecastSettings, HabitStatus, UserSettings, View } from "../types";
 import { SelectControl, Toggle } from "../components/Common";
 import { statusMeta } from "../lib/defaults";
 
@@ -18,21 +18,6 @@ const blockLabels: Record<string, string> = {
   streak: "Streak",
   completion: "Процент выполнения",
   lastDone: "Последнее выполнение"
-};
-
-const gridLabels: Record<string, string> = {
-  color: "Цвет",
-  icon: "Иконка",
-  category: "Категория",
-  type: "Тип",
-  target: "Цель",
-  statusText: "Символ статуса",
-  categoryGroups: "Группировка категорий",
-  streak: "Streak",
-  completion: "Completion rate",
-  daysSince: "Дней с выполнения",
-  noteMarker: "Маркер заметки",
-  moodMarker: "Маркер настроения"
 };
 
 const forecastPlacementOptions: Array<[keyof Pick<ForecastSettings, "showInToday" | "showInDiary" | "showInInspector" | "showInGrid">, string]> = [
@@ -66,16 +51,10 @@ export function SettingsView({ state, actions }: { state: AppState; actions: App
           <div className="form-grid">
             <SelectControl label="Display preset" value={state.settings.preset} options={["Simple", "Balanced", "Journal", "Analytical", "Focus"]} onChange={(value) => actions.applyPreset(value as UserSettings["preset"])} />
             <SelectControl label="Плотность" value={state.settings.density} options={["compact", "standard", "comfortable"]} onChange={(value) => actions.updateSetting("density", value as Density)} />
-            <SelectControl label="Тема сетки" value={state.settings.gridTheme} options={["soft", "classic", "journal", "minimal"]} onChange={(value) => actions.updateSetting("gridTheme", value as GridTheme)} />
-            <SelectControl label="Вид сетки на ПК" value={state.settings.gridDisplayMode} options={["calendar", "compact", "matrix", "week", "habit", "timeline", "heat"]} onChange={(value) => actions.updateSetting("gridDisplayMode", value as GridDisplayMode)} />
-            <SelectControl label="Плотность сетки" value={state.settings.gridDensity} options={["compact", "standard", "comfortable"]} onChange={(value) => actions.updateSetting("gridDensity", value as Density)} />
-            <SelectControl label="Клик по ячейке" value={state.settings.gridClickAction} options={["details", "cycle"]} onChange={(value) => actions.updateSetting("gridClickAction", value as "details" | "cycle")} />
-            <SelectControl label="Стартовый экран" value={state.settings.defaultView} options={["today", "grid", "diary", "analytics", "settings"]} onChange={(value) => actions.updateSetting("defaultView", value as View)} />
-            <SelectControl label="Дней сетки на мобильном" value={String(state.settings.mobileGridDays)} options={["7", "14", "30"]} onChange={(value) => actions.updateSetting("mobileGridDays", Number(value) as 7 | 14 | 30)} />
+            <SelectControl label="Стартовый экран" value={state.settings.defaultView} options={["today", "grid", "habits", "diary", "analytics", "settings"]} onChange={(value) => actions.updateSetting("defaultView", value as View)} />
           </div>
           <Toggle label="Focus mode" checked={state.settings.focusMode} onChange={(checked) => actions.updateSetting("focusMode", checked)} />
           <Toggle label="Правая панель на ПК" checked={state.settings.rightPanel} onChange={(checked) => actions.updateSetting("rightPanel", checked)} />
-          <Toggle label="Показывать выходные в сетке" checked={state.settings.showWeekends} onChange={(checked) => actions.updateSetting("showWeekends", checked)} />
         </div>
         <div className="panel settings-card">
           <div className="section-head">
@@ -94,27 +73,6 @@ export function SettingsView({ state, actions }: { state: AppState; actions: App
           </div>
         </div>
         <div className="panel settings-card">
-          <h3>Стили сетки</h3>
-          <p className="muted">Цветовая тема теперь переключается через круглую кнопку в углу экрана.</p>
-          <div className="theme-preview-grid grid-theme-previews">
-            {[
-              ["soft", "Soft Grid"],
-              ["classic", "Classic Check"],
-              ["journal", "Journal Mood"],
-              ["minimal", "Minimal Mono"]
-            ].map(([theme, title]) => (
-              <button
-                key={theme}
-                className={`grid-theme-preview ${state.settings.gridTheme === theme ? "active" : ""}`}
-                onClick={() => actions.updateSetting("gridTheme", theme as GridTheme)}
-              >
-                <b>{title}</b>
-                <span><i /><i /><i /><i /><i /></span>
-              </button>
-            ))}
-          </div>
-        </div>
-        <div className="panel settings-card">
           <div className="section-head">
             <div>
               <h3>Статусы</h3>
@@ -124,7 +82,7 @@ export function SettingsView({ state, actions }: { state: AppState; actions: App
           {(Object.keys(statusMeta) as HabitStatus[]).map((status) => (
             <Toggle
               key={status}
-              label={`${statusMeta[status].short} ${statusMeta[status].label}`}
+              label={`${state.settings.statusIcons[status] || statusMeta[status].short} ${statusMeta[status].label}`}
               hint={status === "done" ? "обязательный статус" : undefined}
               checked={state.settings.activeStatuses.includes(status)}
               disabled={status === "done"}
@@ -179,10 +137,6 @@ export function SettingsView({ state, actions }: { state: AppState; actions: App
         <div className="panel settings-card">
           <h3>Блоки</h3>
           {Object.entries(blockLabels).map(([key, label]) => <Toggle key={key} label={label} checked={state.settings.visibleBlocks[key]} onChange={(checked) => actions.updateVisible("visibleBlocks", key, checked)} />)}
-        </div>
-        <div className="panel settings-card">
-          <h3>Сетка</h3>
-          {Object.entries(gridLabels).map(([key, label]) => <Toggle key={key} label={label} checked={state.settings.visibleGrid[key]} onChange={(checked) => actions.updateVisible("visibleGrid", key, checked)} />)}
           <div className="danger-zone">
             <button className="btn ghost" onClick={actions.resetSettings}>Сбросить только настройки</button>
             <button className="btn danger" onClick={actions.resetAll}>Сбросить все данные</button>

@@ -10,6 +10,7 @@ import { HabitModal } from "./components/HabitModal";
 import { CellSheet } from "./components/CellSheet";
 import { TodayView } from "./views/TodayView";
 import { GridView } from "./views/GridView";
+import { HabitsView } from "./views/HabitsView";
 import { DiaryView } from "./views/DiaryView";
 import { AnalyticsView } from "./views/AnalyticsView";
 import { SettingsView } from "./views/SettingsView";
@@ -147,6 +148,7 @@ export default function HabitCalendarApp({ initialState }: HabitCalendarAppProps
         <Topbar state={state} onDate={actions.setSelectedDate} onAdd={() => actions.openHabitModal("new")} onLogout={actions.signOut} />
         {state.view === "today" && <TodayView state={state} selectors={selectors} actions={actions} />}
         {state.view === "grid" && <GridView state={state} selectors={selectors} actions={actions} />}
+        {state.view === "habits" && <HabitsView state={state} selectors={selectors} actions={actions} />}
         {state.view === "diary" && <DiaryView state={state} actions={actions} />}
         {state.view === "analytics" && <AnalyticsView selectors={selectors} />}
         {state.view === "settings" && <SettingsView state={state} actions={actions} />}
