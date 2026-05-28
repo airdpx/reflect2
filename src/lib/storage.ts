@@ -2,7 +2,7 @@ import type { AppState } from "../types";
 import { createDefaults } from "./defaults";
 
 export const STORAGE_KEY = "habit-calendar-next-mvp-v1";
-export const SCHEMA_VERSION = 2;
+export const SCHEMA_VERSION = 3;
 
 export function loadStoredState(): AppState {
   const defaults = createDefaults();
@@ -44,6 +44,10 @@ function mergeState(defaults: AppState, stored: Partial<AppState>): AppState {
       visibleGrid: {
         ...defaults.settings.visibleGrid,
         ...stored.settings?.visibleGrid
+      },
+      customTheme: {
+        ...defaults.settings.customTheme,
+        ...stored.settings?.customTheme
       }
     },
     habits: stored.habits || defaults.habits,
@@ -53,24 +57,41 @@ function mergeState(defaults: AppState, stored: Partial<AppState>): AppState {
 }
 
 function migrateState(state: AppState): AppState {
+  const previousVersion = state.schemaVersion || 1;
+  const defaults = createDefaults();
+  const migratedVisibleGrid = {
+    ...defaults.settings.visibleGrid,
+    ...state.settings.visibleGrid
+  };
+  if (previousVersion < 3) {
+    migratedVisibleGrid.noteMarker = false;
+    migratedVisibleGrid.streak = false;
+    migratedVisibleGrid.daysSince = false;
+    migratedVisibleGrid.statusText = true;
+  }
   return {
     ...state,
     schemaVersion: SCHEMA_VERSION,
     settings: {
-      ...createDefaults().settings,
+      ...defaults.settings,
       ...state.settings,
       defaultPeriod: {
-        ...createDefaults().settings.defaultPeriod,
+        ...defaults.settings.defaultPeriod,
         ...state.settings.defaultPeriod
       },
       visibleBlocks: {
-        ...createDefaults().settings.visibleBlocks,
+        ...defaults.settings.visibleBlocks,
         ...state.settings.visibleBlocks
       },
-      visibleGrid: {
-        ...createDefaults().settings.visibleGrid,
-        ...state.settings.visibleGrid
+      visibleGrid: migratedVisibleGrid,
+      customTheme: {
+        ...defaults.settings.customTheme,
+        ...state.settings.customTheme
       },
+      gridDisplayMode: previousVersion < 3 ? "calendar" : state.settings.gridDisplayMode || defaults.settings.gridDisplayMode,
+      gridClickAction: previousVersion < 3 ? "cycle" : state.settings.gridClickAction || defaults.settings.gridClickAction,
+      localUsers: state.settings.localUsers?.length ? state.settings.localUsers : defaults.settings.localUsers,
+      activeUserId: state.settings.activeUserId || defaults.settings.activeUserId,
       customPresets: state.settings.customPresets || {}
     }
   };

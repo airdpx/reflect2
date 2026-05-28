@@ -134,7 +134,7 @@ export const habitTemplates: HabitTemplate[] = [
 
 export function createDefaults(): AppState {
   return {
-    schemaVersion: 2,
+    schemaVersion: 3,
     view: "today",
     selectedDate: todayKey(),
     habits: [],
@@ -160,21 +160,41 @@ export function createDefaults(): AppState {
         color: true,
         icon: true,
         category: true,
-        streak: true,
+        type: false,
+        target: false,
+        statusText: false,
+        compactMeta: true,
+        categoryGroups: true,
+        streak: false,
         completion: false,
-        daysSince: true,
-        noteMarker: true,
+        daysSince: false,
+        noteMarker: false,
         moodMarker: true
       },
       density: "standard",
       interfaceTheme: "dark",
       gridTheme: "soft",
+      gridDisplayMode: "calendar",
       focusMode: false,
       rightPanel: true,
       showWeekends: true,
-      gridClickAction: "details",
+      gridClickAction: "cycle",
+      selectedCategory: "all",
       defaultView: "today",
       mobileGridDays: 14,
+      customTheme: {
+        bg: "#111827",
+        surface: "#182235",
+        text: "#f8fafc",
+        accent: "#22c55e",
+        done: "#22c55e",
+        partial: "#f59e0b",
+        skipped: "#64748b",
+        missed: "#ef4444",
+        planned: "#38bdf8"
+      },
+      localUsers: [{ id: "local-user", name: "Пользователь", color: "#22c55e" }],
+      activeUserId: "local-user",
       customPresets: {}
     }
   };

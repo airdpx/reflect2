@@ -2,8 +2,9 @@ export type View = "today" | "grid" | "diary" | "analytics" | "settings";
 export type HabitType = "boolean" | "numeric" | "multiple" | "avoid" | "reflection";
 export type HabitStatus = "done" | "partial" | "skipped" | "missed" | "planned";
 export type Density = "compact" | "standard" | "comfortable";
-export type InterfaceTheme = "light" | "blue" | "dark" | "warm" | "sage";
+export type InterfaceTheme = "light" | "blue" | "dark" | "warm" | "sage" | "contrast" | "sunset" | "mint" | "custom";
 export type GridTheme = "soft" | "classic" | "journal" | "minimal";
+export type GridDisplayMode = "calendar" | "matrix";
 export type PeriodMode = "last" | "week" | "month" | "custom";
 
 export type Habit = {
@@ -69,12 +70,27 @@ export type UserSettings = {
   density: Density;
   interfaceTheme: InterfaceTheme;
   gridTheme: GridTheme;
+  gridDisplayMode: GridDisplayMode;
   focusMode: boolean;
   rightPanel: boolean;
   showWeekends: boolean;
   gridClickAction: "details" | "cycle";
+  selectedCategory: string;
   defaultView: View;
   mobileGridDays: 7 | 14 | 30;
+  customTheme: {
+    bg: string;
+    surface: string;
+    text: string;
+    accent: string;
+    done: string;
+    partial: string;
+    skipped: string;
+    missed: string;
+    planned: string;
+  };
+  localUsers: Array<{ id: string; name: string; color: string }>;
+  activeUserId: string;
   customPresets: Record<string, Partial<UserSettings>>;
 };
 
@@ -136,4 +152,5 @@ export type AppSelectors = {
   calculateStats: (habit: Habit, dates?: string[]) => HabitStats;
   getAttentionHabits: () => Array<{ habit: Habit; stats: HabitStats }>;
   periodLabel: () => string;
+  categories: string[];
 };

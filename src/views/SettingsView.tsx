@@ -1,5 +1,5 @@
 import { useState } from "react";
-import type { AppActions, AppState, Density, GridTheme, HabitStatus, InterfaceTheme, UserSettings, View } from "../types";
+import type { AppActions, AppState, Density, GridDisplayMode, GridTheme, HabitStatus, InterfaceTheme, UserSettings, View } from "../types";
 import { SelectControl, Toggle } from "../components/Common";
 import { statusMeta } from "../lib/defaults";
 
@@ -20,11 +20,27 @@ const gridLabels: Record<string, string> = {
   color: "Цвет",
   icon: "Иконка",
   category: "Категория",
+  type: "Тип",
+  target: "Цель",
+  statusText: "Символ статуса",
+  categoryGroups: "Группировка категорий",
   streak: "Streak",
   completion: "Completion rate",
   daysSince: "Дней с выполнения",
   noteMarker: "Маркер заметки",
   moodMarker: "Маркер настроения"
+};
+
+const customThemeLabels: Record<keyof UserSettings["customTheme"], string> = {
+  bg: "Фон",
+  surface: "Поверхность",
+  text: "Текст",
+  accent: "Акцент",
+  done: "Выполнено",
+  partial: "Частично",
+  skipped: "Пропуск",
+  missed: "Не выполнено",
+  planned: "План"
 };
 
 export function SettingsView({ state, actions }: { state: AppState; actions: AppActions }) {
@@ -45,8 +61,9 @@ export function SettingsView({ state, actions }: { state: AppState; actions: App
           <div className="form-grid">
             <SelectControl label="Display preset" value={state.settings.preset} options={["Simple", "Balanced", "Journal", "Analytical", "Focus"]} onChange={(value) => actions.applyPreset(value as UserSettings["preset"])} />
             <SelectControl label="Плотность" value={state.settings.density} options={["compact", "standard", "comfortable"]} onChange={(value) => actions.updateSetting("density", value as Density)} />
-            <SelectControl label="Тема интерфейса" value={state.settings.interfaceTheme} options={["light", "blue", "dark", "warm", "sage"]} onChange={(value) => actions.updateSetting("interfaceTheme", value as InterfaceTheme)} />
+            <SelectControl label="Тема интерфейса" value={state.settings.interfaceTheme} options={["light", "blue", "dark", "warm", "sage", "contrast", "sunset", "mint", "custom"]} onChange={(value) => actions.updateSetting("interfaceTheme", value as InterfaceTheme)} />
             <SelectControl label="Тема сетки" value={state.settings.gridTheme} options={["soft", "classic", "journal", "minimal"]} onChange={(value) => actions.updateSetting("gridTheme", value as GridTheme)} />
+            <SelectControl label="Вид сетки на ПК" value={state.settings.gridDisplayMode} options={["calendar", "matrix"]} onChange={(value) => actions.updateSetting("gridDisplayMode", value as GridDisplayMode)} />
             <SelectControl label="Клик по ячейке" value={state.settings.gridClickAction} options={["details", "cycle"]} onChange={(value) => actions.updateSetting("gridClickAction", value as "details" | "cycle")} />
             <SelectControl label="Стартовый экран" value={state.settings.defaultView} options={["today", "grid", "diary", "analytics", "settings"]} onChange={(value) => actions.updateSetting("defaultView", value as View)} />
             <SelectControl label="Дней сетки на мобильном" value={String(state.settings.mobileGridDays)} options={["7", "14", "30"]} onChange={(value) => actions.updateSetting("mobileGridDays", Number(value) as 7 | 14 | 30)} />
@@ -54,16 +71,26 @@ export function SettingsView({ state, actions }: { state: AppState; actions: App
           <Toggle label="Focus mode" checked={state.settings.focusMode} onChange={(checked) => actions.updateSetting("focusMode", checked)} />
           <Toggle label="Правая панель на ПК" checked={state.settings.rightPanel} onChange={(checked) => actions.updateSetting("rightPanel", checked)} />
           <Toggle label="Показывать выходные в сетке" checked={state.settings.showWeekends} onChange={(checked) => actions.updateSetting("showWeekends", checked)} />
+          <div className="settings-row">
+            <span><b>Режим пользователей</b><br /><small className="muted">Локальные профили сейчас, авторизация позже.</small></span>
+            <select className="select compact-select" value={state.settings.activeUserId} onChange={(event) => actions.updateSetting("activeUserId", event.target.value)}>
+              {state.settings.localUsers.map((user) => <option key={user.id} value={user.id}>{user.name}</option>)}
+            </select>
+          </div>
         </div>
         <div className="panel settings-card">
           <h3>Превью тем</h3>
           <div className="theme-preview-grid">
             {[
               ["dark", "Dark Calm", "вечерний спокойный режим"],
+              ["contrast", "Bright Contrast", "ярко и читаемо"],
+              ["sunset", "Sunset", "теплый контраст"],
+              ["mint", "Mint Pop", "свежий яркий режим"],
               ["light", "Light Neutral", "чистый базовый вид"],
               ["warm", "Warm Journal", "мягкий дневниковый тон"],
               ["sage", "Sage Natural", "природный спокойный тон"],
-              ["blue", "Calm Blue", "нейтральный digital"]
+              ["blue", "Calm Blue", "нейтральный digital"],
+              ["custom", "Custom", "ваши цвета"]
             ].map(([theme, title, text]) => (
               <button
                 key={theme}
@@ -93,6 +120,16 @@ export function SettingsView({ state, actions }: { state: AppState; actions: App
               </button>
             ))}
           </div>
+          {state.settings.interfaceTheme === "custom" && (
+            <div className="custom-theme-editor">
+              {(Object.keys(state.settings.customTheme) as Array<keyof UserSettings["customTheme"]>).map((key) => (
+                <label className="color-field" key={key}>
+                  <span>{customThemeLabels[key]}</span>
+                  <input type="color" value={state.settings.customTheme[key]} onChange={(event) => actions.updateSetting("customTheme", { ...state.settings.customTheme, [key]: event.target.value })} />
+                </label>
+              ))}
+            </div>
+          )}
         </div>
         <div className="panel settings-card">
           <div className="section-head">

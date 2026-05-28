@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import type React from "react";
 import type { AppActions, AppSelectors, AppState, DailyNote, Habit, HabitLog, HabitStatus, UserSettings, View } from "./types";
 import { MobileNav, Sidebar, Topbar } from "./components/Navigation";
 import { Inspector } from "./components/Inspector";
@@ -44,6 +45,7 @@ export default function HabitCalendarApp() {
   }, [state, hydrated]);
 
   const activeHabits = useMemo(() => state.habits.filter((habit) => !habit.archived), [state.habits]);
+  const categories = useMemo(() => Array.from(new Set(activeHabits.map((habit) => habit.category).filter(Boolean))).sort(), [activeHabits]);
   const allPeriodDates = useMemo(() => getPeriodDates(state.settings.defaultPeriod, state.settings.showWeekends), [state.settings.defaultPeriod, state.settings.showWeekends]);
   const periodDates = useMemo(
     () => isMobile ? allPeriodDates.slice(-state.settings.mobileGridDays) : allPeriodDates,
@@ -62,7 +64,8 @@ export default function HabitCalendarApp() {
     isDue: isHabitDue,
     calculateStats: (habit, dates = periodDates) => calculateHabitStats(habit, dates, state.logs),
     getAttentionHabits: () => getAttentionHabits(activeHabits, periodDates, state.logs),
-    periodLabel: () => getPeriodLabel(state.settings.defaultPeriod)
+    periodLabel: () => getPeriodLabel(state.settings.defaultPeriod),
+    categories
   };
 
   const actions: AppActions = {
@@ -94,10 +97,23 @@ export default function HabitCalendarApp() {
   };
 
   const appClass = `app density-${state.settings.density} theme-${state.settings.interfaceTheme} ${state.settings.focusMode ? "focus" : ""}`;
+  const customThemeStyle = state.settings.interfaceTheme === "custom" ? {
+    "--bg": state.settings.customTheme.bg,
+    "--surface": state.settings.customTheme.surface,
+    "--surface-soft": state.settings.customTheme.surface,
+    "--text": state.settings.customTheme.text,
+    "--accent": state.settings.customTheme.accent,
+    "--accent-soft": `${state.settings.customTheme.accent}24`,
+    "--status-done-bg": state.settings.customTheme.done,
+    "--status-partial-bg": state.settings.customTheme.partial,
+    "--status-skipped-bg": state.settings.customTheme.skipped,
+    "--status-missed-bg": state.settings.customTheme.missed,
+    "--status-planned-bg": state.settings.customTheme.planned
+  } as React.CSSProperties : undefined;
   const editingHabit = draftHabit || (editingHabitId ? state.habits.find((habit) => habit.id === editingHabitId) || null : null);
 
   return (
-    <div className={appClass}>
+    <div className={appClass} style={customThemeStyle}>
       <Sidebar view={state.view} onView={actions.setView} />
       <main className="main">
         <Topbar state={state} onDate={actions.setSelectedDate} onAdd={() => actions.openHabitModal("new")} />
@@ -279,7 +295,10 @@ export default function HabitCalendarApp() {
         showWeekends: draft.settings.showWeekends,
         gridClickAction: draft.settings.gridClickAction,
         defaultView: draft.settings.defaultView,
-        mobileGridDays: draft.settings.mobileGridDays
+        mobileGridDays: draft.settings.mobileGridDays,
+        gridDisplayMode: draft.settings.gridDisplayMode,
+        selectedCategory: draft.settings.selectedCategory,
+        customTheme: { ...draft.settings.customTheme }
       };
       return draft;
     });
