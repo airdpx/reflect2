@@ -41,11 +41,13 @@ function Nav({ view, onView, className }: { view: View; onView: (view: View) => 
 export function Topbar({
   state,
   onDate,
-  onAdd
+  onAdd,
+  onLogout
 }: {
   state: AppState;
   onDate: (date: string) => void;
   onAdd: () => void;
+  onLogout: () => void;
 }) {
   const titles: Record<View, [string, string]> = {
     today: ["Сегодня", formatDate(state.selectedDate)],
@@ -62,10 +64,17 @@ export function Topbar({
         <p>{subtitle}</p>
       </div>
       <div className="toolbar">
+        {state.profile ? (
+          <div className="user-chip">
+            <b>{state.profile.name || state.profile.email}</b>
+            <span>{state.profile.birthDate}</span>
+          </div>
+        ) : null}
         <input className="input date-input" type="date" value={state.selectedDate} onChange={(event) => onDate(event.target.value || todayKey())} />
         <button className="btn primary" onClick={onAdd}>
           + Привычка
         </button>
+        {state.profile ? <button className="btn ghost" onClick={onLogout}>Выйти</button> : null}
       </div>
     </header>
   );

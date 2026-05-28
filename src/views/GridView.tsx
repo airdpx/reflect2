@@ -143,7 +143,7 @@ function CalendarMonthGrid({
 
 function ForecastDayMarker({ date, state }: { date: string; state: AppState }) {
   if (!state.settings.forecast.enabled || !state.settings.forecast.showInGrid) return null;
-  const forecast = getForecast(date, state.settings.forecast);
+  const forecast = getForecast(date, state.settings.forecast, state.profile?.birthDate || "");
   if (!forecast) return null;
   return <i className={`forecast-day-marker forecast-marker-${forecastTone(forecast.summaryScore)}`} title={`Прогноз дня: ${forecast.summaryScore}%`} />;
 }

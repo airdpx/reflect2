@@ -176,12 +176,13 @@ export const habitTemplates: HabitTemplate[] = [
 
 export function createDefaults(): AppState {
   return {
-    schemaVersion: 6,
+    schemaVersion: 8,
     view: "today",
     selectedDate: todayKey(),
     habits: [],
     logs: {},
     notes: {},
+    profile: null,
     settings: {
       preset: "Balanced",
       activeStatuses: ["done", "partial", "skipped"],
@@ -240,7 +241,6 @@ export function createDefaults(): AppState {
       forecast: {
         enabled: false,
         provider: "biorhythm",
-        birthDate: "",
         visibleScales: {
           physical: true,
           emotional: true,
@@ -273,8 +273,6 @@ export function createDefaults(): AppState {
         missed: "#ef4444",
         planned: "#38bdf8"
       },
-      localUsers: [{ id: "local-user", name: "Пользователь", color: "#22c55e" }],
-      activeUserId: "local-user",
       customPresets: {}
     }
   };

@@ -3,7 +3,7 @@ import { forecastTone, getForecast } from "../lib/forecast";
 
 export function TodayForecastPanel({ state, actions }: { state: AppState; actions: AppActions }) {
   if (!state.settings.forecast.enabled || !state.settings.forecast.showInToday) return null;
-  const forecast = getForecast(state.selectedDate, state.settings.forecast);
+  const forecast = getForecast(state.selectedDate, state.settings.forecast, state.profile?.birthDate || "");
   return (
     <ForecastShell title="Прогноз дня" forecast={forecast} mode={state.settings.forecast.displayMode} onSettings={() => actions.setView("settings")} />
   );
@@ -11,7 +11,7 @@ export function TodayForecastPanel({ state, actions }: { state: AppState; action
 
 export function DiaryForecastStrip({ state, actions }: { state: AppState; actions: AppActions }) {
   if (!state.settings.forecast.enabled || !state.settings.forecast.showInDiary) return null;
-  const forecast = getForecast(state.selectedDate, state.settings.forecast);
+  const forecast = getForecast(state.selectedDate, state.settings.forecast, state.profile?.birthDate || "");
   if (!forecast) {
     return (
       <div className="forecast-strip empty-forecast">
@@ -32,7 +32,7 @@ export function DiaryForecastStrip({ state, actions }: { state: AppState; action
 
 export function InspectorForecastSummary({ state }: { state: AppState }) {
   if (!state.settings.forecast.enabled || !state.settings.forecast.showInInspector) return null;
-  const forecast = getForecast(state.selectedDate, state.settings.forecast);
+  const forecast = getForecast(state.selectedDate, state.settings.forecast, state.profile?.birthDate || "");
   const tone = forecast ? forecastTone(forecast.summaryScore) : "steady";
   return (
     <div className="panel inspector-panel">

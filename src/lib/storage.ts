@@ -2,7 +2,7 @@ import type { AppState } from "../types";
 import { createDefaults, defaultCustomGridColors } from "./defaults";
 
 export const STORAGE_KEY = "habit-calendar-next-mvp-v1";
-export const SCHEMA_VERSION = 6;
+export const SCHEMA_VERSION = 8;
 
 export function loadStoredState(): AppState {
   const defaults = createDefaults();
@@ -18,7 +18,9 @@ export function loadStoredState(): AppState {
 
 export function saveStoredState(state: AppState) {
   if (typeof window !== "undefined") {
-    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    const copy = structuredClone(state) as AppState & { settings: { forecast: Record<string, unknown> } };
+    delete copy.settings.forecast.birthDate;
+    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(copy));
   }
 }
 
@@ -27,45 +29,51 @@ export function clearStoredState() {
 }
 
 function mergeState(defaults: AppState, stored: Partial<AppState>): AppState {
+  const storedSettings = (stored.settings || {}) as Partial<AppState["settings"]> & {
+    localUsers?: unknown;
+    activeUserId?: unknown;
+  };
+  const { localUsers: _localUsers, activeUserId: _activeUserId, ...safeSettings } = storedSettings;
   return {
     ...defaults,
     ...stored,
     settings: {
       ...defaults.settings,
-      ...stored.settings,
+      ...safeSettings,
       defaultPeriod: {
         ...defaults.settings.defaultPeriod,
-        ...stored.settings?.defaultPeriod
+        ...safeSettings.defaultPeriod
       },
       visibleBlocks: {
         ...defaults.settings.visibleBlocks,
-        ...stored.settings?.visibleBlocks
+        ...safeSettings.visibleBlocks
       },
       visibleGrid: {
         ...defaults.settings.visibleGrid,
-        ...stored.settings?.visibleGrid
+        ...safeSettings.visibleGrid
       },
       customTheme: {
         ...defaults.settings.customTheme,
-        ...stored.settings?.customTheme
+        ...safeSettings.customTheme
       },
       statusIcons: {
         ...defaults.settings.statusIcons,
-        ...stored.settings?.statusIcons
+        ...safeSettings.statusIcons
       },
       gridColors: {
         ...defaults.settings.gridColors,
-        ...stored.settings?.gridColors
+        ...safeSettings.gridColors
       },
       forecast: {
         ...defaults.settings.forecast,
-        ...stored.settings?.forecast,
+        ...safeSettings.forecast,
         visibleScales: {
           ...defaults.settings.forecast.visibleScales,
-          ...stored.settings?.forecast?.visibleScales
+          ...safeSettings.forecast?.visibleScales
         }
       }
     },
+    profile: stored.profile || defaults.profile,
     habits: stored.habits || defaults.habits,
     logs: stored.logs || defaults.logs,
     notes: stored.notes || defaults.notes
@@ -92,6 +100,20 @@ function migrateState(state: AppState): AppState {
     ...defaults.settings.visibleGrid,
     ...state.settings.visibleGrid
   };
+  const legacyBirthDate = (state.settings.forecast as { birthDate?: string }).birthDate || "";
+  const profile = state.profile || (legacyBirthDate ? {
+    id: "local-profile",
+    email: "local@habit-calendar.app",
+    name: "Пользователь",
+    birthDate: legacyBirthDate
+  } : null);
+  const forecast = { ...state.settings.forecast } as Record<string, unknown>;
+  delete forecast.birthDate;
+  const legacySettings = state.settings as Partial<AppState["settings"]> & {
+    localUsers?: unknown;
+    activeUserId?: unknown;
+  };
+  const { localUsers: _legacyLocalUsers, activeUserId: _legacyActiveUserId, ...legacySafeSettings } = legacySettings;
   if (previousVersion < 3) {
     migratedVisibleGrid.noteMarker = false;
     migratedVisibleGrid.streak = false;
@@ -103,23 +125,23 @@ function migrateState(state: AppState): AppState {
     schemaVersion: SCHEMA_VERSION,
     settings: {
       ...defaults.settings,
-      ...state.settings,
+      ...legacySafeSettings,
       defaultPeriod: {
         ...defaults.settings.defaultPeriod,
-        ...state.settings.defaultPeriod
+        ...legacySafeSettings.defaultPeriod
       },
       visibleBlocks: {
         ...defaults.settings.visibleBlocks,
-        ...state.settings.visibleBlocks
+        ...legacySafeSettings.visibleBlocks
       },
       visibleGrid: migratedVisibleGrid,
       customTheme: {
         ...defaults.settings.customTheme,
-        ...state.settings.customTheme
+        ...legacySafeSettings.customTheme
       },
       statusIcons: {
         ...defaults.settings.statusIcons,
-        ...state.settings.statusIcons
+        ...legacySafeSettings.statusIcons
       },
       gridColors: {
         ...defaults.settings.gridColors,
@@ -127,22 +149,21 @@ function migrateState(state: AppState): AppState {
       },
       forecast: {
         ...defaults.settings.forecast,
-        ...state.settings.forecast,
+        ...forecast,
         visibleScales: {
           ...defaults.settings.forecast.visibleScales,
-          ...state.settings.forecast?.visibleScales
+          ...legacySafeSettings.forecast?.visibleScales
         }
       },
-      gridDisplayMode: previousVersion < 3 ? "calendar" : state.settings.gridDisplayMode || defaults.settings.gridDisplayMode,
-      gridDensity: state.settings.gridDensity || defaults.settings.gridDensity,
-      gridClickAction: previousVersion < 3 ? "cycle" : state.settings.gridClickAction || defaults.settings.gridClickAction,
-      selectedHabitId: state.settings.selectedHabitId || defaults.settings.selectedHabitId,
-      todayLayout: state.settings.todayLayout || defaults.settings.todayLayout,
-      diaryLayout: state.settings.diaryLayout || defaults.settings.diaryLayout,
-      localUsers: state.settings.localUsers?.length ? state.settings.localUsers : defaults.settings.localUsers,
-      activeUserId: state.settings.activeUserId || defaults.settings.activeUserId,
-      customPresets: state.settings.customPresets || {}
-    }
+      gridDisplayMode: previousVersion < 3 ? "calendar" : legacySafeSettings.gridDisplayMode || defaults.settings.gridDisplayMode,
+      gridDensity: legacySafeSettings.gridDensity || defaults.settings.gridDensity,
+      gridClickAction: previousVersion < 3 ? "cycle" : legacySafeSettings.gridClickAction || defaults.settings.gridClickAction,
+      selectedHabitId: legacySafeSettings.selectedHabitId || defaults.settings.selectedHabitId,
+      todayLayout: legacySafeSettings.todayLayout || defaults.settings.todayLayout,
+      diaryLayout: legacySafeSettings.diaryLayout || defaults.settings.diaryLayout,
+      customPresets: legacySafeSettings.customPresets || {}
+    },
+    profile
   };
 }
 

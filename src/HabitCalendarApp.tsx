@@ -18,8 +18,12 @@ import { calculateHabitStats, getAttentionHabits, getPeriodDates, getPeriodLabel
 import { clearStoredState, loadStoredState, parseImportedState, saveStoredState } from "./lib/storage";
 import { todayKey } from "./lib/date";
 
-export default function HabitCalendarApp() {
-  const [state, setState] = useState<AppState>(() => createDefaults());
+type HabitCalendarAppProps = {
+  initialState?: AppState;
+};
+
+export default function HabitCalendarApp({ initialState }: HabitCalendarAppProps) {
+  const [state, setState] = useState<AppState>(() => initialState || createDefaults());
   const [hydrated, setHydrated] = useState(false);
   const [editingHabitId, setEditingHabitId] = useState<string | null>(null);
   const [draftHabit, setDraftHabit] = useState<Habit | null>(null);
@@ -28,10 +32,10 @@ export default function HabitCalendarApp() {
   const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
-    const stored = loadStoredState();
+    const stored = initialState || loadStoredState();
     setState({ ...stored, view: stored.settings.defaultView });
     setHydrated(true);
-  }, []);
+  }, [initialState]);
 
   useEffect(() => {
     const query = window.matchMedia("(max-width: 719px)");
@@ -43,6 +47,18 @@ export default function HabitCalendarApp() {
 
   useEffect(() => {
     if (hydrated) saveStoredState(state);
+  }, [state, hydrated]);
+
+  useEffect(() => {
+    if (!hydrated || !state.profile?.id) return;
+    const timer = window.setTimeout(() => {
+      fetch("/api/account/state", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ state })
+      }).catch(() => undefined);
+    }, 450);
+    return () => window.clearTimeout(timer);
   }, [state, hydrated]);
 
   const activeHabits = useMemo(() => state.habits.filter((habit) => !habit.archived), [state.habits]);
@@ -92,6 +108,7 @@ export default function HabitCalendarApp() {
     deleteHabit,
     resetSettings,
     resetAll,
+    signOut,
     openHabitModal,
     openHabitTemplate,
     openCellSheet: setActiveCell
@@ -127,7 +144,7 @@ export default function HabitCalendarApp() {
     <div className={appClass} style={customThemeStyle}>
       <Sidebar view={state.view} onView={actions.setView} />
       <main className="main">
-        <Topbar state={state} onDate={actions.setSelectedDate} onAdd={() => actions.openHabitModal("new")} />
+        <Topbar state={state} onDate={actions.setSelectedDate} onAdd={() => actions.openHabitModal("new")} onLogout={actions.signOut} />
         {state.view === "today" && <TodayView state={state} selectors={selectors} actions={actions} />}
         {state.view === "grid" && <GridView state={state} selectors={selectors} actions={actions} />}
         {state.view === "diary" && <DiaryView state={state} actions={actions} />}
@@ -395,5 +412,11 @@ export default function HabitCalendarApp() {
     if (!window.confirm("Сбросить все данные прототипа?")) return;
     clearStoredState();
     setState(createDefaults());
+  }
+
+  function signOut() {
+    fetch("/api/auth/logout", { method: "POST" }).finally(() => {
+      window.location.reload();
+    });
   }
 }

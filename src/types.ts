@@ -88,13 +88,19 @@ export type DailyNote = {
 export type ForecastSettings = {
   enabled: boolean;
   provider: ForecastProviderId;
-  birthDate: string;
   visibleScales: Record<ForecastScaleId, boolean>;
   showInToday: boolean;
   showInDiary: boolean;
   showInInspector: boolean;
   showInGrid: boolean;
   displayMode: ForecastDisplayMode;
+};
+
+export type UserProfile = {
+  id: string;
+  email: string;
+  name: string;
+  birthDate: string;
 };
 
 export type ForecastScale = {
@@ -153,8 +159,6 @@ export type UserSettings = {
     missed: string;
     planned: string;
   };
-  localUsers: Array<{ id: string; name: string; color: string }>;
-  activeUserId: string;
   customPresets: Record<string, Partial<UserSettings>>;
 };
 
@@ -165,6 +169,7 @@ export type AppState = {
   habits: Habit[];
   logs: Record<string, HabitLog>;
   notes: Record<string, DailyNote>;
+  profile: UserProfile | null;
   settings: UserSettings;
 };
 
@@ -202,6 +207,7 @@ export type AppActions = {
   deleteHabit: (habitId: string) => void;
   resetSettings: () => void;
   resetAll: () => void;
+  signOut: () => void;
   openHabitModal: (habitId: string | null) => void;
   openHabitTemplate: (templateId: string) => void;
   openCellSheet: (cell: { habitId: string; date: string } | null) => void;

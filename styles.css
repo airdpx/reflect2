@@ -48,6 +48,12 @@ body {
   color: var(--text);
 }
 
+body:has(.auth-shell) {
+  min-height: 100vh;
+  background:
+    linear-gradient(180deg, color-mix(in srgb, var(--bg) 88%, white) 0%, var(--bg) 100%);
+}
+
 button,
 input,
 select,
@@ -157,6 +163,26 @@ button {
   gap: 8px;
   align-items: center;
   justify-content: flex-end;
+}
+
+.user-chip {
+  display: grid;
+  gap: 2px;
+  padding: 6px 10px;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  background: var(--surface);
+}
+
+.user-chip b {
+  font-size: 12px;
+  line-height: 1.1;
+}
+
+.user-chip span {
+  color: var(--muted);
+  font-size: 11px;
+  line-height: 1.1;
 }
 
 .btn {
@@ -698,6 +724,30 @@ button {
 .chip.active {
   background: var(--accent);
   color: #fff;
+}
+
+.auth-shell {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  padding: 28px;
+}
+
+.auth-card {
+  width: min(680px, 100%);
+  padding: 22px;
+}
+
+.auth-tabs {
+  margin: 14px 0 18px;
+}
+
+.auth-form {
+  margin-top: 6px;
+}
+
+.auth-actions {
+  justify-content: flex-start;
 }
 
 .period-panel {

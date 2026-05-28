@@ -76,11 +76,21 @@ export function SettingsView({ state, actions }: { state: AppState; actions: App
           <Toggle label="Focus mode" checked={state.settings.focusMode} onChange={(checked) => actions.updateSetting("focusMode", checked)} />
           <Toggle label="Правая панель на ПК" checked={state.settings.rightPanel} onChange={(checked) => actions.updateSetting("rightPanel", checked)} />
           <Toggle label="Показывать выходные в сетке" checked={state.settings.showWeekends} onChange={(checked) => actions.updateSetting("showWeekends", checked)} />
+        </div>
+        <div className="panel settings-card">
+          <div className="section-head">
+            <div>
+              <h3>Профиль</h3>
+              <p className="muted">Дата рождения задаётся при регистрации и используется для прогноза.</p>
+            </div>
+          </div>
           <div className="settings-row">
-            <span><b>Режим пользователей</b><br /><small className="muted">Локальные профили сейчас, авторизация позже.</small></span>
-            <select className="select compact-select" value={state.settings.activeUserId} onChange={(event) => actions.updateSetting("activeUserId", event.target.value)}>
-              {state.settings.localUsers.map((user) => <option key={user.id} value={user.id}>{user.name}</option>)}
-            </select>
+            <span><b>Аккаунт</b></span>
+            <span className="badge">{state.profile?.email || "Гость"}</span>
+          </div>
+          <div className="settings-row">
+            <span><b>Дата рождения</b></span>
+            <span className="badge">{state.profile?.birthDate || "не задана"}</span>
           </div>
         </div>
         <div className="panel settings-card">
@@ -131,13 +141,10 @@ export function SettingsView({ state, actions }: { state: AppState; actions: App
           </div>
           <Toggle label="Включить прогноз" checked={state.settings.forecast.enabled} onChange={(checked) => actions.updateSetting("forecast", { ...state.settings.forecast, enabled: checked })} />
           <div className="form-grid">
-            <div className="field">
-              <label>Дата рождения</label>
-              <input className="input" type="date" value={state.settings.forecast.birthDate} onChange={(event) => actions.updateSetting("forecast", { ...state.settings.forecast, birthDate: event.target.value })} />
-            </div>
             <SelectControl label="Источник" value={state.settings.forecast.provider} options={["biorhythm"]} onChange={(value) => actions.updateSetting("forecast", { ...state.settings.forecast, provider: value as ForecastProviderId })} />
             <SelectControl label="Вид" value={state.settings.forecast.displayMode} options={["compact", "cards", "minimal"]} onChange={(value) => actions.updateSetting("forecast", { ...state.settings.forecast, displayMode: value as ForecastDisplayMode })} />
           </div>
+          <p className="muted">Дата рождения берётся из профиля аккаунта, поэтому здесь её менять не нужно.</p>
           <div className="module-toggle-grid">
             {forecastPlacementOptions.map(([key, label]) => (
               <label key={key}>

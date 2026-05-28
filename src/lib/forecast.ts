@@ -4,7 +4,7 @@ import { fromKey } from "./date";
 export type ForecastProvider = {
   id: ForecastProviderId;
   label: string;
-  calculate: (date: string, settings: ForecastSettings) => ForecastResult | null;
+  calculate: (date: string, settings: ForecastSettings, birthDate: string) => ForecastResult | null;
 };
 
 const scaleMeta: Record<ForecastScaleId, { label: string; cycle: number }> = {
@@ -21,10 +21,10 @@ export const forecastProviders: ForecastProvider[] = [
   }
 ];
 
-export function getForecast(date: string, settings: ForecastSettings): ForecastResult | null {
-  if (!settings.enabled || !settings.birthDate) return null;
+export function getForecast(date: string, settings: ForecastSettings, birthDate: string): ForecastResult | null {
+  if (!settings.enabled || !birthDate) return null;
   const provider = forecastProviders.find((item) => item.id === settings.provider) || forecastProviders[0];
-  return provider.calculate(date, settings);
+  return provider.calculate(date, settings, birthDate);
 }
 
 export function forecastTone(score: number) {
@@ -33,8 +33,8 @@ export function forecastTone(score: number) {
   return "steady";
 }
 
-function calculateBiorhythmForecast(date: string, settings: ForecastSettings): ForecastResult | null {
-  const birth = fromKey(settings.birthDate);
+function calculateBiorhythmForecast(date: string, settings: ForecastSettings, birthDate: string): ForecastResult | null {
+  const birth = fromKey(birthDate);
   const target = fromKey(date);
   if (Number.isNaN(birth.getTime()) || Number.isNaN(target.getTime())) return null;
 
