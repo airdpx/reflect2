@@ -1,0 +1,11 @@
+.next
+node_modules
+.tools
+out
+dist
+.DS_Store
+*.log
+.env
+.env.local
+screenshot-*.png
+habit-app-screenshot.png
