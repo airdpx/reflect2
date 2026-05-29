@@ -6,7 +6,6 @@ import { statusMeta } from "../lib/defaults";
 const blockLabels: Record<string, string> = {
   today: "Сегодня",
   attention: "Требует внимания",
-  habitIcons: "Иконки привычек",
   diary: "Дневник",
   mood: "Настроение",
   energy: "Энергия",

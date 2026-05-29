@@ -1,7 +1,7 @@
 import { Fragment, useEffect, useState } from "react";
 import type React from "react";
 import type { AppActions, AppSelectors, AppState, Density, GridDisplayMode, Habit, HabitStatus } from "../types";
-import { formatDate, todayKey, weekdayShort } from "../lib/date";
+import { addDays, formatDate, fromKey, rangeDates, todayKey, weekdayShort } from "../lib/date";
 import { habitTypeLabels, statusIconPresets, statusMeta } from "../lib/defaults";
 import { forecastTone, getForecast } from "../lib/forecast";
 import { TemplateChooser } from "./TodayView";
@@ -47,7 +47,8 @@ export function GridView({
 }) {
   const p = state.settings.defaultPeriod;
   const viewportWidth = useViewportWidth();
-  const gridDates = selectors.periodDates.slice(-state.settings.calendarHistoryDays);
+  const totalDays = Math.max(1, state.settings.calendarHistoryDays + selectors.periodDates.length);
+  const gridDates = rangeDates(toKey(addDays(fromKey(todayKey()), -(totalDays - 1))), todayKey());
   return (
     <section className="stack">
       <div className="panel period-panel">
@@ -687,4 +688,11 @@ function useViewportWidth() {
 
 function clampDays(value: string) {
   return Math.min(365, Math.max(1, Number(value || 30)));
+}
+
+function toKey(date: Date) {
+  const y = date.getFullYear();
+  const m = String(date.getMonth() + 1).padStart(2, "0");
+  const d = String(date.getDate()).padStart(2, "0");
+  return `${y}-${m}-${d}`;
 }

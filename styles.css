@@ -3652,6 +3652,13 @@ body:has(.theme-custom) { background: #111827; }
 .grid-cell.today {
   background:
     linear-gradient(180deg, color-mix(in srgb, var(--grid-today) 78%, var(--grid-cell)), var(--grid-today));
+  box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--accent) 50%, var(--grid-line));
+}
+
+.grid-cell.today button {
+  box-shadow:
+    inset 0 0 0 2px color-mix(in srgb, var(--accent) 42%, var(--grid-line)),
+    0 0 0 2px color-mix(in srgb, var(--accent) 10%, transparent);
 }
 
 .calendar-day.empty-day,
