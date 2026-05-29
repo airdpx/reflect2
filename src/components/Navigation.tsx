@@ -42,13 +42,11 @@ function Nav({ view, onView, className }: { view: View; onView: (view: View) => 
 export function Topbar({
   state,
   onDate,
-  onAdd,
-  onLogout
+  onAdd
 }: {
   state: AppState;
   onDate: (date: string) => void;
   onAdd: () => void;
-  onLogout: () => void;
 }) {
   const titles: Record<View, [string, string]> = {
     today: ["Сегодня", formatDate(state.selectedDate)],
@@ -76,7 +74,6 @@ export function Topbar({
         <button className="btn primary" onClick={onAdd}>
           + Привычка
         </button>
-        {state.profile ? <button className="btn ghost" onClick={onLogout}>Выйти</button> : null}
       </div>
     </header>
   );

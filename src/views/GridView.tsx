@@ -48,12 +48,6 @@ export function GridView({
             <h3>Период сетки</h3>
             <p className="muted">{selectors.periodLabel()} · {selectors.periodDates.length} дней</p>
           </div>
-          <div className="section-actions">
-            <select className="select compact-select" value={state.settings.selectedCategory} onChange={(event) => actions.updateSetting("selectedCategory", event.target.value)}>
-              <option value="all">Все категории</option>
-              {selectors.categories.map((category) => <option key={category} value={category}>{category}</option>)}
-            </select>
-          </div>
         </div>
         <div className="period-layout compact-period-layout">
           <div className="chips">
@@ -78,21 +72,28 @@ export function GridView({
           </details>
         </div>
       </div>
-      <CalendarSettingsPanel state={state} actions={actions} />
+      <CalendarSettingsPanel state={state} selectors={selectors} actions={actions} />
       <CalendarGrid state={state} selectors={selectors} actions={actions} />
     </section>
   );
 }
 
-function CalendarSettingsPanel({ state, actions }: { state: AppState; actions: AppActions }) {
+function CalendarSettingsPanel({ state, selectors, actions }: { state: AppState; selectors: AppSelectors; actions: AppActions }) {
   return (
-    <details className="panel module-panel calendar-settings-panel" open>
+    <details className="panel module-panel calendar-settings-panel">
       <summary>Настроить календарь и таблицу</summary>
       <div className="module-controls">
         <div className="calendar-settings-grid">
           <SelectControl label="Плотность сетки" value={state.settings.gridDensity} options={["compact", "standard", "comfortable"]} onChange={(value) => actions.updateSetting("gridDensity", value as Density)} />
           <SelectControl label="Клик по ячейке" value={state.settings.gridClickAction} options={["cycle", "details"]} onChange={(value) => actions.updateSetting("gridClickAction", value as "cycle" | "details")} />
         </div>
+        <details className="quick-subsection">
+          <summary>Фильтр и видимость</summary>
+          <div className="module-controls">
+            <SelectControl label="Категория" value={state.settings.selectedCategory} options={["all", ...selectors.categories]} onChange={(value) => actions.updateSetting("selectedCategory", value)} />
+            <Toggle label="Показывать выходные" checked={state.settings.showWeekends} className="compact-check-row" onChange={(checked) => actions.updateSetting("showWeekends", checked)} />
+          </div>
+        </details>
         <div className="calendar-mode-row">
           {gridModes.map(([mode, label]) => (
             <button
@@ -106,7 +107,6 @@ function CalendarSettingsPanel({ state, actions }: { state: AppState; actions: A
             </button>
           ))}
         </div>
-        <Toggle label="Показывать выходные" checked={state.settings.showWeekends} className="compact-check-row" onChange={(checked) => actions.updateSetting("showWeekends", checked)} />
         <div className="status-preview-strip">
           {(Object.keys(statusMeta) as HabitStatus[]).map((status) => (
             <button
@@ -307,7 +307,6 @@ function WeekMatrixGrid({
       <div className="week-matrix-stack">
         {weeks.map((week, index) => (
           <div className="week-matrix" key={index}>
-            <div className="week-matrix-title">Дни {index * 7 + 1}-{index * 7 + week.length}</div>
             <div className="week-matrix-grid" style={{ "--days": week.length } as React.CSSProperties & Record<"--days", number>}>
               <div className="grid-head">Привычка</div>
               {week.map((date) => <div className={`grid-head ${date === todayKey() ? "today" : ""}`} key={date}><span>{weekdayShort(date)}</span><b>{formatDate(date, "short")}</b></div>)}

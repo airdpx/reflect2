@@ -27,14 +27,15 @@
   --status-planned-text: #17334a;
   --shadow: none;
   --radius: 8px;
-  --cell: 42px;
-  --grid-name-width: 230px;
-  --grid-row: 42px;
-  --grid-head-row: 48px;
+  --cell: clamp(38px, 2.8vw, 46px);
+  --grid-name-width: clamp(180px, 18vw, 250px);
+  --grid-row: clamp(38px, 2.8vw, 48px);
+  --grid-head-row: clamp(44px, 3vw, 56px);
   --grid-gap: 1px;
   --grid-pad: 8px;
   --mark-height: 24px;
   --day-min: 116px;
+  --month-day-max: 156px;
   font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
 }
 
@@ -1007,16 +1008,19 @@ button {
 
 .month-calendar {
   display: grid;
-  grid-template-columns: repeat(7, minmax(118px, 1fr));
+  grid-template-columns: repeat(7, minmax(0, 1fr));
   gap: var(--grid-gap);
   overflow: hidden;
+  width: min(100%, calc((var(--month-day-max) * 7) + (var(--grid-gap) * 6)));
+  margin-inline: auto;
   border: 1px solid var(--grid-line);
   border-radius: var(--radius);
   background: var(--grid-line);
 }
 
 .compact-calendar {
-  grid-template-columns: repeat(7, minmax(84px, 1fr));
+  width: min(100%, calc((var(--month-day-max) * 7) + (var(--grid-gap) * 6)));
+  grid-template-columns: repeat(7, minmax(0, 1fr));
 }
 
 .month-week-head,
@@ -1127,7 +1131,7 @@ button {
 }
 
 .calendar-mark > i {
-  width: 8px;
+  width: 10px;
   height: 18px;
   border-radius: 999px;
 }
@@ -1144,8 +1148,8 @@ button {
 .calendar-mark em {
   display: grid;
   place-items: center;
-  min-width: 18px;
-  height: 18px;
+  min-width: 20px;
+  height: 20px;
   border-radius: 999px;
   background: color-mix(in srgb, #fff 40%, transparent);
   color: inherit;
@@ -1189,9 +1193,10 @@ button {
 
 .week-matrix-grid {
   display: grid;
-  grid-template-columns: minmax(145px, 0.8fr) repeat(var(--days), minmax(38px, 1fr));
+  grid-template-columns: minmax(132px, 220px) repeat(var(--days), minmax(36px, 46px));
   grid-template-rows: var(--grid-head-row);
   grid-auto-rows: var(--grid-row);
+  width: fit-content;
   background: var(--grid-bg);
 }
 
@@ -1237,7 +1242,7 @@ button {
 }
 
 .week-check i {
-  width: 8px;
+  width: 10px;
   height: 18px;
   border-radius: 999px;
 }
@@ -1253,8 +1258,8 @@ button {
 .week-check b {
   display: grid;
   place-items: center;
-  width: 18px;
-  height: 18px;
+  width: 20px;
+  height: 20px;
   border-radius: 999px;
   background: color-mix(in srgb, #fff 38%, transparent);
   font-size: 11px;
@@ -1301,7 +1306,7 @@ button {
 }
 
 .habit-day-chip b {
-  font-size: 14px;
+  font-size: 15px;
 }
 
 .timeline-grid {
@@ -1350,8 +1355,8 @@ button {
 
 .timeline-dot,
 .heat-dot {
-  width: 16px;
-  height: 16px;
+  width: 18px;
+  height: 18px;
   border: 1px solid color-mix(in srgb, #fff 24%, transparent);
   border-radius: 999px;
 }
@@ -1511,10 +1516,11 @@ button {
 
 .grid-cell button {
   position: relative;
-  width: calc(var(--cell) - 14px);
-  height: calc(var(--grid-row) - 14px);
-  min-width: 20px;
-  min-height: 20px;
+  width: clamp(24px, calc(var(--cell) - 8px), 34px);
+  height: clamp(24px, calc(var(--grid-row) - 8px), 34px);
+  min-width: 24px;
+  min-height: 24px;
+  margin: auto;
   border-radius: 7px;
   background: var(--grid-cell-empty);
   color: var(--text);
@@ -1722,6 +1728,15 @@ button {
   border: 1px solid var(--line);
   border-radius: var(--radius);
   background: var(--surface-soft);
+}
+
+.settings-row-action {
+  align-items: center;
+}
+
+.compact-inline-btn {
+  min-height: 30px;
+  padding: 5px 10px;
 }
 
 .habit-admin-card.dragging {
@@ -3705,10 +3720,6 @@ body:has(.theme-custom) { background: #111827; }
     font-size: 13px;
   }
 
-  .toolbar .btn.primary {
-    grid-column: 1 / -1;
-  }
-
   .section-head {
     align-items: stretch;
     flex-direction: column;
@@ -3755,13 +3766,15 @@ body:has(.theme-custom) { background: #111827; }
 
   .month-calendar,
   .compact-calendar {
-    grid-template-columns: repeat(7, minmax(72px, 1fr));
-    overflow-x: auto;
+    grid-template-columns: repeat(7, minmax(0, 1fr));
+    width: 100%;
+    max-width: 100%;
+    overflow-x: hidden;
   }
 
   .calendar-day {
-    min-height: 96px;
-    padding: 6px;
+    min-height: 86px;
+    padding: 5px;
   }
 
   .calendar-mark-title {
@@ -3885,17 +3898,19 @@ body:has(.theme-custom) { background: #111827; }
   }
 
   .week-matrix {
-    overflow-x: auto;
+    overflow-x: hidden;
   }
 
   .week-matrix-grid {
-    min-width: 420px;
+    grid-template-columns: minmax(92px, 1fr) repeat(var(--days), minmax(0, 1fr));
+    width: 100%;
+    min-width: 0;
   }
 
   .week-focus-grid,
   .habit-strip-row {
-    grid-template-columns: repeat(7, minmax(72px, 1fr));
-    overflow-x: auto;
+    grid-template-columns: repeat(7, minmax(0, 1fr));
+    overflow-x: hidden;
   }
 
   .timeline-day {
@@ -3924,6 +3939,67 @@ body:has(.theme-custom) { background: #111827; }
   .grid-name,
   .grid-cell {
     font-size: 11px;
+  }
+
+  .grid-name {
+    padding-inline: 8px;
+    gap: 6px;
+  }
+
+  .grid-habit-text strong {
+    font-size: 11px;
+  }
+
+  .grid-cell button {
+    width: 26px;
+    height: 26px;
+    min-width: 24px;
+    min-height: 24px;
+  }
+
+  .calendar-mark {
+    padding: 3px 6px;
+    gap: 5px;
+  }
+
+  .calendar-mark small {
+    display: none;
+  }
+
+  .calendar-mark-title {
+    font-size: 11px;
+  }
+
+  .week-check,
+  .habit-day-chip {
+    gap: 5px;
+    min-height: 26px;
+  }
+
+  .habit-day-chip {
+    padding: 5px 6px;
+  }
+
+  .habit-day-chip span {
+    font-size: 10px;
+  }
+
+  .habit-day-chip b {
+    font-size: 13px;
+  }
+
+  .week-check span {
+    font-size: 11px;
+  }
+
+  .week-check b {
+    width: 18px;
+    height: 18px;
+  }
+
+  .week-check i {
+    width: 8px;
+    height: 14px;
   }
 
   .habit-meta span {
@@ -3970,5 +4046,60 @@ body:has(.theme-custom) { background: #111827; }
     max-width: 100%;
     text-align: center;
     white-space: normal;
+  }
+
+  .habits-hero {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .habits-hero .btn.primary {
+    width: 100%;
+    min-height: 38px;
+    padding-block: 8px;
+    font-size: 13px;
+  }
+
+  .habit-admin-card {
+    grid-template-columns: 18px 30px minmax(0, 1fr);
+    gap: 8px;
+    padding: 8px;
+  }
+
+  .habit-admin-card > i {
+    width: 30px;
+    height: 30px;
+  }
+
+  .habit-admin-card strong {
+    font-size: 13px;
+  }
+
+  .habit-admin-card span,
+  .habit-admin-card small {
+    display: none;
+  }
+
+  .habit-admin-actions {
+    grid-column: 1 / -1;
+    display: flex;
+    gap: 6px;
+    justify-content: flex-end;
+  }
+
+  .habit-admin-actions .btn {
+    min-height: 32px;
+    padding: 6px 8px;
+    font-size: 11px;
+  }
+
+  .settings-row-action {
+    align-items: center;
+  }
+
+  .compact-inline-btn {
+    min-height: 28px;
+    padding: 5px 8px;
+    font-size: 12px;
   }
 }

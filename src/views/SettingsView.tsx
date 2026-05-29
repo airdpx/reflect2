@@ -70,6 +70,10 @@ export function SettingsView({ state, actions }: { state: AppState; actions: App
             <span><b>Дата рождения</b></span>
             <span className="badge">{state.profile?.birthDate || "не задана"}</span>
           </div>
+          <div className="settings-row settings-row-action">
+            <span className="muted">Выход из аккаунта</span>
+            <button className="btn ghost compact-inline-btn" onClick={actions.signOut}>Выйти</button>
+          </div>
         </div>
         <div className="panel settings-card">
           <div className="section-head">
