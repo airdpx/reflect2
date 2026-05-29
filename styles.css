@@ -429,6 +429,71 @@ button {
   font-weight: 800;
 }
 
+.hd-transit {
+  display: grid;
+  gap: 10px;
+  color: var(--text);
+}
+
+.hd-transit-title {
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.hd-transit-gates {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.hd-transit-gates a {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  gap: 8px;
+  min-height: 42px;
+  padding: 8px 10px;
+  border: 1px solid color-mix(in srgb, var(--accent) 32%, var(--line));
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--accent) 8%, var(--surface-soft));
+  color: var(--text);
+  text-decoration: none;
+}
+
+.hd-transit-gates strong {
+  width: 28px;
+  height: 28px;
+  display: inline-grid;
+  place-items: center;
+  border-radius: 999px;
+  background: var(--accent);
+  color: var(--accent-text);
+  font-size: 12px;
+}
+
+.hd-transit-gates span {
+  min-width: 0;
+  overflow-wrap: anywhere;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.hd-transit p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.55;
+}
+
+.hd-transit-source {
+  width: fit-content;
+  color: var(--accent);
+  font-size: 12px;
+  font-weight: 700;
+  text-decoration: none;
+}
+
 .forecast-pill.phase-high {
   background: var(--status-done-bg);
   color: var(--status-done-text);
@@ -1201,7 +1266,7 @@ button {
 
 .week-matrix-grid {
   display: grid;
-  grid-template-columns: minmax(132px, 220px) repeat(var(--days), minmax(36px, 46px));
+  grid-template-columns: minmax(132px, 220px) repeat(var(--days), minmax(40px, 52px));
   grid-template-rows: var(--grid-head-row);
   grid-auto-rows: var(--grid-row);
   width: fit-content;
@@ -1525,8 +1590,10 @@ button {
 
 .grid-cell button {
   position: relative;
-  width: clamp(26px, calc(var(--cell) - 6px), 38px);
-  height: clamp(26px, calc(var(--grid-row) - 6px), 38px);
+  display: grid;
+  place-items: center;
+  width: clamp(30px, calc(var(--cell) - 4px), 42px);
+  height: clamp(30px, calc(var(--grid-row) - 4px), 42px);
   min-width: 24px;
   min-height: 24px;
   margin: auto;
@@ -1534,7 +1601,7 @@ button {
   background: var(--grid-cell-empty);
   color: var(--text);
   transition: transform 120ms ease, box-shadow 120ms ease, opacity 120ms ease;
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 800;
 }
 
@@ -3839,6 +3906,14 @@ body:has(.theme-custom) { background: #111827; }
     font-size: 10px;
   }
 
+  .hd-transit-gates {
+    grid-template-columns: 1fr;
+  }
+
+  .hd-transit p {
+    font-size: 12px;
+  }
+
   .forecast-panel.empty-forecast {
     grid-template-columns: 1fr;
   }
@@ -4000,10 +4075,11 @@ body:has(.theme-custom) { background: #111827; }
   }
 
   .grid-cell button {
-    width: 26px;
-    height: 26px;
-    min-width: 24px;
-    min-height: 24px;
+    width: 28px;
+    height: 28px;
+    min-width: 28px;
+    min-height: 28px;
+    font-size: 15px;
   }
 
   .calendar-mark {

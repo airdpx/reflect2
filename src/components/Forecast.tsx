@@ -22,6 +22,13 @@ export function DiaryForecastStrip({ state, actions }: { state: AppState; action
     );
   }
   const tone = forecastTone(forecast.summaryScore);
+  if (forecast.source === "humanDesign") {
+    return (
+      <div className="forecast-strip forecast-tone-steady">
+        <span>Human Design: текущий транзит</span>
+      </div>
+    );
+  }
   return (
     <div className={`forecast-strip forecast-tone-${tone}`}>
       <span>Биоритмы: {forecast.summaryLabel}</span>
@@ -39,12 +46,16 @@ export function InspectorForecastSummary({ state }: { state: AppState }) {
     <div className="panel inspector-panel">
       <h3>Прогноз дня</h3>
       {forecast ? (
-        <>
-          <div className={`forecast-score forecast-tone-${tone}`}><strong>{forecast.summaryScore}%</strong><span>{forecast.summaryLabel}</span></div>
-          <div className="mini-metrics">
-            {forecast.scales.map((scale) => <span key={scale.id}>{scale.label} <b>{scale.value}</b></span>)}
-          </div>
-        </>
+        forecast.source === "humanDesign" ? (
+          <p className="muted">Human Design · текущий транзит Humdes.</p>
+        ) : (
+          <>
+            <div className={`forecast-score forecast-tone-${tone}`}><strong>{forecast.summaryScore}%</strong><span>{forecast.summaryLabel}</span></div>
+            <div className="mini-metrics">
+              {forecast.scales.map((scale) => <span key={scale.id}>{scale.label} <b>{scale.value}</b></span>)}
+            </div>
+          </>
+        )
       ) : <p className="muted">Для прогноза нужна дата рождения.</p>}
     </div>
   );
