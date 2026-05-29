@@ -1,4 +1,6 @@
-import type { AppSelectors } from "../types";
+import type { AppSelectors, AppState, HabitStatus } from "../types";
+import { addDays, fromKey, rangeDates, todayKey, toKey, formatDate } from "../lib/date";
+import { statusMeta } from "../lib/defaults";
 
 export function StatsPanel({ selectors }: { selectors: AppSelectors }) {
   if (!selectors.hasAnyLogs) {
@@ -30,7 +32,7 @@ export function StatsPanel({ selectors }: { selectors: AppSelectors }) {
   );
 }
 
-export function AnalyticsView({ selectors }: { selectors: AppSelectors }) {
+export function AnalyticsView({ state, selectors }: { state: AppState; selectors: AppSelectors }) {
   if (!selectors.hasAnyLogs) {
     return (
       <section className="stack">
@@ -53,6 +55,54 @@ export function AnalyticsView({ selectors }: { selectors: AppSelectors }) {
           );
         })}
       </div>
+      <HabitCharts state={state} selectors={selectors} />
     </section>
+  );
+}
+
+function HabitCharts({ state, selectors }: { state: AppState; selectors: AppSelectors }) {
+  const chartDays = Math.max(14, Math.min(30, state.settings.calendarHistoryDays || 30));
+  const start = toKey(addDays(fromKey(todayKey()), -(chartDays - 1)));
+  const dates = rangeDates(start, todayKey());
+  const visibleStatuses: HabitStatus[] = state.settings.activeStatuses.length ? [...state.settings.activeStatuses] : ["done", "partial", "skipped"];
+  return (
+    <div className="panel">
+      <div className="section-head">
+        <div>
+          <h3>Графики по привычкам</h3>
+          <p className="muted">События в календаре показаны теми же иконками статусов: выполнено, частично, пропуск.</p>
+        </div>
+      </div>
+      <div className="analytics-chart-list">
+        {selectors.activeHabits.map((habit) => {
+          const stats = selectors.calculateStats(habit);
+          return (
+            <div className="analytics-chart-card" key={habit.id}>
+              <div className="analytics-chart-head">
+                <strong>{habit.icon} {habit.title}</strong>
+                <small>{habit.description || `${stats.completion}% выполнения`}</small>
+              </div>
+              <div className="analytics-chart-bars" title={habit.title}>
+                {dates.map((date) => {
+                  const log = selectors.getLog(habit.id, date);
+                  const status = log?.status;
+                  const visible = status && visibleStatuses.includes(status);
+                  const label = status ? `${statusMeta[status].label} · ${formatDate(date, "short")}` : `Нет отметки · ${formatDate(date, "short")}`;
+                  return (
+                    <span
+                      key={date}
+                      className={`analytics-chart-bar ${status ? statusMeta[status].className : ""}`}
+                      title={label}
+                    >
+                      {visible && state.settings.statusIcons[status as HabitStatus] ? state.settings.statusIcons[status as HabitStatus] : (status ? statusMeta[status].short : "·")}
+                    </span>
+                  );
+                })}
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </div>
   );
 }

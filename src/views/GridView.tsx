@@ -690,13 +690,7 @@ function chunkByCount(dates: string[], size: number) {
 
 function getMatrixChunkSize(width: number) {
   if (width < 920) return 7;
-  const available = Math.max(0, width - 620);
-  const estimatedCells = Math.floor(available / 46);
-  const rounded = Math.max(7, Math.floor(estimatedCells / 7) * 7);
-  if (width < 1180) return 14;
-  if (width < 1500) return Math.max(14, Math.min(21, rounded));
-  if (width < 1860) return Math.max(21, Math.min(28, rounded));
-  return Math.max(28, Math.min(35, rounded));
+  return 14;
 }
 
 function useViewportWidth() {

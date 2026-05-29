@@ -25,14 +25,24 @@ export const habitTypeHints: Record<HabitType, string> = {
   reflection: "Запись или заметка считается выполнением."
 };
 
-export const habitIconPresets = ["💧", "🚶", "🌙", "📖", "📝", "🧘", "🏃", "🥗", "☕", "🌿", "🎯", "🔥", "✨", "💪", "🧠", "🎧", "🛏️", "🚫", "💊", "🪴", "🎨", "🧩", "📚", "❤️", "🍋", "🪥", "🚴", "🏋️", "🏃‍♂️", "🏋️‍♀️", "💨", "😌", "🙂", "😴"];
+export const habitIconPresets = [
+  "💧", "🚶", "🌙", "📖", "📝", "🧘", "🏃", "🥗", "☕", "🌿", "🎯", "🔥", "✨", "💪", "🧠", "🎧", "🛏️", "🚫",
+  "💊", "🪴", "🎨", "🧩", "📚", "❤️", "🍋", "🪥", "🚴", "🏋️", "🏃‍♂️", "🏋️‍♀️", "💨", "😌", "🙂", "😴",
+  "💤", "🚗", "🐶", "🐱", "🦜", "🦎", "✍️", "☀️", "☁️", "🛴", "🚲", "📱"
+];
 
 export const habitCategoryPresets = ["Здоровье", "Состояние", "Быт", "Фокус", "Развитие", "Самонаблюдение", "Сон", "Спорт", "Питание", "Работа", "Отдых", "Отношения"];
 
 const habitIconRules: Array<{ terms: string[]; icon: string }> = [
   { terms: ["сон", "sleep", "спать", "ноч", "bed", "высп"], icon: "🌙" },
+  { terms: ["zzz", "сонлив", "sleepy", "поспать"], icon: "💤" },
   { terms: ["чистк зуб", "зуб", "brush", "tooth"], icon: "🪥" },
   { terms: ["велосип", "bike", "cycling", "ride"], icon: "🚴" },
+  { terms: ["авто", "car", "машин", "drive", "road"], icon: "🚗" },
+  { terms: ["собак", "dog", "пес"], icon: "🐶" },
+  { terms: ["кошк", "cat", "кот"], icon: "🐱" },
+  { terms: ["попуг", "parrot", "bird"], icon: "🦜" },
+  { terms: ["варан", "lizard", "reptile"], icon: "🦎" },
   { terms: ["гантел", "dumbbell", "weights", "силов"], icon: "🏋️" },
   { terms: ["штанг", "barbell", "weightlifting", "lifting"], icon: "🏋️‍♀️" },
   { terms: ["спин", "back", "осан", "posture"], icon: "💪" },
@@ -210,7 +220,7 @@ export const habitTemplates: HabitTemplate[] = [
 
 export function createDefaults(): AppState {
   return {
-    schemaVersion: 14,
+    schemaVersion: 15,
     view: "today",
     selectedDate: todayKey(),
     habits: [],
@@ -238,12 +248,12 @@ export function createDefaults(): AppState {
         lastDone: true
       },
       visibleGrid: {
-        color: false,
+        color: true,
         icon: true,
         category: false,
         type: false,
         target: false,
-        statusText: false,
+        statusText: true,
         compactMeta: false,
         completion: false,
         daysSince: false,
@@ -296,7 +306,7 @@ export function createDefaults(): AppState {
       diaryHistoryDays: 30,
       defaultView: "today",
       todayLayout: "split",
-      diaryLayout: "compact",
+      diaryLayout: "full",
       customTheme: {
         bg: "#111827",
         surface: "#182235",
