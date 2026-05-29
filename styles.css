@@ -1648,6 +1648,26 @@ button {
   clip-path: polygon(50% 0%, 62% 34%, 100% 38%, 72% 61%, 81% 100%, 50% 78%, 19% 100%, 28% 61%, 0% 38%, 38% 34%);
 }
 
+.grid-cell button.shape-ring {
+  border-radius: 999px;
+  background:
+    radial-gradient(circle at center, color-mix(in srgb, var(--grid-cell-empty) 18%, transparent) 41%, transparent 42%) padding-box,
+    linear-gradient(135deg, color-mix(in srgb, var(--accent) 70%, white), color-mix(in srgb, var(--accent) 22%, var(--line))) border-box;
+  border: 2px solid transparent;
+  box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--accent) 20%, var(--line));
+}
+
+.grid-cell button.shape-hex {
+  border-radius: 0;
+  clip-path: polygon(25% 6%, 75% 6%, 100% 50%, 75% 94%, 25% 94%, 0% 50%);
+}
+
+.grid-cell button.shape-pill {
+  border-radius: 999px;
+  border: 1px solid color-mix(in srgb, var(--accent) 24%, var(--line));
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--surface) 30%, transparent);
+}
+
 .grid-cell button.shape-frame {
   border-radius: 6px;
   background:
@@ -2862,6 +2882,10 @@ button {
   border: 1px solid var(--line);
   border-radius: 7px;
   background: var(--surface-soft);
+}
+
+.calendar-color-grid {
+  margin-top: 8px;
 }
 
 .icon-choice-row {

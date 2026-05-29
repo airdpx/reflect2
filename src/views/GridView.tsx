@@ -7,6 +7,24 @@ import { forecastTone, getForecast } from "../lib/forecast";
 import { TemplateChooser } from "./TodayView";
 import { SelectControl, Toggle } from "../components/Common";
 
+const gridThemeOptions = [
+  { value: "soft", label: "Мягкая" },
+  { value: "classic", label: "Классика" },
+  { value: "journal", label: "Дневник" },
+  { value: "minimal", label: "Минимум" }
+];
+
+const gridMarkerShapeOptions = [
+  { value: "circle", label: "Круг" },
+  { value: "square", label: "Квадрат" },
+  { value: "diamond", label: "Ромб" },
+  { value: "star", label: "Звезда" },
+  { value: "frame", label: "Рамка" },
+  { value: "ring", label: "Кольцо" },
+  { value: "hex", label: "Шестиугольник" },
+  { value: "pill", label: "Пилюля" }
+];
+
 const gridLabels: Record<string, string> = {
   color: "Цвет привычки",
   icon: "Иконка привычки",
@@ -81,10 +99,32 @@ function CalendarSettingsPanel({ state, selectors, actions }: { state: AppState;
       <summary>Настроить календарь и таблицу</summary>
       <div className="module-controls">
         <div className="calendar-settings-grid">
+          <SelectControl label="Оформление таблицы" value={state.settings.gridTheme} options={gridThemeOptions} onChange={(value) => actions.updateSetting("gridTheme", value as AppState["settings"]["gridTheme"])} />
+          <SelectControl label="Цвета таблицы" value={state.settings.gridColors.mode} options={[{ value: "theme", label: "По теме" }, { value: "custom", label: "Свои цвета" }]} onChange={(value) => actions.updateSetting("gridColors", { ...state.settings.gridColors, mode: value as "theme" | "custom" })} />
           <SelectControl label="Плотность сетки" value={state.settings.gridDensity} options={["compact", "standard", "comfortable"]} onChange={(value) => actions.updateSetting("gridDensity", value as Density)} />
-          <SelectControl label="Форма отметки" value={state.settings.gridMarkerShape} options={["circle", "square", "diamond", "star", "frame"]} onChange={(value) => actions.updateSetting("gridMarkerShape", value as AppState["settings"]["gridMarkerShape"])} />
+          <SelectControl label="Форма отметки" value={state.settings.gridMarkerShape} options={gridMarkerShapeOptions} onChange={(value) => actions.updateSetting("gridMarkerShape", value as AppState["settings"]["gridMarkerShape"])} />
           <SelectControl label="Клик по ячейке" value={state.settings.gridClickAction} options={["cycle", "details"]} onChange={(value) => actions.updateSetting("gridClickAction", value as "cycle" | "details")} />
         </div>
+        {state.settings.gridColors.mode === "custom" && (
+          <div className="mini-color-grid calendar-color-grid">
+            {[
+              ["bg", "Фон"],
+              ["head", "Шапка"],
+              ["cell", "Ячейки"],
+              ["today", "Сегодня"],
+              ["line", "Линии"]
+            ].map(([key, label]) => (
+              <label key={key}>
+                <span>{label}</span>
+                <input
+                  type="color"
+                  value={state.settings.gridColors[key as keyof typeof state.settings.gridColors] as string}
+                  onChange={(event) => actions.updateSetting("gridColors", { ...state.settings.gridColors, [key]: event.target.value })}
+                />
+              </label>
+            ))}
+          </div>
+        )}
         <details className="quick-subsection">
           <summary>Фильтр и видимость</summary>
           <div className="module-controls">

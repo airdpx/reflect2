@@ -22,7 +22,7 @@ export type InterfaceTheme =
   | "aurora"
   | "custom";
 export type GridTheme = "soft" | "classic" | "journal" | "minimal";
-export type GridMarkerShape = "circle" | "square" | "diamond" | "star" | "frame";
+export type GridMarkerShape = "circle" | "square" | "diamond" | "star" | "frame" | "ring" | "hex" | "pill";
 export type GridDisplayMode = "calendar" | "compact" | "matrix" | "week" | "habit" | "timeline" | "heat";
 export type PeriodMode = "last" | "week" | "month" | "custom";
 export type ForecastProviderId = "biorhythm" | "humanDesign" | "astrology" | "planetaryTransits" | "aiPatternForecast";
