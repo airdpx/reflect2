@@ -1988,38 +1988,40 @@ button {
   color: #fff;
 }
 
-.vertical-scale-field {
-  display: grid;
-  gap: 8px;
+.diary-scales-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
 }
 
-.vertical-scale-box {
+.diary-scale-field {
+  display: grid;
+  gap: 8px;
+  padding: 12px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--surface);
+}
+
+.scale-inline-row {
   display: grid;
   grid-template-columns: auto minmax(0, 1fr) auto;
   align-items: center;
   gap: 8px;
 }
 
-.vertical-range-wrap {
+.scale-edge {
+  font-size: 12px;
+}
+
+.scale-inline-range {
+  width: 100%;
+  min-width: 0;
+}
+
+.scale-value {
   display: grid;
   place-items: center;
   width: 34px;
-  height: 132px;
-  margin: 0 auto;
-}
-
-.vertical-range {
-  width: 132px;
-  height: 28px;
-  transform: rotate(-90deg);
-  transform-origin: center;
-}
-
-.vertical-value {
-  display: grid;
-  place-items: center;
-  width: 32px;
-  height: 32px;
+  height: 34px;
   border-radius: 999px;
   background: color-mix(in srgb, var(--accent) 18%, var(--surface-soft));
   color: var(--text);
@@ -2135,6 +2137,106 @@ button {
 
 .analytics-chart-bar.status-planned {
   background: color-mix(in srgb, var(--status-planned-bg) 72%, var(--surface));
+}
+
+.analytics-wave-panel {
+  display: grid;
+  gap: 12px;
+}
+
+.analytics-habit-picks {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.analytics-habit-pick {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 32px;
+  padding: 5px 9px;
+  border: 1px solid color-mix(in srgb, var(--line) 74%, transparent);
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--surface-soft) 78%, var(--surface));
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.analytics-habit-pick input {
+  margin: 0;
+}
+
+.analytics-habit-pick span {
+  width: 10px;
+  height: 10px;
+  border-radius: 999px;
+  flex: 0 0 auto;
+}
+
+.analytics-habit-pick.active {
+  color: var(--text);
+  border-color: color-mix(in srgb, var(--accent) 40%, var(--line));
+  background: color-mix(in srgb, var(--accent) 12%, var(--surface));
+}
+
+.analytics-wave-chart {
+  display: grid;
+  gap: 8px;
+}
+
+.analytics-wave-axis {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(38px, 1fr));
+  gap: 4px;
+  color: var(--muted);
+  font-size: 10px;
+  text-align: center;
+}
+
+.analytics-wave-stage {
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: linear-gradient(180deg, color-mix(in srgb, var(--surface) 84%, var(--grid-bg)) 0%, var(--surface) 100%);
+}
+
+.analytics-wave-svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  min-height: 180px;
+}
+
+.analytics-wave-gridline {
+  stroke: color-mix(in srgb, var(--line) 58%, transparent);
+  stroke-width: 1;
+  stroke-dasharray: 4 6;
+}
+
+.analytics-wave-baseline {
+  stroke: color-mix(in srgb, var(--line) 72%, transparent);
+  stroke-width: 1;
+  stroke-dasharray: 2 6;
+}
+
+.analytics-wave-path {
+  fill: none;
+  stroke-width: 3.2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  opacity: 0.9;
+}
+
+.analytics-wave-icon {
+  fill: var(--text);
+  font-size: 9px;
+  font-weight: 700;
+}
+
+.analytics-period-strip {
+  justify-content: flex-start;
+  margin-top: 0;
 }
 
 .stats {
@@ -4414,6 +4516,10 @@ body:has(.theme-custom) { background: #111827; }
     grid-template-columns: 1fr;
   }
 
+  .diary-scales-grid {
+    grid-template-columns: 1fr;
+  }
+
   .period-custom,
   .period-range,
   .compact-period-field,
@@ -4441,6 +4547,24 @@ body:has(.theme-custom) { background: #111827; }
 
   .calendar-mark-title {
     font-size: 11px;
+  }
+
+  .analytics-habit-picks {
+    gap: 6px;
+  }
+
+  .analytics-habit-pick {
+    padding: 4px 8px;
+    font-size: 11px;
+  }
+
+  .analytics-wave-axis {
+    grid-template-columns: repeat(auto-fit, minmax(30px, 1fr));
+    font-size: 9px;
+  }
+
+  .analytics-wave-svg {
+    min-height: 150px;
   }
 
   .forecast-panel {
