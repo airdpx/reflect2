@@ -1,4 +1,4 @@
-import type { AppSelectors, AppState, HabitStatus } from "../types";
+import type { AppActions, AppSelectors, AppState, HabitStatus } from "../types";
 import { addDays, fromKey, rangeDates, todayKey, toKey, formatDate } from "../lib/date";
 import { statusMeta } from "../lib/defaults";
 
@@ -32,7 +32,7 @@ export function StatsPanel({ selectors }: { selectors: AppSelectors }) {
   );
 }
 
-export function AnalyticsView({ state, selectors }: { state: AppState; selectors: AppSelectors }) {
+export function AnalyticsView({ state, selectors, actions }: { state: AppState; selectors: AppSelectors; actions: AppActions }) {
   if (!selectors.hasAnyLogs) {
     return (
       <section className="stack">
@@ -43,6 +43,25 @@ export function AnalyticsView({ state, selectors }: { state: AppState; selectors
   return (
     <section className="stack">
       <StatsPanel selectors={selectors} />
+      <div className="panel">
+        <div className="section-head">
+          <div>
+            <h3>Период графиков</h3>
+            <p className="muted">Графики строятся с иконками статусов и датами для наглядного сравнения.</p>
+          </div>
+        </div>
+        <div className="diary-history-strip">
+          {[7, 14, 30, 90, 180].map((days) => (
+            <button
+              key={days}
+              className={state.settings.analyticsHistoryDays === days ? "active" : ""}
+              onClick={() => actions.updateSetting("analyticsHistoryDays", days)}
+            >
+              {days} д
+            </button>
+          ))}
+        </div>
+      </div>
       <div className="panel">
         <h3>История привычек</h3>
         {selectors.activeHabits.map((habit) => {
@@ -61,7 +80,7 @@ export function AnalyticsView({ state, selectors }: { state: AppState; selectors
 }
 
 function HabitCharts({ state, selectors }: { state: AppState; selectors: AppSelectors }) {
-  const chartDays = Math.max(14, Math.min(30, state.settings.calendarHistoryDays || 30));
+  const chartDays = Math.max(7, Math.min(180, state.settings.analyticsHistoryDays || 30));
   const start = toKey(addDays(fromKey(todayKey()), -(chartDays - 1)));
   const dates = rangeDates(start, todayKey());
   const visibleStatuses: HabitStatus[] = state.settings.activeStatuses.length ? [...state.settings.activeStatuses] : ["done", "partial", "skipped"];
@@ -82,6 +101,9 @@ function HabitCharts({ state, selectors }: { state: AppState; selectors: AppSele
                 <strong>{habit.icon} {habit.title}</strong>
                 <small>{habit.description || `${stats.completion}% выполнения`}</small>
               </div>
+              <div className="analytics-chart-dates">
+                {dates.map((date) => <span key={date}>{formatDate(date, "short")}</span>)}
+              </div>
               <div className="analytics-chart-bars" title={habit.title}>
                 {dates.map((date) => {
                   const log = selectors.getLog(habit.id, date);
@@ -89,13 +111,14 @@ function HabitCharts({ state, selectors }: { state: AppState; selectors: AppSele
                   const visible = status && visibleStatuses.includes(status);
                   const label = status ? `${statusMeta[status].label} · ${formatDate(date, "short")}` : `Нет отметки · ${formatDate(date, "short")}`;
                   return (
-                    <span
+                    <button
                       key={date}
                       className={`analytics-chart-bar ${status ? statusMeta[status].className : ""}`}
                       title={label}
                     >
-                      {visible && state.settings.statusIcons[status as HabitStatus] ? state.settings.statusIcons[status as HabitStatus] : (status ? statusMeta[status].short : "·")}
-                    </span>
+                      <b>{formatDate(date, "short")}</b>
+                      <i>{visible && state.settings.statusIcons[status as HabitStatus] ? state.settings.statusIcons[status as HabitStatus] : (status ? statusMeta[status].short : "·")}</i>
+                    </button>
                   );
                 })}
               </div>

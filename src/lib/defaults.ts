@@ -108,6 +108,12 @@ export const themeOptions = [
   { id: "warm", title: "Warm Mono", colors: ["#f3ede2", "#fffaf2", "#b16c4f", "#2c2823"] },
   { id: "sage", title: "Sage Desk", colors: ["#edf2eb", "#fbfdf9", "#637d60", "#202720"] },
   { id: "blue", title: "Blue Grey", colors: ["#eef3f6", "#fbfdff", "#477492", "#1f2933"] },
+  { id: "steel", title: "Steel Notes", colors: ["#111827", "#1f2937", "#94a3b8", "#f8fafc"] },
+  { id: "smoke", title: "Smoke Desk", colors: ["#141414", "#222222", "#bfbfbf", "#f5f5f5"] },
+  { id: "granite", title: "Granite Grid", colors: ["#1c1f24", "#2b3038", "#d6d9de", "#f7f8fa"] },
+  { id: "rain", title: "Rainline", colors: ["#0f172a", "#1e293b", "#60a5fa", "#e2e8f0"] },
+  { id: "ember", title: "Ember Grey", colors: ["#231f1d", "#332f2d", "#f59e0b", "#f8f1e7"] },
+  { id: "glacier", title: "Glacier", colors: ["#e7eef6", "#f9fbfd", "#5b7b99", "#1d2935"] },
   { id: "custom", title: "Custom", colors: ["#111827", "#182235", "#22c55e", "#f8fafc"] }
 ] as const;
 
@@ -304,6 +310,7 @@ export function createDefaults(): AppState {
       selectedHabitId: "",
       iconSuggestionsCheckedAt: todayKey(),
       diaryHistoryDays: 30,
+      analyticsHistoryDays: 30,
       defaultView: "today",
       todayLayout: "split",
       diaryLayout: "full",

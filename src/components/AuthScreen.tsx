@@ -127,29 +127,19 @@ export function AuthScreen() {
 
   return (
     <main className="auth-shell" style={shellStyle}>
-      <div className="auth-layout">
-        <section className="auth-hero panel">
-          <div className="auth-hero-top">
-            <span className="auth-kicker">Самонаблюдение онлайн</span>
-            <span className="auth-theme-pill">Тема · {palette.title}</span>
-          </div>
-          <h1>Привычки, дневник и календарь в одном спокойном месте</h1>
-          <p className="muted">Собственная база, вход по email, дата рождения для прогноза дня и темы, которые можно выбрать еще до логина.</p>
-          <div className="auth-points">
-            <span>Календарь</span>
-            <span>Дневник</span>
-            <span>Прогноз дня</span>
-            <span>Собственная база</span>
-          </div>
-          <div className="auth-theme-panel">
+      <div className="auth-theme-dock">
+        <details className="quick-popover">
+          <summary className="quick-icon" title="Тема">🎨</summary>
+          <div className="quick-panel quick-panel-narrow">
             <div className="quick-panel-head">
-              <b>Цветовые темы</b>
-              <span>до входа</span>
+              <b>Тема</b>
+              <span>{palette.title}</span>
             </div>
             <div className="theme-dot-grid auth-theme-grid">
               {themeOptions.map((item) => (
                 <button
                   key={item.id}
+                  type="button"
                   className={`theme-dot ${theme === item.id ? "active" : ""}`}
                   title={item.title}
                   onClick={() => setTheme(item.id as InterfaceTheme)}
@@ -157,6 +147,33 @@ export function AuthScreen() {
                   {item.colors.map((color) => <i key={color} style={{ background: color }} />)}
                 </button>
               ))}
+            </div>
+          </div>
+        </details>
+      </div>
+      <div className="auth-layout">
+        <section className="auth-hero panel">
+          <div className="auth-hero-top">
+            <span className="auth-kicker">Самонаблюдение онлайн</span>
+          </div>
+          <h1>Привычки, дневник и календарь для спокойного ежедневного ритма</h1>
+          <p className="muted">Вход по email, собственная база PostgreSQL, дата рождения для прогноза дня и темы, которые можно выбрать прямо здесь, до логина.</p>
+          <div className="auth-table">
+            <div>
+              <b>Календарь</b>
+              <span>Периоды, статусы, таблица и быстрые отметки</span>
+            </div>
+            <div>
+              <b>Дневник</b>
+              <span>Настроение, энергия, стресс и история по дням</span>
+            </div>
+            <div>
+              <b>Прогноз</b>
+              <span>Биоритмы с датой рождения и гибкими блоками</span>
+            </div>
+            <div>
+              <b>Темы</b>
+              <span>Контрастные, серые и градиентные палитры</span>
             </div>
           </div>
         </section>

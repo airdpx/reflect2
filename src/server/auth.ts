@@ -145,7 +145,8 @@ export async function loadUserState(userId: string, profile?: UserProfile): Prom
           ...raw.settings?.forecast?.visibleScales
         }
       },
-      customPresets: raw.settings?.customPresets || defaults.settings.customPresets
+      customPresets: raw.settings?.customPresets || defaults.settings.customPresets,
+      analyticsHistoryDays: raw.settings?.analyticsHistoryDays || defaults.settings.analyticsHistoryDays
     },
     habits: raw.habits || defaults.habits,
     logs: raw.logs || defaults.logs,

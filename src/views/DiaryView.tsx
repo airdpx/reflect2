@@ -22,45 +22,6 @@ export function DiaryPanel({ state, actions }: { state: AppState; actions: AppAc
           <button className={state.settings.diaryLayout === "full" ? "active" : ""} onClick={() => actions.updateSetting("diaryLayout", "full")}>Полно</button>
         </div>
       </div>
-      <div className="panel nested-panel diary-history-panel">
-        <div className="section-head compact-head">
-          <div>
-            <h3>История заметок</h3>
-            <p className="muted">Календарь с отмеченными датами и лента записей за выбранный период.</p>
-          </div>
-          <div className="diary-history-strip">
-            {[7, 14, 30, 90, 180].map((days) => (
-              <button key={days} className={historyDays === days ? "active" : ""} onClick={() => actions.updateSetting("diaryHistoryDays", days)}>
-                {days} д
-              </button>
-            ))}
-          </div>
-        </div>
-        <div className="diary-history-calendar">
-          <div className="diary-history-calendar-head">
-            <span className="muted">{formatDate(historyStart, "short")} → {formatDate(state.selectedDate, "short")}</span>
-            <span className="badge">{history.filter(([, entry]) => Boolean(entry.text || entry.helped || entry.blocked)).length} заметок</span>
-          </div>
-          <div className="diary-history-calendar-grid">
-            {historyDates.map((date) => {
-              const entry = state.notes[date];
-              const hasNote = Boolean(entry && (entry.text || entry.helped || entry.blocked));
-              return (
-                <button
-                  key={date}
-                  className={`diary-history-day ${date === todayKey() ? "today" : ""} ${date === state.selectedDate ? "selected" : ""}`}
-                  onClick={() => actions.setSelectedDate(date)}
-                  title={formatDate(date)}
-                >
-                  <b>{date.slice(8, 10)}</b>
-                  <span>{date.slice(5, 7)}</span>
-                  {hasNote ? <i className="diary-history-note" /> : null}
-                </button>
-              );
-            })}
-          </div>
-        </div>
-      </div>
       <details className="module-panel inline-module-panel">
         <summary>Поля дневника</summary>
         <div className="module-toggle-grid">
@@ -101,10 +62,41 @@ export function DiaryPanel({ state, actions }: { state: AppState; actions: AppAc
           </div>}
         </div>
         <div className="panel nested-panel diary-history-panel">
-          <div className="section-head">
+          <div className="section-head compact-head">
             <div>
-              <h3>Лента заметок</h3>
-              <p className="muted">Записи за выбранный период с быстрым переходом по датам.</p>
+              <h3>История заметок</h3>
+              <p className="muted">Календарь с отмеченными датами и лента записей за выбранный период.</p>
+            </div>
+            <div className="diary-history-strip">
+              {[7, 14, 30, 90, 180].map((days) => (
+                <button key={days} className={historyDays === days ? "active" : ""} onClick={() => actions.updateSetting("diaryHistoryDays", days)}>
+                  {days} д
+                </button>
+              ))}
+            </div>
+          </div>
+          <div className="diary-history-calendar">
+            <div className="diary-history-calendar-head">
+              <span className="muted">{formatDate(historyStart, "short")} → {formatDate(state.selectedDate, "short")}</span>
+              <span className="badge">{history.filter(([, entry]) => Boolean(entry.text || entry.helped || entry.blocked)).length} заметок</span>
+            </div>
+            <div className="diary-history-calendar-grid">
+              {historyDates.map((date) => {
+                const entry = state.notes[date];
+                const hasNote = Boolean(entry && (entry.text || entry.helped || entry.blocked));
+                return (
+                  <button
+                    key={date}
+                    className={`diary-history-day ${date === todayKey() ? "today" : ""} ${date === state.selectedDate ? "selected" : ""}`}
+                    onClick={() => actions.setSelectedDate(date)}
+                    title={formatDate(date)}
+                  >
+                    <b>{date.slice(8, 10)}</b>
+                    <span>{date.slice(5, 7)}</span>
+                    {hasNote ? <i className="diary-history-note" /> : null}
+                  </button>
+                );
+              })}
             </div>
           </div>
           <div className="history-list">

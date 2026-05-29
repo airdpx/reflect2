@@ -166,6 +166,7 @@ export type UserSettings = {
   selectedHabitId: string;
   iconSuggestionsCheckedAt: string;
   diaryHistoryDays: number;
+  analyticsHistoryDays: number;
   defaultView: View;
   todayLayout: "split" | "single" | "reverse";
   diaryLayout: "compact" | "full";

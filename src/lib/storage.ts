@@ -172,6 +172,7 @@ function migrateState(state: AppState): AppState {
       gridClickAction: previousVersion < 3 ? "cycle" : legacySafeSettings.gridClickAction || defaults.settings.gridClickAction,
       selectedHabitId: legacySafeSettings.selectedHabitId || defaults.settings.selectedHabitId,
       diaryHistoryDays: legacySafeSettings.diaryHistoryDays || defaults.settings.diaryHistoryDays,
+      analyticsHistoryDays: legacySafeSettings.analyticsHistoryDays || defaults.settings.analyticsHistoryDays,
       todayLayout: legacySafeSettings.todayLayout || defaults.settings.todayLayout,
       diaryLayout: legacySafeSettings.diaryLayout || defaults.settings.diaryLayout,
       customPresets: legacySafeSettings.customPresets || {}
