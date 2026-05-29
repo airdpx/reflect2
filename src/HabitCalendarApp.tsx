@@ -42,6 +42,19 @@ export default function HabitCalendarApp({ initialState }: HabitCalendarAppProps
   }, [state, hydrated]);
 
   useEffect(() => {
+    if (!hydrated) return;
+    const today = todayKey();
+    if (state.settings.iconSuggestionsCheckedAt === today) return;
+    setState((current) => ({
+      ...current,
+      settings: {
+        ...current.settings,
+        iconSuggestionsCheckedAt: today
+      }
+    }));
+  }, [hydrated, state.settings.iconSuggestionsCheckedAt]);
+
+  useEffect(() => {
     if (!hydrated || !state.profile?.id) return;
     const timer = window.setTimeout(() => {
       fetch("/api/account/state", {
@@ -142,7 +155,7 @@ export default function HabitCalendarApp({ initialState }: HabitCalendarAppProps
         {state.view === "analytics" && <AnalyticsView selectors={selectors} />}
         {state.view === "settings" && <SettingsView state={state} actions={actions} />}
       </main>
-      {state.settings.rightPanel && !state.settings.focusMode && <Inspector state={state} selectors={selectors} />}
+      {state.settings.rightPanel && !state.settings.focusMode && <Inspector state={state} selectors={selectors} actions={actions} />}
       <MobileNav view={state.view} onView={actions.setView} />
       <QuickControls state={state} actions={actions} />
       {editingHabitId && <HabitModal habit={editingHabit} isTemplateDraft={Boolean(draftHabit)} actions={actions} />}
@@ -317,7 +330,15 @@ export default function HabitCalendarApp({ initialState }: HabitCalendarAppProps
         defaultView: draft.settings.defaultView,
         gridDisplayMode: draft.settings.gridDisplayMode,
         selectedCategory: draft.settings.selectedCategory,
-        customTheme: { ...draft.settings.customTheme }
+        customTheme: { ...draft.settings.customTheme },
+        calendarHistoryDays: draft.settings.calendarHistoryDays,
+        iconSuggestionsCheckedAt: draft.settings.iconSuggestionsCheckedAt,
+        statusIcons: { ...draft.settings.statusIcons },
+        gridColors: { ...draft.settings.gridColors },
+        forecast: {
+          ...draft.settings.forecast,
+          visibleScales: { ...draft.settings.forecast.visibleScales }
+        }
       };
       return draft;
     });

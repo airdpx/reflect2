@@ -1,8 +1,8 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import type { FormEvent } from "react";
 import type { AppActions, Habit, HabitType } from "../types";
 import { Field } from "./Common";
-import { habitCategoryPresets, habitIconPresets, habitTypeHints, habitTypeLabels } from "../lib/defaults";
+import { habitCategoryPresets, habitIconPresets, habitTypeHints, habitTypeLabels, suggestHabitIcon } from "../lib/defaults";
 import { todayKey } from "../lib/date";
 
 export function HabitModal({
@@ -18,27 +18,36 @@ export function HabitModal({
     title: "",
     description: "",
     color: "#9caf88",
-    icon: "💧",
+    icon: "⭐",
     category: "",
     type: "boolean" as HabitType,
     target: 1,
     schedule: [1, 2, 3, 4, 5, 6, 0],
     warningThreshold: 4
   };
+  const [title, setTitle] = useState(h.title);
   const [icon, setIcon] = useState(h.icon);
   const [category, setCategory] = useState(h.category);
   const [type, setType] = useState<HabitType>(h.type);
+  const [manualIcon, setManualIcon] = useState(Boolean(habit && !isTemplateDraft));
+  const suggestedIcon = suggestHabitIcon(title, category, type);
+
+  useEffect(() => {
+    if (!manualIcon) setIcon(suggestedIcon);
+  }, [manualIcon, suggestedIcon]);
 
   function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const form = new FormData(event.currentTarget);
     const schedule = Array.from(event.currentTarget.querySelectorAll<HTMLButtonElement>("[data-weekday].active")).map((button) => Number(button.dataset.weekday));
+    const finalTitle = String(form.get("title") || title || "").trim();
+    const suggested = suggestHabitIcon(finalTitle, String(form.get("category") || category || ""), String(form.get("type") || "boolean"));
     actions.saveHabit({
       id: habit?.id || crypto.randomUUID(),
-      title: String(form.get("title") || "").trim(),
+      title: finalTitle,
       description: String(form.get("description") || ""),
       color: String(form.get("color") || "#9caf88"),
-      icon: String(form.get("icon") || icon || "💧"),
+      icon: icon || suggested,
       category: String(form.get("category") || category || ""),
       type: String(form.get("type") || "boolean") as HabitType,
       target: Number(form.get("target") || 1),
@@ -59,7 +68,7 @@ export function HabitModal({
         </div>
         <form className="stack" onSubmit={submit}>
           <div className="form-grid">
-            <Field label="Название"><input className="input" name="title" required defaultValue={h.title} /></Field>
+            <Field label="Название"><input className="input" name="title" required value={title} onChange={(event) => setTitle(event.target.value)} /></Field>
             <Field label="Категория">
               <input className="input" name="category" value={category} list="habit-category-presets" onChange={(event) => setCategory(event.target.value)} />
               <datalist id="habit-category-presets">
@@ -77,9 +86,16 @@ export function HabitModal({
           </div>
           <div className="picker-panel">
             <div>
-              <span className="picker-label">Иконки</span>
+              <span className="picker-label">Подбор иконки</span>
+              <div className="icon-suggestion-row">
+                  <button type="button" className="suggested-icon" onClick={() => { setManualIcon(true); setIcon(suggestedIcon); }} title="Применить предложенную иконку">
+                  <b>{suggestedIcon}</b>
+                  <span>{suggestedIcon}</span>
+                </button>
+                <small className="muted">Подбирается по названию и категории.</small>
+              </div>
               <div className="preset-icon-grid">
-                {habitIconPresets.map((item) => <button type="button" key={item} className={icon === item ? "active" : ""} onClick={() => setIcon(item)}>{item}</button>)}
+                {habitIconPresets.map((item) => <button type="button" key={item} className={icon === item ? "active" : ""} onClick={() => { setManualIcon(true); setIcon(item); }}>{item}</button>)}
               </div>
             </div>
             <div>

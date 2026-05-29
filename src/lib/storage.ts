@@ -2,7 +2,7 @@ import type { AppState } from "../types";
 import { createDefaults } from "./defaults";
 
 export const STORAGE_KEY = "habit-calendar-next-mvp-v1";
-export const SCHEMA_VERSION = 12;
+export const SCHEMA_VERSION = 13;
 
 export function loadStoredState(): AppState {
   const defaults = createDefaults();

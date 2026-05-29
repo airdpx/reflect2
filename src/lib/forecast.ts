@@ -18,12 +18,18 @@ export const forecastProviders: ForecastProvider[] = [
     id: "biorhythm",
     label: "Биоритмы",
     calculate: calculateBiorhythmForecast
+  },
+  {
+    id: "humanDesign",
+    label: "Human Design",
+    calculate: calculateHumanDesignForecast
   }
 ];
 
 export function getForecast(date: string, settings: ForecastSettings, birthDate: string): ForecastResult | null {
-  if (!settings.enabled || !birthDate) return null;
+  if (!settings.enabled) return null;
   const provider = forecastProviders.find((item) => item.id === settings.provider) || forecastProviders[0];
+  if (provider.id !== "humanDesign" && !birthDate) return null;
   return provider.calculate(date, settings, birthDate);
 }
 
@@ -61,5 +67,16 @@ function calculateBiorhythmForecast(date: string, settings: ForecastSettings, bi
     scales,
     notes: ["Ориентир для самонаблюдения, не прогноз-обязательство."],
     source: "biorhythm"
+  };
+}
+
+function calculateHumanDesignForecast(date: string): ForecastResult {
+  return {
+    date,
+    summaryScore: 50,
+    summaryLabel: "ровный",
+    scales: [],
+    notes: ["Текущий транзит Солнца и Земли из Humdes."],
+    source: "humanDesign"
   };
 }

@@ -29,6 +29,24 @@ export const habitIconPresets = ["💧", "🚶", "🌙", "📖", "📝", "🧘",
 
 export const habitCategoryPresets = ["Здоровье", "Состояние", "Быт", "Фокус", "Развитие", "Самонаблюдение", "Сон", "Спорт", "Питание", "Работа", "Отдых", "Отношения"];
 
+const habitIconRules: Array<{ terms: string[]; icon: string }> = [
+  { terms: ["сон", "sleep", "спать", "ноч", "bed", "высп"], icon: "🌙" },
+  { terms: ["медита", "дых", "mind", "дзен", "практик"], icon: "🧘" },
+  { terms: ["вода", "hydrate", "drink", "water"], icon: "💧" },
+  { terms: ["чтени", "книга", "read", "book", "pages"], icon: "📖" },
+  { terms: ["дневник", "замет", "journal", "note", "reflec"], icon: "📝" },
+  { terms: ["прогул", "walk", "ход", "step"], icon: "🚶" },
+  { terms: ["спорт", "run", "трен", "fitness", "workout"], icon: "🏃" },
+  { terms: ["еда", "food", "meal", "питани", "eat", "завтр"], icon: "🥗" },
+  { terms: ["работ", "task", "focus", "дело", "проект"], icon: "💼" },
+  { terms: ["фокус", "концент", "deep", "study"], icon: "🎯" },
+  { terms: ["отдых", "relax", "pause", "break"], icon: "🛋️" },
+  { terms: ["музык", "music", "sound", "podcast"], icon: "🎧" },
+  { terms: ["мозг", "think", "learn", "study", "ум"], icon: "🧠" },
+  { terms: ["любов", "отнош", "family", "heart"], icon: "❤️" },
+  { terms: ["детокс", "avoid", "no", "stop", "less"], icon: "🚫" }
+];
+
 export const statusIconPresets: Record<HabitStatus, string[]> = {
   done: ["✅", "🟢", "🌿", "💚", "🎉"],
   partial: ["🌓", "🟡", "◐", "⚡", "🧩"],
@@ -36,6 +54,17 @@ export const statusIconPresets: Record<HabitStatus, string[]> = {
   missed: ["❌", "🔴", "⛔", "🔻", "🚧"],
   planned: ["🗓️", "📍", "🕓", "🔵", "○"]
 };
+
+export function suggestHabitIcon(title: string, category = "", type: string = "") {
+  const haystack = `${title} ${category} ${type}`.trim().toLowerCase();
+  for (const rule of habitIconRules) {
+    if (rule.terms.some((term) => haystack.includes(term))) return rule.icon;
+  }
+  if (type === "avoid") return "🚫";
+  if (type === "reflection") return "📝";
+  if (type === "numeric") return "✨";
+  return "⭐";
+}
 
 export const defaultCustomGridColors = {
   mode: "custom" as const,
@@ -176,7 +205,7 @@ export const habitTemplates: HabitTemplate[] = [
 
 export function createDefaults(): AppState {
   return {
-    schemaVersion: 12,
+    schemaVersion: 13,
     view: "today",
     selectedDate: todayKey(),
     habits: [],
@@ -190,6 +219,7 @@ export function createDefaults(): AppState {
       visibleBlocks: {
         today: true,
         attention: true,
+        habitIcons: true,
         diary: true,
         mood: true,
         energy: true,
@@ -220,6 +250,7 @@ export function createDefaults(): AppState {
       gridTheme: "soft",
       gridDisplayMode: "matrix",
       gridDensity: "standard",
+      calendarHistoryDays: 30,
       statusIcons: {
         done: "✅",
         partial: "🌓",
@@ -255,6 +286,7 @@ export function createDefaults(): AppState {
       gridClickAction: "cycle",
       selectedCategory: "all",
       selectedHabitId: "",
+      iconSuggestionsCheckedAt: todayKey(),
       defaultView: "today",
       todayLayout: "split",
       diaryLayout: "compact",

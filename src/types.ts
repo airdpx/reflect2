@@ -110,6 +110,23 @@ export type ForecastScale = {
   phase: "low" | "steady" | "high";
 };
 
+export type HumanDesignTransitGate = {
+  number: string;
+  name: string;
+  url: string;
+};
+
+export type HumanDesignTransit = {
+  date: string;
+  fetchedAt: string;
+  title: string;
+  periodStart: string;
+  periodEnd: string;
+  gates: HumanDesignTransitGate[];
+  paragraphs: string[];
+  sourceUrl: string;
+};
+
 export type ForecastResult = {
   date: string;
   summaryScore: number;
@@ -135,6 +152,7 @@ export type UserSettings = {
   gridTheme: GridTheme;
   gridDisplayMode: GridDisplayMode;
   gridDensity: Density;
+  calendarHistoryDays: number;
   statusIcons: Record<HabitStatus, string>;
   gridColors: GridColorSettings;
   forecast: ForecastSettings;
@@ -144,6 +162,7 @@ export type UserSettings = {
   gridClickAction: "details" | "cycle";
   selectedCategory: string;
   selectedHabitId: string;
+  iconSuggestionsCheckedAt: string;
   defaultView: View;
   todayLayout: "split" | "single" | "reverse";
   diaryLayout: "compact" | "full";

@@ -1,4 +1,4 @@
-import { Fragment } from "react";
+import { Fragment, useEffect, useState } from "react";
 import type React from "react";
 import type { AppActions, AppSelectors, AppState, Density, GridDisplayMode, Habit, HabitStatus } from "../types";
 import { formatDate, todayKey, weekdayShort } from "../lib/date";
@@ -35,6 +35,8 @@ export function GridView({
   actions: AppActions;
 }) {
   const p = state.settings.defaultPeriod;
+  const viewportWidth = useViewportWidth();
+  const gridDates = selectors.periodDates.slice(-state.settings.calendarHistoryDays);
   return (
     <section className="stack">
       <div className="panel period-panel">
@@ -68,7 +70,7 @@ export function GridView({
         </div>
       </div>
       <CalendarSettingsPanel state={state} selectors={selectors} actions={actions} />
-      <CalendarGrid state={state} selectors={selectors} actions={actions} />
+      <CalendarGrid state={state} selectors={selectors} actions={actions} dates={gridDates} viewportWidth={viewportWidth} />
     </section>
   );
 }
@@ -161,11 +163,15 @@ function CalendarSettingsPanel({ state, selectors, actions }: { state: AppState;
 function CalendarGrid({
   state,
   selectors,
-  actions
+  actions,
+  dates,
+  viewportWidth
 }: {
   state: AppState;
   selectors: AppSelectors;
   actions: AppActions;
+  dates: string[];
+  viewportWidth: number;
 }) {
   const visibleHabits = selectors.activeHabits.filter((habit) => state.settings.selectedCategory === "all" || habit.category === state.settings.selectedCategory);
   if (!selectors.activeHabits.length) {
@@ -183,33 +189,35 @@ function CalendarGrid({
     );
   }
   if (!visibleHabits.length) return <div className="empty action-empty"><b>В этой категории пока нет привычек</b><span>Выберите другую категорию или добавьте привычку в текущую.</span></div>;
-  if (!selectors.periodDates.length) return <div className="empty action-empty"><b>В выбранном периоде нет дат</b><span>Проверьте диапазон или верните выходные в настройках сетки.</span></div>;
+  if (!dates.length) return <div className="empty action-empty"><b>В выбранном периоде нет дат</b><span>Проверьте диапазон или верните выходные в настройках сетки.</span></div>;
   const renderers: Record<GridDisplayMode, React.ReactNode> = {
-    calendar: <CalendarMonthGrid habits={visibleHabits} compact={false} state={state} selectors={selectors} actions={actions} />,
-    compact: <CalendarMonthGrid habits={visibleHabits} compact state={state} selectors={selectors} actions={actions} />,
-    matrix: <WeekMatrixGrid habits={visibleHabits} state={state} selectors={selectors} actions={actions} />,
-    week: <WeekFocusGrid habits={visibleHabits} state={state} selectors={selectors} actions={actions} />,
-    habit: <HabitTimelineGrid habits={visibleHabits} state={state} selectors={selectors} actions={actions} />,
-    timeline: <TimelineGrid habits={visibleHabits} state={state} selectors={selectors} actions={actions} />,
-    heat: <HeatGrid habits={visibleHabits} state={state} selectors={selectors} actions={actions} />
+    calendar: <CalendarMonthGrid habits={visibleHabits} dates={dates} compact={false} state={state} selectors={selectors} actions={actions} />,
+    compact: <CalendarMonthGrid habits={visibleHabits} dates={dates} compact state={state} selectors={selectors} actions={actions} />,
+    matrix: <WeekMatrixGrid habits={visibleHabits} dates={dates} viewportWidth={viewportWidth} state={state} selectors={selectors} actions={actions} />,
+    week: <WeekFocusGrid habits={visibleHabits} dates={dates} state={state} selectors={selectors} actions={actions} />,
+    habit: <HabitTimelineGrid habits={visibleHabits} dates={dates} state={state} selectors={selectors} actions={actions} />,
+    timeline: <TimelineGrid habits={visibleHabits} dates={dates} state={state} selectors={selectors} actions={actions} />,
+    heat: <HeatGrid habits={visibleHabits} dates={dates} state={state} selectors={selectors} actions={actions} />
   };
   return <div className={`grid-mode density-grid-${state.settings.gridDensity}`}>{renderers[state.settings.gridDisplayMode] || renderers.calendar}</div>;
 }
 
 function CalendarMonthGrid({
   habits,
+  dates,
   compact,
   state,
   selectors,
   actions
 }: {
   habits: Habit[];
+  dates: string[];
   compact: boolean;
   state: AppState;
   selectors: AppSelectors;
   actions: AppActions;
 }) {
-  const weeks = chunkWeeks(selectors.periodDates);
+  const weeks = chunkWeeks(dates);
   return (
     <div>
       <div className={`month-calendar ${compact ? "compact-calendar" : ""}`}>
@@ -287,16 +295,21 @@ function CalendarHabitMark({
 
 function WeekMatrixGrid({
   habits,
+  dates,
+  viewportWidth,
   state,
   selectors,
   actions
 }: {
   habits: Habit[];
+  dates: string[];
+  viewportWidth: number;
   state: AppState;
   selectors: AppSelectors;
   actions: AppActions;
 }) {
-  const weeks = chunkBySeven(selectors.periodDates);
+  const chunkSize = getMatrixChunkSize(viewportWidth);
+  const weeks = chunkByCount(dates, chunkSize);
   return (
     <div>
       <div className="week-matrix-stack">
@@ -328,20 +341,22 @@ function WeekMatrixGrid({
 
 function WeekFocusGrid({
   habits,
+  dates,
   state,
   selectors,
   actions
 }: {
   habits: Habit[];
+  dates: string[];
   state: AppState;
   selectors: AppSelectors;
   actions: AppActions;
 }) {
-  const dates = selectors.periodDates.slice(-7);
+  const focusDates = dates.slice(-Math.min(14, dates.length)).slice(-7);
   return (
     <div>
       <div className="week-focus-grid">
-        {dates.map((date) => (
+        {focusDates.map((date) => (
           <div className={`week-focus-day ${date === todayKey() ? "today" : ""}`} key={date}>
             <div className="calendar-day-head">
               <b>{formatDate(date, "short")}</b>
@@ -372,11 +387,13 @@ function WeekFocusGrid({
 
 function HabitTimelineGrid({
   habits,
+  dates,
   state,
   selectors,
   actions
 }: {
   habits: Habit[];
+  dates: string[];
   state: AppState;
   selectors: AppSelectors;
   actions: AppActions;
@@ -394,7 +411,7 @@ function HabitTimelineGrid({
         </select>
       </div>
       <div className="habit-strip">
-        {chunkBySeven(selectors.periodDates).map((group, index) => (
+        {chunkByCount(dates, 7).map((group, index) => (
           <div className="habit-strip-row" key={index}>
             {group.map((date) => (
               <button
@@ -418,11 +435,13 @@ function HabitTimelineGrid({
 
 function TimelineGrid({
   habits,
+  dates,
   state,
   selectors,
   actions
 }: {
   habits: Habit[];
+  dates: string[];
   state: AppState;
   selectors: AppSelectors;
   actions: AppActions;
@@ -430,7 +449,7 @@ function TimelineGrid({
   return (
     <div>
       <div className="timeline-grid">
-        {selectors.periodDates.map((date) => (
+        {dates.map((date) => (
           <div className={`timeline-day ${date === todayKey() ? "today" : ""}`} key={date}>
             <div className="timeline-date">
               <b>{formatDate(date, "short")}</b>
@@ -458,11 +477,13 @@ function TimelineGrid({
 
 function HeatGrid({
   habits,
+  dates,
   state,
   selectors,
   actions
 }: {
   habits: Habit[];
+  dates: string[];
   state: AppState;
   selectors: AppSelectors;
   actions: AppActions;
@@ -470,7 +491,7 @@ function HeatGrid({
   return (
     <div>
       <div className="heat-grid">
-        {selectors.periodDates.map((date) => {
+        {dates.map((date) => {
           const dueHabits = habits.filter((habit) => selectors.isDue(habit, date));
           const done = dueHabits.filter((habit) => selectors.getLog(habit.id, date)?.status === "done").length;
           const intensity = dueHabits.length ? Math.max(1, Math.ceil((done / dueHabits.length) * 4)) : 0;
@@ -588,10 +609,28 @@ function chunkWeeks(dates: string[]) {
   return weeks;
 }
 
-function chunkBySeven(dates: string[]) {
+function chunkByCount(dates: string[], size: number) {
   const groups: string[][] = [];
-  for (let index = 0; index < dates.length; index += 7) groups.push(dates.slice(index, index + 7));
+  for (let index = 0; index < dates.length; index += size) groups.push(dates.slice(index, index + size));
   return groups;
+}
+
+function getMatrixChunkSize(width: number) {
+  if (width >= 1700) return 28;
+  if (width >= 1360) return 21;
+  if (width >= 920) return 14;
+  return 7;
+}
+
+function useViewportWidth() {
+  const [width, setWidth] = useState(1400);
+  useEffect(() => {
+    const update = () => setWidth(window.innerWidth);
+    update();
+    window.addEventListener("resize", update);
+    return () => window.removeEventListener("resize", update);
+  }, []);
+  return width;
 }
 
 function clampDays(value: string) {

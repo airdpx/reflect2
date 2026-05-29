@@ -6,6 +6,7 @@ import { statusMeta } from "../lib/defaults";
 const blockLabels: Record<string, string> = {
   today: "Сегодня",
   attention: "Требует внимания",
+  habitIcons: "Иконки привычек",
   diary: "Дневник",
   mood: "Настроение",
   energy: "Энергия",
@@ -113,6 +114,12 @@ export function SettingsView({ state, actions }: { state: AppState; actions: App
               options={["theme", "custom"]}
               onChange={(value) => actions.updateSetting("gridColors", { ...state.settings.gridColors, mode: value as "theme" | "custom" })}
             />
+            <SelectControl
+              label="История календаря"
+              value={String(state.settings.calendarHistoryDays)}
+              options={["7", "14", "30", "60", "90", "180", "365"]}
+              onChange={(value) => actions.updateSetting("calendarHistoryDays", Number(value))}
+            />
           </div>
           <p className="muted">По умолчанию календарь следует теме интерфейса и не выглядит светлым отдельно от неё.</p>
           {state.settings.gridColors.mode === "custom" && (
@@ -140,12 +147,12 @@ export function SettingsView({ state, actions }: { state: AppState; actions: App
           <div className="section-head">
             <div>
               <h3>Прогноз дня</h3>
-              <p className="muted">Биоритмы как мягкий ориентир. Будущие источники подключатся сюда же.</p>
+              <p className="muted">Биоритмы или текущий транзит Human Design из Humdes.</p>
             </div>
           </div>
           <Toggle label="Включить прогноз" checked={state.settings.forecast.enabled} onChange={(checked) => actions.updateSetting("forecast", { ...state.settings.forecast, enabled: checked })} />
           <div className="form-grid">
-            <SelectControl label="Источник" value={state.settings.forecast.provider} options={["biorhythm"]} onChange={(value) => actions.updateSetting("forecast", { ...state.settings.forecast, provider: value as ForecastProviderId })} />
+            <SelectControl label="Источник" value={state.settings.forecast.provider} options={["biorhythm", "humanDesign"]} onChange={(value) => actions.updateSetting("forecast", { ...state.settings.forecast, provider: value as ForecastProviderId })} />
             <SelectControl label="Вид" value={state.settings.forecast.displayMode} options={["compact", "cards", "minimal"]} onChange={(value) => actions.updateSetting("forecast", { ...state.settings.forecast, displayMode: value as ForecastDisplayMode })} />
           </div>
           <p className="muted">Дата рождения берётся из профиля аккаунта, поэтому здесь её менять не нужно.</p>
