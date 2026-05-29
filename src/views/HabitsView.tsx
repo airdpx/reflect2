@@ -93,13 +93,13 @@ function HabitList({
                   onDrag(null);
                 }}
               >
-                <b className="drag-handle" title="Перетащить">⋮⋮</b>
-                <i style={{ background: habit.color }}>{habit.icon}</i>
-                <div>
-                  <strong>{habit.title}</strong>
+                  <b className="drag-handle" title="Перетащить">⋮⋮</b>
+                  <i style={{ background: habit.color }}>{habit.icon}</i>
+                  <div>
+                    <strong>{habit.title}</strong>
                   <span>{habit.category || "без категории"} · {habitTypeLabels[habit.type]} · цель {habit.target}</span>
-                  <small>{habit.schedule.length}/7 дней · streak {stats.streak} · {stats.completion}%</small>
-                </div>
+                  <small>{habit.schedule.length}/7 дней · серия {stats.streak} · {stats.completion}%</small>
+                  </div>
                 <div className="habit-admin-actions">
                   <button className="btn ghost" onClick={() => actions.openHabitModal(habit.id)}>Изменить</button>
                   <button className="btn ghost" onClick={() => actions.saveHabit({ ...habit, archived: !habit.archived })}>{habit.archived ? "Вернуть" : "В архив"}</button>

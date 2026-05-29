@@ -1,5 +1,5 @@
 import { useState } from "react";
-import type { AppActions, AppState, Density, ForecastDisplayMode, ForecastProviderId, ForecastScaleId, ForecastSettings, HabitStatus, UserSettings, View } from "../types";
+import type { AppActions, AppState, Density, ForecastDisplayMode, ForecastProviderId, ForecastScaleId, ForecastSettings, GridTheme, HabitStatus, UserSettings, View } from "../types";
 import { SelectControl, Toggle } from "../components/Common";
 import { statusMeta } from "../lib/defaults";
 
@@ -92,6 +92,49 @@ export function SettingsView({ state, actions }: { state: AppState; actions: App
               onChange={(checked) => actions.toggleStatus(status, checked)}
             />
           ))}
+        </div>
+        <div className="panel settings-card">
+          <div className="section-head">
+            <div>
+              <h3>Календарь</h3>
+              <p className="muted">Оформление таблицы и её цветовая палитра живут отдельно от общей темы.</p>
+            </div>
+          </div>
+          <div className="form-grid">
+            <SelectControl
+              label="Оформление"
+              value={state.settings.gridTheme}
+              options={["soft", "classic", "journal", "minimal"]}
+              onChange={(value) => actions.updateSetting("gridTheme", value as GridTheme)}
+            />
+            <SelectControl
+              label="Цвета календаря"
+              value={state.settings.gridColors.mode}
+              options={["theme", "custom"]}
+              onChange={(value) => actions.updateSetting("gridColors", { ...state.settings.gridColors, mode: value as "theme" | "custom" })}
+            />
+          </div>
+          <p className="muted">По умолчанию календарь следует теме интерфейса и не выглядит светлым отдельно от неё.</p>
+          {state.settings.gridColors.mode === "custom" && (
+            <div className="mini-color-grid">
+              {[
+                ["bg", "Фон"],
+                ["head", "Шапка"],
+                ["cell", "Ячейки"],
+                ["today", "Сегодня"],
+                ["line", "Линии"]
+              ].map(([key, label]) => (
+                <label key={key}>
+                  <span>{label}</span>
+                  <input
+                    type="color"
+                    value={state.settings.gridColors[key as keyof typeof state.settings.gridColors] as string}
+                    onChange={(event) => actions.updateSetting("gridColors", { ...state.settings.gridColors, [key]: event.target.value })}
+                  />
+                </label>
+              ))}
+            </div>
+          )}
         </div>
         <div className="panel settings-card">
           <div className="section-head">

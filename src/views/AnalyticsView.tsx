@@ -22,8 +22,8 @@ export function StatsPanel({ selectors }: { selectors: AppSelectors }) {
       <h3>Краткая аналитика</h3>
       <div className="stats">
         <div className="stat"><strong>{avg}%</strong><span>выполнение</span></div>
-        <div className="stat"><strong>{streak}</strong><span>текущий streak</span></div>
-        <div className="stat"><strong>{best}</strong><span>лучший streak</span></div>
+        <div className="stat"><strong>{streak}</strong><span>текущая серия</span></div>
+        <div className="stat"><strong>{best}</strong><span>лучшая серия</span></div>
         <div className="stat"><strong>{attention}</strong><span>сигналы</span></div>
       </div>
     </div>
@@ -47,7 +47,7 @@ export function AnalyticsView({ selectors }: { selectors: AppSelectors }) {
           const stats = selectors.calculateStats(habit);
           return (
             <div className="settings-row" key={habit.id}>
-              <span><b>{habit.icon} {habit.title}</b><br /><small className="muted">Лучший streak {stats.bestStreak} · пропущено плановых {stats.missedPlanned}</small></span>
+              <span><b>{habit.icon} {habit.title}</b><br /><small className="muted">Лучшая серия {stats.bestStreak} · пропущено плановых {stats.missedPlanned}</small></span>
               <span className="badge">{stats.completion}%</span>
             </div>
           );

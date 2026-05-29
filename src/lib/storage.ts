@@ -2,7 +2,7 @@ import type { AppState } from "../types";
 import { createDefaults } from "./defaults";
 
 export const STORAGE_KEY = "habit-calendar-next-mvp-v1";
-export const SCHEMA_VERSION = 11;
+export const SCHEMA_VERSION = 12;
 
 export function loadStoredState(): AppState {
   const defaults = createDefaults();
@@ -96,9 +96,12 @@ function migrateState(state: AppState): AppState {
     Object.entries(legacyLightGridColors).every(([key, value]) => state.settings.gridColors?.[key as keyof typeof legacyLightGridColors] === value)
       ? { ...defaults.settings.gridColors, mode: "theme" as const }
       : state.settings.gridColors;
-  const normalizedGridColors = previousVersion < 9 && gridColors?.mode === "custom"
+  const normalizedLightPalette = gridColors?.mode === "custom" && isLightGridPalette(gridColors)
     ? { ...defaults.settings.gridColors, mode: "theme" as const }
     : gridColors;
+  const normalizedGridColors = previousVersion < 9 && normalizedLightPalette?.mode === "custom"
+    ? { ...defaults.settings.gridColors, mode: "theme" as const }
+    : normalizedLightPalette;
   const migratedVisibleGrid = {
     ...defaults.settings.visibleGrid,
     ...state.settings.visibleGrid
@@ -183,4 +186,24 @@ export function parseImportedState(json: string): AppState | null {
   } catch {
     return null;
   }
+}
+
+function isLightGridPalette(gridColors: AppState["settings"]["gridColors"]) {
+  const sample = [gridColors?.bg, gridColors?.head, gridColors?.cell, gridColors?.today, gridColors?.line]
+    .filter((value): value is string => typeof value === "string" && value.startsWith("#"));
+  if (sample.length < 3) return false;
+  const average = sample.reduce((sum, value) => sum + hexLuminance(value), 0) / sample.length;
+  return average > 0.68;
+}
+
+function hexLuminance(hex: string) {
+  const normalized = hex.replace("#", "");
+  const expanded = normalized.length === 3
+    ? normalized.split("").map((part) => part + part).join("")
+    : normalized;
+  const red = Number.parseInt(expanded.slice(0, 2), 16) / 255;
+  const green = Number.parseInt(expanded.slice(2, 4), 16) / 255;
+  const blue = Number.parseInt(expanded.slice(4, 6), 16) / 255;
+  const toLinear = (channel: number) => (channel <= 0.03928 ? channel / 12.92 : ((channel + 0.055) / 1.055) ** 2.4);
+  return 0.2126 * toLinear(red) + 0.7152 * toLinear(green) + 0.0722 * toLinear(blue);
 }

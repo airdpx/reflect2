@@ -176,7 +176,7 @@ export const habitTemplates: HabitTemplate[] = [
 
 export function createDefaults(): AppState {
   return {
-    schemaVersion: 11,
+    schemaVersion: 12,
     view: "today",
     selectedDate: todayKey(),
     habits: [],

@@ -51,8 +51,8 @@ export function CellSheet({
           <span>Статус: <b>{log?.status ? statusMeta[log.status].label : "нет"}</b></span>
         </div>
         <div className="cell-summary">
-          <span>Streak: <b>{stats.streak}</b></span>
-          <span>Лучший: <b>{stats.bestStreak}</b></span>
+          <span>Серия: <b>{stats.streak}</b></span>
+          <span>Лучшая серия: <b>{stats.bestStreak}</b></span>
           <span>Последнее: <b>{stats.lastDone ? formatDate(stats.lastDone, "short") : "нет"}</b></span>
         </div>
         {habit.type === "numeric" && (
