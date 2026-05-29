@@ -7,23 +7,16 @@ import { forecastTone, getForecast } from "../lib/forecast";
 import { TemplateChooser } from "./TodayView";
 import { SelectControl, Toggle } from "../components/Common";
 
-const gridThemeOptions = [
-  { value: "soft", label: "Мягкая" },
-  { value: "classic", label: "Классика" },
-  { value: "journal", label: "Дневник" },
-  { value: "minimal", label: "Минимум" }
-];
-
-const gridMarkerShapeOptions = [
-  { value: "circle", label: "Круг" },
-  { value: "square", label: "Квадрат" },
-  { value: "diamond", label: "Ромб" },
-  { value: "star", label: "Звезда" },
-  { value: "frame", label: "Рамка" },
-  { value: "ring", label: "Кольцо" },
-  { value: "hex", label: "Шестиугольник" },
-  { value: "pill", label: "Пилюля" }
-];
+const gridAppearancePresets = [
+  { value: "soft-circle", label: "Мягкий круг", theme: "soft", shape: "circle" },
+  { value: "soft-square", label: "Мягкий квадрат", theme: "soft", shape: "square" },
+  { value: "classic-square", label: "Классика", theme: "classic", shape: "square" },
+  { value: "journal-ring", label: "Дневник", theme: "journal", shape: "ring" },
+  { value: "journal-star", label: "Дневник со звездой", theme: "journal", shape: "star" },
+  { value: "minimal-hex", label: "Минимум", theme: "minimal", shape: "hex" },
+  { value: "minimal-pill", label: "Минимум-пилюля", theme: "minimal", shape: "pill" },
+  { value: "soft-frame", label: "Мягкая рамка", theme: "soft", shape: "frame" }
+] as const;
 
 const gridLabels: Record<string, string> = {
   color: "Цвет привычки",
@@ -94,15 +87,29 @@ export function GridView({
 }
 
 function CalendarSettingsPanel({ state, selectors, actions }: { state: AppState; selectors: AppSelectors; actions: AppActions }) {
+  const appearanceValue = gridAppearancePresets.find((preset) => preset.theme === state.settings.gridTheme && preset.shape === state.settings.gridMarkerShape)?.value || "custom";
+  const appearanceOptions = [
+    ...gridAppearancePresets.map(({ value, label }) => ({ value, label })),
+    { value: "custom", label: "Своя комбинация" }
+  ];
   return (
     <details className="panel module-panel calendar-settings-panel">
       <summary>Настроить календарь и таблицу</summary>
       <div className="module-controls">
         <div className="calendar-settings-grid">
-          <SelectControl label="Оформление таблицы" value={state.settings.gridTheme} options={gridThemeOptions} onChange={(value) => actions.updateSetting("gridTheme", value as AppState["settings"]["gridTheme"])} />
+          <SelectControl
+            label="Оформление таблицы"
+            value={appearanceValue}
+            options={appearanceOptions}
+            onChange={(value) => {
+              const preset = gridAppearancePresets.find((item) => item.value === value);
+              if (!preset) return;
+              actions.updateSetting("gridTheme", preset.theme as AppState["settings"]["gridTheme"]);
+              actions.updateSetting("gridMarkerShape", preset.shape as AppState["settings"]["gridMarkerShape"]);
+            }}
+          />
           <SelectControl label="Цвета таблицы" value={state.settings.gridColors.mode} options={[{ value: "theme", label: "По теме" }, { value: "custom", label: "Свои цвета" }]} onChange={(value) => actions.updateSetting("gridColors", { ...state.settings.gridColors, mode: value as "theme" | "custom" })} />
           <SelectControl label="Плотность сетки" value={state.settings.gridDensity} options={["compact", "standard", "comfortable"]} onChange={(value) => actions.updateSetting("gridDensity", value as Density)} />
-          <SelectControl label="Форма отметки" value={state.settings.gridMarkerShape} options={gridMarkerShapeOptions} onChange={(value) => actions.updateSetting("gridMarkerShape", value as AppState["settings"]["gridMarkerShape"])} />
           <SelectControl label="Клик по ячейке" value={state.settings.gridClickAction} options={["cycle", "details"]} onChange={(value) => actions.updateSetting("gridClickAction", value as "cycle" | "details")} />
         </div>
         {state.settings.gridColors.mode === "custom" && (
