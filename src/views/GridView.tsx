@@ -47,8 +47,11 @@ export function GridView({
 }) {
   const p = state.settings.defaultPeriod;
   const viewportWidth = useViewportWidth();
-  const totalDays = Math.max(1, state.settings.calendarHistoryDays + selectors.periodDates.length);
-  const gridDates = rangeDates(toKey(addDays(fromKey(todayKey()), -(totalDays - 1))), todayKey());
+  const historyDays = Math.max(0, state.settings.calendarHistoryDays);
+  const periodDays = Math.max(1, selectors.periodDates.length);
+  const historyStart = toKey(addDays(fromKey(todayKey()), -historyDays));
+  const periodEnd = toKey(addDays(fromKey(todayKey()), periodDays - 1));
+  const gridDates = rangeDates(historyStart, periodEnd);
   return (
     <section className="stack">
       <div className="panel period-panel">
@@ -88,11 +91,7 @@ export function GridView({
 }
 
 function CalendarSettingsPanel({ state, selectors, actions }: { state: AppState; selectors: AppSelectors; actions: AppActions }) {
-  const appearanceValue = gridAppearancePresets.find((preset) => preset.theme === state.settings.gridTheme && preset.shape === state.settings.gridMarkerShape)?.value || "custom";
-  const appearanceOptions = [
-    ...gridAppearancePresets.map(({ value, label }) => ({ value, label })),
-    { value: "custom", label: "Своя комбинация" }
-  ];
+  const appearanceValue = gridAppearancePresets.find((preset) => preset.theme === state.settings.gridTheme && preset.shape === state.settings.gridMarkerShape)?.value || gridAppearancePresets[0].value;
   return (
     <details className="panel module-panel calendar-settings-panel">
       <summary>Настроить календарь и таблицу</summary>
@@ -101,7 +100,7 @@ function CalendarSettingsPanel({ state, selectors, actions }: { state: AppState;
           <SelectControl
             label="Оформление таблицы"
             value={appearanceValue}
-            options={appearanceOptions}
+            options={gridAppearancePresets.map(({ value, label }) => ({ value, label }))}
             onChange={(value) => {
               const preset = gridAppearancePresets.find((item) => item.value === value);
               if (!preset) return;
@@ -587,7 +586,7 @@ function GridCell({
   const status = log?.status || (selectors.isDue(habit, date) ? "planned" : undefined);
   const visibleStatus = status && (state.settings.activeStatuses.includes(status) || status === "planned");
   const className = visibleStatus && status ? statusMeta[status].className : "";
-  const themeClass = ["classic", "journal", "minimal"].includes(state.settings.gridTheme) ? state.settings.gridTheme : "";
+  const themeClass = ["soft", "classic", "journal", "minimal"].includes(state.settings.gridTheme) ? state.settings.gridTheme : "";
   return (
     <div className={`grid-cell ${date === todayKey() ? "today" : ""} ${themeClass}`}>
       <button
