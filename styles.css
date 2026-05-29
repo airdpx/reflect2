@@ -275,7 +275,7 @@ button {
 
 .forecast-panel {
   display: grid;
-  gap: 12px;
+  gap: 10px;
   box-shadow: none;
   background:
     linear-gradient(135deg, color-mix(in srgb, var(--accent) 9%, transparent), transparent 58%),
@@ -288,11 +288,11 @@ button {
 }
 
 .forecast-score {
-  min-width: 84px;
+  min-width: 78px;
   display: grid;
   place-items: center;
   gap: 0;
-  padding: 8px 10px;
+  padding: 7px 9px;
   border: 1px solid var(--line);
   border-radius: 10px;
   background: var(--surface-soft);
@@ -301,7 +301,7 @@ button {
 }
 
 .forecast-score strong {
-  font-size: 18px;
+  font-size: 16px;
   line-height: 1;
 }
 
@@ -348,11 +348,11 @@ button {
 
 .forecast-scale {
   display: grid;
-  grid-template-columns: minmax(94px, 0.8fr) minmax(90px, 1fr) 34px;
+  grid-template-columns: minmax(88px, 0.8fr) minmax(90px, 1fr) 32px;
   align-items: center;
   gap: 8px;
   color: var(--muted);
-  font-size: 12px;
+  font-size: 11px;
 }
 
 .forecast-scale div {
@@ -597,9 +597,11 @@ button {
 .habit-card {
   display: grid;
   grid-template-columns: auto minmax(0, 1fr) auto;
-  gap: 12px;
+  gap: 10px;
   align-items: center;
-  padding: 12px;
+  padding: 10px 11px;
+  border: 1px solid var(--line);
+  background: color-mix(in srgb, var(--surface) 82%, var(--surface-soft));
 }
 
 .habit-dot {
@@ -625,15 +627,15 @@ button {
   display: flex;
   flex-wrap: wrap;
   gap: 6px;
-  margin-top: 6px;
+  margin-top: 5px;
 }
 
 .habit-meta span {
   color: var(--muted);
-  background: var(--surface-soft);
+  background: color-mix(in srgb, var(--surface-soft) 82%, var(--surface));
   border-radius: 999px;
-  padding: 3px 7px;
-  font-size: 12px;
+  padding: 3px 6px;
+  font-size: 11px;
 }
 
 .habit-meta .signal {
@@ -655,20 +657,20 @@ button {
 .quick-actions {
   display: flex;
   flex-wrap: wrap;
-  gap: 6px;
+  gap: 5px;
   justify-content: flex-end;
 }
 
 .status-btn {
-  min-width: 30px;
-  height: 30px;
+  min-width: 28px;
+  height: 28px;
   border-radius: 999px;
   background: var(--surface-soft);
   color: var(--text);
   border: 1px solid color-mix(in srgb, var(--line) 72%, transparent);
   box-shadow: inset 0 0 0 1px color-mix(in srgb, #fff 16%, transparent);
   font-weight: 800;
-  font-size: 14px;
+  font-size: 13px;
 }
 
 .status-btn.active {
@@ -1838,6 +1840,14 @@ button {
   line-height: 1.45;
 }
 
+.today-note-preview {
+  gap: 10px;
+}
+
+.today-note-preview .textarea {
+  min-height: 72px;
+}
+
 .diary-history-panel {
   margin-top: 12px;
 }
@@ -1942,33 +1952,33 @@ button {
 }
 
 .inspector-panel {
-  margin-bottom: 14px;
+  margin-bottom: 12px;
   box-shadow: none;
 }
 
 .inspector-summary {
   display: grid;
   gap: 2px;
-  margin-bottom: 10px;
-  padding: 12px;
+  margin-bottom: 8px;
+  padding: 10px 11px;
   border-radius: var(--radius);
   background: var(--accent-soft);
 }
 
 .inspector-summary strong {
-  font-size: 26px;
+  font-size: 22px;
 }
 
 .inspector-summary span,
 .mini-metrics span {
   color: var(--muted);
-  font-size: 13px;
+  font-size: 12px;
 }
 
 .mini-metrics {
   display: grid;
-  gap: 7px;
-  margin-bottom: 10px;
+  gap: 6px;
+  margin-bottom: 8px;
 }
 
 .mini-metrics span {
