@@ -31,10 +31,19 @@ export function HabitModal({
   const [type, setType] = useState<HabitType>(h.type);
   const [manualIcon, setManualIcon] = useState(Boolean(habit && !isTemplateDraft));
   const suggestedIcon = suggestHabitIcon(title, category, type);
+  const categoryOptions = Array.from(new Set([category, ...habitCategoryPresets])).filter(Boolean);
 
   useEffect(() => {
     if (!manualIcon) setIcon(suggestedIcon);
   }, [manualIcon, suggestedIcon]);
+
+  useEffect(() => {
+    const closeOnEscape = (event: KeyboardEvent) => {
+      if (event.key === "Escape") actions.openHabitModal(null);
+    };
+    window.addEventListener("keydown", closeOnEscape);
+    return () => window.removeEventListener("keydown", closeOnEscape);
+  }, [actions]);
 
   function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -70,10 +79,10 @@ export function HabitModal({
           <div className="form-grid">
             <Field label="Название"><input className="input" name="title" required value={title} onChange={(event) => setTitle(event.target.value)} /></Field>
             <Field label="Категория">
-              <input className="input" name="category" value={category} list="habit-category-presets" onChange={(event) => setCategory(event.target.value)} />
-              <datalist id="habit-category-presets">
-                {habitCategoryPresets.map((item) => <option key={item} value={item} />)}
-              </datalist>
+              <select className="select" name="category" value={category} onChange={(event) => setCategory(event.target.value)}>
+                <option value="">Без категории</option>
+                {categoryOptions.map((item) => <option key={item} value={item}>{item}</option>)}
+              </select>
             </Field>
             <Field label="Цвет"><input className="input" type="color" name="color" defaultValue={h.color} /></Field>
             <Field label="Тип">
@@ -86,22 +95,10 @@ export function HabitModal({
           </div>
           <div className="picker-panel">
             <div>
-              <span className="picker-label">Подбор иконки</span>
-              <div className="icon-suggestion-row">
-                  <button type="button" className="suggested-icon" onClick={() => { setManualIcon(true); setIcon(suggestedIcon); }} title="Применить предложенную иконку">
-                  <b>{suggestedIcon}</b>
-                  <span>{suggestedIcon}</span>
-                </button>
-                <small className="muted">Подбирается по названию и категории.</small>
-              </div>
+              <span className="picker-label">Иконка</span>
+              <p className="muted">Подбирается автоматически по названию и категории. Можно выбрать любую ниже.</p>
               <div className="preset-icon-grid">
                 {habitIconPresets.map((item) => <button type="button" key={item} className={icon === item ? "active" : ""} onClick={() => { setManualIcon(true); setIcon(item); }}>{item}</button>)}
-              </div>
-            </div>
-            <div>
-              <span className="picker-label">Категории</span>
-              <div className="category-chip-row">
-                {habitCategoryPresets.map((item) => <button type="button" key={item} className={category === item ? "active" : ""} onClick={() => setCategory(item)}>{item}</button>)}
               </div>
             </div>
           </div>

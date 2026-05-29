@@ -31,6 +31,7 @@ export function HabitCard({
           {state.settings.visibleGrid.daysSince && <span>{stats.daysSince ?? "нет"} дней с выполнения</span>}
           {needsAttention && <span className="signal">внимание</span>}
         </div>
+        {habit.description ? <p className="habit-description">{habit.description}</p> : null}
       </div>
       <div className="quick-actions">
         {state.settings.activeStatuses.map((status) => (

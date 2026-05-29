@@ -1,22 +1,34 @@
 import type { AppActions, AppState, DailyNote } from "../types";
 import { DiaryForecastStrip } from "../components/Forecast";
-import { formatDate } from "../lib/date";
+import { addDays, formatDate, fromKey, todayKey, toKey } from "../lib/date";
 
 export function DiaryPanel({ state, actions }: { state: AppState; actions: AppActions }) {
   const note = state.notes[state.selectedDate] || {};
+  const historyDays = state.settings.diaryHistoryDays || 30;
+  const historyStart = toKey(addDays(fromKey(state.selectedDate || todayKey()), -(historyDays - 1)));
   const history = Object.entries(state.notes)
-    .filter(([date]) => date <= state.selectedDate)
+    .filter(([date]) => date >= historyStart && date <= state.selectedDate)
     .sort((a, b) => b[0].localeCompare(a[0]));
   return (
     <div className="panel">
-      <div className="section-head">
-        <div>
-          <h3>Дневник дня</h3>
-          <p className="muted">Компактные отметки состояния и свободные заметки.</p>
-        </div>
+        <div className="section-head">
+          <div>
+            <h3>Дневник дня</h3>
+            <p className="muted">Компактные отметки состояния, заметки и история по периоду.</p>
+          </div>
         <div className="segmented">
           <button className={state.settings.diaryLayout === "compact" ? "active" : ""} onClick={() => actions.updateSetting("diaryLayout", "compact")}>Компактно</button>
           <button className={state.settings.diaryLayout === "full" ? "active" : ""} onClick={() => actions.updateSetting("diaryLayout", "full")}>Полно</button>
+        </div>
+      </div>
+      <div className="mini-history-toolbar">
+        <span className="muted">История заметок</span>
+        <div className="chips">
+          {[7, 14, 30, 90, 180].map((days) => (
+            <button key={days} className={`chip ${historyDays === days ? "active" : ""}`} onClick={() => actions.updateSetting("diaryHistoryDays", days)}>
+              {days} дней
+            </button>
+          ))}
         </div>
       </div>
       <details className="module-panel inline-module-panel">
@@ -62,7 +74,7 @@ export function DiaryPanel({ state, actions }: { state: AppState; actions: AppAc
           <div className="section-head">
             <div>
               <h3>История заметок</h3>
-              <p className="muted">Список дневниковых записей по дням.</p>
+              <p className="muted">Список дневниковых записей за выбранный период.</p>
             </div>
           </div>
           <div className="history-list">

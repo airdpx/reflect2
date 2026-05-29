@@ -2,7 +2,7 @@ import type { AppState } from "../types";
 import { createDefaults } from "./defaults";
 
 export const STORAGE_KEY = "habit-calendar-next-mvp-v1";
-export const SCHEMA_VERSION = 14;
+export const SCHEMA_VERSION = 15;
 
 export function loadStoredState(): AppState {
   const defaults = createDefaults();
@@ -171,6 +171,7 @@ function migrateState(state: AppState): AppState {
       gridDensity: legacySafeSettings.gridDensity || defaults.settings.gridDensity,
       gridClickAction: previousVersion < 3 ? "cycle" : legacySafeSettings.gridClickAction || defaults.settings.gridClickAction,
       selectedHabitId: legacySafeSettings.selectedHabitId || defaults.settings.selectedHabitId,
+      diaryHistoryDays: legacySafeSettings.diaryHistoryDays || defaults.settings.diaryHistoryDays,
       todayLayout: legacySafeSettings.todayLayout || defaults.settings.todayLayout,
       diaryLayout: legacySafeSettings.diaryLayout || defaults.settings.diaryLayout,
       customPresets: legacySafeSettings.customPresets || {}

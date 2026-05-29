@@ -268,8 +268,9 @@ export default function HabitCalendarApp({ initialState }: HabitCalendarAppProps
     const enabled: HabitStatus[] = state.settings.activeStatuses.length ? state.settings.activeStatuses : ["done"];
     const current = state.logs[logKey(habitId, date)]?.status;
     const currentIndex = current ? enabled.indexOf(current) : -1;
-    const nextStatus = enabled[(currentIndex + 1) % enabled.length];
-    setLog(habitId, date, { status: nextStatus });
+    const nextStatus = currentIndex < 0 ? enabled[0] : currentIndex === enabled.length - 1 ? null : enabled[currentIndex + 1];
+    if (!nextStatus) clearLog(habitId, date);
+    else setLog(habitId, date, { status: nextStatus });
   }
 
   function markDayDone() {
@@ -331,6 +332,7 @@ export default function HabitCalendarApp({ initialState }: HabitCalendarAppProps
         gridDisplayMode: draft.settings.gridDisplayMode,
         gridMarkerShape: draft.settings.gridMarkerShape,
         selectedCategory: draft.settings.selectedCategory,
+        diaryHistoryDays: draft.settings.diaryHistoryDays,
         customTheme: { ...draft.settings.customTheme },
         calendarHistoryDays: draft.settings.calendarHistoryDays,
         iconSuggestionsCheckedAt: draft.settings.iconSuggestionsCheckedAt,

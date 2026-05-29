@@ -98,6 +98,7 @@ function HabitList({
                   <div>
                     <strong>{habit.title}</strong>
                   <span>{habit.category || "без категории"} · {habitTypeLabels[habit.type]} · цель {habit.target}</span>
+                  {habit.description ? <small className="muted habit-description">{habit.description}</small> : null}
                   <small>{habit.schedule.length}/7 дней · серия {stats.streak} · {stats.completion}%</small>
                   </div>
                 <div className="habit-admin-actions">

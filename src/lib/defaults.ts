@@ -25,12 +25,17 @@ export const habitTypeHints: Record<HabitType, string> = {
   reflection: "Запись или заметка считается выполнением."
 };
 
-export const habitIconPresets = ["💧", "🚶", "🌙", "📖", "📝", "🧘", "🏃", "🥗", "☕", "🌿", "🎯", "🔥", "✨", "💪", "🧠", "🎧", "🛏️", "🚫", "💊", "🪴", "🎨", "🧩", "📚", "❤️"];
+export const habitIconPresets = ["💧", "🚶", "🌙", "📖", "📝", "🧘", "🏃", "🥗", "☕", "🌿", "🎯", "🔥", "✨", "💪", "🧠", "🎧", "🛏️", "🚫", "💊", "🪴", "🎨", "🧩", "📚", "❤️", "🍋", "🪥", "🚴", "🏋️", "🏃‍♂️", "🏋️‍♀️", "💨", "😌", "🙂", "😴"];
 
 export const habitCategoryPresets = ["Здоровье", "Состояние", "Быт", "Фокус", "Развитие", "Самонаблюдение", "Сон", "Спорт", "Питание", "Работа", "Отдых", "Отношения"];
 
 const habitIconRules: Array<{ terms: string[]; icon: string }> = [
   { terms: ["сон", "sleep", "спать", "ноч", "bed", "высп"], icon: "🌙" },
+  { terms: ["чистк зуб", "зуб", "brush", "tooth"], icon: "🪥" },
+  { terms: ["велосип", "bike", "cycling", "ride"], icon: "🚴" },
+  { terms: ["гантел", "dumbbell", "weights", "силов"], icon: "🏋️" },
+  { terms: ["штанг", "barbell", "weightlifting", "lifting"], icon: "🏋️‍♀️" },
+  { terms: ["спин", "back", "осан", "posture"], icon: "💪" },
   { terms: ["медита", "дых", "mind", "дзен", "практик"], icon: "🧘" },
   { terms: ["вода", "hydrate", "drink", "water"], icon: "💧" },
   { terms: ["чтени", "книга", "read", "book", "pages"], icon: "📖" },
@@ -48,11 +53,11 @@ const habitIconRules: Array<{ terms: string[]; icon: string }> = [
 ];
 
 export const statusIconPresets: Record<HabitStatus, string[]> = {
-  done: ["✅", "🟢", "🌿", "💚", "🎉"],
-  partial: ["🌓", "🟡", "◐", "⚡", "🧩"],
-  skipped: ["⏭️", "💤", "➖", "🌫️", "⏸️"],
-  missed: ["❌", "🔴", "⛔", "🔻", "🚧"],
-  planned: ["🗓️", "📍", "🕓", "🔵", "○"]
+  done: ["✅", "🔥", "🟢", "🌿", "💚", "🎉", "😄"],
+  partial: ["🌓", "🟡", "◐", "⚡", "🧩", "🙂"],
+  skipped: ["⏭️", "💤", "➖", "🌫️", "⏸️", "😴"],
+  missed: ["❌", "🔴", "⛔", "🔻", "🚧", "😞"],
+  planned: ["🗓️", "📍", "🕓", "🔵", "○", "🙂"]
 };
 
 export function suggestHabitIcon(title: string, category = "", type: string = "") {
@@ -219,7 +224,7 @@ export function createDefaults(): AppState {
       visibleBlocks: {
         today: true,
         attention: true,
-        habitIcons: true,
+        habitIcons: false,
         diary: true,
         mood: true,
         energy: true,
@@ -239,11 +244,11 @@ export function createDefaults(): AppState {
         type: false,
         target: false,
         statusText: false,
-        compactMeta: true,
+        compactMeta: false,
         completion: false,
         daysSince: false,
         noteMarker: false,
-        moodMarker: true
+        moodMarker: false
       },
       density: "standard",
       interfaceTheme: "dark",
@@ -288,6 +293,7 @@ export function createDefaults(): AppState {
       selectedCategory: "all",
       selectedHabitId: "",
       iconSuggestionsCheckedAt: todayKey(),
+      diaryHistoryDays: 30,
       defaultView: "today",
       todayLayout: "split",
       diaryLayout: "compact",
