@@ -1877,6 +1877,30 @@ button {
   border-radius: 999px;
 }
 
+.grid-cell.ledger button {
+  border-radius: 2px;
+  border-color: color-mix(in srgb, var(--grid-line) 88%, transparent);
+  background: color-mix(in srgb, var(--grid-cell-empty) 62%, var(--grid-cell));
+}
+
+.grid-cell.outline button {
+  border-width: 2px;
+  border-color: color-mix(in srgb, var(--accent) 38%, var(--grid-line));
+  background: color-mix(in srgb, var(--grid-cell) 88%, transparent);
+}
+
+.grid-cell.slate button {
+  width: clamp(32px, calc(var(--cell) - 2px), 46px);
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--grid-cell-empty) 54%, var(--surface));
+}
+
+.grid-cell.calm button {
+  border-radius: 8px;
+  border-color: color-mix(in srgb, var(--grid-line) 56%, transparent);
+  background: color-mix(in srgb, var(--grid-cell) 68%, var(--grid-cell-empty));
+}
+
 .marker-note,
 .marker-mood {
   position: absolute;
@@ -3717,6 +3741,8 @@ button {
 /* Modern theme refresh: neutral bases, one confident accent, semantic status colors, and grid surfaces tied to each theme. */
 .theme-light,
 .theme-blue,
+.theme-ash,
+.theme-yellowMono,
 .theme-warm,
 .theme-sage,
 .theme-mint,
@@ -3737,6 +3763,10 @@ button {
 .theme-berry,
 .theme-lagoon,
 .theme-graphite,
+.theme-zinc,
+.theme-graphiteGold,
+.theme-orangeGrey,
+.theme-coralGrey,
 .theme-violet,
 .theme-forest,
 .theme-aurora,
@@ -3965,6 +3995,150 @@ button {
   --status-planned-bg: #67e8f9;
 }
 
+.theme-ash {
+  --bg: #f3f4f2;
+  --surface: #fbfbf9;
+  --surface-soft: #e7e9e5;
+  --text: #1f2328;
+  --muted: #6b7280;
+  --line: #d1d5db;
+  --accent: #6b7280;
+  --accent-soft: #e1e4e8;
+  --warn: #b7791f;
+  --danger: #c24a55;
+  --grid-bg: #ecefeb;
+  --grid-head: #dde1dd;
+  --grid-cell: #fbfbf9;
+  --grid-cell-empty: #e7e9e5;
+  --grid-today: #dce3df;
+  --grid-line: #c9ced4;
+  --status-done-bg: #5cc68f;
+  --status-partial-bg: #e5b83e;
+  --status-skipped-bg: #a8b0ba;
+  --status-missed-bg: #e56b76;
+  --status-planned-bg: #7fb8d8;
+}
+
+.theme-zinc {
+  --bg: #18181b;
+  --surface: #242428;
+  --surface-soft: #303036;
+  --text: #fafafa;
+  --muted: #b4b4bc;
+  --line: #3f3f46;
+  --accent: #d4d4d8;
+  --accent-soft: #3a3a40;
+  --warn: #eab308;
+  --danger: #fb7185;
+  --grid-bg: #1d1d21;
+  --grid-head: #2b2b31;
+  --grid-cell: #242428;
+  --grid-cell-empty: #303036;
+  --grid-today: #37373e;
+  --grid-line: #43434b;
+  --status-done-bg: #74d39a;
+  --status-partial-bg: #eab308;
+  --status-skipped-bg: #71717a;
+  --status-missed-bg: #fb7185;
+  --status-planned-bg: #93c5fd;
+}
+
+.theme-graphiteGold {
+  --bg: #111111;
+  --surface: #1f1f1f;
+  --surface-soft: #2c2a26;
+  --text: #f7f4ec;
+  --muted: #b8b0a3;
+  --line: #42403a;
+  --accent: #f4b740;
+  --accent-soft: #4a3512;
+  --warn: #f59e0b;
+  --danger: #ef6b73;
+  --grid-bg: #171717;
+  --grid-head: #272520;
+  --grid-cell: #1f1f1f;
+  --grid-cell-empty: #2c2a26;
+  --grid-today: #3a2e16;
+  --grid-line: #42403a;
+  --status-done-bg: #7ddc8d;
+  --status-partial-bg: #f4b740;
+  --status-skipped-bg: #756f63;
+  --status-missed-bg: #ef6b73;
+  --status-planned-bg: #7cc7e8;
+}
+
+.theme-orangeGrey {
+  --bg: #262421;
+  --surface: #34312c;
+  --surface-soft: #403c35;
+  --text: #f8f4ed;
+  --muted: #c7b9a6;
+  --line: #5a5248;
+  --accent: #ff8a3d;
+  --accent-soft: #56341e;
+  --warn: #f5b23e;
+  --danger: #f87171;
+  --grid-bg: #2b2925;
+  --grid-head: #3c372f;
+  --grid-cell: #34312c;
+  --grid-cell-empty: #403c35;
+  --grid-today: #513822;
+  --grid-line: #5a5248;
+  --status-done-bg: #80d98d;
+  --status-partial-bg: #f5b23e;
+  --status-skipped-bg: #81776b;
+  --status-missed-bg: #f87171;
+  --status-planned-bg: #8bd3e6;
+}
+
+.theme-yellowMono {
+  --bg: #f4f1e8;
+  --surface: #fffdf6;
+  --surface-soft: #e8e1cf;
+  --text: #24231f;
+  --muted: #6f6758;
+  --line: #d7cfbb;
+  --accent: #d7a514;
+  --accent-soft: #f2e2aa;
+  --warn: #b88714;
+  --danger: #c85d5d;
+  --grid-bg: #ede7d7;
+  --grid-head: #dfd5bd;
+  --grid-cell: #fffdf6;
+  --grid-cell-empty: #e8e1cf;
+  --grid-today: #f1df9d;
+  --grid-line: #d0c6ae;
+  --status-done-bg: #6fc987;
+  --status-partial-bg: #e2b935;
+  --status-skipped-bg: #b4aa96;
+  --status-missed-bg: #dd7171;
+  --status-planned-bg: #70bdd6;
+}
+
+.theme-coralGrey {
+  --bg: #202225;
+  --surface: #2d3035;
+  --surface-soft: #383c42;
+  --text: #f8fafc;
+  --muted: #b6bec8;
+  --line: #4b535e;
+  --accent: #ff7a66;
+  --accent-soft: #55312c;
+  --warn: #f5bd4f;
+  --danger: #ff6377;
+  --grid-bg: #25282d;
+  --grid-head: #333840;
+  --grid-cell: #2d3035;
+  --grid-cell-empty: #383c42;
+  --grid-today: #4a342f;
+  --grid-line: #4b535e;
+  --status-done-bg: #7ddc9b;
+  --status-partial-bg: #f5bd4f;
+  --status-skipped-bg: #7b8491;
+  --status-missed-bg: #ff6377;
+  --status-planned-bg: #8ccdf0;
+}
+
 .theme-rose {
   --bg: #f8eef0;
   --surface: #fff9fa;
@@ -4174,6 +4348,12 @@ body:has(.theme-aurora) { background: #09111c; }
 body:has(.theme-warm) { background: #f3ede2; }
 body:has(.theme-sage) { background: #edf2eb; }
 body:has(.theme-blue) { background: #eef3f6; }
+body:has(.theme-ash) { background: #f3f4f2; }
+body:has(.theme-zinc) { background: #18181b; }
+body:has(.theme-graphiteGold) { background: #111111; }
+body:has(.theme-orangeGrey) { background: #262421; }
+body:has(.theme-yellowMono) { background: #f4f1e8; }
+body:has(.theme-coralGrey) { background: #202225; }
 body:has(.theme-custom) { background: #111827; }
 
 .grid-mode {
@@ -4183,6 +4363,48 @@ body:has(.theme-custom) { background: #111827; }
   border-radius: calc(var(--radius) + 4px);
   background:
     linear-gradient(180deg, color-mix(in srgb, var(--grid-head) 48%, transparent), transparent 42%),
+    var(--grid-bg);
+}
+
+.grid-theme-ledger {
+  background: var(--grid-bg);
+}
+
+.grid-theme-ledger .week-matrix-grid {
+  gap: 0;
+}
+
+.grid-theme-ledger .grid-head,
+.grid-theme-ledger .grid-name,
+.grid-theme-ledger .grid-cell {
+  border-right: 1px solid color-mix(in srgb, var(--grid-line) 74%, transparent);
+  border-bottom: 1px solid color-mix(in srgb, var(--grid-line) 74%, transparent);
+}
+
+.grid-theme-outline {
+  background:
+    linear-gradient(180deg, color-mix(in srgb, var(--accent) 8%, transparent), transparent 34%),
+    var(--grid-bg);
+}
+
+.grid-theme-outline .week-matrix {
+  border-width: 2px;
+}
+
+.grid-theme-slate .week-matrix-grid {
+  gap: 2px;
+  background: color-mix(in srgb, var(--grid-bg) 70%, var(--grid-line));
+}
+
+.grid-theme-slate .grid-head,
+.grid-theme-slate .grid-name,
+.grid-theme-slate .grid-cell {
+  border: 0;
+}
+
+.grid-theme-calm {
+  background:
+    linear-gradient(180deg, color-mix(in srgb, var(--surface) 64%, transparent), transparent),
     var(--grid-bg);
 }
 

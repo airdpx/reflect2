@@ -11,6 +11,10 @@ const gridAppearancePresets = [
   { value: "soft-circle", label: "Мягкий круг", theme: "soft", shape: "circle" },
   { value: "soft-square", label: "Мягкий квадрат", theme: "soft", shape: "square" },
   { value: "classic-square", label: "Классика", theme: "classic", shape: "square" },
+  { value: "ledger-square", label: "Ledger Flat", theme: "ledger", shape: "square" },
+  { value: "outline-ring", label: "Outline Ring", theme: "outline", shape: "ring" },
+  { value: "slate-pill", label: "Slate Pills", theme: "slate", shape: "pill" },
+  { value: "calm-frame", label: "Calm Frame", theme: "calm", shape: "frame" },
   { value: "journal-ring", label: "Дневник", theme: "journal", shape: "ring" },
   { value: "journal-star", label: "Дневник со звездой", theme: "journal", shape: "star" },
   { value: "minimal-hex", label: "Минимум", theme: "minimal", shape: "hex" },
@@ -247,7 +251,7 @@ function CalendarGrid({
     timeline: <TimelineGrid habits={visibleHabits} dates={dates} state={state} selectors={selectors} actions={actions} />,
     heat: <HeatGrid habits={visibleHabits} dates={dates} state={state} selectors={selectors} actions={actions} />
   };
-  return <div className={`grid-mode density-grid-${state.settings.gridDensity}`}>{renderers[state.settings.gridDisplayMode] || renderers.calendar}</div>;
+  return <div className={`grid-mode grid-theme-${state.settings.gridTheme} density-grid-${state.settings.gridDensity}`}>{renderers[state.settings.gridDisplayMode] || renderers.calendar}</div>;
 }
 
 function CalendarMonthGrid({
@@ -604,7 +608,7 @@ function GridCell({
   const status = log?.status || (selectors.isDue(habit, date) ? "planned" : undefined);
   const visibleStatus = status && (state.settings.activeStatuses.includes(status) || status === "planned");
   const className = visibleStatus && status ? statusMeta[status].className : "";
-  const themeClass = ["soft", "classic", "journal", "minimal"].includes(state.settings.gridTheme) ? state.settings.gridTheme : "";
+  const themeClass = ["soft", "classic", "journal", "minimal", "ledger", "outline", "slate", "calm"].includes(state.settings.gridTheme) ? state.settings.gridTheme : "";
   const markStyle = {
     background: `color-mix(in srgb, ${habit.color} 26%, var(--grid-cell-empty))`,
     borderColor: `color-mix(in srgb, ${habit.color} 42%, var(--grid-line))`
