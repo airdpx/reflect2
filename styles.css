@@ -238,7 +238,9 @@ button {
   width: 38px;
   height: 38px;
   border-radius: 999px;
-  background: var(--surface-soft);
+  border: 1px solid var(--line);
+  background: color-mix(in srgb, var(--surface) 82%, var(--bg));
+  color: var(--text);
 }
 
 .stack {
@@ -705,6 +707,7 @@ button {
 .date-input {
   width: min(184px, 100%);
   border-radius: 10px;
+  padding-right: 34px;
 }
 
 .textarea {
@@ -913,6 +916,10 @@ button {
   font-size: 12px;
   font-weight: 800;
   cursor: pointer;
+}
+
+.period-range-details summary::marker {
+  color: var(--muted);
 }
 
 .period-range-details .period-range {
@@ -1141,6 +1148,7 @@ button {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  color: var(--text);
   font-size: 12px;
   font-weight: 700;
 }
@@ -1458,6 +1466,7 @@ button {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  color: var(--text);
   font-size: 12px;
 }
 
@@ -1516,8 +1525,8 @@ button {
 
 .grid-cell button {
   position: relative;
-  width: clamp(24px, calc(var(--cell) - 8px), 34px);
-  height: clamp(24px, calc(var(--grid-row) - 8px), 34px);
+  width: clamp(26px, calc(var(--cell) - 6px), 38px);
+  height: clamp(26px, calc(var(--grid-row) - 6px), 38px);
   min-width: 24px;
   min-height: 24px;
   margin: auto;
@@ -1794,6 +1803,10 @@ button {
 .habit-admin-card small {
   display: block;
   min-width: 0;
+}
+
+.habit-admin-card strong {
+  color: var(--text);
 }
 
 .habit-admin-card span,
@@ -3594,7 +3607,7 @@ body:has(.theme-custom) { background: #111827; }
   padding: 3px 8px;
   border: 1px solid color-mix(in srgb, var(--line) 70%, transparent);
   border-radius: 999px;
-  background: color-mix(in srgb, var(--surface) 64%, transparent);
+  background: color-mix(in srgb, var(--grid-bg) 72%, var(--surface));
   color: var(--muted);
 }
 
@@ -3836,6 +3849,34 @@ body:has(.theme-custom) { background: #111827; }
     padding: 12px;
   }
 
+  .section-actions {
+    width: 100%;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    justify-content: flex-start;
+  }
+
+  .section-actions .badge {
+    flex: 1 1 100%;
+  }
+
+  .section-actions .btn {
+    min-height: 32px;
+    padding: 6px 9px;
+    font-size: 12px;
+  }
+
+  .period-range-details summary {
+    padding-inline: 9px;
+    font-size: 11px;
+  }
+
+  .period-range-details .period-range {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 6px;
+  }
+
   .calendar-settings-grid {
     grid-template-columns: 1fr;
     gap: 8px;
@@ -3867,6 +3908,14 @@ body:has(.theme-custom) { background: #111827; }
 
   .legend::-webkit-scrollbar {
     display: none;
+  }
+
+  .legend span {
+    min-height: 24px;
+    padding: 3px 7px;
+    border-color: color-mix(in srgb, var(--line) 52%, transparent);
+    background: color-mix(in srgb, var(--grid-bg) 82%, var(--surface));
+    font-size: 11px;
   }
 
   .calendar-mode-row button,
@@ -4084,10 +4133,12 @@ body:has(.theme-custom) { background: #111827; }
     grid-column: 1 / -1;
     display: flex;
     gap: 6px;
-    justify-content: flex-end;
+    justify-content: flex-start;
+    flex-wrap: wrap;
   }
 
   .habit-admin-actions .btn {
+    flex: 1 1 calc(50% - 6px);
     min-height: 32px;
     padding: 6px 8px;
     font-size: 11px;

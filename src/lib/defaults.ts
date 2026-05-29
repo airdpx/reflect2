@@ -203,7 +203,7 @@ export function createDefaults(): AppState {
         lastDone: true
       },
       visibleGrid: {
-        color: true,
+        color: false,
         icon: true,
         category: false,
         type: false,

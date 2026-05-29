@@ -10,14 +10,9 @@ import { SelectControl, Toggle } from "../components/Common";
 const gridLabels: Record<string, string> = {
   color: "Цвет привычки",
   icon: "Иконка привычки",
-  category: "Категория",
-  type: "Тип",
-  target: "Цель",
   statusText: "Иконка статуса",
   completion: "Процент",
-  daysSince: "Дней с выполнения",
-  noteMarker: "Маркер заметки",
-  moodMarker: "Маркер настроения"
+  daysSince: "Дней с выполнения"
 };
 
 const gridModes: Array<[GridDisplayMode, string]> = [

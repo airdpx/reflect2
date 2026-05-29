@@ -19,8 +19,6 @@ import { calculateHabitStats, getAttentionHabits, getPeriodDates, getPeriodLabel
 import { clearStoredState, loadStoredState, parseImportedState, saveStoredState } from "./lib/storage";
 import { todayKey } from "./lib/date";
 
-const MOBILE_GRID_DAYS = 14;
-
 type HabitCalendarAppProps = {
   initialState?: AppState;
 };
@@ -32,21 +30,12 @@ export default function HabitCalendarApp({ initialState }: HabitCalendarAppProps
   const [draftHabit, setDraftHabit] = useState<Habit | null>(null);
   const [activeCell, setActiveCell] = useState<{ habitId: string; date: string } | null>(null);
   const [bulkUndo, setBulkUndo] = useState<Record<string, HabitLog | undefined> | null>(null);
-  const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
     const stored = initialState || loadStoredState();
     setState({ ...stored, view: stored.settings.defaultView });
     setHydrated(true);
   }, [initialState]);
-
-  useEffect(() => {
-    const query = window.matchMedia("(max-width: 719px)");
-    const update = () => setIsMobile(query.matches);
-    update();
-    query.addEventListener("change", update);
-    return () => query.removeEventListener("change", update);
-  }, []);
 
   useEffect(() => {
     if (hydrated) saveStoredState(state);
@@ -67,10 +56,7 @@ export default function HabitCalendarApp({ initialState }: HabitCalendarAppProps
   const activeHabits = useMemo(() => state.habits.filter((habit) => !habit.archived), [state.habits]);
   const categories = useMemo(() => Array.from(new Set(activeHabits.map((habit) => habit.category).filter(Boolean))).sort(), [activeHabits]);
   const allPeriodDates = useMemo(() => getPeriodDates(state.settings.defaultPeriod, state.settings.showWeekends), [state.settings.defaultPeriod, state.settings.showWeekends]);
-  const periodDates = useMemo(
-    () => isMobile ? allPeriodDates.slice(-MOBILE_GRID_DAYS) : allPeriodDates,
-    [allPeriodDates, isMobile]
-  );
+  const periodDates = allPeriodDates;
 
   function updateState(updater: (draft: AppState) => AppState) {
     setState((current) => updater(structuredClone(current)));

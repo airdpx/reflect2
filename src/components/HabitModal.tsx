@@ -66,7 +66,6 @@ export function HabitModal({
                 {habitCategoryPresets.map((item) => <option key={item} value={item} />)}
               </datalist>
             </Field>
-            <Field label="Иконка"><input className="input icon-input" name="icon" value={icon} maxLength={4} onChange={(event) => setIcon(event.target.value.slice(0, 4))} /></Field>
             <Field label="Цвет"><input className="input" type="color" name="color" defaultValue={h.color} /></Field>
             <Field label="Тип">
               <select className="select" name="type" value={type} onChange={(event) => setType(event.target.value as HabitType)}>
