@@ -189,7 +189,7 @@ button {
   display: grid;
   gap: 2px;
   padding: 6px 10px;
-  border-radius: 999px;
+  border-radius: 10px;
   border: 1px solid var(--line);
   background: var(--surface);
 }
@@ -285,20 +285,20 @@ button {
 }
 
 .forecast-score {
-  min-width: 58px;
+  min-width: 84px;
   display: grid;
   place-items: center;
   gap: 0;
-  padding: 6px 9px;
+  padding: 8px 10px;
   border: 1px solid var(--line);
-  border-radius: 999px;
+  border-radius: 10px;
   background: var(--surface-soft);
   color: var(--text);
   text-align: center;
 }
 
 .forecast-score strong {
-  font-size: 16px;
+  font-size: 18px;
   line-height: 1;
 }
 
@@ -389,7 +389,7 @@ button {
   min-height: 36px;
   padding: 7px 9px;
   border: 1px solid var(--line);
-  border-radius: var(--radius);
+  border-radius: 10px;
   background: var(--surface-soft);
   color: var(--text);
   font-size: 12px;
@@ -697,8 +697,13 @@ button {
   border: 1px solid var(--line);
   background: var(--surface);
   color: var(--text);
-  border-radius: var(--radius);
+  border-radius: 8px;
   padding: 10px 11px;
+}
+
+.date-input {
+  width: min(184px, 100%);
+  border-radius: 10px;
 }
 
 .textarea {

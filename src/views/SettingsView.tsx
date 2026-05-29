@@ -93,7 +93,7 @@ export function SettingsView({ state, actions }: { state: AppState; actions: App
           <div className="section-head">
             <div>
               <h3>Прогноз дня</h3>
-              <p className="muted">Мягкий ориентир на основе биоритмов. Будущие источники подключатся сюда же.</p>
+              <p className="muted">Биоритмы как мягкий ориентир. Будущие источники подключатся сюда же.</p>
             </div>
           </div>
           <Toggle label="Включить прогноз" checked={state.settings.forecast.enabled} onChange={(checked) => actions.updateSetting("forecast", { ...state.settings.forecast, enabled: checked })} />

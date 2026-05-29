@@ -15,7 +15,7 @@ export function Sidebar({ view, onView }: { view: View; onView: (view: View) => 
     <aside className="sidebar">
       <div className="brand">
         <h1>Дневник привычек</h1>
-        <p>Календарь самонаблюдения без давления и лишнего шума.</p>
+        <p>Самонаблюдение онлайн.</p>
       </div>
       <Nav view={view} onView={onView} className="nav" />
     </aside>
@@ -55,7 +55,7 @@ export function Topbar({
     grid: ["Календарь", "Периоды, режимы сетки и мягкие статусы"],
     habits: ["Привычки", "Шаблоны, категории, иконки и расписание"],
     diary: ["Дневник", "Настроение, энергия и заметки за день"],
-    analytics: ["Аналитика", "Мягкая история регулярности"],
+    analytics: ["Аналитика", "История выполнения и мягкие сигналы"],
     settings: ["Настройки", "Профиль, статусы, прогноз и видимость блоков"]
   };
   const [title, subtitle] = titles[state.view];

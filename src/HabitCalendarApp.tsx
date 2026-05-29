@@ -19,6 +19,8 @@ import { calculateHabitStats, getAttentionHabits, getPeriodDates, getPeriodLabel
 import { clearStoredState, loadStoredState, parseImportedState, saveStoredState } from "./lib/storage";
 import { todayKey } from "./lib/date";
 
+const MOBILE_GRID_DAYS = 14;
+
 type HabitCalendarAppProps = {
   initialState?: AppState;
 };
@@ -66,8 +68,8 @@ export default function HabitCalendarApp({ initialState }: HabitCalendarAppProps
   const categories = useMemo(() => Array.from(new Set(activeHabits.map((habit) => habit.category).filter(Boolean))).sort(), [activeHabits]);
   const allPeriodDates = useMemo(() => getPeriodDates(state.settings.defaultPeriod, state.settings.showWeekends), [state.settings.defaultPeriod, state.settings.showWeekends]);
   const periodDates = useMemo(
-    () => isMobile ? allPeriodDates.slice(-state.settings.mobileGridDays) : allPeriodDates,
-    [allPeriodDates, isMobile, state.settings.mobileGridDays]
+    () => isMobile ? allPeriodDates.slice(-MOBILE_GRID_DAYS) : allPeriodDates,
+    [allPeriodDates, isMobile]
   );
 
   function updateState(updater: (draft: AppState) => AppState) {
@@ -327,7 +329,6 @@ export default function HabitCalendarApp({ initialState }: HabitCalendarAppProps
         showWeekends: draft.settings.showWeekends,
         gridClickAction: draft.settings.gridClickAction,
         defaultView: draft.settings.defaultView,
-        mobileGridDays: draft.settings.mobileGridDays,
         gridDisplayMode: draft.settings.gridDisplayMode,
         selectedCategory: draft.settings.selectedCategory,
         customTheme: { ...draft.settings.customTheme }

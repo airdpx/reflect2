@@ -256,7 +256,6 @@ export function createDefaults(): AppState {
       selectedCategory: "all",
       selectedHabitId: "",
       defaultView: "today",
-      mobileGridDays: 14,
       todayLayout: "split",
       diaryLayout: "compact",
       customTheme: {

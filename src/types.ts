@@ -145,7 +145,6 @@ export type UserSettings = {
   selectedCategory: string;
   selectedHabitId: string;
   defaultView: View;
-  mobileGridDays: 7 | 14 | 30;
   todayLayout: "split" | "single" | "reverse";
   diaryLayout: "compact" | "full";
   customTheme: {
