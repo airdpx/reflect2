@@ -1,23 +1,31 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import type { AppActions, AppState, ForecastResult, ForecastScale, HumanDesignTransit } from "../types";
 import { forecastTone, getForecast } from "../lib/forecast";
 
 export function TodayForecastPanel({ state, actions }: { state: AppState; actions: AppActions }) {
   if (!state.settings.forecast.enabled || !state.settings.forecast.showInToday) return null;
+  const isHumanDesign = state.settings.forecast.provider === "humanDesign";
   const forecast = getForecast(state.selectedDate, state.settings.forecast, state.profile?.birthDate || "");
   return (
-    <ForecastShell title="Прогноз дня" forecast={forecast} mode={state.settings.forecast.displayMode} onSettings={() => actions.setView("settings")} />
+    <ForecastShell
+      title="Прогноз дня"
+      forecast={forecast}
+      mode={state.settings.forecast.displayMode}
+      emptyLabel={isHumanDesign ? "Текущий транзит пока недоступен." : "Для прогноза нужна дата рождения."}
+      onSettings={() => actions.setView("settings")}
+    />
   );
 }
 
 export function DiaryForecastStrip({ state, actions }: { state: AppState; actions: AppActions }) {
   if (!state.settings.forecast.enabled || !state.settings.forecast.showInDiary) return null;
+  const isHumanDesign = state.settings.forecast.provider === "humanDesign";
   const forecast = getForecast(state.selectedDate, state.settings.forecast, state.profile?.birthDate || "");
   if (!forecast) {
     return (
       <div className="forecast-strip empty-forecast">
         <span>Прогноз дня</span>
-        <button onClick={() => actions.setView("settings")}>указать дату рождения</button>
+        <button onClick={() => actions.setView("settings")}>{isHumanDesign ? "обновить" : "указать дату рождения"}</button>
       </div>
     );
   }
@@ -40,6 +48,7 @@ export function DiaryForecastStrip({ state, actions }: { state: AppState; action
 
 export function InspectorForecastSummary({ state }: { state: AppState }) {
   if (!state.settings.forecast.enabled || !state.settings.forecast.showInInspector) return null;
+  const isHumanDesign = state.settings.forecast.provider === "humanDesign";
   const forecast = getForecast(state.selectedDate, state.settings.forecast, state.profile?.birthDate || "");
   const tone = forecast ? forecastTone(forecast.summaryScore) : "steady";
   return (
@@ -56,7 +65,7 @@ export function InspectorForecastSummary({ state }: { state: AppState }) {
             </div>
           </>
         )
-      ) : <p className="muted">Для прогноза нужна дата рождения.</p>}
+      ) : <p className="muted">{isHumanDesign ? "Текущий транзит пока недоступен." : "Для прогноза нужна дата рождения."}</p>}
     </div>
   );
 }
@@ -65,22 +74,24 @@ function ForecastShell({
   title,
   forecast,
   mode,
+  emptyLabel,
   onSettings
-}: {
+  }: {
   title: string;
   forecast: ForecastResult | null;
   mode: "compact" | "cards" | "minimal";
+  emptyLabel: string;
   onSettings: () => void;
 }) {
   const isHumanDesign = forecast?.source === "humanDesign";
-  const { transit, loading: transitLoading, error: transitError } = useHumanDesignTransit(isHumanDesign ? forecast.date : "");
+  const { transit, loading: transitLoading, error: transitError } = useHumanDesignTransit();
 
   if (!forecast) {
     return (
       <div className="panel forecast-panel empty-forecast">
         <div>
           <h3>{title}</h3>
-          <p className="muted">Для прогноза нужна дата рождения.</p>
+          <p className="muted">{emptyLabel}</p>
         </div>
         <button className="btn ghost" onClick={onSettings}>Настроить</button>
       </div>
@@ -106,11 +117,11 @@ function ForecastShell({
   );
 }
 
-function useHumanDesignTransit(date: string) {
+function useHumanDesignTransit() {
   const [transit, setTransit] = useState<HumanDesignTransit | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const requestUrl = useMemo(() => date ? `/api/hd-transit?date=${encodeURIComponent(date)}` : "", [date]);
+  const requestUrl = "/api/hd-transit";
 
   useEffect(() => {
     if (!requestUrl) return;
@@ -141,7 +152,7 @@ function useHumanDesignTransit(date: string) {
 function HumanDesignTransitBlock({ transit, loading, error }: { transit: HumanDesignTransit | null; loading: boolean; error: string }) {
   if (loading && !transit) return <p className="muted">Загружаю текущий транзит...</p>;
   if (error) return <p className="muted">Транзит Humdes временно недоступен: {error}</p>;
-  if (!transit) return <p className="muted">Нет данных транзита для выбранной даты.</p>;
+  if (!transit) return <p className="muted">Нет данных текущего транзита.</p>;
 
   return (
     <div className="hd-transit">

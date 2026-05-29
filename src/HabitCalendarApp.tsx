@@ -329,6 +329,7 @@ export default function HabitCalendarApp({ initialState }: HabitCalendarAppProps
         gridClickAction: draft.settings.gridClickAction,
         defaultView: draft.settings.defaultView,
         gridDisplayMode: draft.settings.gridDisplayMode,
+        gridMarkerShape: draft.settings.gridMarkerShape,
         selectedCategory: draft.settings.selectedCategory,
         customTheme: { ...draft.settings.customTheme },
         calendarHistoryDays: draft.settings.calendarHistoryDays,

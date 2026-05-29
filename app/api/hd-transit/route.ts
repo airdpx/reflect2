@@ -3,16 +3,14 @@ import type { HumanDesignTransit, HumanDesignTransitGate } from "../../../src/ty
 
 const HUMDES_TRANSIT_PAGE = "https://www.humdes.com/ru/transit/";
 const HUMDES_TRANSIT_API = "https://app.humdes.com/transit/";
+const HUMDES_DEFAULT_LOCATION = 524901;
 
 export const dynamic = "force-dynamic";
 
-export async function GET(request: Request) {
-  const { searchParams } = new URL(request.url);
-  const date = searchParams.get("date") || toKey(new Date());
-  const time = searchParams.get("time") || defaultTime(date);
-
+export async function GET(_request: Request) {
+  const now = new Date();
   try {
-    const transit = await fetchHumdesTransit(date, time);
+    const transit = await fetchHumdesTransit(now);
     return NextResponse.json(transit, {
       headers: {
         "Cache-Control": "public, max-age=900, stale-while-revalidate=3600"
@@ -28,10 +26,11 @@ export async function GET(request: Request) {
   }
 }
 
-async function fetchHumdesTransit(date: string, time: string): Promise<HumanDesignTransit> {
+async function fetchHumdesTransit(now: Date): Promise<HumanDesignTransit> {
   const url = new URL(HUMDES_TRANSIT_API);
-  url.searchParams.set("date", formatHumdesDate(date));
-  url.searchParams.set("time", time);
+  url.searchParams.set("date", formatHumdesDate(toKey(now)));
+  url.searchParams.set("time", defaultTime(now));
+  url.searchParams.set("location", String(HUMDES_DEFAULT_LOCATION));
 
   const response = await fetch(url, {
     headers: {
@@ -65,8 +64,8 @@ async function fetchHumdesTransit(date: string, time: string): Promise<HumanDesi
   if (!gates.length && !paragraphs.length) throw new Error("Humdes вернул транзит без ворот и описания.");
 
   return {
-    date,
-    fetchedAt: new Date().toISOString(),
+    date: toKey(now),
+    fetchedAt: now.toISOString(),
     title,
     periodStart,
     periodEnd,
@@ -139,10 +138,8 @@ function formatHumdesDate(date: string) {
   return day && month && year ? `${day}.${month}.${year}` : date;
 }
 
-function defaultTime(date: string) {
-  return date === toKey(new Date())
-    ? new Date().toLocaleTimeString("ru-RU", { hour: "2-digit", minute: "2-digit", hour12: false })
-    : "12:00";
+function defaultTime(date: Date) {
+  return date.toLocaleTimeString("ru-RU", { hour: "2-digit", minute: "2-digit", hour12: false });
 }
 
 function toKey(date: Date) {

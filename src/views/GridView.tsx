@@ -82,6 +82,7 @@ function CalendarSettingsPanel({ state, selectors, actions }: { state: AppState;
       <div className="module-controls">
         <div className="calendar-settings-grid">
           <SelectControl label="Плотность сетки" value={state.settings.gridDensity} options={["compact", "standard", "comfortable"]} onChange={(value) => actions.updateSetting("gridDensity", value as Density)} />
+          <SelectControl label="Форма отметки" value={state.settings.gridMarkerShape} options={["circle", "square", "diamond", "star", "frame"]} onChange={(value) => actions.updateSetting("gridMarkerShape", value as AppState["settings"]["gridMarkerShape"])} />
           <SelectControl label="Клик по ячейке" value={state.settings.gridClickAction} options={["cycle", "details"]} onChange={(value) => actions.updateSetting("gridClickAction", value as "cycle" | "details")} />
         </div>
         <details className="quick-subsection">
@@ -542,7 +543,7 @@ function GridCell({
   return (
     <div className={`grid-cell ${date === todayKey() ? "today" : ""} ${themeClass}`}>
       <button
-        className={className}
+        className={`${className} shape-${state.settings.gridMarkerShape}`}
         title={`${habit.title} · ${formatDate(date)} · ${state.settings.gridClickAction === "cycle" ? "быстрая смена статуса" : "детали"}`}
         onClick={() => state.settings.gridClickAction === "cycle" ? actions.cycleHabitStatus(habit.id, date) : actions.openCellSheet({ habitId: habit.id, date })}
       >

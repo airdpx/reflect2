@@ -112,7 +112,6 @@ function TodayModulesPanel({ state, actions }: { state: AppState; actions: AppAc
             ["today", "Привычки"],
             ["forecast", "Прогноз"],
             ["attention", "Внимание"],
-            ["habitIcons", "Иконки"],
             ["analytics", "Аналитика"]
           ].map(([key, label]) => (
             <label key={key}>

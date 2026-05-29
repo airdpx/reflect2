@@ -915,16 +915,43 @@ button {
   gap: 7px;
   min-height: 34px;
   padding: 5px 10px;
-  border: 1px solid color-mix(in srgb, #fff 24%, transparent);
+  border: 1px solid color-mix(in srgb, var(--line) 82%, transparent);
   border-radius: 999px;
+  background: color-mix(in srgb, var(--surface) 82%, var(--surface-soft));
+  color: var(--text);
   font-size: 12px;
   font-weight: 800;
-  opacity: 0.52;
+  opacity: 0.92;
 }
 
 .status-preview-strip button.active {
   opacity: 1;
   box-shadow: 0 0 0 2px color-mix(in srgb, currentColor 18%, transparent);
+}
+
+.status-preview-strip button.status-done {
+  background: color-mix(in srgb, var(--status-done-bg) 35%, var(--surface));
+  color: var(--status-done-text);
+}
+
+.status-preview-strip button.status-partial {
+  background: color-mix(in srgb, var(--status-partial-bg) 35%, var(--surface));
+  color: var(--status-partial-text);
+}
+
+.status-preview-strip button.status-skipped {
+  background: color-mix(in srgb, var(--status-skipped-bg) 32%, var(--surface));
+  color: var(--status-skipped-text);
+}
+
+.status-preview-strip button.status-missed {
+  background: color-mix(in srgb, var(--status-missed-bg) 30%, var(--surface));
+  color: var(--status-missed-text);
+}
+
+.status-preview-strip button.status-planned {
+  background: color-mix(in srgb, var(--status-planned-bg) 34%, var(--surface));
+  color: var(--status-planned-text);
 }
 
 .status-preview-strip button b {
@@ -1605,6 +1632,29 @@ button {
   transition: transform 120ms ease, box-shadow 120ms ease, opacity 120ms ease;
   font-size: 14px;
   font-weight: 800;
+}
+
+.grid-cell button.shape-square {
+  border-radius: 4px;
+}
+
+.grid-cell button.shape-diamond {
+  border-radius: 4px;
+  clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%);
+}
+
+.grid-cell button.shape-star {
+  border-radius: 0;
+  clip-path: polygon(50% 0%, 62% 34%, 100% 38%, 72% 61%, 81% 100%, 50% 78%, 19% 100%, 28% 61%, 0% 38%, 38% 34%);
+}
+
+.grid-cell button.shape-frame {
+  border-radius: 6px;
+  background:
+    linear-gradient(var(--grid-cell-empty), var(--grid-cell-empty)) padding-box,
+    linear-gradient(135deg, color-mix(in srgb, var(--accent) 45%, var(--line)), color-mix(in srgb, var(--accent) 15%, var(--line))) border-box;
+  border: 1px solid transparent;
+  box-shadow: none;
 }
 
 .grid-cell button:hover {
