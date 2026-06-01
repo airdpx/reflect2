@@ -61,22 +61,22 @@ export function Topbar({
   const [title, subtitle] = titles[state.view];
   return (
     <header className="topbar">
-      <div>
+      <div className="topbar-heading">
         <h2>{title}</h2>
         <p>{subtitle}</p>
       </div>
-      <div className="toolbar">
+      <div className="toolbar topbar-toolbar">
         {state.profile ? (
-          <div className="user-chip">
+          <div className="topbar-chip topbar-profile-chip">
             <span className="user-avatar">{(state.profile.name || state.profile.email || "U").slice(0, 1).toUpperCase()}</span>
-            <span>
+            <span className="topbar-chip-copy">
               <small>Профиль</small>
               <b>{state.profile.name || state.profile.email}</b>
             </span>
             <em>{state.profile.birthDate}</em>
           </div>
         ) : null}
-        <label className="topbar-date">
+        <label className="topbar-chip topbar-date">
           <span>Дата наблюдения</span>
           <input className="input date-input" type="date" value={state.selectedDate} onChange={(event) => onDate(event.target.value || todayKey())} />
         </label>

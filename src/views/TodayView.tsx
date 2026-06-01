@@ -20,9 +20,7 @@ export function TodayView({
   const completed = dueHabits.filter((habit) => selectors.getLog(habit.id, state.selectedDate)?.status === "done");
   const open = dueHabits.filter((habit) => selectors.getLog(habit.id, state.selectedDate)?.status !== "done" && !attentionIds.has(habit.id));
   const dueAttention = dueHabits.filter((habit) => attentionIds.has(habit.id) && selectors.getLog(habit.id, state.selectedDate)?.status !== "done");
-  const notificationFeed = state.settings.notifications.enabled && state.settings.notifications.channels.inApp
-    ? buildNotificationFeed(state, selectors)
-    : [];
+  const notificationFeed = state.settings.notifications.enabled && state.settings.notifications.channels.inApp ? buildNotificationFeed(state, selectors) : [];
   const unreadNotifications = notificationFeed.filter((item) => resolveNotificationState(state, item).status === "new").slice(0, 2);
 
   if (!selectors.activeHabits.length) {
@@ -94,21 +92,18 @@ export function TodayView({
     </section>
   );
 
-  const rightColumn = (
-    <section className="stack">
-      {state.settings.visibleBlocks.forecast && <TodayForecastPanel state={state} actions={actions} />}
-      {state.settings.visibleBlocks.transit && <TransitPanel state={state} />}
-      {state.settings.visibleBlocks.analytics && selectors.hasAnyLogs && <StatsPanel selectors={selectors} />}
-    </section>
-  );
+  const rightPanels = [];
+  if (state.settings.visibleBlocks.forecast) rightPanels.push(<TodayForecastPanel key="forecast" state={state} actions={actions} />);
+  if (state.settings.visibleBlocks.transit) rightPanels.push(<TransitPanel key="transit" state={state} />);
+  if (state.settings.visibleBlocks.analytics && selectors.hasAnyLogs) rightPanels.push(<StatsPanel key="analytics" selectors={selectors} />);
 
-  if (state.settings.todayLayout === "single") {
-    return <div className="stack">{leftColumn}{rightColumn}</div>;
+  if (!rightPanels.length || state.settings.todayLayout === "single") {
+    return <div className="stack">{leftColumn}{rightPanels.length ? <section className="stack">{rightPanels}</section> : null}</div>;
   }
 
   return (
     <div className="grid-two">
-      {state.settings.todayLayout === "reverse" ? <>{rightColumn}{leftColumn}</> : <>{leftColumn}{rightColumn}</>}
+      {state.settings.todayLayout === "reverse" ? <>{rightPanels.length ? <section className="stack">{rightPanels}</section> : null}{leftColumn}</> : <>{leftColumn}{rightPanels.length ? <section className="stack">{rightPanels}</section> : null}</>}
     </div>
   );
 }

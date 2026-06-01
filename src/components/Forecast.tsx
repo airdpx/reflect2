@@ -6,28 +6,14 @@ import { forecastTone, getForecast } from "../lib/forecast";
 export function TodayForecastPanel({ state, actions }: { state: AppState; actions: AppActions }) {
   if (!state.settings.forecast.enabled || !state.settings.forecast.showInToday) return null;
   const forecast = getForecast(state.selectedDate, state.settings.forecast, state.profile?.birthDate || "");
-  return (
-    <ForecastShell
-      title="Прогноз дня"
-      forecast={forecast}
-      mode={state.settings.forecast.displayMode}
-      emptyLabel="Для прогноза нужна дата рождения."
-      onSettings={() => actions.setView("settings")}
-    />
-  );
+  if (!forecast) return null;
+  return <ForecastShell title="Прогноз дня" forecast={forecast} mode={state.settings.forecast.displayMode} onSettings={() => actions.setView("settings")} />;
 }
 
 export function DiaryForecastStrip({ state, actions }: { state: AppState; actions: AppActions }) {
   if (!state.settings.forecast.enabled || !state.settings.forecast.showInDiary) return null;
   const forecast = getForecast(state.selectedDate, state.settings.forecast, state.profile?.birthDate || "");
-  if (!forecast) {
-    return (
-      <div className="forecast-strip empty-forecast">
-        <span>Прогноз дня</span>
-        <button onClick={() => actions.setView("settings")}>указать дату рождения</button>
-      </div>
-    );
-  }
+  if (!forecast) return null;
   const tone = forecastTone(forecast.summaryScore);
   return (
     <div className={`forecast-strip forecast-tone-${tone}`}>
@@ -41,18 +27,15 @@ export function DiaryForecastStrip({ state, actions }: { state: AppState; action
 export function InspectorForecastSummary({ state }: { state: AppState }) {
   if (!state.settings.forecast.enabled || !state.settings.forecast.showInInspector || state.view === "today") return null;
   const forecast = getForecast(state.selectedDate, state.settings.forecast, state.profile?.birthDate || "");
-  const tone = forecast ? forecastTone(forecast.summaryScore) : "steady";
+  if (!forecast) return null;
+  const tone = forecastTone(forecast.summaryScore);
   return (
     <div className="panel inspector-panel">
       <h3>Прогноз дня</h3>
-      {forecast ? (
-        <>
-          <div className={`forecast-score forecast-tone-${tone}`}><strong>{forecast.summaryScore}%</strong><span>{forecast.summaryLabel}</span></div>
-          <div className="mini-metrics">
-            {forecast.scales.map((scale) => <span key={scale.id}>{scale.label} <b>{scale.value}</b></span>)}
-          </div>
-        </>
-      ) : <p className="muted">Для прогноза нужна дата рождения.</p>}
+      <div className={`forecast-score forecast-tone-${tone}`}><strong>{forecast.summaryScore}%</strong><span>{forecast.summaryLabel}</span></div>
+      <div className="mini-metrics">
+        {forecast.scales.map((scale) => <span key={scale.id}>{scale.label} <b>{scale.value}</b></span>)}
+      </div>
     </div>
   );
 }
@@ -60,15 +43,17 @@ export function InspectorForecastSummary({ state }: { state: AppState }) {
 export function TransitPanel({ state }: { state: AppState }) {
   if (!state.settings.visibleBlocks.transit) return null;
   const { transit, loading, error } = useHumanDesignTransit();
+  if (loading && !transit) return null;
+  if (error || !transit) return null;
   return (
-    <div className="panel forecast-panel transit-panel">
+    <div className="panel transit-panel">
       <div className="section-head">
         <div>
           <h3>Транзит</h3>
           <p className="muted">Текущий транзит из базы Humdes с датами и ссылками на описание.</p>
         </div>
       </div>
-      <HumanDesignTransitBlock transit={transit} loading={loading} error={error} />
+      <HumanDesignTransitBlock transit={transit} />
     </div>
   );
 }
@@ -77,26 +62,13 @@ function ForecastShell({
   title,
   forecast,
   mode,
-  emptyLabel,
   onSettings
   }: {
   title: string;
-  forecast: ForecastResult | null;
+  forecast: ForecastResult;
   mode: "compact" | "cards" | "minimal";
-  emptyLabel: string;
   onSettings: () => void;
   }) {
-  if (!forecast) {
-    return (
-      <div className="panel forecast-panel empty-forecast">
-        <div>
-          <h3>{title}</h3>
-          <p className="muted">{emptyLabel}</p>
-        </div>
-        <button className="btn ghost" onClick={onSettings}>Настроить</button>
-      </div>
-    );
-  }
   const tone = forecastTone(forecast.summaryScore);
   return (
     <div className={`panel forecast-panel forecast-mode-${mode}`}>
@@ -104,9 +76,12 @@ function ForecastShell({
         <div>
           <h3>{title}</h3>
         </div>
-        <div className={`forecast-score forecast-tone-${tone}`}>
-          <strong>{forecast.summaryScore}%</strong>
-          <span>{forecast.summaryLabel}</span>
+        <div className="forecast-head-actions">
+          <div className={`forecast-score forecast-tone-${tone}`}>
+            <strong>{forecast.summaryScore}%</strong>
+            <span>{forecast.summaryLabel}</span>
+          </div>
+          <button className="btn ghost compact-inline-btn" onClick={onSettings}>Настроить</button>
         </div>
       </div>
       {mode !== "minimal" && <div className="forecast-scales">{forecast.scales.map((scale) => <ForecastScaleRow key={scale.id} scale={scale} />)}</div>}
@@ -146,11 +121,7 @@ function useHumanDesignTransit() {
   return { transit, loading, error };
 }
 
-function HumanDesignTransitBlock({ transit, loading, error }: { transit: HumanDesignTransit | null; loading: boolean; error: string }) {
-  if (loading && !transit) return <p className="muted">Загружаю текущий транзит...</p>;
-  if (error) return <p className="muted">Транзит Humdes временно недоступен: {error}</p>;
-  if (!transit) return <p className="muted">Нет данных текущего транзита.</p>;
-
+function HumanDesignTransitBlock({ transit }: { transit: HumanDesignTransit }) {
   const periodStart = formatDisplayDate(transit.periodStart);
   const periodEnd = formatDisplayDate(transit.periodEnd);
   return (

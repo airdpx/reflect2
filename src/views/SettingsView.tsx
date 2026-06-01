@@ -20,6 +20,42 @@ const blockLabels: Record<string, string> = {
   lastDone: "Последнее выполнение"
 };
 
+const gridLabels: Record<string, string> = {
+  color: "Цвет привычки",
+  icon: "Иконка привычки",
+  category: "Категория",
+  type: "Тип",
+  target: "Цель",
+  statusText: "Иконка статуса",
+  compactMeta: "Компактные метки",
+  completion: "Процент",
+  daysSince: "Дней без выполнения",
+  noteMarker: "Маркер заметки",
+  moodMarker: "Маркер настроения"
+};
+
+const sectionGroups = [
+  {
+    title: "Сегодня",
+    hint: "Главный экран, прогноз, транзит и аналитика дня.",
+    keys: ["today", "forecast", "transit", "attention", "analytics"]
+  },
+  {
+    title: "Дневник",
+    hint: "Состояние, заметка и история по периоду.",
+    keys: ["diary", "mood", "energy", "stress", "noteText", "helped", "blocked"]
+  },
+  {
+    title: "Привычки",
+    hint: "Список, архив, серии и шаблоны."
+  },
+  {
+    title: "Календарь",
+    hint: "Какие данные видны в таблице и мини-режимах.",
+    gridKeys: ["color", "icon", "category", "type", "target", "statusText", "compactMeta", "completion", "daysSince", "noteMarker", "moodMarker"]
+  }
+] as const;
+
 const forecastPlacementOptions: Array<[keyof Pick<ForecastSettings, "showInToday" | "showInDiary" | "showInInspector" | "showInGrid">, string]> = [
   ["showInToday", "Сегодня"],
   ["showInDiary", "Дневник"],
@@ -151,7 +187,43 @@ export function SettingsView({ state, actions }: { state: AppState; actions: App
       <div className="stack">
         <div className="panel settings-card">
           <h3>Блоки</h3>
-          {Object.entries(blockLabels).map(([key, label]) => <Toggle key={key} label={label} checked={state.settings.visibleBlocks[key]} onChange={(checked) => actions.updateVisible("visibleBlocks", key, checked)} />)}
+          <div className="settings-section-list">
+            {sectionGroups.map((group) => (
+              <details key={group.title} className="settings-section-group" open={group.title === "Сегодня" || group.title === "Дневник"}>
+                <summary>
+                  <span>{group.title}</span>
+                  <small>{group.hint}</small>
+                </summary>
+                <div className="settings-section-body">
+                  {"keys" in group && group.keys ? group.keys.map((key) => (
+                    <Toggle key={key} label={blockLabels[key]} checked={state.settings.visibleBlocks[key]} onChange={(checked) => actions.updateVisible("visibleBlocks", key, checked)} />
+                  )) : null}
+                  {"gridKeys" in group && group.gridKeys ? group.gridKeys.map((key) => (
+                    <Toggle key={key} label={gridLabels[key]} checked={state.settings.visibleGrid[key]} onChange={(checked) => actions.updateVisible("visibleGrid", key, checked)} />
+                  )) : null}
+                  {group.title === "Привычки" ? (
+                    <div className="settings-section-note">
+                      <p className="muted">Список привычек управляется на экране <b>Привычки</b>. Здесь остаются только общие режимы отображения и навигации.</p>
+                    </div>
+                  ) : null}
+                </div>
+              </details>
+            ))}
+          </div>
+          <div className="settings-mini-grid">
+            <div className="settings-mini-card">
+              <b>Навигация</b>
+              <span>Стартовый экран и режим фокуса настраиваются здесь же.</span>
+            </div>
+            <div className="settings-mini-card">
+              <b>Календарь</b>
+              <span>Настройки оформления и видимости теперь живут в разделе календаря.</span>
+            </div>
+            <div className="settings-mini-card">
+              <b>Дневник</b>
+              <span>История, поля и компактность собраны в один блок.</span>
+            </div>
+          </div>
           <div className="danger-zone">
             <button className="btn ghost" onClick={actions.resetSettings}>Сбросить только настройки</button>
           </div>
