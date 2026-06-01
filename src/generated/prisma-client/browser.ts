@@ -42,3 +42,8 @@ export type PasswordResetToken = Prisma.PasswordResetTokenModel
  * 
  */
 export type HumanDesignTransitRecord = Prisma.HumanDesignTransitRecordModel
+/**
+ * Model AppConfig
+ * 
+ */
+export type AppConfig = Prisma.AppConfigModel

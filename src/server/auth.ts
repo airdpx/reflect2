@@ -3,6 +3,7 @@ import { createDefaults } from "../lib/defaults";
 import { getPrisma } from "./db";
 import { createToken, hashPassword, hashToken, verifyPassword } from "./password";
 import type { AppState, UserProfile } from "../types";
+import { loadGlobalUserDefaults } from "./site-settings";
 
 const SESSION_COOKIE = "reflect2_session";
 const SESSION_DAYS = 30;
@@ -113,15 +114,16 @@ export async function saveUserState(userId: string, state: AppState) {
 export async function loadUserState(userId: string, profile?: UserProfile): Promise<AppState> {
   const prisma = getPrisma();
   const record = await prisma.userState.findUnique({ where: { userId } });
+  const globalDefaults = await loadGlobalUserDefaults();
   if (!record) {
-    const defaults = createDefaults();
+    const defaults = createDefaults(globalDefaults);
     return {
       ...defaults,
       schemaVersion: defaults.schemaVersion,
       profile: profile || (await prisma.user.findUnique({ where: { id: userId }, select: { id: true, email: true, name: true, birthDate: true, isAdmin: true, isBlocked: true } }))
     };
   }
-  const defaults = createDefaults();
+  const defaults = createDefaults(globalDefaults);
   const raw = record.state as Partial<AppState>;
   const previousVersion = Number(raw.schemaVersion || 1);
   const migratedForecast = {
@@ -182,7 +184,7 @@ export async function ensureUserState(userId: string, birthDate: string) {
   const prisma = getPrisma();
   const existing = await prisma.userState.findUnique({ where: { userId } });
   if (existing) return;
-  const defaults = createDefaults();
+  const defaults = createDefaults(await loadGlobalUserDefaults());
   await prisma.userState.create({
     data: {
       userId,
@@ -201,6 +203,7 @@ export async function ensureUserState(userId: string, birthDate: string) {
 
 export async function ensureBootstrapAccounts() {
   const prisma = getPrisma();
+  const globalDefaults = await loadGlobalUserDefaults();
   const existing = await prisma.user.findUnique({ where: { email: ADMIN_EMAIL } });
   if (existing) {
     if (!existing.isAdmin || existing.isBlocked) {
@@ -224,7 +227,24 @@ export async function ensureBootstrapAccounts() {
       isBlocked: false
     }
   });
-  await ensureUserState(admin.id, admin.birthDate);
+  await prisma.userState.create({
+    data: {
+      userId: admin.id,
+      state: {
+        ...createDefaults(globalDefaults),
+        profile: {
+          id: admin.id,
+          email: admin.email,
+          name: admin.name,
+          birthDate: admin.birthDate,
+          isAdmin: admin.isAdmin,
+          isBlocked: admin.isBlocked
+        }
+      }
+    }
+  }).catch(async () => {
+    await ensureUserState(admin.id, admin.birthDate);
+  });
   return admin.id;
 }
 

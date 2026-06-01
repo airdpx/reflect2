@@ -53,7 +53,8 @@ export const ModelName = {
   UserState: 'UserState',
   Session: 'Session',
   PasswordResetToken: 'PasswordResetToken',
-  HumanDesignTransitRecord: 'HumanDesignTransitRecord'
+  HumanDesignTransitRecord: 'HumanDesignTransitRecord',
+  AppConfig: 'AppConfig'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -144,6 +145,16 @@ export const HumanDesignTransitRecordScalarFieldEnum = {
 } as const
 
 export type HumanDesignTransitRecordScalarFieldEnum = (typeof HumanDesignTransitRecordScalarFieldEnum)[keyof typeof HumanDesignTransitRecordScalarFieldEnum]
+
+
+export const AppConfigScalarFieldEnum = {
+  key: 'key',
+  value: 'value',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type AppConfigScalarFieldEnum = (typeof AppConfigScalarFieldEnum)[keyof typeof AppConfigScalarFieldEnum]
 
 
 export const SortOrder = {

@@ -1,7 +1,7 @@
 import type { AppState, View } from "../types";
 import { formatDate } from "../lib/date";
 
-const navItems: Array<[View, string, string]> = [
+const baseNavItems: Array<[View, string, string]> = [
   ["today", "Сегодня", "☀️"],
   ["grid", "Календарь", "🗓️"],
   ["habits", "Привычки", "✨"],
@@ -11,26 +11,30 @@ const navItems: Array<[View, string, string]> = [
   ["settings", "Настройки", "🎛️"]
 ];
 
-export function Sidebar({ view, onView }: { view: View; onView: (view: View) => void }) {
+function getNavItems(isAdmin?: boolean) {
+  return isAdmin ? [...baseNavItems, ["management", "Управление", "🛠️"] as const] : baseNavItems;
+}
+
+export function Sidebar({ state, view, onView }: { state: AppState; view: View; onView: (view: View) => void }) {
   return (
     <aside className="sidebar">
       <div className="brand">
         <h1>Дневник привычек</h1>
         <p>Самонаблюдение онлайн.</p>
       </div>
-      <Nav view={view} onView={onView} className="nav" />
+      <Nav view={view} onView={onView} className="nav" items={getNavItems(state.profile?.isAdmin)} />
     </aside>
   );
 }
 
-export function MobileNav({ view, onView }: { view: View; onView: (view: View) => void }) {
-  return <Nav view={view} onView={onView} className="mobile-nav" />;
+export function MobileNav({ state, view, onView }: { state: AppState; view: View; onView: (view: View) => void }) {
+  return <Nav view={view} onView={onView} className="mobile-nav" items={getNavItems(state.profile?.isAdmin)} />;
 }
 
-function Nav({ view, onView, className }: { view: View; onView: (view: View) => void; className: string }) {
+function Nav({ view, onView, className, items }: { view: View; onView: (view: View) => void; className: string; items: Array<readonly [View, string, string]> }) {
   return (
     <nav className={className}>
-      {navItems.map(([id, label, icon]) => (
+      {items.map(([id, label, icon]) => (
         <button className={view === id ? "active" : ""} key={id} onClick={() => onView(id)} title={label}>
           <b>{icon}</b>
           <span>{label}</span>
@@ -54,7 +58,8 @@ export function Topbar({
     diary: ["Дневник", "Настроение, энергия и заметки за день"],
     notifications: ["Оповещения", "Интерфейсные и внешние каналы доставки"],
     analytics: ["Аналитика", "История выполнения и мягкие сигналы"],
-    settings: ["Настройки", "Профиль, статусы, прогноз и видимость блоков"]
+    settings: ["Настройки", "Профиль, статусы, прогноз и видимость блоков"],
+    management: ["Управление", "Пользователи, экспорт и глобальные настройки"]
   };
   const [title, subtitle] = titles[state.view];
   return (

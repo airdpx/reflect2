@@ -4156,6 +4156,12 @@ button {
   white-space: nowrap;
 }
 
+.admin-email-cell b {
+  overflow-wrap: anywhere;
+  text-overflow: clip;
+  white-space: normal;
+}
+
 .admin-table-input {
   width: 100%;
   min-width: 0;

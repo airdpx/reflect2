@@ -15,6 +15,7 @@ import { DiaryView } from "./views/DiaryView";
 import { AnalyticsView } from "./views/AnalyticsView";
 import { NotificationsView } from "./views/NotificationsView";
 import { SettingsView } from "./views/SettingsView";
+import { ManagementView } from "./views/ManagementView";
 import { AppFooter } from "./components/Footer";
 import { createDefaults, habitTemplates, statusMeta } from "./lib/defaults";
 import { calculateHabitStats, getAttentionHabits, getPeriodDates, getPeriodLabel, isHabitDue, logKey } from "./lib/analytics";
@@ -35,7 +36,8 @@ export default function HabitCalendarApp({ initialState }: HabitCalendarAppProps
 
   useEffect(() => {
     const stored = initialState || loadStoredState();
-    setState({ ...stored, view: stored.settings.defaultView });
+    const startingView = stored.settings.defaultView === "management" && !stored.profile?.isAdmin ? "today" : stored.settings.defaultView;
+    setState({ ...stored, view: startingView, selectedDate: todayKey() });
     setHydrated(true);
   }, [initialState]);
 
@@ -152,7 +154,7 @@ export default function HabitCalendarApp({ initialState }: HabitCalendarAppProps
 
   return (
     <div className={appClass} style={customThemeStyle}>
-      <Sidebar view={state.view} onView={actions.setView} />
+      <Sidebar state={state} view={state.view} onView={actions.setView} />
       <main className="main">
         <Topbar state={state} onAdd={() => actions.openHabitModal("new")} />
         {state.view === "today" && <TodayView state={state} selectors={selectors} actions={actions} />}
@@ -162,10 +164,11 @@ export default function HabitCalendarApp({ initialState }: HabitCalendarAppProps
         {state.view === "analytics" && <AnalyticsView state={state} selectors={selectors} actions={actions} />}
         {state.view === "notifications" && <NotificationsView state={state} selectors={selectors} actions={actions} />}
         {state.view === "settings" && <SettingsView state={state} actions={actions} />}
+        {state.view === "management" && state.profile?.isAdmin && <ManagementView state={state} />}
       </main>
       {state.settings.rightPanel && !state.settings.focusMode && <Inspector state={state} selectors={selectors} actions={actions} />}
       <AppFooter />
-      <MobileNav view={state.view} onView={actions.setView} />
+      <MobileNav state={state} view={state.view} onView={actions.setView} />
       <QuickControls state={state} actions={actions} />
       {editingHabitId && <HabitModal habit={editingHabit} isTemplateDraft={Boolean(draftHabit)} actions={actions} />}
       {activeCell && <CellSheet cell={activeCell} state={state} selectors={selectors} actions={actions} />}
@@ -173,6 +176,7 @@ export default function HabitCalendarApp({ initialState }: HabitCalendarAppProps
   );
 
   function setView(view: View) {
+    if (view === "management" && !state.profile?.isAdmin) return;
     updateState((draft) => {
       draft.view = view;
       return draft;

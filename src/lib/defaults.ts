@@ -1,4 +1,4 @@
-import type { AppState, HabitStatus, HabitTemplate, HabitType } from "../types";
+import type { AppState, HabitStatus, HabitTemplate, HabitType, UserSettings } from "../types";
 import { todayKey } from "./date";
 
 export const statusMeta: Record<HabitStatus, { label: string; short: string; className: string }> = {
@@ -322,7 +322,194 @@ export const habitTemplates: HabitTemplate[] = [
   }
 ];
 
-export function createDefaults(): AppState {
+export function mergeSettings(base: UserSettings, override?: Partial<UserSettings>): UserSettings {
+  if (!override) return base;
+  return {
+    ...base,
+    ...override,
+    defaultPeriod: {
+      ...base.defaultPeriod,
+      ...override.defaultPeriod
+    },
+    visibleBlocks: {
+      ...base.visibleBlocks,
+      ...override.visibleBlocks
+    },
+    visibleGrid: {
+      ...base.visibleGrid,
+      ...override.visibleGrid
+    },
+    customTheme: {
+      ...base.customTheme,
+      ...override.customTheme
+    },
+    statusIcons: {
+      ...base.statusIcons,
+      ...override.statusIcons
+    },
+    gridColors: {
+      ...base.gridColors,
+      ...override.gridColors
+    },
+    forecast: {
+      ...base.forecast,
+      ...override.forecast,
+      visibleScales: {
+        ...base.forecast.visibleScales,
+        ...override.forecast?.visibleScales
+      }
+    },
+    notifications: {
+      ...base.notifications,
+      ...override.notifications,
+      channels: {
+        ...base.notifications.channels,
+        ...override.notifications?.channels
+      },
+      topics: {
+        ...base.notifications.topics,
+        ...override.notifications?.topics
+      },
+      quietHours: {
+        ...base.notifications.quietHours,
+        ...override.notifications?.quietHours
+      }
+    }
+  };
+}
+
+export function createDefaults(settingsOverride?: Partial<UserSettings>): AppState {
+  const defaultSettings: UserSettings = {
+    preset: "Balanced",
+    activeStatuses: ["done", "partial", "skipped"],
+    defaultPeriod: { mode: "last", days: 30, start: todayKey(), end: todayKey() },
+    visibleBlocks: {
+      today: true,
+      attention: true,
+      habitIcons: false,
+      diary: true,
+      mood: true,
+      energy: true,
+      stress: true,
+      noteText: true,
+      helped: true,
+      blocked: true,
+      forecast: true,
+      transit: true,
+      analytics: true,
+      completion: true,
+      lastDone: true
+    },
+    visibleGrid: {
+      color: true,
+      icon: true,
+      category: false,
+      type: false,
+      target: false,
+      statusText: true,
+      compactMeta: false,
+      completion: false,
+      daysSince: false,
+      noteMarker: false,
+      moodMarker: false
+    },
+    density: "standard",
+    interfaceTheme: "dark",
+    gridTheme: "classic",
+    gridDisplayMode: "matrix",
+    gridDensity: "standard",
+    gridMarkerShape: "circle",
+    gridHabitColorMode: "habit",
+    calendarHistoryDays: 7,
+    statusIcons: {
+      done: "❤️",
+      partial: "◐",
+      skipped: "−",
+      missed: "❌",
+      planned: "🗓️"
+    },
+    gridColors: {
+      mode: "theme",
+      bg: defaultCustomGridColors.bg,
+      head: defaultCustomGridColors.head,
+      cell: defaultCustomGridColors.cell,
+      today: defaultCustomGridColors.today,
+      line: defaultCustomGridColors.line,
+      habitSingle: defaultCustomGridColors.habitSingle,
+      habitMuted: defaultCustomGridColors.habitMuted,
+      habitAltA: defaultCustomGridColors.habitAltA,
+      habitAltB: defaultCustomGridColors.habitAltB
+    },
+    forecast: {
+      enabled: true,
+      provider: "biorhythm",
+      visibleScales: {
+        physical: true,
+        emotional: true,
+        intellectual: true
+      },
+      showInToday: true,
+      showInDiary: true,
+      showInInspector: true,
+      showInGrid: false,
+      displayMode: "compact"
+    },
+    notifications: {
+      enabled: true,
+      channels: {
+        inApp: true,
+        browser: false,
+        email: false,
+        telegram: false,
+        push: false
+      },
+      topics: {
+        habits: true,
+        diary: true,
+        forecast: true,
+        transit: true,
+        analytics: true,
+        reminders: true
+      },
+      priorityOnly: false,
+      quietHours: {
+        enabled: false,
+        start: "22:00",
+        end: "08:00"
+      },
+      frequency: "instant",
+      digestTime: "19:00",
+      weeklyDay: 1,
+      emailTarget: "",
+      telegramTarget: "",
+      pushReady: false
+    },
+    focusMode: false,
+    rightPanel: true,
+    showWeekends: true,
+    gridClickAction: "cycle",
+    selectedCategory: "all",
+    selectedHabitId: "",
+    iconSuggestionsCheckedAt: todayKey(),
+    diaryHistoryDays: 30,
+    analyticsHistoryDays: 30,
+    defaultView: "today",
+    todayLayout: "split",
+    diaryLayout: "full",
+    customTheme: {
+      bg: "#111827",
+      surface: "#182235",
+      text: "#f8fafc",
+      accent: "#22c55e",
+      done: "#22c55e",
+      partial: "#f59e0b",
+      skipped: "#64748b",
+      missed: "#ef4444",
+      planned: "#38bdf8"
+    },
+    customPresets: {}
+  };
+  const settings = mergeSettings(defaultSettings, settingsOverride);
   return {
     schemaVersion: 19,
     view: "today",
@@ -332,135 +519,6 @@ export function createDefaults(): AppState {
     notes: {},
     notificationStates: {},
     profile: null,
-    settings: {
-      preset: "Balanced",
-      activeStatuses: ["done", "partial", "skipped"],
-      defaultPeriod: { mode: "last", days: 30, start: todayKey(), end: todayKey() },
-      visibleBlocks: {
-        today: true,
-        attention: true,
-        habitIcons: false,
-        diary: true,
-        mood: true,
-        energy: true,
-        stress: true,
-        noteText: true,
-        helped: true,
-        blocked: true,
-        forecast: true,
-        transit: true,
-        analytics: true,
-        completion: true,
-        lastDone: true
-      },
-      visibleGrid: {
-        color: true,
-        icon: true,
-        category: false,
-        type: false,
-        target: false,
-        statusText: true,
-        compactMeta: false,
-        completion: false,
-        daysSince: false,
-        noteMarker: false,
-        moodMarker: false
-      },
-      density: "standard",
-      interfaceTheme: "dark",
-      gridTheme: "classic",
-      gridDisplayMode: "matrix",
-      gridDensity: "standard",
-      gridMarkerShape: "circle",
-      gridHabitColorMode: "habit",
-      calendarHistoryDays: 7,
-      statusIcons: {
-        done: "❤️",
-        partial: "◐",
-        skipped: "−",
-        missed: "❌",
-        planned: "🗓️"
-      },
-      gridColors: {
-        mode: "theme",
-        bg: defaultCustomGridColors.bg,
-        head: defaultCustomGridColors.head,
-        cell: defaultCustomGridColors.cell,
-        today: defaultCustomGridColors.today,
-        line: defaultCustomGridColors.line,
-        habitSingle: defaultCustomGridColors.habitSingle,
-        habitMuted: defaultCustomGridColors.habitMuted,
-        habitAltA: defaultCustomGridColors.habitAltA,
-        habitAltB: defaultCustomGridColors.habitAltB
-      },
-      forecast: {
-        enabled: true,
-        provider: "biorhythm",
-        visibleScales: {
-          physical: true,
-          emotional: true,
-          intellectual: true
-        },
-        showInToday: true,
-        showInDiary: true,
-        showInInspector: true,
-        showInGrid: false,
-        displayMode: "compact"
-      },
-      notifications: {
-        enabled: true,
-        channels: {
-          inApp: true,
-          browser: false,
-          email: false,
-          telegram: false,
-          push: false
-        },
-        topics: {
-          habits: true,
-          diary: true,
-          forecast: true,
-          transit: true,
-          analytics: true,
-          reminders: true
-        },
-        priorityOnly: false,
-        quietHours: {
-          enabled: false,
-          start: "22:00",
-          end: "08:00"
-        },
-        frequency: "instant",
-        digestTime: "19:00",
-        weeklyDay: 1,
-        emailTarget: "",
-        telegramTarget: "",
-        pushReady: false
-      },
-      focusMode: false,
-      rightPanel: true,
-      showWeekends: true,
-      gridClickAction: "cycle",
-      selectedCategory: "all",
-      selectedHabitId: "",
-      iconSuggestionsCheckedAt: todayKey(),
-      diaryHistoryDays: 30,
-      analyticsHistoryDays: 30,
-      defaultView: "today",
-      todayLayout: "split",
-      diaryLayout: "full",
-      customTheme: {
-        bg: "#111827",
-        surface: "#182235",
-        text: "#f8fafc",
-        accent: "#22c55e",
-        done: "#22c55e",
-        partial: "#f59e0b",
-        skipped: "#64748b",
-        missed: "#ef4444",
-        planned: "#38bdf8"
-      },
-      customPresets: {}
-    }
+    settings
   };
 }
