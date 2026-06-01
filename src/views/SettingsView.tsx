@@ -232,7 +232,7 @@ export function SettingsView({ state, actions }: { state: AppState; actions: App
           <h3>Экспорт / импорт</h3>
           <div className="toolbar preset-toolbar">
             <button className="btn" onClick={() => setExportText(actions.exportData())}>Подготовить экспорт</button>
-            <button className="btn" onClick={() => { if (!actions.importData(importText)) alert("Не удалось импортировать JSON"); }}>Импортировать JSON</button>
+            <button className="btn" onClick={async () => { if (!(await actions.importData(importText))) alert("Не удалось импортировать JSON"); }}>Импортировать JSON</button>
           </div>
           <textarea className="textarea export-box" value={exportText || importText} placeholder="JSON для экспорта или импорта" onChange={(event) => { setImportText(event.target.value); setExportText(""); }} />
         </div>

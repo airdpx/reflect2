@@ -369,10 +369,17 @@ export default function HabitCalendarApp({ initialState }: HabitCalendarAppProps
     return JSON.stringify(state, null, 2);
   }
 
-  function importData(json: string) {
+  async function importData(json: string) {
     const parsed = parseImportedState(json);
     if (!parsed) return false;
     setState(parsed);
+    if (parsed.profile?.id) {
+      await fetch("/api/account/state", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ state: parsed })
+      }).catch(() => undefined);
+    }
     return true;
   }
 
