@@ -154,7 +154,6 @@ export function SettingsView({ state, actions }: { state: AppState; actions: App
           {Object.entries(blockLabels).map(([key, label]) => <Toggle key={key} label={label} checked={state.settings.visibleBlocks[key]} onChange={(checked) => actions.updateVisible("visibleBlocks", key, checked)} />)}
           <div className="danger-zone">
             <button className="btn ghost" onClick={actions.resetSettings}>Сбросить только настройки</button>
-            <button className="btn danger" onClick={actions.resetAll}>Сбросить все данные</button>
           </div>
         </div>
         <div className="panel settings-card">

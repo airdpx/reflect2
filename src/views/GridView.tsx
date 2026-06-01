@@ -41,7 +41,8 @@ const gridModes: Array<[GridDisplayMode, string]> = [
 const gridHabitColorOptions: Array<[GridHabitColorMode, string]> = [
   ["habit", "По цвету привычки"],
   ["muted", "Приглушенные цвета"],
-  ["alternating", "Без цвета привычек"]
+  ["mono", "Один цвет"],
+  ["alternating", "Два цвета"]
 ];
 
 export function GridView({
@@ -172,9 +173,9 @@ function CalendarSettingsPanel({ state, selectors, actions }: { state: AppState;
           {(Object.keys(statusMeta) as HabitStatus[]).map((status) => (
             <button
               key={status}
-              className={`${statusMeta[status].className} ${state.settings.activeStatuses.includes(status) || status === "planned" ? "active" : ""}`}
-              onClick={() => status !== "planned" && actions.toggleStatus(status, !state.settings.activeStatuses.includes(status))}
-              title={status === "planned" ? "План показывается в календаре как пустая ожидающая отметка" : "Включить или выключить статус"}
+              className={`${statusMeta[status].className} ${state.settings.activeStatuses.includes(status) ? "active" : ""}`}
+              onClick={() => actions.toggleStatus(status, !state.settings.activeStatuses.includes(status))}
+              title="Включить или выключить статус"
             >
               <b>{state.settings.statusIcons[status] || statusMeta[status].short}</b>
               <span>{statusMeta[status].label}</span>
@@ -341,8 +342,8 @@ function CalendarHabitMark({
   actions: AppActions;
 }) {
   const log = selectors.getLog(habit.id, date);
-  const status = log?.status || "planned";
-  const className = statusMeta[status].className;
+  const status = getDisplayStatus(log?.status || "planned", state);
+  const className = status ? statusMeta[status].className : "";
   const title = `${habit.title} · ${formatDate(date)} · ${state.settings.gridClickAction === "cycle" ? "клик меняет статус" : "детали отметки"}`;
   const markStyle = getHabitMarkStyle(state, habit, habitIndex);
   return (
@@ -357,15 +358,15 @@ function CalendarHabitMark({
         <span className="compact-mark-content">
           {state.settings.visibleGrid.color && <i style={{ background: markStyle["--habit-color"] as string }} />}
           {state.settings.visibleGrid.icon && <b>{habit.icon}</b>}
-          {state.settings.visibleGrid.statusText && status !== "planned" && <em>{statusIcon(status, state)}</em>}
+          {state.settings.visibleGrid.statusText && status && status !== "planned" && <em>{statusIcon(status, state)}</em>}
           {state.settings.visibleGrid.noteMarker && log?.note && <small className="marker-note-inline" />}
         </span>
       ) : (
         <>
           {state.settings.visibleGrid.color && <i style={{ background: markStyle["--habit-color"] as string }} />}
           <span className="calendar-mark-title">{state.settings.visibleGrid.icon ? habit.icon : ""} {habit.title}</span>
-          {state.settings.visibleGrid.statusText && status !== "planned" && <em>{statusIcon(status, state)}</em>}
-          {!state.settings.visibleGrid.statusText && status !== "planned" && <em>{statusIcon(status, state)}</em>}
+          {state.settings.visibleGrid.statusText && status && status !== "planned" && <em>{statusIcon(status, state)}</em>}
+          {!state.settings.visibleGrid.statusText && status && status !== "planned" && <em>{statusIcon(status, state)}</em>}
           {state.settings.visibleGrid.noteMarker && log?.note && <small className="marker-note-inline" />}
           {state.settings.visibleGrid.type && <small>{habitTypeLabels[habit.type]}</small>}
           {state.settings.visibleGrid.target && habit.target > 1 && <small>{habit.target}</small>}
@@ -451,7 +452,7 @@ function WeekFocusGrid({
             <div className="week-focus-list">
               {habits.filter((habit) => selectors.isDue(habit, date)).map((habit) => (
                 <button
-                  className={`week-check ${statusClass(selectors.getLog(habit.id, date)?.status || "planned")}`}
+                  className={`week-check ${statusClass(getDisplayStatus(selectors.getLog(habit.id, date)?.status || "planned", state))}`}
                   key={habit.id}
                   title={`${habit.title} · ${formatDate(date)}`}
                   style={getHabitMarkStyle(state, habit, habitIndexMap.get(habit.id) || 0, "focus")}
@@ -460,7 +461,7 @@ function WeekFocusGrid({
                 >
                   <i style={{ background: getHabitTone(habit, habitIndexMap.get(habit.id) || 0, state) }} />
                   <span>{state.settings.visibleGrid.icon ? habit.icon : ""} {habit.title}</span>
-                  <b>{statusIcon(selectors.getLog(habit.id, date)?.status || "planned", state)}</b>
+                  <b>{displayStatusIcon(selectors.getLog(habit.id, date)?.status || "planned", state)}</b>
                 </button>
               ))}
             </div>
@@ -504,7 +505,7 @@ function HabitTimelineGrid({
           <div className="habit-strip-row" key={index}>
             {group.map((date) => (
               <button
-                className={`habit-day-chip ${statusClass(selectors.getLog(habit.id, date)?.status || (selectors.isDue(habit, date) ? "planned" : undefined))}`}
+                className={`habit-day-chip ${statusClass(getDisplayStatus(selectors.getLog(habit.id, date)?.status || (selectors.isDue(habit, date) ? "planned" : undefined), state))}`}
                 key={date}
                 title={`${habit.title} · ${formatDate(date)}`}
                 style={getHabitMarkStyle(state, habit, habitIndexMap.get(habit.id) || 0, "tile")}
@@ -512,7 +513,7 @@ function HabitTimelineGrid({
                 onDoubleClick={() => actions.openCellSheet({ habitId: habit.id, date })}
               >
                 <span>{formatDate(date, "short")}</span>
-                <b>{statusIcon(selectors.getLog(habit.id, date)?.status || "planned", state)}</b>
+                <b>{displayStatusIcon(selectors.getLog(habit.id, date)?.status || "planned", state)}</b>
               </button>
             ))}
           </div>
@@ -550,14 +551,14 @@ function TimelineGrid({
             <div className="timeline-dots">
               {habits.filter((habit) => selectors.isDue(habit, date)).map((habit) => (
                 <button
-                  className={`timeline-dot ${statusClass(selectors.getLog(habit.id, date)?.status || "planned")}`}
+                  className={`timeline-dot ${statusClass(getDisplayStatus(selectors.getLog(habit.id, date)?.status || "planned", state))}`}
                   key={habit.id}
                   title={`${habit.title} · ${formatDate(date)}`}
                   style={getHabitMarkStyle(state, habit, habitIndexMap.get(habit.id) || 0, "dot")}
                   onClick={() => state.settings.gridClickAction === "cycle" ? actions.cycleHabitStatus(habit.id, date) : actions.openCellSheet({ habitId: habit.id, date })}
                   onDoubleClick={() => actions.openCellSheet({ habitId: habit.id, date })}
                 >
-                  <span>{timelineStatusIcon(selectors.getLog(habit.id, date)?.status || "planned", state)}</span>
+                  <span>{timelineStatusIcon(getDisplayStatus(selectors.getLog(habit.id, date)?.status || "planned", state), state)}</span>
                 </button>
               ))}
             </div>
@@ -600,14 +601,14 @@ function HeatGrid({
               <div className="heat-actions">
                 {dueHabits.map((habit) => (
                 <button
-                  className={`heat-dot ${statusClass(selectors.getLog(habit.id, date)?.status || "planned")}`}
+                  className={`heat-dot ${statusClass(getDisplayStatus(selectors.getLog(habit.id, date)?.status || "planned", state))}`}
                   key={habit.id}
                   title={`${habit.title} · ${formatDate(date)}`}
                   style={getHabitMarkStyle(state, habit, habitIndexMap.get(habit.id) || 0, "heat")}
                   onClick={() => state.settings.gridClickAction === "cycle" ? actions.cycleHabitStatus(habit.id, date) : actions.openCellSheet({ habitId: habit.id, date })}
                   onDoubleClick={() => actions.openCellSheet({ habitId: habit.id, date })}
                 >
-                  <span>{heatStatusIcon(selectors.getLog(habit.id, date)?.status || "planned", state)}</span>
+                  <span>{heatStatusIcon(getDisplayStatus(selectors.getLog(habit.id, date)?.status || "planned", state), state)}</span>
                 </button>
                 ))}
               </div>
@@ -637,8 +638,8 @@ function GridCell({
 }) {
   const log = selectors.getLog(habit.id, date);
   const status = log?.status || (selectors.isDue(habit, date) ? "planned" : undefined);
-  const visibleStatus = status && (state.settings.activeStatuses.includes(status) || status === "planned");
-  const className = visibleStatus && status ? statusMeta[status].className : "";
+  const visibleStatus = getDisplayStatus(status, state);
+  const className = visibleStatus ? statusMeta[visibleStatus].className : "";
   const themeClass = ["soft", "classic", "journal", "minimal", "ledger", "outline", "slate", "calm"].includes(state.settings.gridTheme) ? state.settings.gridTheme : "";
   const markStyle = getHabitMarkStyle(state, habit, habitIndex, "cell");
   return (
@@ -650,8 +651,8 @@ function GridCell({
         onClick={() => state.settings.gridClickAction === "cycle" ? actions.cycleHabitStatus(habit.id, date) : actions.openCellSheet({ habitId: habit.id, date })}
       >
         <span className="mark-core">
-          {state.settings.gridTheme === "classic" && status === "done" ? statusIcon(status, state) : ""}
-          {state.settings.gridTheme !== "classic" && visibleStatus && status && status !== "planned" ? statusIcon(status, state) : ""}
+          {state.settings.gridTheme === "classic" && visibleStatus === "done" ? statusIcon(visibleStatus, state) : ""}
+          {state.settings.gridTheme !== "classic" && visibleStatus && visibleStatus !== "planned" ? statusIcon(visibleStatus, state) : ""}
           {state.settings.visibleGrid.noteMarker && log?.note && <i className="marker-note" />}
           {state.settings.visibleGrid.moodMarker && (log?.mood || state.notes[date]?.mood) && <i className="marker-mood" />}
         </span>
@@ -679,9 +680,22 @@ function statusIcon(status: HabitStatus, state: AppState) {
   return state.settings.statusIcons[status] || statusMeta[status].short;
 }
 
+function displayStatusIcon(status: HabitStatus | undefined, state: AppState) {
+  const visibleStatus = getDisplayStatus(status, state);
+  return visibleStatus ? statusIcon(visibleStatus, state) : "";
+}
+
+function getDisplayStatus(status: HabitStatus | undefined, state: AppState) {
+  if (!status || !state.settings.activeStatuses.includes(status)) return undefined;
+  return status;
+}
+
 function getHabitTone(habit: Habit, habitIndex: number, state: AppState) {
   if (state.settings.gridHabitColorMode === "habit") return habit.color;
   if (state.settings.gridHabitColorMode === "muted") return `color-mix(in srgb, ${habit.color} 42%, var(--surface-soft))`;
+  if (state.settings.gridHabitColorMode === "alternating") return habitIndex % 2 === 0
+    ? "color-mix(in srgb, var(--accent) 78%, var(--grid-cell-empty))"
+    : "color-mix(in srgb, var(--warn) 76%, var(--grid-cell-empty))";
   return "color-mix(in srgb, var(--grid-line) 54%, var(--surface-soft))";
 }
 
@@ -710,12 +724,14 @@ function getHabitMarkStyle(state: AppState, habit: Habit, habitIndex: number, va
   } as React.CSSProperties & Record<"--habit-color", string>;
 }
 
-function timelineStatusIcon(status: HabitStatus, state: AppState) {
+function timelineStatusIcon(status: HabitStatus | undefined, state: AppState) {
+  if (!status) return "";
   if (status === "done") return "✓";
   return statusIcon(status, state);
 }
 
-function heatStatusIcon(status: HabitStatus, state: AppState) {
+function heatStatusIcon(status: HabitStatus | undefined, state: AppState) {
+  if (!status) return "";
   if (status === "done") return "🔥";
   return statusIcon(status, state);
 }
@@ -734,7 +750,7 @@ function modeIcon(mode: GridDisplayMode) {
 }
 
 function Legend({ statuses, state }: { statuses: HabitStatus[]; state?: AppState }) {
-  const visibleStatuses = Array.from(new Set([...statuses, "planned" as HabitStatus]));
+  const visibleStatuses = Array.from(new Set(statuses));
   return (
     <div className="legend">
       {visibleStatuses.map((status) => <span key={status}>{state ? `${statusIcon(status, state)} ` : ""}{statusMeta[status].label}</span>)}
