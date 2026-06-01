@@ -8,18 +8,16 @@ import { TemplateChooser } from "./TodayView";
 import { SelectControl, Toggle } from "../components/Common";
 
 const gridAppearancePresets = [
-  { value: "soft-circle", label: "Мягкий круг", theme: "soft", shape: "circle" },
-  { value: "soft-square", label: "Мягкий квадрат", theme: "soft", shape: "square" },
   { value: "classic-square", label: "Классика", theme: "classic", shape: "square" },
+  { value: "soft-circle", label: "Мягкий круг", theme: "soft", shape: "circle" },
+  { value: "soft-ring", label: "Мягкое кольцо", theme: "soft", shape: "ring" },
   { value: "ledger-square", label: "Ledger Flat", theme: "ledger", shape: "square" },
   { value: "outline-ring", label: "Outline Ring", theme: "outline", shape: "ring" },
   { value: "slate-pill", label: "Slate Pills", theme: "slate", shape: "pill" },
   { value: "calm-frame", label: "Calm Frame", theme: "calm", shape: "frame" },
-  { value: "journal-ring", label: "Дневник", theme: "journal", shape: "ring" },
   { value: "journal-star", label: "Дневник со звездой", theme: "journal", shape: "star" },
   { value: "minimal-hex", label: "Минимум", theme: "minimal", shape: "hex" },
-  { value: "minimal-pill", label: "Минимум-пилюля", theme: "minimal", shape: "pill" },
-  { value: "soft-frame", label: "Мягкая рамка", theme: "soft", shape: "frame" }
+  { value: "minimal-pill", label: "Минимум-пилюля", theme: "minimal", shape: "pill" }
 ] as const;
 
 const gridLabels: Record<string, string> = {
@@ -102,7 +100,7 @@ export function GridView({
 }
 
 function CalendarSettingsPanel({ state, selectors, actions }: { state: AppState; selectors: AppSelectors; actions: AppActions }) {
-  const appearanceValue = gridAppearancePresets.find((preset) => preset.theme === state.settings.gridTheme && preset.shape === state.settings.gridMarkerShape)?.value || gridAppearancePresets[0].value;
+  const appearanceValue = gridAppearancePresets.find((preset) => preset.theme === state.settings.gridTheme && preset.shape === state.settings.gridMarkerShape)?.value || "classic-square";
   return (
     <details className="panel module-panel calendar-settings-panel">
       <summary>Настроить календарь и таблицу</summary>

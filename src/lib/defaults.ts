@@ -275,7 +275,7 @@ export function createDefaults(): AppState {
       },
       density: "standard",
       interfaceTheme: "dark",
-      gridTheme: "soft",
+      gridTheme: "classic",
       gridDisplayMode: "matrix",
       gridDensity: "standard",
       gridMarkerShape: "circle",
