@@ -40,7 +40,7 @@ function TodayDiaryInspector({ note, state, actions }: { note: DailyNote; state:
       <div className="panel inspector-panel today-diary-panel">
         <div className="section-head">
           <div>
-            <h3>Дневник дня</h3>
+            <h3>Запись дня</h3>
             <p className="muted">{formatDate(state.selectedDate)}</p>
           </div>
           <button className="btn ghost" onClick={() => actions.setView("diary")}>Открыть</button>
@@ -51,6 +51,14 @@ function TodayDiaryInspector({ note, state, actions }: { note: DailyNote; state:
           placeholder="Короткая заметка на сегодня"
           onChange={(event) => actions.setNoteField("text", event.target.value)}
         />
+      </div>
+      <div className="panel inspector-panel today-state-panel">
+        <div className="section-head">
+          <div>
+            <h3>Состояние</h3>
+            <p className="muted">Настроение, энергия и стресс за день.</p>
+          </div>
+        </div>
         <div className="inspector-state-grid">
           <InspectorRange label="Настроение" value={note.mood ?? 3} onChange={(value) => actions.setNoteField("mood", value)} />
           <InspectorRange label="Энергия" value={note.energy ?? 3} onChange={(value) => actions.setNoteField("energy", value)} />

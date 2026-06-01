@@ -103,7 +103,6 @@ function ForecastShell({
       <div className="section-head">
         <div>
           <h3>{title}</h3>
-          <p className="muted">Биоритмы на выбранную дату</p>
         </div>
         <div className={`forecast-score forecast-tone-${tone}`}>
           <strong>{forecast.summaryScore}%</strong>

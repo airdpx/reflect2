@@ -192,26 +192,24 @@ button {
 
 .user-chip {
   display: grid;
-  grid-template-columns: 34px minmax(0, 1fr) auto;
+  grid-template-columns: 30px minmax(0, 1fr) auto;
   align-items: center;
-  gap: 9px;
-  min-width: 224px;
-  min-height: 48px;
-  padding: 6px 10px 6px 7px;
-  border-radius: 10px;
-  border: 1px solid color-mix(in srgb, var(--line) 86%, transparent);
-  background:
-    linear-gradient(135deg, color-mix(in srgb, var(--accent) 7%, transparent), transparent 62%),
-    color-mix(in srgb, var(--surface) 92%, var(--bg));
+  gap: 7px;
+  min-width: 198px;
+  min-height: 42px;
+  padding: 5px 8px 5px 6px;
+  border-radius: 9px;
+  border: 1px solid color-mix(in srgb, var(--line) 80%, transparent);
+  background: color-mix(in srgb, var(--surface) 92%, var(--bg));
   box-shadow: none;
 }
 
 .user-avatar {
   display: grid;
   place-items: center;
-  width: 34px;
-  height: 34px;
-  border-radius: 9px;
+  width: 30px;
+  height: 30px;
+  border-radius: 8px;
   background: var(--accent-soft);
   color: var(--text);
   font-size: 13px;
@@ -228,7 +226,7 @@ button {
 }
 
 .user-chip b {
-  font-size: 14px;
+  font-size: 13px;
   line-height: 1.05;
   display: block;
   overflow: hidden;
@@ -238,29 +236,27 @@ button {
 
 .user-chip em {
   color: var(--muted);
-  font-size: 11px;
+  font-size: 10px;
   font-style: normal;
   line-height: 1.1;
-  padding: 6px 8px;
-  border-radius: 8px;
-  background: color-mix(in srgb, var(--surface-soft) 78%, transparent);
+  padding: 4px 6px;
+  border-radius: 7px;
+  background: color-mix(in srgb, var(--surface-soft) 68%, transparent);
 }
 
 .topbar-date {
   display: grid;
-  gap: 3px;
+  gap: 2px;
   align-content: start;
 }
 
 .topbar-date .date-input {
-  width: min(188px, 100%);
-  min-height: 48px;
-  padding: 10px 12px;
-  border-radius: 10px;
+  width: min(176px, 100%);
+  min-height: 42px;
+  padding: 8px 10px;
+  border-radius: 9px;
   border-color: color-mix(in srgb, var(--line) 86%, transparent);
-  background:
-    linear-gradient(135deg, color-mix(in srgb, var(--accent) 5%, transparent), transparent 62%),
-    color-mix(in srgb, var(--surface) 92%, var(--bg));
+  background: color-mix(in srgb, var(--surface) 92%, var(--bg));
   box-shadow: none;
 }
 
@@ -284,8 +280,8 @@ button {
   align-items: center;
   justify-content: center;
   gap: 8px;
-  min-height: 36px;
-  padding: 8px 12px;
+  min-height: 34px;
+  padding: 7px 11px;
   border-radius: var(--radius);
   background: var(--surface-soft);
   color: var(--text);
@@ -295,6 +291,12 @@ button {
 .btn.primary {
   background: var(--accent);
   color: #fff;
+}
+
+.toolbar .btn.primary {
+  min-height: 42px;
+  padding-inline: 14px;
+  border-radius: 9px;
 }
 
 .btn.ghost {
@@ -362,6 +364,12 @@ button {
   background:
     linear-gradient(135deg, color-mix(in srgb, var(--accent) 9%, transparent), transparent 58%),
     var(--surface);
+}
+
+.forecast-panel .section-head {
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 0;
 }
 
 .transit-panel {
@@ -2759,8 +2767,8 @@ button {
 
 .inspector {
   position: sticky;
-  top: 0;
-  height: 100vh;
+  top: 22px;
+  height: calc(100vh - 44px);
   overflow: auto;
   padding: 22px 14px;
   border-left: 1px solid var(--line);
@@ -2777,9 +2785,16 @@ button {
   background:
     linear-gradient(180deg, color-mix(in srgb, var(--accent) 4%, transparent), transparent 36%),
     var(--bg);
+  display: grid;
+  gap: 12px;
 }
 
 .today-diary-panel {
+  display: grid;
+  gap: 12px;
+}
+
+.today-state-panel {
   display: grid;
   gap: 12px;
 }
