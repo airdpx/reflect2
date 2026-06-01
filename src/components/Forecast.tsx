@@ -79,7 +79,13 @@ function ForecastShell({
           <span>{forecast.summaryLabel}</span>
         </div>
       </div>
-      {mode !== "minimal" && <div className="forecast-scales">{forecast.scales.map((scale) => <ForecastScaleRow key={scale.id} scale={scale} />)}</div>}
+      {mode === "minimal" ? (
+        <div className="forecast-mini-scales">
+          {forecast.scales.map((scale) => <ForecastMiniScale key={scale.id} scale={scale} />)}
+        </div>
+      ) : (
+        <div className="forecast-scales">{forecast.scales.map((scale) => <ForecastScaleRow key={scale.id} scale={scale} />)}</div>
+      )}
     </div>
   );
 }
@@ -171,6 +177,15 @@ function ForecastScaleRow({ scale }: { scale: ForecastScale }) {
 
 function ForecastPill({ scale }: { scale: ForecastScale }) {
   return <i className={`forecast-pill phase-${scale.phase}`} title={`${scale.label}: ${scale.value}`}>{scale.value}</i>;
+}
+
+function ForecastMiniScale({ scale }: { scale: ForecastScale }) {
+  return (
+    <div className={`forecast-mini-scale phase-${scale.phase}`}>
+      <span>{scale.label}</span>
+      <b>{scale.value}%</b>
+    </div>
+  );
 }
 
 function formatDisplayDate(value: string) {

@@ -24,6 +24,8 @@ export function TodayView({
     return <OnboardingPanel actions={actions} />;
   }
 
+  const todayLayout = state.settings.todayLayout === "single" ? "single" : "split";
+
   const leftColumn = (
     <section className="stack">
       <TodayModulesPanel state={state} actions={actions} />
@@ -71,13 +73,14 @@ export function TodayView({
   if (state.settings.visibleBlocks.transit) rightPanels.push(<TransitPanel key="transit" state={state} />);
   if (state.settings.visibleBlocks.analytics && selectors.hasAnyLogs) rightPanels.push(<StatsPanel key="analytics" selectors={selectors} />);
 
-  if (!rightPanels.length || state.settings.todayLayout === "single") {
+  if (!rightPanels.length || todayLayout === "single") {
     return <div className="stack">{leftColumn}{rightPanels.length ? <section className="stack">{rightPanels}</section> : null}</div>;
   }
 
   return (
     <div className="grid-two">
-      {state.settings.todayLayout === "reverse" ? <>{rightPanels.length ? <section className="stack">{rightPanels}</section> : null}{leftColumn}</> : <>{leftColumn}{rightPanels.length ? <section className="stack">{rightPanels}</section> : null}</>}
+      {leftColumn}
+      {rightPanels.length ? <section className="stack">{rightPanels}</section> : null}
     </div>
   );
 }
@@ -102,9 +105,13 @@ function TodayModulesPanel({ state, actions }: { state: AppState; actions: AppAc
       <summary>Настроить экран Сегодня</summary>
       <div className="module-controls">
         <div className="icon-choice-row">
-          {(["split", "single", "reverse"] as const).map((layout) => (
-            <button key={layout} className={state.settings.todayLayout === layout ? "active" : ""} onClick={() => actions.updateSetting("todayLayout", layout)}>
-              {layout === "split" ? "2 колонки" : layout === "single" ? "1 колонка" : "поменять"}
+          {(["split", "single"] as const).map((layout) => (
+            <button
+              key={layout}
+              className={(state.settings.todayLayout === layout || (layout === "split" && state.settings.todayLayout === "reverse")) ? "active" : ""}
+              onClick={() => actions.updateSetting("todayLayout", layout)}
+            >
+              {layout === "split" ? "2 колонки" : "1 колонка"}
             </button>
           ))}
         </div>

@@ -70,10 +70,9 @@ export function Topbar({
           <div className="topbar-chip topbar-profile-chip">
             <span className="user-avatar">{(state.profile.name || state.profile.email || "U").slice(0, 1).toUpperCase()}</span>
             <span className="topbar-chip-copy">
-              <small>Профиль</small>
               <b>{state.profile.name || state.profile.email}</b>
+              <em>{state.profile.birthDate}</em>
             </span>
-            <em>{state.profile.birthDate}</em>
           </div>
         ) : null}
         <label className="topbar-chip topbar-date">
