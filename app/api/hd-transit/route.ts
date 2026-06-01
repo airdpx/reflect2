@@ -1,47 +1,144 @@
 import { NextResponse } from "next/server";
+import { todayKey } from "../../../src/lib/date";
+import { fetchHumdesTransitDetails, fetchHumdesTransitListings, HUMDES_TRANSIT_PAGES, HUMDES_TRANSITS_URL } from "../../../src/lib/humdes";
+import { getPrisma } from "../../../src/server/db";
 import type { HumanDesignTransit, HumanDesignTransitGate } from "../../../src/types";
-
-const HUMDES_TRANSIT_PAGE = "https://www.humdes.com/ru/transit/";
-const HUMDES_TRANSIT_API = "https://app.humdes.com/transit/";
-const HUMDES_DEFAULT_LOCATION = 524901;
 
 export const dynamic = "force-dynamic";
 
 export async function GET(_request: Request) {
-  const now = new Date();
+  const prisma = getPrisma();
+  const today = todayKey();
   try {
-    const transit = await fetchHumdesTransit(now);
-    return NextResponse.json(transit, {
+    const transit = await findCurrentTransit(prisma, today);
+    if (!transit) {
+      return NextResponse.json(await fallbackCurrentTransit(), {
+        headers: {
+          "Cache-Control": "public, max-age=300, stale-while-revalidate=1800"
+        }
+      });
+    }
+    const enriched = await maybeEnrichTransit(prisma, transit);
+    return NextResponse.json(mapTransit(enriched, today), {
       headers: {
-        "Cache-Control": "public, max-age=900, stale-while-revalidate=3600"
+        "Cache-Control": "public, max-age=300, stale-while-revalidate=1800"
       }
     });
   } catch (error) {
     return NextResponse.json(
       {
-        message: error instanceof Error ? error.message : "Не удалось загрузить транзит Human Design."
+        message: error instanceof Error ? error.message : "Не удалось загрузить текущий транзит Human Design."
       },
       { status: 502 }
     );
   }
 }
 
-async function fetchHumdesTransit(now: Date): Promise<HumanDesignTransit> {
-  const url = new URL(HUMDES_TRANSIT_API);
-  url.searchParams.set("date", formatHumdesDate(toKey(now)));
+export async function POST() {
+  const prisma = getPrisma();
+  try {
+    const result = await syncHumdesTransits(prisma);
+    return NextResponse.json(result);
+  } catch (error) {
+    return NextResponse.json(
+      {
+        message: error instanceof Error ? error.message : "Не удалось синхронизировать транзиты."
+      },
+      { status: 502 }
+    );
+  }
+}
+
+async function findCurrentTransit(prisma: ReturnType<typeof getPrisma>, today: string) {
+  return prisma.humanDesignTransitRecord.findFirst({
+    where: {
+      periodStart: { lte: today },
+      periodEnd: { gte: today }
+    },
+    orderBy: { periodStart: "desc" }
+  });
+}
+
+async function maybeEnrichTransit(prisma: ReturnType<typeof getPrisma>, transit: Awaited<ReturnType<typeof findCurrentTransit>>) {
+  if (!transit) return transit;
+  const paragraphs = Array.isArray(transit.paragraphs) ? transit.paragraphs : [];
+  if (paragraphs.length) return transit;
+  try {
+    const details = await fetchHumdesTransitDetails(transit.descriptionUrl);
+    return prisma.humanDesignTransitRecord.update({
+      where: { descriptionUrl: transit.descriptionUrl },
+      data: {
+        paragraphs: details.paragraphs,
+        publishedAt: details.publishedAt || transit.publishedAt,
+        fetchedAt: new Date()
+      }
+    });
+  } catch {
+    return transit;
+  }
+}
+
+async function syncHumdesTransits(prisma: ReturnType<typeof getPrisma>) {
+  let imported = 0;
+  for (let pageNumber = 1; pageNumber <= HUMDES_TRANSIT_PAGES; pageNumber += 1) {
+    const listings = await fetchHumdesTransitListings(pageNumber);
+    for (const listing of listings) {
+      await prisma.humanDesignTransitRecord.upsert({
+        where: { descriptionUrl: listing.descriptionUrl },
+        create: {
+          title: listing.title,
+          periodStart: listing.periodStart,
+          periodEnd: listing.periodEnd,
+          listingUrl: listing.listingUrl,
+          descriptionUrl: listing.descriptionUrl,
+          pageNumber: listing.pageNumber,
+          gateSunNumber: listing.gates[0]?.number || "",
+          gateSunName: listing.gates[0]?.name || "",
+          gateSunUrl: listing.gates[0]?.url || "",
+          gateEarthNumber: listing.gates[1]?.number || "",
+          gateEarthName: listing.gates[1]?.name || "",
+          gateEarthUrl: listing.gates[1]?.url || "",
+          gates: listing.gates,
+          paragraphs: [],
+          fetchedAt: new Date()
+        },
+        update: {
+          title: listing.title,
+          periodStart: listing.periodStart,
+          periodEnd: listing.periodEnd,
+          listingUrl: listing.listingUrl,
+          pageNumber: listing.pageNumber,
+          gateSunNumber: listing.gates[0]?.number || "",
+          gateSunName: listing.gates[0]?.name || "",
+          gateSunUrl: listing.gates[0]?.url || "",
+          gateEarthNumber: listing.gates[1]?.number || "",
+          gateEarthName: listing.gates[1]?.name || "",
+          gateEarthUrl: listing.gates[1]?.url || "",
+          gates: listing.gates,
+          fetchedAt: new Date()
+        }
+      });
+      imported += 1;
+    }
+  }
+  return { ok: true, importedPages: HUMDES_TRANSIT_PAGES, importedItems: imported };
+}
+
+async function fallbackCurrentTransit(): Promise<HumanDesignTransit> {
+  const now = new Date();
+  const url = new URL("https://app.humdes.com/transit/");
+  url.searchParams.set("date", formatHumdesDate(todayKeyFromDate(now)));
   url.searchParams.set("time", defaultTime(now));
-  url.searchParams.set("location", String(HUMDES_DEFAULT_LOCATION));
+  url.searchParams.set("location", "524901");
 
   const response = await fetch(url, {
     headers: {
       Accept: "application/json, text/plain, */*",
       Origin: "https://www.humdes.com",
-      Referer: HUMDES_TRANSIT_PAGE,
+      Referer: HUMDES_TRANSITS_URL,
       "User-Agent": "Mozilla/5.0"
-    },
-    next: { revalidate: 900 }
+    }
   });
-
   if (!response.ok) {
     throw new Error(`Humdes вернул ${response.status} для текущего транзита.`);
   }
@@ -61,17 +158,37 @@ async function fetchHumdesTransit(now: Date): Promise<HumanDesignTransit> {
 
   const gates = normalizeGates(currentTransit.gates);
   const paragraphs = extractParagraphs(currentTransit.text).slice(0, 2);
-  if (!gates.length && !paragraphs.length) throw new Error("Humdes вернул транзит без ворот и описания.");
-
   return {
-    date: toKey(now),
+    date: todayKey(),
     fetchedAt: now.toISOString(),
     title,
     periodStart,
     periodEnd,
+    listingUrl: HUMDES_TRANSITS_URL,
+    descriptionUrl: HUMDES_TRANSITS_URL,
     gates,
     paragraphs,
-    sourceUrl: HUMDES_TRANSIT_PAGE
+    sourceUrl: HUMDES_TRANSITS_URL
+  };
+}
+
+function mapTransit(record: Awaited<ReturnType<typeof findCurrentTransit>>, date: string): HumanDesignTransit {
+  if (!record) {
+    throw new Error("Нет текущего транзита.");
+  }
+  const gates = Array.isArray(record.gates) ? (record.gates as HumanDesignTransitGate[]) : [];
+  const paragraphs = Array.isArray(record.paragraphs) ? (record.paragraphs as string[]) : [];
+  return {
+    date,
+    fetchedAt: record.fetchedAt?.toISOString() || new Date().toISOString(),
+    title: record.title,
+    periodStart: record.periodStart,
+    periodEnd: record.periodEnd,
+    listingUrl: record.listingUrl,
+    descriptionUrl: record.descriptionUrl,
+    gates,
+    paragraphs,
+    sourceUrl: record.listingUrl
   };
 }
 
@@ -138,13 +255,13 @@ function formatHumdesDate(date: string) {
   return day && month && year ? `${day}.${month}.${year}` : date;
 }
 
-function defaultTime(date: Date) {
-  return date.toLocaleTimeString("ru-RU", { hour: "2-digit", minute: "2-digit", hour12: false });
-}
-
-function toKey(date: Date) {
+function todayKeyFromDate(date: Date) {
   const year = date.getFullYear();
   const month = String(date.getMonth() + 1).padStart(2, "0");
   const day = String(date.getDate()).padStart(2, "0");
   return `${year}-${month}-${day}`;
+}
+
+function defaultTime(date: Date) {
+  return date.toLocaleTimeString("ru-RU", { hour: "2-digit", minute: "2-digit", hour12: false });
 }

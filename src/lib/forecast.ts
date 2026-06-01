@@ -28,9 +28,8 @@ export const forecastProviders: ForecastProvider[] = [
 
 export function getForecast(date: string, settings: ForecastSettings, birthDate: string): ForecastResult | null {
   if (!settings.enabled) return null;
-  const provider = forecastProviders.find((item) => item.id === settings.provider) || forecastProviders[0];
-  if (provider.id !== "humanDesign" && !birthDate) return null;
-  return provider.calculate(date, settings, birthDate);
+  if (!birthDate) return null;
+  return calculateBiorhythmForecast(date, settings, birthDate);
 }
 
 export function forecastTone(score: number) {

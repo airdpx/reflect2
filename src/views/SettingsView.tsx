@@ -1,5 +1,5 @@
 import { useState } from "react";
-import type { AppActions, AppState, Density, ForecastDisplayMode, ForecastProviderId, ForecastScaleId, ForecastSettings, HabitStatus, UserSettings, View } from "../types";
+import type { AppActions, AppState, Density, ForecastDisplayMode, ForecastScaleId, ForecastSettings, HabitStatus, UserSettings, View } from "../types";
 import { SelectControl, Toggle } from "../components/Common";
 import { statusMeta } from "../lib/defaults";
 
@@ -13,7 +13,8 @@ const blockLabels: Record<string, string> = {
   noteText: "Короткая заметка",
   helped: "Что помогло",
   blocked: "Что мешало",
-  forecast: "Прогноз дня",
+  forecast: "Биоритмы",
+  transit: "Транзит",
   analytics: "Аналитика",
   completion: "Процент выполнения",
   lastDone: "Последнее выполнение"
@@ -112,13 +113,12 @@ export function SettingsView({ state, actions }: { state: AppState; actions: App
         <div className="panel settings-card">
           <div className="section-head">
             <div>
-              <h3>Прогноз дня</h3>
-              <p className="muted">Биоритмы или текущий транзит Human Design из Humdes.</p>
+              <h3>Биоритмы</h3>
+              <p className="muted">Ориентир для самонаблюдения, без давления и без медицинских обещаний.</p>
             </div>
           </div>
-          <Toggle label="Включить прогноз" checked={state.settings.forecast.enabled} onChange={(checked) => actions.updateSetting("forecast", { ...state.settings.forecast, enabled: checked })} />
+          <Toggle label="Включить биоритмы" checked={state.settings.forecast.enabled} onChange={(checked) => actions.updateSetting("forecast", { ...state.settings.forecast, enabled: checked })} />
           <div className="form-grid">
-            <SelectControl label="Источник" value={state.settings.forecast.provider} options={["biorhythm", "humanDesign"]} onChange={(value) => actions.updateSetting("forecast", { ...state.settings.forecast, provider: value as ForecastProviderId })} />
             <SelectControl label="Вид" value={state.settings.forecast.displayMode} options={["compact", "cards", "minimal"]} onChange={(value) => actions.updateSetting("forecast", { ...state.settings.forecast, displayMode: value as ForecastDisplayMode })} />
           </div>
           <p className="muted">Дата рождения берётся из профиля аккаунта, поэтому здесь её менять не нужно.</p>

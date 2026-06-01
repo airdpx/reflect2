@@ -129,6 +129,8 @@ export type HumanDesignTransit = {
   title: string;
   periodStart: string;
   periodEnd: string;
+  listingUrl: string;
+  descriptionUrl: string;
   gates: HumanDesignTransitGate[];
   paragraphs: string[];
   sourceUrl: string;

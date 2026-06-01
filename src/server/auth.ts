@@ -101,14 +101,28 @@ export async function loadUserState(userId: string, profile?: UserProfile): Prom
     const defaults = createDefaults();
     return {
       ...defaults,
+      schemaVersion: defaults.schemaVersion,
       profile: profile || (await prisma.user.findUnique({ where: { id: userId }, select: { id: true, email: true, name: true, birthDate: true } }))
     };
   }
   const defaults = createDefaults();
   const raw = record.state as Partial<AppState>;
+  const previousVersion = Number(raw.schemaVersion || 1);
+  const migratedForecast = {
+    ...defaults.settings.forecast,
+    ...raw.settings?.forecast,
+    visibleScales: {
+      ...defaults.settings.forecast.visibleScales,
+      ...raw.settings?.forecast?.visibleScales
+    }
+  };
+  if (previousVersion < 16) {
+    migratedForecast.enabled = true;
+  }
   return {
     ...defaults,
     ...raw,
+    schemaVersion: defaults.schemaVersion,
     profile: profile || raw.profile || (await prisma.user.findUnique({ where: { id: userId }, select: { id: true, email: true, name: true, birthDate: true } })),
     settings: {
       ...defaults.settings,
@@ -137,14 +151,7 @@ export async function loadUserState(userId: string, profile?: UserProfile): Prom
         ...defaults.settings.gridColors,
         ...raw.settings?.gridColors
       },
-      forecast: {
-        ...defaults.settings.forecast,
-        ...raw.settings?.forecast,
-        visibleScales: {
-          ...defaults.settings.forecast.visibleScales,
-          ...raw.settings?.forecast?.visibleScales
-        }
-      },
+      forecast: migratedForecast,
       customPresets: raw.settings?.customPresets || defaults.settings.customPresets,
       analyticsHistoryDays: raw.settings?.analyticsHistoryDays || defaults.settings.analyticsHistoryDays
     },
@@ -159,7 +166,6 @@ export async function ensureUserState(userId: string, birthDate: string) {
   const existing = await prisma.userState.findUnique({ where: { userId } });
   if (existing) return;
   const defaults = createDefaults();
-  defaults.settings.forecast.enabled = true;
   await prisma.userState.create({
     data: {
       userId,

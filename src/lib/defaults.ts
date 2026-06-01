@@ -232,7 +232,7 @@ export const habitTemplates: HabitTemplate[] = [
 
 export function createDefaults(): AppState {
   return {
-    schemaVersion: 15,
+    schemaVersion: 16,
     view: "today",
     selectedDate: todayKey(),
     habits: [],
@@ -255,6 +255,7 @@ export function createDefaults(): AppState {
         helped: true,
         blocked: true,
         forecast: true,
+        transit: true,
         analytics: true,
         completion: true,
         lastDone: true
@@ -278,7 +279,7 @@ export function createDefaults(): AppState {
       gridDisplayMode: "matrix",
       gridDensity: "standard",
       gridMarkerShape: "circle",
-      calendarHistoryDays: 30,
+      calendarHistoryDays: 7,
       statusIcons: {
         done: "✅",
         partial: "🌓",
@@ -295,7 +296,7 @@ export function createDefaults(): AppState {
         line: defaultCustomGridColors.line
       },
       forecast: {
-        enabled: false,
+        enabled: true,
         provider: "biorhythm",
         visibleScales: {
           physical: true,

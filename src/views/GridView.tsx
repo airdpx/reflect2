@@ -327,8 +327,8 @@ function CalendarHabitMark({
   const className = statusMeta[status].className;
   const title = `${habit.title} · ${formatDate(date)} · ${state.settings.gridClickAction === "cycle" ? "клик меняет статус" : "детали отметки"}`;
   const markStyle = {
-    background: `color-mix(in srgb, ${habit.color} 22%, var(--grid-cell-empty))`,
-    borderColor: `color-mix(in srgb, ${habit.color} 42%, var(--grid-line))`
+    background: `color-mix(in srgb, ${habit.color} 40%, var(--grid-cell-empty))`,
+    borderColor: `color-mix(in srgb, ${habit.color} 58%, var(--grid-line))`
   } as React.CSSProperties;
   return (
     <button
@@ -610,8 +610,8 @@ function GridCell({
   const className = visibleStatus && status ? statusMeta[status].className : "";
   const themeClass = ["soft", "classic", "journal", "minimal", "ledger", "outline", "slate", "calm"].includes(state.settings.gridTheme) ? state.settings.gridTheme : "";
   const markStyle = {
-    background: `color-mix(in srgb, ${habit.color} 26%, var(--grid-cell-empty))`,
-    borderColor: `color-mix(in srgb, ${habit.color} 42%, var(--grid-line))`
+    background: `color-mix(in srgb, ${habit.color} 58%, var(--grid-cell-empty))`,
+    borderColor: `color-mix(in srgb, ${habit.color} 72%, var(--grid-line))`
   } as React.CSSProperties;
   return (
     <div className={`grid-cell ${date === todayKey() ? "today" : ""} ${themeClass}`}>

@@ -51,3 +51,28 @@ model PasswordResetToken {
   usedAt    DateTime?
   createdAt DateTime @default(now())
 }
+
+model HumanDesignTransitRecord {
+  id              String   @id @default(cuid())
+  title           String
+  periodStart     String
+  periodEnd       String
+  listingUrl      String
+  descriptionUrl  String   @unique
+  pageNumber      Int
+  gateSunNumber   String
+  gateSunName     String
+  gateSunUrl      String
+  gateEarthNumber String
+  gateEarthName   String
+  gateEarthUrl    String
+  gates           Json
+  paragraphs      Json
+  publishedAt     DateTime?
+  fetchedAt       DateTime?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@index([periodStart, periodEnd])
+  @@index([pageNumber])
+}

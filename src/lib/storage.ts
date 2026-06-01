@@ -2,7 +2,7 @@ import type { AppState } from "../types";
 import { createDefaults } from "./defaults";
 
 export const STORAGE_KEY = "habit-calendar-next-mvp-v1";
-export const SCHEMA_VERSION = 15;
+export const SCHEMA_VERSION = 16;
 
 export function loadStoredState(): AppState {
   const defaults = createDefaults();
@@ -106,6 +106,17 @@ function migrateState(state: AppState): AppState {
     ...defaults.settings.visibleGrid,
     ...state.settings.visibleGrid
   };
+  const migratedForecast = {
+    ...defaults.settings.forecast,
+    ...state.settings.forecast,
+    visibleScales: {
+      ...defaults.settings.forecast.visibleScales,
+      ...state.settings.forecast?.visibleScales
+    }
+  };
+  if (previousVersion < 16) {
+    migratedForecast.enabled = true;
+  }
   const legacyBirthDate = (state.settings.forecast as { birthDate?: string }).birthDate || "";
   const profile = state.profile || (legacyBirthDate ? {
     id: "local-profile",
@@ -113,8 +124,6 @@ function migrateState(state: AppState): AppState {
     name: "Пользователь",
     birthDate: legacyBirthDate
   } : null);
-  const forecast = { ...state.settings.forecast } as Record<string, unknown>;
-  delete forecast.birthDate;
   const legacySettings = state.settings as Partial<AppState["settings"]> & {
     localUsers?: unknown;
     activeUserId?: unknown;
@@ -157,14 +166,7 @@ function migrateState(state: AppState): AppState {
         ...defaults.settings.gridColors,
         ...normalizedGridColors
       },
-      forecast: {
-        ...defaults.settings.forecast,
-        ...forecast,
-        visibleScales: {
-          ...defaults.settings.forecast.visibleScales,
-          ...legacySafeSettings.forecast?.visibleScales
-        }
-      },
+      forecast: migratedForecast,
       gridDisplayMode: previousVersion < 10 && (!legacySafeSettings.gridDisplayMode || legacySafeSettings.gridDisplayMode === "calendar")
         ? "matrix"
         : legacySafeSettings.gridDisplayMode || defaults.settings.gridDisplayMode,

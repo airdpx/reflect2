@@ -7,6 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
+    "sync:hd-transits": "node scripts/sync-humdes-transits.mjs",
     "wipe:auth": "node scripts/wipe-auth.mjs",
     "postinstall": "prisma generate"
   },

@@ -2,7 +2,7 @@ import type { AppActions, AppSelectors, AppState, Habit } from "../types";
 import { HabitCard } from "../components/HabitCard";
 import { StatsPanel } from "./AnalyticsView";
 import { habitTemplates } from "../lib/defaults";
-import { TodayForecastPanel } from "../components/Forecast";
+import { TodayForecastPanel, TransitPanel } from "../components/Forecast";
 
 export function TodayView({
   state,
@@ -28,6 +28,7 @@ export function TodayView({
     <section className="stack">
       <TodayModulesPanel state={state} actions={actions} />
       {state.settings.visibleBlocks.forecast && <TodayForecastPanel state={state} actions={actions} />}
+      {state.settings.visibleBlocks.transit && <TransitPanel state={state} />}
       {state.settings.visibleBlocks.today && (
         <div className="panel">
           <div className="section-head">
@@ -110,7 +111,8 @@ function TodayModulesPanel({ state, actions }: { state: AppState; actions: AppAc
         <div className="module-toggle-grid">
           {[
             ["today", "Привычки"],
-            ["forecast", "Прогноз"],
+            ["forecast", "Биоритмы"],
+            ["transit", "Транзит"],
             ["attention", "Внимание"],
             ["analytics", "Аналитика"]
           ].map(([key, label]) => (

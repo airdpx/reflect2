@@ -282,6 +282,12 @@ button {
     var(--surface);
 }
 
+.transit-panel {
+  background:
+    linear-gradient(135deg, color-mix(in srgb, var(--warn) 10%, transparent), transparent 54%),
+    linear-gradient(180deg, color-mix(in srgb, var(--surface) 88%, var(--bg)) 0%, var(--surface) 100%);
+}
+
 .forecast-panel.empty-forecast {
   grid-template-columns: minmax(0, 1fr) auto;
   align-items: center;
@@ -431,11 +437,23 @@ button {
 
 .hd-transit {
   display: grid;
-  gap: 10px;
+  gap: 12px;
   color: var(--text);
 }
 
+.hd-transit-top {
+  display: grid;
+  gap: 6px;
+}
+
 .hd-transit-title {
+  color: var(--text);
+  font-size: 13px;
+  line-height: 1.35;
+  font-weight: 800;
+}
+
+.hd-transit-range {
   color: var(--muted);
   font-size: 12px;
   font-weight: 700;
@@ -451,25 +469,26 @@ button {
   display: grid;
   grid-template-columns: auto minmax(0, 1fr);
   align-items: center;
-  gap: 8px;
-  min-height: 42px;
-  padding: 8px 10px;
-  border: 1px solid color-mix(in srgb, var(--accent) 32%, var(--line));
-  border-radius: 8px;
-  background: color-mix(in srgb, var(--accent) 8%, var(--surface-soft));
+  gap: 9px;
+  min-height: 46px;
+  padding: 9px 11px;
+  border: 1px solid color-mix(in srgb, var(--warn) 30%, var(--line));
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--warn) 10%, var(--surface-soft));
   color: var(--text);
   text-decoration: none;
 }
 
 .hd-transit-gates strong {
-  width: 28px;
-  height: 28px;
+  width: 30px;
+  height: 30px;
   display: inline-grid;
   place-items: center;
   border-radius: 999px;
-  background: var(--accent);
-  color: var(--accent-text);
+  background: color-mix(in srgb, var(--warn) 88%, var(--accent));
+  color: #fff;
   font-size: 12px;
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--surface) 80%, transparent);
 }
 
 .hd-transit-gates span {
@@ -477,6 +496,15 @@ button {
   overflow-wrap: anywhere;
   font-size: 12px;
   font-weight: 700;
+}
+
+.hd-transit-copy {
+  display: grid;
+  gap: 8px;
+  padding: 10px 12px;
+  border: 1px solid color-mix(in srgb, var(--line) 80%, var(--warn));
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--surface-soft) 86%, var(--warn));
 }
 
 .hd-transit p {
@@ -488,10 +516,29 @@ button {
 
 .hd-transit-source {
   width: fit-content;
+  min-height: 28px;
+  padding: 5px 10px;
+  border: 1px solid color-mix(in srgb, var(--accent) 28%, var(--line));
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--accent) 10%, var(--surface-soft));
   color: var(--accent);
   font-size: 12px;
   font-weight: 700;
   text-decoration: none;
+}
+
+.hd-transit-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.transit-panel .section-head {
+  margin-bottom: 2px;
+}
+
+.transit-panel .section-head p {
+  max-width: 30ch;
 }
 
 .forecast-pill.phase-high {

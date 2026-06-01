@@ -393,7 +393,8 @@ export const ModelName = {
   User: 'User',
   UserState: 'UserState',
   Session: 'Session',
-  PasswordResetToken: 'PasswordResetToken'
+  PasswordResetToken: 'PasswordResetToken',
+  HumanDesignTransitRecord: 'HumanDesignTransitRecord'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -409,7 +410,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user" | "userState" | "session" | "passwordResetToken"
+    modelProps: "user" | "userState" | "session" | "passwordResetToken" | "humanDesignTransitRecord"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -709,6 +710,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    HumanDesignTransitRecord: {
+      payload: Prisma.$HumanDesignTransitRecordPayload<ExtArgs>
+      fields: Prisma.HumanDesignTransitRecordFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.HumanDesignTransitRecordFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$HumanDesignTransitRecordPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.HumanDesignTransitRecordFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$HumanDesignTransitRecordPayload>
+        }
+        findFirst: {
+          args: Prisma.HumanDesignTransitRecordFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$HumanDesignTransitRecordPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.HumanDesignTransitRecordFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$HumanDesignTransitRecordPayload>
+        }
+        findMany: {
+          args: Prisma.HumanDesignTransitRecordFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$HumanDesignTransitRecordPayload>[]
+        }
+        create: {
+          args: Prisma.HumanDesignTransitRecordCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$HumanDesignTransitRecordPayload>
+        }
+        createMany: {
+          args: Prisma.HumanDesignTransitRecordCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.HumanDesignTransitRecordCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$HumanDesignTransitRecordPayload>[]
+        }
+        delete: {
+          args: Prisma.HumanDesignTransitRecordDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$HumanDesignTransitRecordPayload>
+        }
+        update: {
+          args: Prisma.HumanDesignTransitRecordUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$HumanDesignTransitRecordPayload>
+        }
+        deleteMany: {
+          args: Prisma.HumanDesignTransitRecordDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.HumanDesignTransitRecordUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.HumanDesignTransitRecordUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$HumanDesignTransitRecordPayload>[]
+        }
+        upsert: {
+          args: Prisma.HumanDesignTransitRecordUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$HumanDesignTransitRecordPayload>
+        }
+        aggregate: {
+          args: Prisma.HumanDesignTransitRecordAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateHumanDesignTransitRecord>
+        }
+        groupBy: {
+          args: Prisma.HumanDesignTransitRecordGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.HumanDesignTransitRecordGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.HumanDesignTransitRecordCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.HumanDesignTransitRecordCountAggregateOutputType> | number
+        }
+      }
+    }
   }
 } & {
   other: {
@@ -793,6 +868,31 @@ export const PasswordResetTokenScalarFieldEnum = {
 } as const
 
 export type PasswordResetTokenScalarFieldEnum = (typeof PasswordResetTokenScalarFieldEnum)[keyof typeof PasswordResetTokenScalarFieldEnum]
+
+
+export const HumanDesignTransitRecordScalarFieldEnum = {
+  id: 'id',
+  title: 'title',
+  periodStart: 'periodStart',
+  periodEnd: 'periodEnd',
+  listingUrl: 'listingUrl',
+  descriptionUrl: 'descriptionUrl',
+  pageNumber: 'pageNumber',
+  gateSunNumber: 'gateSunNumber',
+  gateSunName: 'gateSunName',
+  gateSunUrl: 'gateSunUrl',
+  gateEarthNumber: 'gateEarthNumber',
+  gateEarthName: 'gateEarthName',
+  gateEarthUrl: 'gateEarthUrl',
+  gates: 'gates',
+  paragraphs: 'paragraphs',
+  publishedAt: 'publishedAt',
+  fetchedAt: 'fetchedAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type HumanDesignTransitRecordScalarFieldEnum = (typeof HumanDesignTransitRecordScalarFieldEnum)[keyof typeof HumanDesignTransitRecordScalarFieldEnum]
 
 
 export const SortOrder = {
@@ -896,6 +996,20 @@ export type IntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'In
 export type ListIntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Int[]'>
     
 
+
+/**
+ * Reference to a field of type 'Float'
+ */
+export type FloatFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Float'>
+    
+
+
+/**
+ * Reference to a field of type 'Float[]'
+ */
+export type ListFloatFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Float[]'>
+    
+
 /**
  * Batch Payload for updateMany & deleteMany & createMany
  */
@@ -987,6 +1101,7 @@ export type GlobalOmitConfig = {
   userState?: Prisma.UserStateOmit
   session?: Prisma.SessionOmit
   passwordResetToken?: Prisma.PasswordResetTokenOmit
+  humanDesignTransitRecord?: Prisma.HumanDesignTransitRecordOmit
 }
 
 /* Types for Logging */

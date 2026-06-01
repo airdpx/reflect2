@@ -37,3 +37,8 @@ export type Session = Prisma.SessionModel
  * 
  */
 export type PasswordResetToken = Prisma.PasswordResetTokenModel
+/**
+ * Model HumanDesignTransitRecord
+ * 
+ */
+export type HumanDesignTransitRecord = Prisma.HumanDesignTransitRecordModel

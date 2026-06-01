@@ -52,7 +52,8 @@ export const ModelName = {
   User: 'User',
   UserState: 'UserState',
   Session: 'Session',
-  PasswordResetToken: 'PasswordResetToken'
+  PasswordResetToken: 'PasswordResetToken',
+  HumanDesignTransitRecord: 'HumanDesignTransitRecord'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -116,6 +117,31 @@ export const PasswordResetTokenScalarFieldEnum = {
 } as const
 
 export type PasswordResetTokenScalarFieldEnum = (typeof PasswordResetTokenScalarFieldEnum)[keyof typeof PasswordResetTokenScalarFieldEnum]
+
+
+export const HumanDesignTransitRecordScalarFieldEnum = {
+  id: 'id',
+  title: 'title',
+  periodStart: 'periodStart',
+  periodEnd: 'periodEnd',
+  listingUrl: 'listingUrl',
+  descriptionUrl: 'descriptionUrl',
+  pageNumber: 'pageNumber',
+  gateSunNumber: 'gateSunNumber',
+  gateSunName: 'gateSunName',
+  gateSunUrl: 'gateSunUrl',
+  gateEarthNumber: 'gateEarthNumber',
+  gateEarthName: 'gateEarthName',
+  gateEarthUrl: 'gateEarthUrl',
+  gates: 'gates',
+  paragraphs: 'paragraphs',
+  publishedAt: 'publishedAt',
+  fetchedAt: 'fetchedAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type HumanDesignTransitRecordScalarFieldEnum = (typeof HumanDesignTransitRecordScalarFieldEnum)[keyof typeof HumanDesignTransitRecordScalarFieldEnum]
 
 
 export const SortOrder = {
