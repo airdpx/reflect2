@@ -42,13 +42,11 @@ function Nav({ view, onView, className }: { view: View; onView: (view: View) => 
 export function Topbar({
   state,
   onDate,
-  onAdd,
-  onSignOut
+  onAdd
 }: {
   state: AppState;
   onDate: (date: string) => void;
   onAdd: () => void;
-  onSignOut: () => void;
 }) {
   const titles: Record<View, [string, string]> = {
     today: ["Сегодня", formatDate(state.selectedDate)],
@@ -68,18 +66,18 @@ export function Topbar({
       <div className="toolbar">
         {state.profile ? (
           <div className="user-chip">
-            <span className="user-chip-label">Профиль</span>
-            <b>{state.profile.name || state.profile.email}</b>
-            <span>{state.profile.birthDate}</span>
+            <span className="user-avatar">{(state.profile.name || state.profile.email || "U").slice(0, 1).toUpperCase()}</span>
+            <span>
+              <small>Профиль</small>
+              <b>{state.profile.name || state.profile.email}</b>
+            </span>
+            <em>{state.profile.birthDate}</em>
           </div>
         ) : null}
         <label className="topbar-date">
-          <span>Дата</span>
+          <span>Дата наблюдения</span>
           <input className="input date-input" type="date" value={state.selectedDate} onChange={(event) => onDate(event.target.value || todayKey())} />
         </label>
-        <button className="btn ghost signout-btn" onClick={onSignOut} title="Выйти из аккаунта" aria-label="Выйти из аккаунта">
-          ⎋
-        </button>
         <button className="btn primary" onClick={onAdd}>
           + Привычка
         </button>

@@ -192,17 +192,33 @@ button {
 
 .user-chip {
   display: grid;
-  gap: 1px;
-  min-width: 150px;
-  padding: 8px 12px;
-  border-radius: 14px;
-  border: 1px solid color-mix(in srgb, var(--accent) 22%, var(--line));
+  grid-template-columns: 34px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 9px;
+  min-width: 224px;
+  min-height: 48px;
+  padding: 6px 10px 6px 7px;
+  border-radius: 10px;
+  border: 1px solid color-mix(in srgb, var(--line) 86%, transparent);
   background:
-    linear-gradient(180deg, color-mix(in srgb, var(--surface) 96%, var(--bg)) 0%, var(--surface) 100%);
-  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.25) inset;
+    linear-gradient(135deg, color-mix(in srgb, var(--accent) 7%, transparent), transparent 62%),
+    color-mix(in srgb, var(--surface) 92%, var(--bg));
+  box-shadow: none;
 }
 
-.user-chip-label,
+.user-avatar {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 9px;
+  background: var(--accent-soft);
+  color: var(--text);
+  font-size: 13px;
+  font-weight: 900;
+}
+
+.user-chip small,
 .topbar-date span {
   color: var(--muted);
   font-size: 10px;
@@ -214,29 +230,38 @@ button {
 .user-chip b {
   font-size: 14px;
   line-height: 1.05;
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
-.user-chip span {
+.user-chip em {
   color: var(--muted);
-  font-size: 12px;
+  font-size: 11px;
+  font-style: normal;
   line-height: 1.1;
+  padding: 6px 8px;
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--surface-soft) 78%, transparent);
 }
 
 .topbar-date {
   display: grid;
-  gap: 4px;
+  gap: 3px;
   align-content: start;
 }
 
 .topbar-date .date-input {
-  width: min(205px, 100%);
-  min-height: 50px;
-  padding: 12px 14px;
-  border-radius: 14px;
-  border-color: color-mix(in srgb, var(--accent) 22%, var(--line));
+  width: min(188px, 100%);
+  min-height: 48px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  border-color: color-mix(in srgb, var(--line) 86%, transparent);
   background:
-    linear-gradient(180deg, color-mix(in srgb, var(--surface) 98%, var(--bg)) 0%, var(--surface) 100%);
-  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.25) inset;
+    linear-gradient(135deg, color-mix(in srgb, var(--accent) 5%, transparent), transparent 62%),
+    color-mix(in srgb, var(--surface) 92%, var(--bg));
+  box-shadow: none;
 }
 
 .signout-btn {
@@ -300,6 +325,15 @@ button {
   display: grid;
   grid-template-columns: minmax(0, 1.2fr) minmax(280px, 0.8fr);
   gap: 14px;
+}
+
+.attention-panel .settings-row {
+  align-items: center;
+  padding-block: 8px;
+}
+
+.attention-panel small {
+  font-size: 11px;
 }
 
 .panel,
@@ -2723,6 +2757,64 @@ button {
   box-shadow: none;
 }
 
+.today-diary-inspector {
+  background:
+    linear-gradient(180deg, color-mix(in srgb, var(--accent) 4%, transparent), transparent 36%),
+    var(--bg);
+}
+
+.today-diary-panel {
+  display: grid;
+  gap: 12px;
+}
+
+.inspector-note-textarea {
+  min-height: 150px;
+  resize: vertical;
+}
+
+.inspector-state-grid {
+  display: grid;
+  gap: 10px;
+}
+
+.inspector-range {
+  display: grid;
+  grid-template-columns: 88px minmax(0, 1fr) 30px;
+  align-items: center;
+  gap: 8px;
+  padding: 8px;
+  border: 1px solid color-mix(in srgb, var(--line) 76%, transparent);
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--surface-soft) 76%, transparent);
+}
+
+.inspector-range span {
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.inspector-range input {
+  width: 100%;
+}
+
+.inspector-range b {
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  background: var(--accent-soft);
+  color: var(--text);
+  font-size: 12px;
+}
+
+.inspector-help-note {
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.35;
+}
+
 .inspector-summary {
   display: grid;
   gap: 2px;
@@ -3522,6 +3614,16 @@ button {
   box-shadow: 0 12px 28px rgba(20, 20, 16, 0.12);
   backdrop-filter: blur(12px);
   cursor: pointer;
+}
+
+.quick-signout {
+  font-size: 17px;
+  color: var(--muted);
+}
+
+.quick-signout:hover {
+  color: var(--text);
+  border-color: color-mix(in srgb, var(--accent) 35%, var(--line));
 }
 
 .quick-panel {

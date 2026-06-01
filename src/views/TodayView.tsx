@@ -27,8 +27,7 @@ export function TodayView({
   const leftColumn = (
     <section className="stack">
       <TodayModulesPanel state={state} actions={actions} />
-      {state.settings.visibleBlocks.forecast && <TodayForecastPanel state={state} actions={actions} />}
-      {state.settings.visibleBlocks.transit && <TransitPanel state={state} />}
+      {state.settings.visibleBlocks.attention && <AttentionPanel attention={attention} />}
       {state.settings.visibleBlocks.today && (
         <div className="panel">
           <div className="section-head">
@@ -64,23 +63,13 @@ export function TodayView({
           )}
         </div>
       )}
-      <TodayNotePreview state={state} actions={actions} />
     </section>
   );
 
   const rightColumn = (
     <section className="stack">
-      {state.settings.visibleBlocks.attention && (
-        <div className="panel">
-          <h3>Требует внимания</h3>
-          {attention.length ? attention.map(({ habit, stats }) => (
-            <div className="settings-row" key={habit.id}>
-              <span><b>{habit.icon} {habit.title}</b><br /><small className="muted">{stats.daysSince ?? "ещё нет"} дней без выполнения · {stats.completion}% за период</small></span>
-              <span className="badge">{habit.warningThreshold}+ дней</span>
-            </div>
-          )) : <div className="empty">Пока нет мягких сигналов.</div>}
-        </div>
-      )}
+      {state.settings.visibleBlocks.forecast && <TodayForecastPanel state={state} actions={actions} />}
+      {state.settings.visibleBlocks.transit && <TransitPanel state={state} />}
       {state.settings.visibleBlocks.analytics && selectors.hasAnyLogs && <StatsPanel selectors={selectors} />}
     </section>
   );
@@ -92,6 +81,20 @@ export function TodayView({
   return (
     <div className="grid-two">
       {state.settings.todayLayout === "reverse" ? <>{rightColumn}{leftColumn}</> : <>{leftColumn}{rightColumn}</>}
+    </div>
+  );
+}
+
+function AttentionPanel({ attention }: { attention: ReturnType<AppSelectors["getAttentionHabits"]> }) {
+  return (
+    <div className="panel attention-panel">
+      <h3>Требует внимания</h3>
+      {attention.length ? attention.map(({ habit, stats }) => (
+        <div className="settings-row" key={habit.id}>
+          <span><b>{habit.icon} {habit.title}</b><br /><small className="muted">{stats.daysSince ?? "ещё нет"} дней без выполнения · {stats.completion}% за период</small></span>
+          <span className="badge">{habit.warningThreshold}+ дней</span>
+        </div>
+      )) : <div className="empty">Пока нет мягких сигналов.</div>}
     </div>
   );
 }
