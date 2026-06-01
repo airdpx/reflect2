@@ -1,7 +1,6 @@
 import type { AppActions, AppSelectors, AppState } from "../types";
 import { formatDate } from "../lib/date";
 import { statusMeta } from "../lib/defaults";
-import { InspectorForecastSummary } from "./Forecast";
 
 export function Inspector({ state, selectors, actions }: { state: AppState; selectors: AppSelectors; actions: Pick<AppActions, "updateSetting"> }) {
   const note = state.notes[state.selectedDate] || {};
@@ -28,7 +27,6 @@ export function Inspector({ state, selectors, actions }: { state: AppState; sele
         </div>
         <p className="muted">{note.text || "Заметки на этот день пока нет."}</p>
       </div>
-      <InspectorForecastSummary state={state} />
     </aside>
   );
 }

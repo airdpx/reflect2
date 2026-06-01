@@ -103,6 +103,7 @@ function ForecastShell({
       <div className="section-head">
         <div>
           <h3>{title}</h3>
+          <p className="muted">Биоритмы на выбранную дату</p>
         </div>
         <div className={`forecast-score forecast-tone-${tone}`}>
           <strong>{forecast.summaryScore}%</strong>
@@ -182,9 +183,14 @@ function HumanDesignTransitBlock({ transit, loading, error }: { transit: HumanDe
 function ForecastScaleRow({ scale }: { scale: ForecastScale }) {
   return (
     <div className={`forecast-scale phase-${scale.phase}`}>
-      <span>{scale.label}</span>
-      <div><i style={{ width: `${scale.value}%` }} /></div>
-      <b>{scale.value}</b>
+      <div className="forecast-scale-label">
+        <span>{scale.label}</span>
+        <b>{scale.value}%</b>
+      </div>
+      <div className="forecast-scale-track">
+        <i style={{ width: `${scale.value}%` }} />
+        <em style={{ left: `${scale.value}%` }} />
+      </div>
     </div>
   );
 }
