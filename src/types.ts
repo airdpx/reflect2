@@ -43,7 +43,7 @@ export type GridColorSettings = {
   line: string;
 };
 
-export type GridHabitColorMode = "habit" | "alternating";
+export type GridHabitColorMode = "habit" | "muted" | "alternating";
 
 export type Habit = {
   id: string;

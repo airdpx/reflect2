@@ -63,7 +63,7 @@ const habitIconRules: Array<{ terms: string[]; icon: string }> = [
 ];
 
 export const statusIconPresets: Record<HabitStatus, string[]> = {
-  done: ["✅", "🔥", "🟢", "🌿", "💚", "🎉", "😄"],
+  done: ["✅", "🔥", "🟢", "💚", "🌿", "🎉", "😄"],
   partial: ["🌓", "🟡", "◐", "⚡", "🧩", "🙂"],
   skipped: ["⏭️", "💤", "➖", "🌫️", "⏸️", "😴"],
   missed: ["❌", "🔴", "⛔", "🔻", "🚧", "😞"],
@@ -282,9 +282,9 @@ export function createDefaults(): AppState {
       gridHabitColorMode: "habit",
       calendarHistoryDays: 7,
       statusIcons: {
-        done: "✅",
+        done: "💚",
         partial: "🌓",
-        skipped: "⏭️",
+        skipped: "➖",
         missed: "❌",
         planned: "🗓️"
       },

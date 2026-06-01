@@ -40,6 +40,7 @@ const gridModes: Array<[GridDisplayMode, string]> = [
 
 const gridHabitColorOptions: Array<[GridHabitColorMode, string]> = [
   ["habit", "По цвету привычки"],
+  ["muted", "Приглушенные цвета"],
   ["alternating", "Без цвета привычек"]
 ];
 
@@ -555,7 +556,9 @@ function TimelineGrid({
                   style={getHabitMarkStyle(state, habit, habitIndexMap.get(habit.id) || 0, "dot")}
                   onClick={() => state.settings.gridClickAction === "cycle" ? actions.cycleHabitStatus(habit.id, date) : actions.openCellSheet({ habitId: habit.id, date })}
                   onDoubleClick={() => actions.openCellSheet({ habitId: habit.id, date })}
-                />
+                >
+                  <span>{timelineStatusIcon(selectors.getLog(habit.id, date)?.status || "planned", state)}</span>
+                </button>
               ))}
             </div>
           </div>
@@ -603,7 +606,9 @@ function HeatGrid({
                   style={getHabitMarkStyle(state, habit, habitIndexMap.get(habit.id) || 0, "heat")}
                   onClick={() => state.settings.gridClickAction === "cycle" ? actions.cycleHabitStatus(habit.id, date) : actions.openCellSheet({ habitId: habit.id, date })}
                   onDoubleClick={() => actions.openCellSheet({ habitId: habit.id, date })}
-                />
+                >
+                  <span>{heatStatusIcon(selectors.getLog(habit.id, date)?.status || "planned", state)}</span>
+                </button>
                 ))}
               </div>
             </div>
@@ -676,9 +681,8 @@ function statusIcon(status: HabitStatus, state: AppState) {
 
 function getHabitTone(habit: Habit, habitIndex: number, state: AppState) {
   if (state.settings.gridHabitColorMode === "habit") return habit.color;
-  return habitIndex % 2 === 0
-    ? "color-mix(in srgb, var(--accent) 58%, var(--surface-soft))"
-    : "color-mix(in srgb, var(--grid-line) 50%, var(--surface))";
+  if (state.settings.gridHabitColorMode === "muted") return `color-mix(in srgb, ${habit.color} 42%, var(--surface-soft))`;
+  return "color-mix(in srgb, var(--grid-line) 54%, var(--surface-soft))";
 }
 
 function getHabitMarkStyle(state: AppState, habit: Habit, habitIndex: number, variant: "cell" | "focus" | "tile" | "dot" | "heat" = "cell") {
@@ -692,9 +696,11 @@ function getHabitMarkStyle(state: AppState, habit: Habit, habitIndex: number, va
     ? "color-mix(in srgb, var(--line) 72%, transparent)"
     : "color-mix(in srgb, var(--grid-line) 72%, transparent)";
   const habitBackground = state.settings.gridHabitColorMode === "habit"
-    ? `color-mix(in srgb, ${tone} 74%, var(--grid-cell-empty))`
+    ? `color-mix(in srgb, ${tone} 82%, var(--grid-cell-empty))`
+    : state.settings.gridHabitColorMode === "muted"
+      ? `color-mix(in srgb, ${tone} 72%, var(--grid-cell-empty))`
     : tone;
-  const habitBorder = state.settings.gridHabitColorMode === "habit"
+  const habitBorder = state.settings.gridHabitColorMode === "habit" || state.settings.gridHabitColorMode === "muted"
     ? `color-mix(in srgb, ${tone} 82%, var(--grid-line))`
     : `color-mix(in srgb, ${tone} 62%, var(--grid-line))`;
   return {
@@ -702,6 +708,16 @@ function getHabitMarkStyle(state: AppState, habit: Habit, habitIndex: number, va
     background: habitBackground || fallbackBackground,
     borderColor: habitBorder || fallbackBorder
   } as React.CSSProperties & Record<"--habit-color", string>;
+}
+
+function timelineStatusIcon(status: HabitStatus, state: AppState) {
+  if (status === "done") return "✓";
+  return statusIcon(status, state);
+}
+
+function heatStatusIcon(status: HabitStatus, state: AppState) {
+  if (status === "done") return "🔥";
+  return statusIcon(status, state);
 }
 
 function modeIcon(mode: GridDisplayMode) {
