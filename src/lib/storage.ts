@@ -2,7 +2,7 @@ import type { AppState } from "../types";
 import { createDefaults } from "./defaults";
 
 export const STORAGE_KEY = "habit-calendar-next-mvp-v1";
-export const SCHEMA_VERSION = 16;
+export const SCHEMA_VERSION = 17;
 
 export function loadStoredState(): AppState {
   const defaults = createDefaults();
@@ -64,6 +64,7 @@ function mergeState(defaults: AppState, stored: Partial<AppState>): AppState {
         ...defaults.settings.gridColors,
         ...safeSettings.gridColors
       },
+      gridHabitColorMode: safeSettings.gridHabitColorMode || defaults.settings.gridHabitColorMode,
       forecast: {
         ...defaults.settings.forecast,
         ...safeSettings.forecast,
@@ -166,6 +167,7 @@ function migrateState(state: AppState): AppState {
         ...defaults.settings.gridColors,
         ...normalizedGridColors
       },
+      gridHabitColorMode: legacySafeSettings.gridHabitColorMode || defaults.settings.gridHabitColorMode,
       forecast: migratedForecast,
       gridDisplayMode: previousVersion < 10 && (!legacySafeSettings.gridDisplayMode || legacySafeSettings.gridDisplayMode === "calendar")
         ? "matrix"

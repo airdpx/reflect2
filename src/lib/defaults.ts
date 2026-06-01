@@ -232,7 +232,7 @@ export const habitTemplates: HabitTemplate[] = [
 
 export function createDefaults(): AppState {
   return {
-    schemaVersion: 16,
+    schemaVersion: 17,
     view: "today",
     selectedDate: todayKey(),
     habits: [],
@@ -279,6 +279,7 @@ export function createDefaults(): AppState {
       gridDisplayMode: "matrix",
       gridDensity: "standard",
       gridMarkerShape: "circle",
+      gridHabitColorMode: "habit",
       calendarHistoryDays: 7,
       statusIcons: {
         done: "✅",

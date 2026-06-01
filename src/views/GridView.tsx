@@ -1,6 +1,6 @@
 import { Fragment, useEffect, useState } from "react";
 import type React from "react";
-import type { AppActions, AppSelectors, AppState, Density, GridDisplayMode, Habit, HabitStatus } from "../types";
+import type { AppActions, AppSelectors, AppState, Density, GridDisplayMode, GridHabitColorMode, Habit, HabitStatus } from "../types";
 import { addDays, formatDate, fromKey, rangeDates, todayKey, weekdayShort } from "../lib/date";
 import { habitTypeLabels, statusIconPresets, statusMeta } from "../lib/defaults";
 import { forecastTone, getForecast } from "../lib/forecast";
@@ -40,6 +40,11 @@ const gridModes: Array<[GridDisplayMode, string]> = [
   ["heat", "Тепло"]
 ];
 
+const gridHabitColorOptions: Array<[GridHabitColorMode, string]> = [
+  ["habit", "По цвету привычки"],
+  ["alternating", "Без цвета привычек"]
+];
+
 export function GridView({
   state,
   selectors,
@@ -56,6 +61,8 @@ export function GridView({
   const historyStart = toKey(addDays(fromKey(todayKey()), -historyDays));
   const periodEnd = toKey(addDays(fromKey(todayKey()), periodDays - 1));
   const gridDates = rangeDates(historyStart, periodEnd);
+  const visibleHabits = selectors.activeHabits.filter((habit) => state.settings.selectedCategory === "all" || habit.category === state.settings.selectedCategory);
+  const habitIndexMap = new Map(visibleHabits.map((habit, index) => [habit.id, index]));
   return (
     <section className="stack">
       <div className="panel period-panel">
@@ -89,7 +96,7 @@ export function GridView({
         </div>
       </div>
       <CalendarSettingsPanel state={state} selectors={selectors} actions={actions} />
-      <CalendarGrid state={state} selectors={selectors} actions={actions} dates={gridDates} viewportWidth={viewportWidth} />
+      <CalendarGrid state={state} selectors={selectors} actions={actions} dates={gridDates} viewportWidth={viewportWidth} habitIndexMap={habitIndexMap} />
     </section>
   );
 }
@@ -111,6 +118,12 @@ function CalendarSettingsPanel({ state, selectors, actions }: { state: AppState;
               actions.updateSetting("gridTheme", preset.theme as AppState["settings"]["gridTheme"]);
               actions.updateSetting("gridMarkerShape", preset.shape as AppState["settings"]["gridMarkerShape"]);
             }}
+          />
+          <SelectControl
+            label="Цвет привычек"
+            value={state.settings.gridHabitColorMode}
+            options={gridHabitColorOptions.map(([value, label]) => ({ value, label }))}
+            onChange={(value) => actions.updateSetting("gridHabitColorMode", value as GridHabitColorMode)}
           />
           <SelectControl label="Цвета таблицы" value={state.settings.gridColors.mode} options={[{ value: "theme", label: "По теме" }, { value: "custom", label: "Свои цвета" }]} onChange={(value) => actions.updateSetting("gridColors", { ...state.settings.gridColors, mode: value as "theme" | "custom" })} />
           <SelectControl label="Плотность сетки" value={state.settings.gridDensity} options={["compact", "standard", "comfortable"]} onChange={(value) => actions.updateSetting("gridDensity", value as Density)} />
@@ -217,13 +230,15 @@ function CalendarGrid({
   selectors,
   actions,
   dates,
-  viewportWidth
+  viewportWidth,
+  habitIndexMap
 }: {
   state: AppState;
   selectors: AppSelectors;
   actions: AppActions;
   dates: string[];
   viewportWidth: number;
+  habitIndexMap: Map<string, number>;
 }) {
   const visibleHabits = selectors.activeHabits.filter((habit) => state.settings.selectedCategory === "all" || habit.category === state.settings.selectedCategory);
   if (!selectors.activeHabits.length) {
@@ -243,19 +258,20 @@ function CalendarGrid({
   if (!visibleHabits.length) return <div className="empty action-empty"><b>В этой категории пока нет привычек</b><span>Выберите другую категорию или добавьте привычку в текущую.</span></div>;
   if (!dates.length) return <div className="empty action-empty"><b>В выбранном периоде нет дат</b><span>Проверьте диапазон или верните выходные в настройках сетки.</span></div>;
   const renderers: Record<GridDisplayMode, React.ReactNode> = {
-    calendar: <CalendarMonthGrid habits={visibleHabits} dates={dates} compact={false} state={state} selectors={selectors} actions={actions} />,
-    compact: <CalendarMonthGrid habits={visibleHabits} dates={dates} compact state={state} selectors={selectors} actions={actions} />,
-    matrix: <WeekMatrixGrid habits={visibleHabits} dates={dates} viewportWidth={viewportWidth} state={state} selectors={selectors} actions={actions} />,
-    week: <WeekFocusGrid habits={visibleHabits} dates={dates} state={state} selectors={selectors} actions={actions} />,
-    habit: <HabitTimelineGrid habits={visibleHabits} dates={dates} state={state} selectors={selectors} actions={actions} />,
-    timeline: <TimelineGrid habits={visibleHabits} dates={dates} state={state} selectors={selectors} actions={actions} />,
-    heat: <HeatGrid habits={visibleHabits} dates={dates} state={state} selectors={selectors} actions={actions} />
+    calendar: <CalendarMonthGrid habits={visibleHabits} habitIndexMap={habitIndexMap} dates={dates} compact={false} state={state} selectors={selectors} actions={actions} />,
+    compact: <CalendarMonthGrid habits={visibleHabits} habitIndexMap={habitIndexMap} dates={dates} compact state={state} selectors={selectors} actions={actions} />,
+    matrix: <WeekMatrixGrid habits={visibleHabits} habitIndexMap={habitIndexMap} dates={dates} viewportWidth={viewportWidth} state={state} selectors={selectors} actions={actions} />,
+    week: <WeekFocusGrid habits={visibleHabits} habitIndexMap={habitIndexMap} dates={dates} state={state} selectors={selectors} actions={actions} />,
+    habit: <HabitTimelineGrid habits={visibleHabits} habitIndexMap={habitIndexMap} dates={dates} state={state} selectors={selectors} actions={actions} />,
+    timeline: <TimelineGrid habits={visibleHabits} habitIndexMap={habitIndexMap} dates={dates} state={state} selectors={selectors} actions={actions} />,
+    heat: <HeatGrid habits={visibleHabits} habitIndexMap={habitIndexMap} dates={dates} state={state} selectors={selectors} actions={actions} />
   };
   return <div className={`grid-mode grid-theme-${state.settings.gridTheme} density-grid-${state.settings.gridDensity}`}>{renderers[state.settings.gridDisplayMode] || renderers.calendar}</div>;
 }
 
 function CalendarMonthGrid({
   habits,
+  habitIndexMap,
   dates,
   compact,
   state,
@@ -263,6 +279,7 @@ function CalendarMonthGrid({
   actions
 }: {
   habits: Habit[];
+  habitIndexMap: Map<string, number>;
   dates: string[];
   compact: boolean;
   state: AppState;
@@ -289,7 +306,7 @@ function CalendarMonthGrid({
             <ForecastDayMarker date={date} state={state} />
             <div className="calendar-day-list">
               {habits.filter((habit) => selectors.isDue(habit, date)).map((habit) => (
-                <CalendarHabitMark key={`${habit.id}-${date}`} habit={habit} date={date} compact={compact} state={state} selectors={selectors} actions={actions} />
+                <CalendarHabitMark key={`${habit.id}-${date}`} habit={habit} habitIndex={habitIndexMap.get(habit.id) || 0} date={date} compact={compact} state={state} selectors={selectors} actions={actions} />
               ))}
             </div>
           </div>
@@ -309,6 +326,7 @@ function ForecastDayMarker({ date, state }: { date: string; state: AppState }) {
 
 function CalendarHabitMark({
   habit,
+  habitIndex,
   date,
   compact,
   state,
@@ -316,6 +334,7 @@ function CalendarHabitMark({
   actions
 }: {
   habit: Habit;
+  habitIndex: number;
   date: string;
   compact: boolean;
   state: AppState;
@@ -326,10 +345,7 @@ function CalendarHabitMark({
   const status = log?.status || "planned";
   const className = statusMeta[status].className;
   const title = `${habit.title} · ${formatDate(date)} · ${state.settings.gridClickAction === "cycle" ? "клик меняет статус" : "детали отметки"}`;
-  const markStyle = {
-    background: `color-mix(in srgb, ${habit.color} 40%, var(--grid-cell-empty))`,
-    borderColor: `color-mix(in srgb, ${habit.color} 58%, var(--grid-line))`
-  } as React.CSSProperties;
+  const markStyle = getHabitMarkStyle(state, habit, habitIndex);
   return (
     <button
       className={`calendar-mark ${compact ? "compact-mark" : ""} ${className}`}
@@ -340,14 +356,14 @@ function CalendarHabitMark({
     >
       {compact ? (
         <span className="compact-mark-content">
-          {state.settings.visibleGrid.color && <i style={{ background: habit.color }} />}
+          {state.settings.visibleGrid.color && <i style={{ background: markStyle["--habit-color"] as string }} />}
           {state.settings.visibleGrid.icon && <b>{habit.icon}</b>}
           {state.settings.visibleGrid.statusText && status !== "planned" && <em>{statusIcon(status, state)}</em>}
           {state.settings.visibleGrid.noteMarker && log?.note && <small className="marker-note-inline" />}
         </span>
       ) : (
         <>
-          {state.settings.visibleGrid.color && <i style={{ background: habit.color }} />}
+          {state.settings.visibleGrid.color && <i style={{ background: markStyle["--habit-color"] as string }} />}
           <span className="calendar-mark-title">{state.settings.visibleGrid.icon ? habit.icon : ""} {habit.title}</span>
           {state.settings.visibleGrid.statusText && status !== "planned" && <em>{statusIcon(status, state)}</em>}
           {!state.settings.visibleGrid.statusText && status !== "planned" && <em>{statusIcon(status, state)}</em>}
@@ -362,6 +378,7 @@ function CalendarHabitMark({
 
 function WeekMatrixGrid({
   habits,
+  habitIndexMap,
   dates,
   viewportWidth,
   state,
@@ -369,6 +386,7 @@ function WeekMatrixGrid({
   actions
 }: {
   habits: Habit[];
+  habitIndexMap: Map<string, number>;
   dates: string[];
   viewportWidth: number;
   state: AppState;
@@ -388,13 +406,13 @@ function WeekMatrixGrid({
               {habits.map((habit) => (
                 <Fragment key={`${habit.id}-${index}`}>
                   <div className="grid-name matrix-name">
-                    {state.settings.visibleGrid.color && <i className="habit-dot" style={{ height: 18, background: habit.color }} />}
+                    {state.settings.visibleGrid.color && <i className="habit-dot" style={{ height: 18, background: getHabitTone(habit, habitIndexMap.get(habit.id) || 0, state) }} />}
                     <div className="grid-habit-text">
                       <strong>{state.settings.visibleGrid.icon ? habit.icon : ""} {habit.title}</strong>
                       <span>{gridHabitMeta(habit, state, selectors)}</span>
                     </div>
                   </div>
-                  {week.map((date) => <GridCell key={`${habit.id}-${date}`} habit={habit} date={date} state={state} selectors={selectors} actions={actions} />)}
+                  {week.map((date) => <GridCell key={`${habit.id}-${date}`} habit={habit} habitIndex={habitIndexMap.get(habit.id) || 0} date={date} state={state} selectors={selectors} actions={actions} />)}
                 </Fragment>
               ))}
             </div>
@@ -408,12 +426,14 @@ function WeekMatrixGrid({
 
 function WeekFocusGrid({
   habits,
+  habitIndexMap,
   dates,
   state,
   selectors,
   actions
 }: {
   habits: Habit[];
+  habitIndexMap: Map<string, number>;
   dates: string[];
   state: AppState;
   selectors: AppSelectors;
@@ -435,11 +455,11 @@ function WeekFocusGrid({
                   className={`week-check ${statusClass(selectors.getLog(habit.id, date)?.status || "planned")}`}
                   key={habit.id}
                   title={`${habit.title} · ${formatDate(date)}`}
-                  style={{ background: `color-mix(in srgb, ${habit.color} 18%, var(--grid-bg))`, borderColor: `color-mix(in srgb, ${habit.color} 36%, var(--grid-line))` } as React.CSSProperties}
+                  style={getHabitMarkStyle(state, habit, habitIndexMap.get(habit.id) || 0, "focus")}
                   onClick={() => state.settings.gridClickAction === "cycle" ? actions.cycleHabitStatus(habit.id, date) : actions.openCellSheet({ habitId: habit.id, date })}
                   onDoubleClick={() => actions.openCellSheet({ habitId: habit.id, date })}
                 >
-                  <i style={{ background: habit.color }} />
+                  <i style={{ background: getHabitTone(habit, habitIndexMap.get(habit.id) || 0, state) }} />
                   <span>{state.settings.visibleGrid.icon ? habit.icon : ""} {habit.title}</span>
                   <b>{statusIcon(selectors.getLog(habit.id, date)?.status || "planned", state)}</b>
                 </button>
@@ -455,12 +475,14 @@ function WeekFocusGrid({
 
 function HabitTimelineGrid({
   habits,
+  habitIndexMap,
   dates,
   state,
   selectors,
   actions
 }: {
   habits: Habit[];
+  habitIndexMap: Map<string, number>;
   dates: string[];
   state: AppState;
   selectors: AppSelectors;
@@ -486,7 +508,7 @@ function HabitTimelineGrid({
                 className={`habit-day-chip ${statusClass(selectors.getLog(habit.id, date)?.status || (selectors.isDue(habit, date) ? "planned" : undefined))}`}
                 key={date}
                 title={`${habit.title} · ${formatDate(date)}`}
-                style={{ background: `color-mix(in srgb, ${habit.color} 20%, var(--surface-soft))`, borderColor: `color-mix(in srgb, ${habit.color} 38%, var(--line))` } as React.CSSProperties}
+                style={getHabitMarkStyle(state, habit, habitIndexMap.get(habit.id) || 0, "tile")}
                 onClick={() => state.settings.gridClickAction === "cycle" ? actions.cycleHabitStatus(habit.id, date) : actions.openCellSheet({ habitId: habit.id, date })}
                 onDoubleClick={() => actions.openCellSheet({ habitId: habit.id, date })}
               >
@@ -504,12 +526,14 @@ function HabitTimelineGrid({
 
 function TimelineGrid({
   habits,
+  habitIndexMap,
   dates,
   state,
   selectors,
   actions
 }: {
   habits: Habit[];
+  habitIndexMap: Map<string, number>;
   dates: string[];
   state: AppState;
   selectors: AppSelectors;
@@ -530,7 +554,7 @@ function TimelineGrid({
                   className={`timeline-dot ${statusClass(selectors.getLog(habit.id, date)?.status || "planned")}`}
                   key={habit.id}
                   title={`${habit.title} · ${formatDate(date)}`}
-                  style={{ "--habit-color": habit.color, background: `color-mix(in srgb, ${habit.color} 68%, var(--surface))`, borderColor: `color-mix(in srgb, ${habit.color} 50%, var(--line))` } as React.CSSProperties & Record<"--habit-color", string>}
+                  style={getHabitMarkStyle(state, habit, habitIndexMap.get(habit.id) || 0, "dot")}
                   onClick={() => state.settings.gridClickAction === "cycle" ? actions.cycleHabitStatus(habit.id, date) : actions.openCellSheet({ habitId: habit.id, date })}
                   onDoubleClick={() => actions.openCellSheet({ habitId: habit.id, date })}
                 />
@@ -546,12 +570,14 @@ function TimelineGrid({
 
 function HeatGrid({
   habits,
+  habitIndexMap,
   dates,
   state,
   selectors,
   actions
 }: {
   habits: Habit[];
+  habitIndexMap: Map<string, number>;
   dates: string[];
   state: AppState;
   selectors: AppSelectors;
@@ -576,7 +602,7 @@ function HeatGrid({
                   className={`heat-dot ${statusClass(selectors.getLog(habit.id, date)?.status || "planned")}`}
                   key={habit.id}
                   title={`${habit.title} · ${formatDate(date)}`}
-                  style={{ "--habit-color": habit.color, background: `color-mix(in srgb, ${habit.color} 48%, var(--surface))`, borderColor: `color-mix(in srgb, ${habit.color} 42%, var(--line))` } as React.CSSProperties & Record<"--habit-color", string>}
+                  style={getHabitMarkStyle(state, habit, habitIndexMap.get(habit.id) || 0, "heat")}
                   onClick={() => state.settings.gridClickAction === "cycle" ? actions.cycleHabitStatus(habit.id, date) : actions.openCellSheet({ habitId: habit.id, date })}
                   onDoubleClick={() => actions.openCellSheet({ habitId: habit.id, date })}
                 />
@@ -593,12 +619,14 @@ function HeatGrid({
 
 function GridCell({
   habit,
+  habitIndex,
   date,
   state,
   selectors,
   actions
 }: {
   habit: Habit;
+  habitIndex: number;
   date: string;
   state: AppState;
   selectors: AppSelectors;
@@ -609,10 +637,7 @@ function GridCell({
   const visibleStatus = status && (state.settings.activeStatuses.includes(status) || status === "planned");
   const className = visibleStatus && status ? statusMeta[status].className : "";
   const themeClass = ["soft", "classic", "journal", "minimal", "ledger", "outline", "slate", "calm"].includes(state.settings.gridTheme) ? state.settings.gridTheme : "";
-  const markStyle = {
-    background: `color-mix(in srgb, ${habit.color} 58%, var(--grid-cell-empty))`,
-    borderColor: `color-mix(in srgb, ${habit.color} 72%, var(--grid-line))`
-  } as React.CSSProperties;
+  const markStyle = getHabitMarkStyle(state, habit, habitIndex, "cell");
   return (
     <div className={`grid-cell ${date === todayKey() ? "today" : ""} ${themeClass}`}>
       <button
@@ -649,6 +674,36 @@ function statusClass(status?: HabitStatus) {
 
 function statusIcon(status: HabitStatus, state: AppState) {
   return state.settings.statusIcons[status] || statusMeta[status].short;
+}
+
+function getHabitTone(habit: Habit, habitIndex: number, state: AppState) {
+  if (state.settings.gridHabitColorMode === "habit") return habit.color;
+  return habitIndex % 2 === 0
+    ? "color-mix(in srgb, var(--accent) 58%, var(--surface-soft))"
+    : "color-mix(in srgb, var(--grid-line) 50%, var(--surface))";
+}
+
+function getHabitMarkStyle(state: AppState, habit: Habit, habitIndex: number, variant: "cell" | "focus" | "tile" | "dot" | "heat" = "cell") {
+  const tone = getHabitTone(habit, habitIndex, state);
+  const fallbackBackground = variant === "dot"
+    ? "color-mix(in srgb, var(--surface-soft) 68%, var(--surface))"
+    : variant === "heat"
+      ? "color-mix(in srgb, var(--surface-soft) 76%, var(--surface))"
+      : "color-mix(in srgb, var(--grid-cell-empty) 70%, var(--surface))";
+  const fallbackBorder = variant === "dot"
+    ? "color-mix(in srgb, var(--line) 72%, transparent)"
+    : "color-mix(in srgb, var(--grid-line) 72%, transparent)";
+  const habitBackground = state.settings.gridHabitColorMode === "habit"
+    ? `color-mix(in srgb, ${tone} 74%, var(--grid-cell-empty))`
+    : tone;
+  const habitBorder = state.settings.gridHabitColorMode === "habit"
+    ? `color-mix(in srgb, ${tone} 82%, var(--grid-line))`
+    : `color-mix(in srgb, ${tone} 62%, var(--grid-line))`;
+  return {
+    "--habit-color": tone,
+    background: habitBackground || fallbackBackground,
+    borderColor: habitBorder || fallbackBorder
+  } as React.CSSProperties & Record<"--habit-color", string>;
 }
 
 function modeIcon(mode: GridDisplayMode) {

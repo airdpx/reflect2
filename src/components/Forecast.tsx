@@ -39,7 +39,7 @@ export function DiaryForecastStrip({ state, actions }: { state: AppState; action
 }
 
 export function InspectorForecastSummary({ state }: { state: AppState }) {
-  if (!state.settings.forecast.enabled || !state.settings.forecast.showInInspector) return null;
+  if (!state.settings.forecast.enabled || !state.settings.forecast.showInInspector || state.view === "today") return null;
   const forecast = getForecast(state.selectedDate, state.settings.forecast, state.profile?.birthDate || "");
   const tone = forecast ? forecastTone(forecast.summaryScore) : "steady";
   return (
@@ -103,7 +103,6 @@ function ForecastShell({
       <div className="section-head">
         <div>
           <h3>{title}</h3>
-          <p className="muted">Биоритмы · ориентир для самонаблюдения, без давления.</p>
         </div>
         <div className={`forecast-score forecast-tone-${tone}`}>
           <strong>{forecast.summaryScore}%</strong>
@@ -162,10 +161,10 @@ function HumanDesignTransitBlock({ transit, loading, error }: { transit: HumanDe
       </div>
       <div className="hd-transit-gates">
         {transit.gates.map((gate) => (
-          <a href={gate.url} target="_blank" rel="noreferrer" key={`${gate.number}-${gate.name}`}>
+          <div key={`${gate.number}-${gate.name}`}>
             <strong>{gate.number}</strong>
             <span>{gate.name}</span>
-          </a>
+          </div>
         ))}
       </div>
       {transit.paragraphs.length ? (
@@ -174,7 +173,6 @@ function HumanDesignTransitBlock({ transit, loading, error }: { transit: HumanDe
         </div>
       ) : null}
       <div className="hd-transit-links">
-        <a className="hd-transit-source" href={transit.sourceUrl} target="_blank" rel="noreferrer">Источник</a>
         <a className="hd-transit-source" href={transit.descriptionUrl} target="_blank" rel="noreferrer">Описание транзита</a>
       </div>
     </div>

@@ -47,6 +47,7 @@ html {
   min-height: 100%;
   background: #111315;
   overscroll-behavior-y: none;
+  overflow-x: clip;
 }
 
 body {
@@ -55,6 +56,7 @@ body {
   background: var(--bg);
   color: var(--text);
   overscroll-behavior-y: none;
+  overflow-x: clip;
 }
 
 body:has(.auth-shell) {
@@ -81,6 +83,7 @@ button {
   grid-template-columns: 236px minmax(0, 1fr) 300px;
   background: var(--bg);
   color: var(--text);
+  overflow-x: clip;
 }
 
 .app.focus .sidebar,
@@ -157,6 +160,7 @@ button {
 .main {
   min-width: 0;
   padding: 22px;
+  overflow-x: clip;
 }
 
 .topbar {
@@ -465,7 +469,7 @@ button {
   gap: 8px;
 }
 
-.hd-transit-gates a {
+.hd-transit-gates > div {
   display: grid;
   grid-template-columns: auto minmax(0, 1fr);
   align-items: center;
@@ -476,7 +480,6 @@ button {
   border-radius: 10px;
   background: color-mix(in srgb, var(--warn) 10%, var(--surface-soft));
   color: var(--text);
-  text-decoration: none;
 }
 
 .hd-transit-gates strong {
@@ -535,10 +538,6 @@ button {
 
 .transit-panel .section-head {
   margin-bottom: 2px;
-}
-
-.transit-panel .section-head p {
-  max-width: 30ch;
 }
 
 .forecast-pill.phase-high {
@@ -2446,6 +2445,16 @@ button {
 
 .habits-layout {
   align-items: start;
+  grid-template-columns: minmax(0, 1fr) minmax(300px, 0.88fr);
+}
+
+.habits-layout > .panel:last-child {
+  align-self: start;
+}
+
+.habits-template-panel {
+  position: sticky;
+  top: 22px;
 }
 
 .habit-admin-list {
@@ -5148,18 +5157,6 @@ body:has(.theme-custom) { background: #111827; }
     white-space: normal;
   }
 
-  .habits-hero {
-    flex-direction: column;
-    align-items: stretch;
-  }
-
-  .habits-hero .btn.primary {
-    width: 100%;
-    min-height: 38px;
-    padding-block: 8px;
-    font-size: 13px;
-  }
-
   .habit-admin-card {
     grid-template-columns: 18px 30px minmax(0, 1fr);
     gap: 8px;
@@ -5193,6 +5190,11 @@ body:has(.theme-custom) { background: #111827; }
     min-height: 32px;
     padding: 6px 8px;
     font-size: 11px;
+  }
+
+  .habits-template-panel {
+    position: static;
+    top: auto;
   }
 
   .settings-row-action {

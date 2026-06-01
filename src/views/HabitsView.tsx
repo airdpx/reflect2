@@ -16,19 +16,12 @@ export function HabitsView({
   const archived = state.habits.filter((habit) => habit.archived);
   return (
     <section className="stack habits-view">
-      <div className="panel habits-hero">
-        <div>
-          <h3>Библиотека привычек</h3>
-          <p className="muted">Здесь живут иконки, категории, расписание, цели и быстрые шаблоны.</p>
-        </div>
-        <button className="btn primary" onClick={() => actions.openHabitModal("new")}>+ Добавить привычку</button>
-      </div>
       <div className="grid-two habits-layout">
         <div className="stack">
           <HabitList title="Активные" habits={active} state={state} selectors={selectors} actions={actions} draggedHabitId={draggedHabitId} onDrag={setDraggedHabitId} />
           <HabitList title="Архив" habits={archived} state={state} selectors={selectors} actions={actions} draggedHabitId={draggedHabitId} onDrag={setDraggedHabitId} />
         </div>
-        <div className="panel">
+        <div className="panel habits-template-panel">
           <div className="section-head">
             <div>
               <h3>Шаблоны</h3>

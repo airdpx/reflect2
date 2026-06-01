@@ -43,6 +43,8 @@ export type GridColorSettings = {
   line: string;
 };
 
+export type GridHabitColorMode = "habit" | "alternating";
+
 export type Habit = {
   id: string;
   title: string;
@@ -162,6 +164,7 @@ export type UserSettings = {
   gridDisplayMode: GridDisplayMode;
   gridDensity: Density;
   gridMarkerShape: GridMarkerShape;
+  gridHabitColorMode: GridHabitColorMode;
   calendarHistoryDays: number;
   statusIcons: Record<HabitStatus, string>;
   gridColors: GridColorSettings;

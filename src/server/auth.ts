@@ -151,6 +151,7 @@ export async function loadUserState(userId: string, profile?: UserProfile): Prom
         ...defaults.settings.gridColors,
         ...raw.settings?.gridColors
       },
+      gridHabitColorMode: raw.settings?.gridHabitColorMode || defaults.settings.gridHabitColorMode,
       forecast: migratedForecast,
       customPresets: raw.settings?.customPresets || defaults.settings.customPresets,
       analyticsHistoryDays: raw.settings?.analyticsHistoryDays || defaults.settings.analyticsHistoryDays
