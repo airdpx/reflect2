@@ -192,22 +192,66 @@ button {
 
 .user-chip {
   display: grid;
-  gap: 2px;
-  padding: 6px 10px;
-  border-radius: 10px;
-  border: 1px solid var(--line);
-  background: var(--surface);
+  gap: 1px;
+  min-width: 150px;
+  padding: 8px 12px;
+  border-radius: 14px;
+  border: 1px solid color-mix(in srgb, var(--accent) 22%, var(--line));
+  background:
+    linear-gradient(180deg, color-mix(in srgb, var(--surface) 96%, var(--bg)) 0%, var(--surface) 100%);
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.25) inset;
+}
+
+.user-chip-label,
+.topbar-date span {
+  color: var(--muted);
+  font-size: 10px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0;
 }
 
 .user-chip b {
-  font-size: 12px;
-  line-height: 1.1;
+  font-size: 14px;
+  line-height: 1.05;
 }
 
 .user-chip span {
   color: var(--muted);
-  font-size: 11px;
+  font-size: 12px;
   line-height: 1.1;
+}
+
+.topbar-date {
+  display: grid;
+  gap: 4px;
+  align-content: start;
+}
+
+.topbar-date .date-input {
+  width: min(205px, 100%);
+  min-height: 50px;
+  padding: 12px 14px;
+  border-radius: 14px;
+  border-color: color-mix(in srgb, var(--accent) 22%, var(--line));
+  background:
+    linear-gradient(180deg, color-mix(in srgb, var(--surface) 98%, var(--bg)) 0%, var(--surface) 100%);
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.25) inset;
+}
+
+.signout-btn {
+  width: 46px;
+  height: 46px;
+  border-radius: 14px;
+  border-color: color-mix(in srgb, var(--line) 78%, transparent);
+  background: color-mix(in srgb, var(--surface) 82%, var(--bg));
+  color: var(--muted);
+  font-size: 18px;
+}
+
+.signout-btn:hover {
+  border-color: color-mix(in srgb, var(--accent) 28%, var(--line));
+  color: var(--text);
 }
 
 .btn {
@@ -4741,7 +4785,7 @@ body:has(.theme-custom) { background: #111827; }
   .toolbar {
     width: 100%;
     display: grid;
-    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    grid-template-columns: minmax(0, 1fr) auto;
     gap: 6px;
     justify-content: stretch;
   }
@@ -4754,12 +4798,32 @@ body:has(.theme-custom) { background: #111827; }
     width: 100%;
   }
 
+  .toolbar .btn.primary {
+    grid-column: 1 / -1;
+  }
+
   .toolbar .btn,
   .toolbar .input {
     min-height: 40px;
     padding-top: 8px;
     padding-bottom: 8px;
     font-size: 13px;
+  }
+
+  .topbar-date {
+    gap: 3px;
+  }
+
+  .topbar-date .date-input {
+    min-height: 40px;
+    padding: 9px 12px;
+    border-radius: 12px;
+  }
+
+  .signout-btn {
+    width: 40px;
+    height: 40px;
+    border-radius: 12px;
   }
 
   .section-head {

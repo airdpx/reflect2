@@ -147,7 +147,7 @@ export default function HabitCalendarApp({ initialState }: HabitCalendarAppProps
     <div className={appClass} style={customThemeStyle}>
       <Sidebar view={state.view} onView={actions.setView} />
       <main className="main">
-        <Topbar state={state} onDate={actions.setSelectedDate} onAdd={() => actions.openHabitModal("new")} />
+        <Topbar state={state} onDate={actions.setSelectedDate} onAdd={() => actions.openHabitModal("new")} onSignOut={actions.signOut} />
         {state.view === "today" && <TodayView state={state} selectors={selectors} actions={actions} />}
         {state.view === "grid" && <GridView state={state} selectors={selectors} actions={actions} />}
         {state.view === "habits" && <HabitsView state={state} selectors={selectors} actions={actions} />}
