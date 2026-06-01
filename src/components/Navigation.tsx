@@ -1,5 +1,5 @@
 import type { AppState, View } from "../types";
-import { formatDate, todayKey } from "../lib/date";
+import { formatDate } from "../lib/date";
 
 const navItems: Array<[View, string, string]> = [
   ["today", "Сегодня", "☀️"],
@@ -42,11 +42,9 @@ function Nav({ view, onView, className }: { view: View; onView: (view: View) => 
 
 export function Topbar({
   state,
-  onDate,
   onAdd
 }: {
   state: AppState;
-  onDate: (date: string) => void;
   onAdd: () => void;
 }) {
   const titles: Record<View, [string, string]> = {
@@ -75,10 +73,6 @@ export function Topbar({
             </span>
           </div>
         ) : null}
-        <label className="topbar-chip topbar-date">
-          <span>Дата наблюдения</span>
-          <input className="input date-input" type="date" value={state.selectedDate} onChange={(event) => onDate(event.target.value || todayKey())} />
-        </label>
         <button className="btn primary" onClick={onAdd}>
           + Привычка
         </button>

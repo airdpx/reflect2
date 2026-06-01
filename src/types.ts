@@ -45,6 +45,10 @@ export type GridColorSettings = {
   cell: string;
   today: string;
   line: string;
+  habitSingle: string;
+  habitMuted: string;
+  habitAltA: string;
+  habitAltB: string;
 };
 
 export type GridHabitColorMode = "habit" | "muted" | "mono" | "alternating";
@@ -154,6 +158,8 @@ export type UserProfile = {
   email: string;
   name: string;
   birthDate: string;
+  isAdmin?: boolean;
+  isBlocked?: boolean;
 };
 
 export type ForecastScale = {

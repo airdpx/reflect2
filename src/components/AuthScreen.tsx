@@ -181,7 +181,7 @@ export function AuthScreen() {
           <div className="section-head">
             <div>
               <h2>{title}</h2>
-              <p className="muted">{mode === "register" ? "Дата рождения обязательна." : mode === "login" ? "Войди, чтобы открыть свои данные." : "Сначала запроси ссылку, затем задай новый пароль."}</p>
+              <p className="muted">{mode === "register" ? "Дата рождения обязательна." : mode === "login" ? "Войди по email или по логину admin." : "Сначала запроси ссылку, затем задай новый пароль."}</p>
             </div>
           </div>
           <div className="chips auth-tabs">
@@ -204,8 +204,8 @@ export function AuthScreen() {
             ) : null}
             <div className="form-grid">
               <div className="field">
-                <label>Email</label>
-                <input className="input" type="email" value={email} onChange={(event) => setEmail(event.target.value)} />
+                <label>{mode === "login" ? "Email или логин" : "Email"}</label>
+                <input className="input" type={mode === "register" ? "email" : "text"} value={email} onChange={(event) => setEmail(event.target.value)} />
               </div>
               <div className="field">
                 <label>Пароль</label>

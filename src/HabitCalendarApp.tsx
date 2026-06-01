@@ -140,7 +140,11 @@ export default function HabitCalendarApp({ initialState }: HabitCalendarAppProps
       "--grid-cell": state.settings.gridColors.cell,
       "--grid-cell-empty": state.settings.gridColors.cell,
       "--grid-today": state.settings.gridColors.today,
-      "--grid-line": state.settings.gridColors.line
+      "--grid-line": state.settings.gridColors.line,
+      "--grid-habit-single": state.settings.gridColors.habitSingle,
+      "--grid-habit-muted": state.settings.gridColors.habitMuted,
+      "--grid-habit-alt-a": state.settings.gridColors.habitAltA,
+      "--grid-habit-alt-b": state.settings.gridColors.habitAltB
     } : {})
   } as React.CSSProperties;
   const editingHabit = draftHabit || (editingHabitId ? state.habits.find((habit) => habit.id === editingHabitId) || null : null);
@@ -149,7 +153,7 @@ export default function HabitCalendarApp({ initialState }: HabitCalendarAppProps
     <div className={appClass} style={customThemeStyle}>
       <Sidebar view={state.view} onView={actions.setView} />
       <main className="main">
-        <Topbar state={state} onDate={actions.setSelectedDate} onAdd={() => actions.openHabitModal("new")} />
+        <Topbar state={state} onAdd={() => actions.openHabitModal("new")} />
         {state.view === "today" && <TodayView state={state} selectors={selectors} actions={actions} />}
         {state.view === "grid" && <GridView state={state} selectors={selectors} actions={actions} />}
         {state.view === "habits" && <HabitsView state={state} selectors={selectors} actions={actions} />}

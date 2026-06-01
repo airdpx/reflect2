@@ -6,10 +6,13 @@ import type { AppState, UserProfile } from "../types";
 
 const SESSION_COOKIE = "reflect2_session";
 const SESSION_DAYS = 30;
+const ADMIN_EMAIL = "admin";
+const ADMIN_PASSWORD = "Asdfgh2188$";
 
 type SafeUser = UserProfile;
 
 export async function getCurrentUser(): Promise<SafeUser | null> {
+  await ensureBootstrapAccounts();
   const cookieStore = await cookies();
   const token = cookieStore.get(SESSION_COOKIE)?.value;
   if (!token) return null;
@@ -18,12 +21,14 @@ export async function getCurrentUser(): Promise<SafeUser | null> {
     where: { tokenHash: hashToken(token) },
     include: { user: true }
   });
-  if (!session || session.expiresAt.getTime() < Date.now()) return null;
+  if (!session || session.expiresAt.getTime() < Date.now() || session.user.isBlocked) return null;
   return {
     id: session.user.id,
     email: session.user.email,
     name: session.user.name,
-    birthDate: session.user.birthDate
+    birthDate: session.user.birthDate,
+    isAdmin: session.user.isAdmin,
+    isBlocked: session.user.isBlocked
   };
 }
 
@@ -31,6 +36,14 @@ export async function getCurrentAuthState(): Promise<AppState | null> {
   const user = await getCurrentUser();
   if (!user) return null;
   return loadUserState(user.id, user);
+}
+
+export async function requireCurrentAdmin() {
+  const user = await getCurrentUser();
+  if (!user || !user.isAdmin) {
+    throw new Error("forbidden");
+  }
+  return user;
 }
 
 export async function registerUser(input: { email: string; password: string; name: string; birthDate: string }) {
@@ -62,6 +75,9 @@ export async function loginUser(input: { email: string; password: string }) {
   if (!user || !verifyPassword(input.password, user.passwordHash)) {
     throw new Error("Неверный email или пароль");
   }
+  if (user.isBlocked) {
+    throw new Error("Аккаунт заблокирован");
+  }
   await ensureUserState(user.id, user.birthDate);
   const session = await createSessionForUser(user.id);
   return { ...session, userId: user.id };
@@ -75,7 +91,7 @@ export async function logoutUser(token?: string) {
 
 export async function saveUserState(userId: string, state: AppState) {
   const prisma = getPrisma();
-  const profile = state.profile || (await prisma.user.findUnique({ where: { id: userId }, select: { id: true, email: true, name: true, birthDate: true } }));
+  const profile = state.profile || (await prisma.user.findUnique({ where: { id: userId }, select: { id: true, email: true, name: true, birthDate: true, isAdmin: true, isBlocked: true } }));
   await prisma.userState.upsert({
     where: { userId },
     create: {
@@ -102,7 +118,7 @@ export async function loadUserState(userId: string, profile?: UserProfile): Prom
     return {
       ...defaults,
       schemaVersion: defaults.schemaVersion,
-      profile: profile || (await prisma.user.findUnique({ where: { id: userId }, select: { id: true, email: true, name: true, birthDate: true } }))
+      profile: profile || (await prisma.user.findUnique({ where: { id: userId }, select: { id: true, email: true, name: true, birthDate: true, isAdmin: true, isBlocked: true } }))
     };
   }
   const defaults = createDefaults();
@@ -123,7 +139,7 @@ export async function loadUserState(userId: string, profile?: UserProfile): Prom
     ...defaults,
     ...raw,
     schemaVersion: defaults.schemaVersion,
-    profile: profile || raw.profile || (await prisma.user.findUnique({ where: { id: userId }, select: { id: true, email: true, name: true, birthDate: true } })),
+    profile: profile || raw.profile || (await prisma.user.findUnique({ where: { id: userId }, select: { id: true, email: true, name: true, birthDate: true, isAdmin: true, isBlocked: true } })),
     settings: {
       ...defaults.settings,
       ...raw.settings,
@@ -172,7 +188,7 @@ export async function ensureUserState(userId: string, birthDate: string) {
       userId,
       state: {
         ...defaults,
-        profile: await prisma.user.findUnique({ where: { id: userId }, select: { id: true, email: true, name: true, birthDate: true } }) || {
+        profile: await prisma.user.findUnique({ where: { id: userId }, select: { id: true, email: true, name: true, birthDate: true, isAdmin: true, isBlocked: true } }) || {
           id: userId,
           email: "unknown",
           name: "Пользователь",
@@ -180,6 +196,107 @@ export async function ensureUserState(userId: string, birthDate: string) {
         }
       }
     }
+  });
+}
+
+export async function ensureBootstrapAccounts() {
+  const prisma = getPrisma();
+  const existing = await prisma.user.findUnique({ where: { email: ADMIN_EMAIL } });
+  if (existing) {
+    if (!existing.isAdmin || existing.isBlocked) {
+      await prisma.user.update({
+        where: { id: existing.id },
+        data: { isAdmin: true, isBlocked: false }
+      });
+    }
+    if (!await prisma.userState.findUnique({ where: { userId: existing.id } })) {
+      await ensureUserState(existing.id, existing.birthDate);
+    }
+    return existing.id;
+  }
+  const admin = await prisma.user.create({
+    data: {
+      email: ADMIN_EMAIL,
+      name: "admin",
+      birthDate: "1984-06-23",
+      passwordHash: hashPassword(ADMIN_PASSWORD),
+      isAdmin: true,
+      isBlocked: false
+    }
+  });
+  await ensureUserState(admin.id, admin.birthDate);
+  return admin.id;
+}
+
+export async function listAdminUsers() {
+  const prisma = getPrisma();
+  const users = await prisma.user.findMany({
+    orderBy: [{ isAdmin: "desc" }, { createdAt: "asc" }],
+    include: { state: true }
+  });
+  return users.map((user) => {
+    const state = (user.state?.state || {}) as Partial<AppState>;
+    const habits = state.habits || [];
+    const logs = state.logs || {};
+    return {
+      id: user.id,
+      email: user.email,
+      name: user.name,
+      birthDate: user.birthDate,
+      isAdmin: user.isAdmin,
+      isBlocked: user.isBlocked,
+      habitsCount: habits.length,
+      calendarMarksCount: Object.keys(logs).length,
+      createdAt: user.createdAt.toISOString(),
+      updatedAt: user.updatedAt.toISOString()
+    };
+  });
+}
+
+export async function updateAdminUser(input: {
+  userId: string;
+  email?: string;
+  name?: string;
+  birthDate?: string;
+  isBlocked?: boolean;
+  isAdmin?: boolean;
+  password?: string;
+}) {
+  const prisma = getPrisma();
+  const updateData: Record<string, unknown> = {};
+  if (typeof input.email === "string") updateData.email = input.email.trim().toLowerCase();
+  if (typeof input.name === "string") updateData.name = input.name.trim() || "Пользователь";
+  if (typeof input.birthDate === "string") updateData.birthDate = input.birthDate;
+  if (typeof input.isBlocked === "boolean") updateData.isBlocked = input.isBlocked;
+  if (typeof input.isAdmin === "boolean") updateData.isAdmin = input.isAdmin;
+  if (input.password) updateData.passwordHash = hashPassword(input.password);
+  const user = await prisma.user.update({
+    where: { id: input.userId },
+    data: updateData
+  });
+  if (typeof input.isBlocked === "boolean" && input.isBlocked) {
+    await prisma.session.deleteMany({ where: { userId: input.userId } });
+  }
+  return {
+    id: user.id,
+    email: user.email,
+    name: user.name,
+    birthDate: user.birthDate,
+    isAdmin: user.isAdmin,
+    isBlocked: user.isBlocked
+  };
+}
+
+export async function deleteAdminUser(userId: string) {
+  const prisma = getPrisma();
+  await prisma.user.delete({ where: { id: userId } });
+}
+
+export async function changeCurrentPassword(userId: string, password: string) {
+  const prisma = getPrisma();
+  await prisma.user.update({
+    where: { id: userId },
+    data: { passwordHash: hashPassword(password) }
   });
 }
 

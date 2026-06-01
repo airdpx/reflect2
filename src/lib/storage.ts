@@ -2,7 +2,7 @@ import type { AppState } from "../types";
 import { createDefaults } from "./defaults";
 
 export const STORAGE_KEY = "habit-calendar-next-mvp-v1";
-export const SCHEMA_VERSION = 18;
+export const SCHEMA_VERSION = 19;
 
 export function loadStoredState(): AppState {
   const defaults = createDefaults();
@@ -107,7 +107,11 @@ function migrateState(state: AppState): AppState {
     head: "#f2f0e9",
     cell: "#f7f5ef",
     today: "#e9efe8",
-    line: "#dedbd1"
+    line: "#dedbd1",
+    habitSingle: "#d97706",
+    habitMuted: "#94a3b8",
+    habitAltA: "#16a34a",
+    habitAltB: "#f59e0b"
   };
   const gridColors =
     state.settings.gridColors?.mode === "custom" &&

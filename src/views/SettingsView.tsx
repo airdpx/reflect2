@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import type { AppActions, AppState, Density, ForecastDisplayMode, ForecastScaleId, ForecastSettings, HabitStatus, UserSettings, View } from "../types";
 import { SelectControl, Toggle } from "../components/Common";
 import { statusMeta } from "../lib/defaults";
@@ -236,7 +236,180 @@ export function SettingsView({ state, actions }: { state: AppState; actions: App
           </div>
           <textarea className="textarea export-box" value={exportText || importText} placeholder="JSON для экспорта или импорта" onChange={(event) => { setImportText(event.target.value); setExportText(""); }} />
         </div>
+        {state.profile?.isAdmin ? <AdminUsersPanel currentUserId={state.profile.id} /> : null}
       </div>
     </section>
+  );
+}
+
+type AdminUserRecord = {
+  id: string;
+  email: string;
+  name: string;
+  birthDate: string;
+  isAdmin: boolean;
+  isBlocked: boolean;
+  habitsCount: number;
+  calendarMarksCount: number;
+  createdAt: string;
+  updatedAt: string;
+};
+
+function AdminUsersPanel({ currentUserId }: { currentUserId: string }) {
+  const [users, setUsers] = useState<AdminUserRecord[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [adminPassword, setAdminPassword] = useState("");
+  const [drafts, setDrafts] = useState<Record<string, Partial<AdminUserRecord> & { password?: string }>>({});
+
+  const currentUser = useMemo(() => users.find((user) => user.id === currentUserId) || null, [users, currentUserId]);
+
+  useEffect(() => {
+    const controller = new AbortController();
+    setLoading(true);
+    setError("");
+    fetch("/api/admin/users", { signal: controller.signal })
+      .then(async (response) => {
+        const payload = await response.json();
+        if (!response.ok || payload.ok === false) throw new Error(payload.error || "Не удалось загрузить пользователей");
+        setUsers(payload.users || []);
+      })
+      .catch((caught) => {
+        if ((caught as Error).name !== "AbortError") setError((caught as Error).message);
+      })
+      .finally(() => {
+        if (!controller.signal.aborted) setLoading(false);
+      });
+    return () => controller.abort();
+  }, []);
+
+  async function saveUser(userId: string) {
+    const draft = drafts[userId] || {};
+    const response = await fetch(`/api/admin/users/${userId}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(draft)
+    });
+    const payload = await response.json();
+    if (!response.ok || payload.ok === false) throw new Error(payload.error || "Не удалось сохранить пользователя");
+    setUsers((items) => items.map((item) => (item.id === userId ? { ...item, ...payload.user } : item)));
+    setEditingId(null);
+  }
+
+  async function toggleBlock(user: AdminUserRecord) {
+    await saveUserPayload(user.id, { isBlocked: !user.isBlocked });
+  }
+
+  async function saveUserPayload(userId: string, patch: Partial<AdminUserRecord> & { password?: string }) {
+    const response = await fetch(`/api/admin/users/${userId}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(patch)
+    });
+    const payload = await response.json();
+    if (!response.ok || payload.ok === false) throw new Error(payload.error || "Не удалось сохранить пользователя");
+    setUsers((items) => items.map((item) => (item.id === userId ? { ...item, ...payload.user } : item)));
+    setDrafts((items) => {
+      const next = { ...items };
+      delete next[userId];
+      return next;
+    });
+  }
+
+  async function removeUser(userId: string) {
+    if (!window.confirm("Удалить пользователя и его данные?")) return;
+    const response = await fetch(`/api/admin/users/${userId}`, { method: "DELETE" });
+    const payload = await response.json();
+    if (!response.ok || payload.ok === false) throw new Error(payload.error || "Не удалось удалить пользователя");
+    setUsers((items) => items.filter((item) => item.id !== userId));
+  }
+
+  async function changeAdminPassword() {
+    if (!adminPassword.trim()) return;
+    await saveUserPayload(currentUserId, { password: adminPassword });
+    setAdminPassword("");
+  }
+
+  return (
+    <div className="panel settings-card admin-panel">
+      <div className="section-head">
+        <div>
+          <h3>Управление пользователями</h3>
+          <p className="muted">Список аккаунтов, привычек и отметок в календаре.</p>
+        </div>
+      </div>
+      <div className="toolbar preset-toolbar">
+        <input className="input" type="password" value={adminPassword} placeholder="Новый пароль администратора" onChange={(event) => setAdminPassword(event.target.value)} />
+        <button className="btn" onClick={changeAdminPassword}>Сменить пароль админа</button>
+      </div>
+      {loading ? <p className="muted">Загружаю пользователей...</p> : null}
+      {error ? <p className="muted">{error}</p> : null}
+      <div className="admin-table">
+        <div className="admin-table-head">
+          <span>Email</span>
+          <span>Имя</span>
+          <span>Привычки</span>
+          <span>Отметки</span>
+          <span>Статус</span>
+          <span>Действия</span>
+        </div>
+        {users.map((user) => {
+          const editing = editingId === user.id;
+          const draft = drafts[user.id] || user;
+          const emailValue = String(draft.email || "");
+          const nameValue = String(draft.name || "");
+          const birthDateValue = String(draft.birthDate || "");
+          return (
+            <div className="admin-table-row" key={user.id}>
+              {editing ? (
+                <>
+                  <div className="admin-table-cell admin-table-stack">
+                    <input className="input admin-table-input" value={emailValue} onChange={(event) => setDrafts((items) => ({ ...items, [user.id]: { ...draft, email: event.target.value } }))} />
+                    <input className="input admin-table-input" value={birthDateValue} type="date" onChange={(event) => setDrafts((items) => ({ ...items, [user.id]: { ...draft, birthDate: event.target.value } }))} />
+                  </div>
+                  <div className="admin-table-cell admin-table-stack">
+                    <input className="input admin-table-input" value={nameValue} onChange={(event) => setDrafts((items) => ({ ...items, [user.id]: { ...draft, name: event.target.value } }))} />
+                    <small className="muted">{user.isAdmin ? "Администратор" : "Пользователь"}</small>
+                  </div>
+                </>
+              ) : (
+                <>
+                  <span className="admin-table-cell admin-table-stack">
+                    <b>{user.email}</b>
+                    <small className="muted">{user.birthDate}</small>
+                  </span>
+                  <span className="admin-table-cell admin-table-stack">
+                    <b>{user.name}</b>
+                    <small className="muted">{user.isAdmin ? "Администратор" : "Пользователь"}</small>
+                  </span>
+                </>
+              )}
+              <span className="admin-table-cell">{user.habitsCount}</span>
+              <span className="admin-table-cell">{user.calendarMarksCount}</span>
+              <span className="admin-table-cell">
+                <span className={`badge ${user.isBlocked ? "danger" : ""}`}>{user.isAdmin ? "admin" : user.isBlocked ? "blocked" : "active"}</span>
+              </span>
+              <div className="admin-table-actions">
+                {editing ? (
+                  <button className="btn" onClick={() => saveUser(user.id)}>Сохранить</button>
+                ) : (
+                  <button className="btn ghost" onClick={() => setEditingId(user.id)}>Редактировать</button>
+                )}
+                <button className="btn ghost" onClick={() => toggleBlock(user)}>{user.isBlocked ? "Разблокировать" : "Заблокировать"}</button>
+                {user.id !== currentUserId ? (
+                  <button className="btn ghost" onClick={() => saveUserPayload(user.id, { isAdmin: !user.isAdmin })}>
+                    {user.isAdmin ? "Убрать admin" : "Сделать admin"}
+                  </button>
+                ) : null}
+                {user.id !== currentUserId ? <button className="btn danger" onClick={() => removeUser(user.id)}>Удалить</button> : null}
+              </div>
+            </div>
+          );
+        })}
+        {!users.length && !loading ? <div className="empty">Пользователи пока не загружены.</div> : null}
+      </div>
+      {currentUser ? <p className="muted">Текущий администратор: {currentUser.email}</p> : null}
+    </div>
   );
 }

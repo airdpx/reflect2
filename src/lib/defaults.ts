@@ -87,7 +87,11 @@ export const defaultCustomGridColors = {
   head: "#182235",
   cell: "#161f31",
   today: "#1d2a3a",
-  line: "#25324a"
+  line: "#25324a",
+  habitSingle: "#38bdf8",
+  habitMuted: "#7c92aa",
+  habitAltA: "#22c55e",
+  habitAltB: "#f59e0b"
 };
 
 export const themeOptions = [
@@ -236,7 +240,7 @@ export const habitTemplates: HabitTemplate[] = [
 
 export function createDefaults(): AppState {
   return {
-    schemaVersion: 18,
+    schemaVersion: 19,
     view: "today",
     selectedDate: todayKey(),
     habits: [],
@@ -299,7 +303,11 @@ export function createDefaults(): AppState {
         head: defaultCustomGridColors.head,
         cell: defaultCustomGridColors.cell,
         today: defaultCustomGridColors.today,
-        line: defaultCustomGridColors.line
+        line: defaultCustomGridColors.line,
+        habitSingle: defaultCustomGridColors.habitSingle,
+        habitMuted: defaultCustomGridColors.habitMuted,
+        habitAltA: defaultCustomGridColors.habitAltA,
+        habitAltB: defaultCustomGridColors.habitAltB
       },
       forecast: {
         enabled: true,

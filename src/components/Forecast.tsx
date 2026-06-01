@@ -7,7 +7,7 @@ export function TodayForecastPanel({ state, actions }: { state: AppState; action
   if (!state.settings.forecast.enabled || !state.settings.forecast.showInToday) return null;
   const forecast = getForecast(state.selectedDate, state.settings.forecast, state.profile?.birthDate || "");
   if (!forecast) return null;
-  return <ForecastShell title="Прогноз дня" forecast={forecast} />;
+  return <ForecastShell title="Биоритмы" forecast={forecast} />;
 }
 
 export function DiaryForecastStrip({ state, actions }: { state: AppState; actions: AppActions }) {

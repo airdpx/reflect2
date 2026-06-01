@@ -11,10 +11,7 @@ export function Inspector({ state, selectors, actions }: { state: AppState; sele
   }
   return (
     <aside className="inspector observation-panel">
-      <div className="inspector-head">
-        <h3>Наблюдение</h3>
-        <span className="muted">{formatDate(state.selectedDate)}</span>
-      </div>
+      <ObservationHeader state={state} actions={actions} title="Наблюдение" />
       <div className="panel inspector-panel">
         <h3>{formatDate(state.selectedDate)}</h3>
         <div className="inspector-summary"><strong>{complete}/{logs.length}</strong><span>привычек выполнено</span></div>
@@ -41,15 +38,11 @@ export function Inspector({ state, selectors, actions }: { state: AppState; sele
 function TodayDiaryInspector({ note, state, actions }: { note: DailyNote; state: AppState; actions: AppActions }) {
   return (
     <aside className="inspector today-diary-inspector observation-panel">
-      <div className="inspector-head">
-        <h3>Наблюдение</h3>
-        <span className="muted">{formatDate(state.selectedDate)}</span>
-      </div>
+      <ObservationHeader state={state} actions={actions} title="Наблюдение" />
       <div className="panel inspector-panel today-diary-panel">
         <div className="section-head">
           <div>
             <h3>Запись дня</h3>
-            <p className="muted">{formatDate(state.selectedDate)}</p>
           </div>
           <button className="btn ghost" onClick={() => actions.setView("diary")}>Открыть</button>
         </div>
@@ -75,6 +68,22 @@ function TodayDiaryInspector({ note, state, actions }: { note: DailyNote; state:
         <div className="inspector-help-note">Состояние сохраняется в дневнике за выбранную дату.</div>
       </div>
     </aside>
+  );
+}
+
+function ObservationHeader({ state, actions, title }: { state: AppState; actions: AppActions; title: string }) {
+  return (
+    <div className="panel observation-banner">
+      <div className="section-head observation-banner-head">
+        <div>
+          <h3>{title}</h3>
+        </div>
+        <label className="topbar-chip topbar-date observation-date">
+          <span>Дата наблюдения</span>
+          <input className="input date-input" type="date" value={state.selectedDate} onChange={(event) => actions.setSelectedDate(event.target.value || state.selectedDate)} />
+        </label>
+      </div>
+    </div>
   );
 }
 

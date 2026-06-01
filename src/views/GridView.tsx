@@ -136,7 +136,11 @@ function CalendarSettingsPanel({ state, selectors, actions }: { state: AppState;
               ["head", "Шапка"],
               ["cell", "Ячейки"],
               ["today", "Сегодня"],
-              ["line", "Линии"]
+              ["line", "Линии"],
+              ["habitSingle", "Привычки: один цвет"],
+              ["habitMuted", "Привычки: приглушённый"],
+              ["habitAltA", "Привычки: цвет A"],
+              ["habitAltB", "Привычки: цвет B"]
             ].map(([key, label]) => (
               <label key={key}>
                 <span>{label}</span>
@@ -692,11 +696,12 @@ function getDisplayStatus(status: HabitStatus | undefined, state: AppState) {
 
 function getHabitTone(habit: Habit, habitIndex: number, state: AppState) {
   if (state.settings.gridHabitColorMode === "habit") return habit.color;
-  if (state.settings.gridHabitColorMode === "muted") return `color-mix(in srgb, ${habit.color} 42%, var(--surface-soft))`;
+  if (state.settings.gridHabitColorMode === "muted") return state.settings.gridColors.habitMuted || `color-mix(in srgb, ${habit.color} 42%, var(--surface-soft))`;
+  if (state.settings.gridHabitColorMode === "mono") return state.settings.gridColors.habitSingle || "color-mix(in srgb, var(--accent) 78%, var(--grid-cell-empty))";
   if (state.settings.gridHabitColorMode === "alternating") return habitIndex % 2 === 0
-    ? "color-mix(in srgb, var(--accent) 78%, var(--grid-cell-empty))"
-    : "color-mix(in srgb, var(--warn) 76%, var(--grid-cell-empty))";
-  return "color-mix(in srgb, var(--grid-line) 54%, var(--surface-soft))";
+    ? state.settings.gridColors.habitAltA || "color-mix(in srgb, var(--accent) 78%, var(--grid-cell-empty))"
+    : state.settings.gridColors.habitAltB || "color-mix(in srgb, var(--warn) 76%, var(--grid-cell-empty))";
+  return state.settings.gridColors.habitMuted || "color-mix(in srgb, var(--grid-line) 54%, var(--surface-soft))";
 }
 
 function getHabitMarkStyle(state: AppState, habit: Habit, habitIndex: number, variant: "cell" | "focus" | "tile" | "dot" | "heat" = "cell") {
