@@ -7,7 +7,7 @@ export function TodayForecastPanel({ state, actions }: { state: AppState; action
   if (!state.settings.forecast.enabled || !state.settings.forecast.showInToday) return null;
   const forecast = getForecast(state.selectedDate, state.settings.forecast, state.profile?.birthDate || "");
   if (!forecast) return null;
-  return <ForecastShell title="Прогноз дня" forecast={forecast} mode={state.settings.forecast.displayMode} onSettings={() => actions.setView("settings")} />;
+  return <ForecastShell title="Прогноз дня" forecast={forecast} mode={state.settings.forecast.displayMode} />;
 }
 
 export function DiaryForecastStrip({ state, actions }: { state: AppState; actions: AppActions }) {
@@ -61,13 +61,11 @@ export function TransitPanel({ state }: { state: AppState }) {
 function ForecastShell({
   title,
   forecast,
-  mode,
-  onSettings
+  mode
   }: {
   title: string;
   forecast: ForecastResult;
   mode: "compact" | "cards" | "minimal";
-  onSettings: () => void;
   }) {
   const tone = forecastTone(forecast.summaryScore);
   return (
@@ -76,12 +74,9 @@ function ForecastShell({
         <div>
           <h3>{title}</h3>
         </div>
-        <div className="forecast-head-actions">
-          <div className={`forecast-score forecast-tone-${tone}`}>
-            <strong>{forecast.summaryScore}%</strong>
-            <span>{forecast.summaryLabel}</span>
-          </div>
-          <button className="btn ghost compact-inline-btn" onClick={onSettings}>Настроить</button>
+        <div className={`forecast-score forecast-tone-${tone}`}>
+          <strong>{forecast.summaryScore}%</strong>
+          <span>{forecast.summaryLabel}</span>
         </div>
       </div>
       {mode !== "minimal" && <div className="forecast-scales">{forecast.scales.map((scale) => <ForecastScaleRow key={scale.id} scale={scale} />)}</div>}
@@ -124,10 +119,11 @@ function useHumanDesignTransit() {
 function HumanDesignTransitBlock({ transit }: { transit: HumanDesignTransit }) {
   const periodStart = formatDisplayDate(transit.periodStart);
   const periodEnd = formatDisplayDate(transit.periodEnd);
+  const title = compactTransitTitle(transit.title);
   return (
     <div className="hd-transit">
       <div className="hd-transit-top">
-        <div className="hd-transit-title">{transit.title}</div>
+        <div className="hd-transit-title">{title}</div>
         <div className="hd-transit-range">{periodStart} — {periodEnd}</div>
       </div>
       <div className="hd-transit-gates">
@@ -148,6 +144,14 @@ function HumanDesignTransitBlock({ transit }: { transit: HumanDesignTransit }) {
       </div>
     </div>
   );
+}
+
+function compactTransitTitle(value: string) {
+  const normalized = value.trim();
+  if (/^Транзит\s+с\s+.+\s+по\s+.+$/i.test(normalized)) {
+    return "Транзит";
+  }
+  return normalized;
 }
 
 function ForecastScaleRow({ scale }: { scale: ForecastScale }) {
