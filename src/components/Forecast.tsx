@@ -7,7 +7,7 @@ export function TodayForecastPanel({ state, actions }: { state: AppState; action
   if (!state.settings.forecast.enabled || !state.settings.forecast.showInToday) return null;
   const forecast = getForecast(state.selectedDate, state.settings.forecast, state.profile?.birthDate || "");
   if (!forecast) return null;
-  return <ForecastShell title="Прогноз дня" forecast={forecast} mode={state.settings.forecast.displayMode} />;
+  return <ForecastShell title="Прогноз дня" forecast={forecast} />;
 }
 
 export function DiaryForecastStrip({ state, actions }: { state: AppState; actions: AppActions }) {
@@ -61,15 +61,13 @@ export function TransitPanel({ state }: { state: AppState }) {
 function ForecastShell({
   title,
   forecast,
-  mode
   }: {
   title: string;
   forecast: ForecastResult;
-  mode: "compact" | "cards" | "minimal";
   }) {
   const tone = forecastTone(forecast.summaryScore);
   return (
-    <div className={`panel forecast-panel forecast-mode-${mode}`}>
+    <div className="panel forecast-panel">
       <div className="section-head">
         <div>
           <h3>{title}</h3>
@@ -79,13 +77,7 @@ function ForecastShell({
           <span>{forecast.summaryLabel}</span>
         </div>
       </div>
-      {mode === "minimal" ? (
-        <div className="forecast-mini-scales">
-          {forecast.scales.map((scale) => <ForecastMiniScale key={scale.id} scale={scale} />)}
-        </div>
-      ) : (
-        <div className="forecast-scales">{forecast.scales.map((scale) => <ForecastScaleRow key={scale.id} scale={scale} />)}</div>
-      )}
+      <div className="forecast-scales">{forecast.scales.map((scale) => <ForecastScaleRow key={scale.id} scale={scale} />)}</div>
     </div>
   );
 }
@@ -126,11 +118,11 @@ function HumanDesignTransitBlock({ transit }: { transit: HumanDesignTransit }) {
   const periodStart = formatDisplayDate(transit.periodStart);
   const periodEnd = formatDisplayDate(transit.periodEnd);
   const title = compactTransitTitle(transit.title);
+  const titleWithDates = `${title} (${periodStart} — ${periodEnd})`;
   return (
     <div className="hd-transit">
       <div className="hd-transit-top">
-        <div className="hd-transit-title">{title}</div>
-        <div className="hd-transit-range">{periodStart} — {periodEnd}</div>
+        <div className="hd-transit-title">{titleWithDates}</div>
       </div>
       <div className="hd-transit-gates">
         {transit.gates.map((gate) => (

@@ -74,13 +74,13 @@ export function TodayView({
   if (state.settings.visibleBlocks.analytics && selectors.hasAnyLogs) rightPanels.push(<StatsPanel key="analytics" selectors={selectors} />);
 
   if (!rightPanels.length || todayLayout === "single") {
-    return <div className="stack">{leftColumn}{rightPanels.length ? <section className="stack">{rightPanels}</section> : null}</div>;
+    return <div className="stack">{leftColumn}{rightPanels.length ? <section className="stack observation-column">{rightPanels}</section> : null}</div>;
   }
 
   return (
     <div className="grid-two">
       {leftColumn}
-      {rightPanels.length ? <section className="stack">{rightPanels}</section> : null}
+      {rightPanels.length ? <section className="stack observation-column"><div className="panel observation-banner"><h3>Наблюдение</h3></div>{rightPanels}</section> : null}
     </div>
   );
 }

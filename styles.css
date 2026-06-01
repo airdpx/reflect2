@@ -349,6 +349,7 @@ button {
   display: grid;
   grid-template-columns: minmax(0, 1.2fr) minmax(280px, 0.8fr);
   gap: 14px;
+  align-items: start;
 }
 
 .attention-panel .settings-row {
@@ -406,6 +407,21 @@ button {
 .transit-panel {
   padding: 12px;
   background: var(--surface);
+}
+
+.observation-column {
+  align-content: start;
+}
+
+.observation-banner {
+  display: grid;
+  gap: 0;
+  padding: 10px 12px;
+}
+
+.observation-banner h3 {
+  margin: 0;
+  font-size: 16px;
 }
 
 .forecast-panel.empty-forecast {
@@ -3054,12 +3070,30 @@ button {
 .inspector {
   position: sticky;
   top: 22px;
-  height: calc(100vh - 44px);
+  height: auto;
+  max-height: calc(100vh - 44px);
+  align-self: start;
   overflow: auto;
   padding: 22px 14px;
   border-left: 1px solid var(--line);
   background: var(--bg);
   color: var(--text);
+}
+
+.observation-panel {
+  display: grid;
+  gap: 10px;
+}
+
+.inspector-head {
+  display: grid;
+  gap: 3px;
+  padding: 4px 6px 0;
+}
+
+.inspector-head h3 {
+  margin: 0;
+  font-size: 16px;
 }
 
 .inspector-panel {
@@ -3072,17 +3106,18 @@ button {
     linear-gradient(180deg, color-mix(in srgb, var(--accent) 4%, transparent), transparent 36%),
     var(--bg);
   display: grid;
-  gap: 12px;
+  gap: 10px;
+  align-content: start;
 }
 
 .today-diary-panel {
   display: grid;
-  gap: 12px;
+  gap: 10px;
 }
 
 .today-state-panel {
   display: grid;
-  gap: 12px;
+  gap: 10px;
 }
 
 .inspector-note-textarea {

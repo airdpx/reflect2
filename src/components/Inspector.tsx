@@ -10,7 +10,11 @@ export function Inspector({ state, selectors, actions }: { state: AppState; sele
     return <TodayDiaryInspector note={note} state={state} actions={actions} />;
   }
   return (
-    <aside className="inspector">
+    <aside className="inspector observation-panel">
+      <div className="inspector-head">
+        <h3>Наблюдение</h3>
+        <span className="muted">{formatDate(state.selectedDate)}</span>
+      </div>
       <div className="panel inspector-panel">
         <h3>{formatDate(state.selectedDate)}</h3>
         <div className="inspector-summary"><strong>{complete}/{logs.length}</strong><span>привычек выполнено</span></div>
@@ -36,7 +40,11 @@ export function Inspector({ state, selectors, actions }: { state: AppState; sele
 
 function TodayDiaryInspector({ note, state, actions }: { note: DailyNote; state: AppState; actions: AppActions }) {
   return (
-    <aside className="inspector today-diary-inspector">
+    <aside className="inspector today-diary-inspector observation-panel">
+      <div className="inspector-head">
+        <h3>Наблюдение</h3>
+        <span className="muted">{formatDate(state.selectedDate)}</span>
+      </div>
       <div className="panel inspector-panel today-diary-panel">
         <div className="section-head">
           <div>
