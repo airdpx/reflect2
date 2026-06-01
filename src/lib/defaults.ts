@@ -2,9 +2,9 @@ import type { AppState, HabitStatus, HabitTemplate, HabitType } from "../types";
 import { todayKey } from "./date";
 
 export const statusMeta: Record<HabitStatus, { label: string; short: string; className: string }> = {
-  done: { label: "Выполнено", short: "✓", className: "status-done" },
+  done: { label: "Выполнено", short: "❤️", className: "status-done" },
   partial: { label: "Частично", short: "◐", className: "status-partial" },
-  skipped: { label: "Пропуск", short: "–", className: "status-skipped" },
+  skipped: { label: "Пропуск", short: "−", className: "status-skipped" },
   missed: { label: "Не выполнено", short: "×", className: "status-missed" },
   planned: { label: "Запланировано", short: "·", className: "status-planned" }
 };
@@ -43,6 +43,12 @@ const habitIconRules: Array<{ terms: string[]; icon: string }> = [
   { terms: ["кошк", "cat", "кот"], icon: "🐱" },
   { terms: ["попуг", "parrot", "bird"], icon: "🦜" },
   { terms: ["варан", "lizard", "reptile"], icon: "🦎" },
+  { terms: ["витамин", "витамины", "supplement", "pill"], icon: "💊" },
+  { terms: ["фрукт", "fruit", "apple", "banana", "berries"], icon: "🍎" },
+  { terms: ["йог", "yoga"], icon: "🧘" },
+  { terms: ["тренир", "workout", "training", "gym"], icon: "💪" },
+  { terms: ["заряд", "warmup", "stretch", "размин"], icon: "🤸" },
+  { terms: ["питом", "pet", "корм", "feed", "животн"], icon: "🐾" },
   { terms: ["гантел", "dumbbell", "weights", "силов"], icon: "🏋️" },
   { terms: ["штанг", "barbell", "weightlifting", "lifting"], icon: "🏋️‍♀️" },
   { terms: ["спин", "back", "осан", "posture"], icon: "💪" },
@@ -63,9 +69,9 @@ const habitIconRules: Array<{ terms: string[]; icon: string }> = [
 ];
 
 export const statusIconPresets: Record<HabitStatus, string[]> = {
-  done: ["✅", "🔥", "🟢", "💚", "🌿", "🎉", "😄"],
-  partial: ["🌓", "🟡", "◐", "⚡", "🧩", "🙂"],
-  skipped: ["⏭️", "💤", "➖", "🌫️", "⏸️", "😴"],
+  done: ["❤️", "✓", "✔", "✅", "💚", "🌿", "🎉"],
+  partial: ["◐", "🌓", "🟡", "⚡", "🧩", "🙂"],
+  skipped: ["−", "⏭️", "💤", "➖", "🌫️", "⏸️"],
   missed: ["❌", "🔴", "⛔", "🔻", "🚧", "😞"],
   planned: ["🗓️", "📍", "🕓", "🔵", "○", "🙂"]
 };
@@ -132,6 +138,84 @@ export const themeOptions = [
 ] as const;
 
 export const habitTemplates: HabitTemplate[] = [
+  {
+    id: "vitamins",
+    title: "Витамины",
+    description: "Ежедневный приём без лишней сложности.",
+    color: "#f59e0b",
+    icon: "💊",
+    category: "Здоровье",
+    type: "boolean",
+    target: 1,
+    schedule: [1, 2, 3, 4, 5, 6, 0],
+    warningThreshold: 3,
+    helper: "Мягкий шаблон для важных мелочей."
+  },
+  {
+    id: "fruit",
+    title: "Фрукты",
+    description: "Добавить порцию фруктов в течение дня.",
+    color: "#f97316",
+    icon: "🍎",
+    category: "Питание",
+    type: "boolean",
+    target: 1,
+    schedule: [1, 2, 3, 4, 5, 6, 0],
+    warningThreshold: 3,
+    helper: "Подходит для питания и рутины."
+  },
+  {
+    id: "yoga",
+    title: "Йога",
+    description: "Спокойная практика для тела и внимания.",
+    color: "#14b8a6",
+    icon: "🧘",
+    category: "Состояние",
+    type: "numeric",
+    target: 15,
+    schedule: [1, 3, 5],
+    warningThreshold: 4,
+    helper: "Минуты, сессии или мягкий ритуал."
+  },
+  {
+    id: "training",
+    title: "Тренировка",
+    description: "Силовая, кардио или любая активная сессия.",
+    color: "#f97316",
+    icon: "💪",
+    category: "Здоровье",
+    type: "boolean",
+    target: 1,
+    schedule: [1, 3, 5],
+    warningThreshold: 4,
+    helper: "Универсальный шаблон для спорта."
+  },
+  {
+    id: "warmup",
+    title: "Зарядка",
+    description: "Короткая разминка для старта дня.",
+    color: "#38bdf8",
+    icon: "🤸",
+    category: "Здоровье",
+    type: "boolean",
+    target: 1,
+    schedule: [1, 2, 3, 4, 5, 6, 0],
+    warningThreshold: 4,
+    helper: "Лёгкий шаблон на утро."
+  },
+  {
+    id: "feed-pet",
+    title: "Покормить животное",
+    description: "Домашний ритуал без лишней сложности.",
+    color: "#22c55e",
+    icon: "🐾",
+    category: "Быт",
+    type: "multiple",
+    target: 2,
+    schedule: [1, 2, 3, 4, 5, 6, 0],
+    warningThreshold: 2,
+    helper: "Подходит для повторов в течение дня."
+  },
   {
     id: "water",
     title: "Вода",
@@ -291,9 +375,9 @@ export function createDefaults(): AppState {
       gridHabitColorMode: "habit",
       calendarHistoryDays: 7,
       statusIcons: {
-        done: "💚",
-        partial: "🌓",
-        skipped: "➖",
+        done: "❤️",
+        partial: "◐",
+        skipped: "−",
         missed: "❌",
         planned: "🗓️"
       },

@@ -80,7 +80,7 @@ export function TodayView({
   return (
     <div className="grid-two">
       {leftColumn}
-      {rightPanels.length ? <section className="stack observation-column"><div className="panel observation-banner"><h3>Прогноз дня</h3></div>{rightPanels}</section> : null}
+      {rightPanels.length ? <section className="stack observation-column">{rightPanels}</section> : null}
     </div>
   );
 }

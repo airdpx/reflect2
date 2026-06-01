@@ -15,6 +15,7 @@ import { DiaryView } from "./views/DiaryView";
 import { AnalyticsView } from "./views/AnalyticsView";
 import { NotificationsView } from "./views/NotificationsView";
 import { SettingsView } from "./views/SettingsView";
+import { AppFooter } from "./components/Footer";
 import { createDefaults, habitTemplates, statusMeta } from "./lib/defaults";
 import { calculateHabitStats, getAttentionHabits, getPeriodDates, getPeriodLabel, isHabitDue, logKey } from "./lib/analytics";
 import { clearStoredState, loadStoredState, parseImportedState, saveStoredState } from "./lib/storage";
@@ -163,6 +164,7 @@ export default function HabitCalendarApp({ initialState }: HabitCalendarAppProps
         {state.view === "settings" && <SettingsView state={state} actions={actions} />}
       </main>
       {state.settings.rightPanel && !state.settings.focusMode && <Inspector state={state} selectors={selectors} actions={actions} />}
+      <AppFooter />
       <MobileNav view={state.view} onView={actions.setView} />
       <QuickControls state={state} actions={actions} />
       {editingHabitId && <HabitModal habit={editingHabit} isTemplateDraft={Boolean(draftHabit)} actions={actions} />}

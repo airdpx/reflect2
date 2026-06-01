@@ -3,6 +3,7 @@
 import type React from "react";
 import { useEffect, useMemo, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import { AppFooter } from "./Footer";
 import { themeOptions } from "../lib/defaults";
 import { STORAGE_KEY, parseImportedState } from "../lib/storage";
 import type { InterfaceTheme } from "../types";
@@ -226,6 +227,7 @@ export function AuthScreen() {
           </form>
         </section>
       </div>
+      <AppFooter />
     </main>
   );
 }

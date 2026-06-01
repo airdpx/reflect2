@@ -415,13 +415,36 @@ button {
 
 .observation-banner {
   display: grid;
-  gap: 0;
-  padding: 10px 12px;
+  gap: 10px;
+  padding: 12px;
 }
 
 .observation-banner h3 {
   margin: 0;
   font-size: 16px;
+}
+
+.observation-banner-title {
+  display: grid;
+  gap: 4px;
+}
+
+.observation-date {
+  display: grid;
+  gap: 5px;
+}
+
+.observation-date span {
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0;
+}
+
+.observation-date .date-input {
+  width: 100%;
+  min-width: 0;
 }
 
 .forecast-panel.empty-forecast {
@@ -3101,6 +3124,10 @@ button {
   box-shadow: none;
 }
 
+.inspector .observation-banner {
+  margin-bottom: 0;
+}
+
 .today-diary-inspector {
   background:
     linear-gradient(180deg, color-mix(in srgb, var(--accent) 4%, transparent), transparent 36%),
@@ -4141,6 +4168,62 @@ button {
   justify-content: flex-start;
 }
 
+.app-footer,
+.auth-footer {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 18px 18px;
+  color: var(--muted);
+}
+
+.footer-copy {
+  font-weight: 800;
+  letter-spacing: 0;
+}
+
+.footer-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.footer-links a {
+  color: var(--text);
+  text-decoration: none;
+  border-bottom: 1px solid color-mix(in srgb, var(--line) 68%, transparent);
+}
+
+.static-page {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  background: var(--bg);
+}
+
+.static-page-card {
+  width: min(760px, 100%);
+  display: grid;
+  gap: 12px;
+}
+
+.contact-list {
+  display: grid;
+  gap: 10px;
+}
+
+.contact-list div {
+  display: grid;
+  gap: 3px;
+  padding: 12px;
+  border-radius: 10px;
+  border: 1px solid color-mix(in srgb, var(--line) 70%, transparent);
+  background: color-mix(in srgb, var(--surface-soft) 82%, var(--surface));
+}
+
 @media (max-width: 720px) {
   .admin-table-head {
     display: none;
@@ -4152,6 +4235,13 @@ button {
 
   .admin-table-actions {
     width: 100%;
+  }
+
+  .app-footer,
+  .auth-footer {
+    flex-direction: column;
+    align-items: flex-start;
+    padding-inline: 12px;
   }
 }
 

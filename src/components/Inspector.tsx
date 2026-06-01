@@ -74,15 +74,13 @@ function TodayDiaryInspector({ note, state, actions }: { note: DailyNote; state:
 function ObservationHeader({ state, actions, title }: { state: AppState; actions: AppActions; title: string }) {
   return (
     <div className="panel observation-banner">
-      <div className="section-head observation-banner-head">
-        <div>
-          <h3>{title}</h3>
-        </div>
-        <label className="topbar-chip topbar-date observation-date">
-          <span>Дата наблюдения</span>
-          <input className="input date-input" type="date" value={state.selectedDate} onChange={(event) => actions.setSelectedDate(event.target.value || state.selectedDate)} />
-        </label>
+      <div className="observation-banner-title">
+        <h3>{title}</h3>
       </div>
+      <label className="observation-date">
+        <span>Дата наблюдения</span>
+        <input className="input date-input" type="date" value={state.selectedDate} onChange={(event) => actions.setSelectedDate(event.target.value || state.selectedDate)} />
+      </label>
     </div>
   );
 }

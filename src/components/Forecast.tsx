@@ -50,7 +50,6 @@ export function TransitPanel({ state }: { state: AppState }) {
       <div className="section-head">
         <div>
           <h3>Транзит</h3>
-          <p className="muted">Текущий транзит из базы Humdes с датами и ссылками на описание.</p>
         </div>
       </div>
       <HumanDesignTransitBlock transit={transit} />
@@ -117,8 +116,7 @@ function useHumanDesignTransit() {
 function HumanDesignTransitBlock({ transit }: { transit: HumanDesignTransit }) {
   const periodStart = formatDisplayDate(transit.periodStart);
   const periodEnd = formatDisplayDate(transit.periodEnd);
-  const title = compactTransitTitle(transit.title);
-  const titleWithDates = `${title} (${periodStart} — ${periodEnd})`;
+  const titleWithDates = `Транзит (${periodStart} — ${periodEnd})`;
   return (
     <div className="hd-transit">
       <div className="hd-transit-top">
@@ -142,14 +140,6 @@ function HumanDesignTransitBlock({ transit }: { transit: HumanDesignTransit }) {
       </div>
     </div>
   );
-}
-
-function compactTransitTitle(value: string) {
-  const normalized = value.trim();
-  if (/^Транзит\s+с\s+.+\s+по\s+.+$/i.test(normalized)) {
-    return "Транзит";
-  }
-  return normalized;
 }
 
 function ForecastScaleRow({ scale }: { scale: ForecastScale }) {
