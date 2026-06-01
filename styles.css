@@ -323,6 +323,13 @@ button {
   gap: 14px;
 }
 
+.badge-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  justify-content: flex-end;
+}
+
 .grid-two {
   display: grid;
   grid-template-columns: minmax(0, 1.2fr) minmax(280px, 0.8fr);
@@ -381,6 +388,45 @@ button {
 .forecast-panel.empty-forecast {
   grid-template-columns: minmax(0, 1fr) auto;
   align-items: center;
+}
+
+.today-notification-panel {
+  display: grid;
+  gap: 12px;
+}
+
+.today-notification-list {
+  display: grid;
+  gap: 8px;
+}
+
+.today-notification-item {
+  display: grid;
+  grid-template-columns: 24px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 10px;
+  border: 1px solid color-mix(in srgb, var(--line) 74%, transparent);
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--surface-soft) 68%, var(--surface));
+}
+
+.today-notification-item b {
+  display: block;
+  font-size: 13px;
+}
+
+.today-notification-item small {
+  color: var(--muted);
+  font-size: 11px;
+  line-height: 1.35;
+}
+
+.today-notification-item em {
+  color: var(--muted);
+  font-size: 10px;
+  font-style: normal;
+  text-transform: uppercase;
 }
 
 .forecast-score {
@@ -548,6 +594,115 @@ button {
   background: transparent;
   color: var(--accent);
   font-weight: 700;
+}
+
+.notifications-view {
+  align-items: start;
+}
+
+.notifications-feed-panel {
+  display: grid;
+  gap: 12px;
+}
+
+.notification-list {
+  display: grid;
+  gap: 10px;
+}
+
+.notification-card {
+  display: grid;
+  gap: 12px;
+  padding: 12px;
+  border: 1px solid color-mix(in srgb, var(--line) 76%, transparent);
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--surface) 84%, var(--surface-soft));
+}
+
+.notification-card.tone-warn {
+  border-color: color-mix(in srgb, var(--warn) 28%, var(--line));
+}
+
+.notification-card.tone-steady {
+  border-color: color-mix(in srgb, var(--accent) 24%, var(--line));
+}
+
+.notification-card.tone-low {
+  border-color: color-mix(in srgb, var(--status-skipped-bg) 36%, var(--line));
+}
+
+.notification-card-main {
+  display: grid;
+  gap: 10px;
+}
+
+.notification-card-head {
+  display: grid;
+  grid-template-columns: 28px minmax(0, 1fr);
+  gap: 10px;
+  align-items: start;
+}
+
+.notification-icon {
+  width: 28px;
+  height: 28px;
+  display: grid;
+  place-items: center;
+  border-radius: 8px;
+  background: var(--accent-soft);
+}
+
+.notification-card-head b {
+  display: block;
+  font-size: 14px;
+}
+
+.notification-card-head p,
+.notification-detail {
+  margin: 0;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.45;
+}
+
+.notification-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.notification-meta span {
+  min-height: 24px;
+  padding: 3px 8px;
+  border-radius: 999px;
+  background: var(--surface-soft);
+  color: var(--muted);
+  font-size: 11px;
+}
+
+.notification-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.notification-browser-card {
+  display: grid;
+  gap: 10px;
+}
+
+.notification-browser-card .quick-actions {
+  justify-content: flex-start;
+}
+
+.notification-targets {
+  display: grid;
+  gap: 10px;
+  margin: 10px 0;
+}
+
+.notification-topics-grid label {
+  justify-content: flex-start;
 }
 
 .forecast-pill {
@@ -5625,7 +5780,7 @@ body:has(.theme-custom) { background: #111827; }
     right: 0;
     bottom: 0;
     display: grid;
-    grid-template-columns: repeat(6, 1fr);
+    grid-template-columns: repeat(7, 1fr);
     gap: 2px;
     padding: 7px 6px 6px;
     border-top: 1px solid var(--line);
@@ -5638,16 +5793,16 @@ body:has(.theme-custom) { background: #111827; }
     justify-items: center;
     gap: 4px;
     min-width: 0;
-    min-height: 60px;
-    padding: 6px 2px;
-    font-size: 10px;
+    min-height: 56px;
+    padding: 5px 1px;
+    font-size: 9px;
     line-height: 1.05;
   }
 
   .mobile-nav button b {
-    width: 26px;
-    height: 26px;
-    font-size: 13px;
+    width: 24px;
+    height: 24px;
+    font-size: 12px;
   }
 
   .mobile-nav button span {

@@ -1,4 +1,4 @@
-export type View = "today" | "grid" | "habits" | "diary" | "analytics" | "settings";
+export type View = "today" | "grid" | "habits" | "diary" | "analytics" | "notifications" | "settings";
 export type HabitType = "boolean" | "numeric" | "multiple" | "avoid" | "reflection";
 export type HabitStatus = "done" | "partial" | "skipped" | "missed" | "planned";
 export type Density = "compact" | "standard" | "comfortable";
@@ -34,6 +34,10 @@ export type PeriodMode = "last" | "week" | "month" | "custom";
 export type ForecastProviderId = "biorhythm" | "humanDesign" | "astrology" | "planetaryTransits" | "aiPatternForecast";
 export type ForecastScaleId = "physical" | "emotional" | "intellectual";
 export type ForecastDisplayMode = "compact" | "cards" | "minimal";
+export type NotificationChannel = "inApp" | "browser" | "email" | "telegram" | "push";
+export type NotificationTopic = "habits" | "diary" | "forecast" | "transit" | "analytics" | "reminders";
+export type NotificationDeliveryStatus = "new" | "read" | "hidden" | "snoozed";
+export type NotificationPriority = "low" | "medium" | "high";
 export type GridColorSettings = {
   mode: "theme" | "custom";
   bg: string;
@@ -105,6 +109,46 @@ export type ForecastSettings = {
   displayMode: ForecastDisplayMode;
 };
 
+export type NotificationSettings = {
+  enabled: boolean;
+  channels: Record<NotificationChannel, boolean>;
+  topics: Record<NotificationTopic, boolean>;
+  priorityOnly: boolean;
+  quietHours: {
+    enabled: boolean;
+    start: string;
+    end: string;
+  };
+  frequency: "instant" | "daily" | "weekly";
+  digestTime: string;
+  weeklyDay: number;
+  emailTarget: string;
+  telegramTarget: string;
+  pushReady: boolean;
+};
+
+export type NotificationStateEntry = {
+  status: NotificationDeliveryStatus;
+  updatedAt: string;
+  snoozedUntil?: string;
+};
+
+export type NotificationItem = {
+  id: string;
+  topic: NotificationTopic;
+  title: string;
+  message: string;
+  detail: string;
+  targetView: View;
+  targetDate?: string;
+  actionLabel: string;
+  priority: NotificationPriority;
+  channels: NotificationChannel[];
+  icon: string;
+  accent: string;
+  isDue: boolean;
+};
+
 export type UserProfile = {
   id: string;
   email: string;
@@ -169,6 +213,7 @@ export type UserSettings = {
   statusIcons: Record<HabitStatus, string>;
   gridColors: GridColorSettings;
   forecast: ForecastSettings;
+  notifications: NotificationSettings;
   focusMode: boolean;
   rightPanel: boolean;
   showWeekends: boolean;
@@ -202,6 +247,7 @@ export type AppState = {
   habits: Habit[];
   logs: Record<string, HabitLog>;
   notes: Record<string, DailyNote>;
+  notificationStates: Record<string, NotificationStateEntry>;
   profile: UserProfile | null;
   settings: UserSettings;
 };
@@ -236,6 +282,7 @@ export type AppActions = {
   applyCustomPreset: (name: string) => void;
   exportData: () => string;
   importData: (json: string) => boolean;
+  setNotificationState: (id: string, status: NotificationDeliveryStatus, snoozedUntil?: string) => void;
   saveHabit: (habit: Habit) => void;
   deleteHabit: (habitId: string) => void;
   resetSettings: () => void;

@@ -236,12 +236,13 @@ export const habitTemplates: HabitTemplate[] = [
 
 export function createDefaults(): AppState {
   return {
-    schemaVersion: 17,
+    schemaVersion: 18,
     view: "today",
     selectedDate: todayKey(),
     habits: [],
     logs: {},
     notes: {},
+    notificationStates: {},
     profile: null,
     settings: {
       preset: "Balanced",
@@ -313,6 +314,36 @@ export function createDefaults(): AppState {
         showInInspector: true,
         showInGrid: false,
         displayMode: "compact"
+      },
+      notifications: {
+        enabled: true,
+        channels: {
+          inApp: true,
+          browser: false,
+          email: false,
+          telegram: false,
+          push: false
+        },
+        topics: {
+          habits: true,
+          diary: true,
+          forecast: true,
+          transit: true,
+          analytics: true,
+          reminders: true
+        },
+        priorityOnly: false,
+        quietHours: {
+          enabled: false,
+          start: "22:00",
+          end: "08:00"
+        },
+        frequency: "instant",
+        digestTime: "19:00",
+        weeklyDay: 1,
+        emailTarget: "",
+        telegramTarget: "",
+        pushReady: false
       },
       focusMode: false,
       rightPanel: true,

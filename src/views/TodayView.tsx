@@ -3,6 +3,7 @@ import { HabitCard } from "../components/HabitCard";
 import { StatsPanel } from "./AnalyticsView";
 import { habitTemplates } from "../lib/defaults";
 import { TodayForecastPanel, TransitPanel } from "../components/Forecast";
+import { buildNotificationFeed, notificationStatusLabel, resolveNotificationState } from "../lib/notifications";
 
 export function TodayView({
   state,
@@ -19,6 +20,10 @@ export function TodayView({
   const completed = dueHabits.filter((habit) => selectors.getLog(habit.id, state.selectedDate)?.status === "done");
   const open = dueHabits.filter((habit) => selectors.getLog(habit.id, state.selectedDate)?.status !== "done" && !attentionIds.has(habit.id));
   const dueAttention = dueHabits.filter((habit) => attentionIds.has(habit.id) && selectors.getLog(habit.id, state.selectedDate)?.status !== "done");
+  const notificationFeed = state.settings.notifications.enabled && state.settings.notifications.channels.inApp
+    ? buildNotificationFeed(state, selectors)
+    : [];
+  const unreadNotifications = notificationFeed.filter((item) => resolveNotificationState(state, item).status === "new").slice(0, 2);
 
   if (!selectors.activeHabits.length) {
     return <OnboardingPanel actions={actions} />;
@@ -26,6 +31,29 @@ export function TodayView({
 
   const leftColumn = (
     <section className="stack">
+      {notificationFeed.length ? (
+        <div className="panel today-notification-panel">
+          <div className="section-head">
+            <div>
+              <h3>Оповещения</h3>
+              <p className="muted">{unreadNotifications.length ? `${unreadNotifications.length} новых` : "Пока без новых событий"}</p>
+            </div>
+            <button className="btn ghost" onClick={() => actions.setView("notifications")}>Открыть</button>
+          </div>
+          <div className="today-notification-list">
+            {unreadNotifications.length ? unreadNotifications.map((item) => (
+              <div className="today-notification-item" key={item.id}>
+                <span>{item.icon}</span>
+                <div>
+                  <b>{item.title}</b>
+                  <small>{item.message}</small>
+                </div>
+                <em>{notificationStatusLabel(resolveNotificationState(state, item).status)}</em>
+              </div>
+            )) : <div className="empty">Все тихо. Можно открыть полный центр уведомлений.</div>}
+          </div>
+        </div>
+      ) : null}
       <TodayModulesPanel state={state} actions={actions} />
       {state.settings.visibleBlocks.attention && <AttentionPanel attention={attention} />}
       {state.settings.visibleBlocks.today && (

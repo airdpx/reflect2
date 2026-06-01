@@ -2,7 +2,7 @@ import type { AppState } from "../types";
 import { createDefaults } from "./defaults";
 
 export const STORAGE_KEY = "habit-calendar-next-mvp-v1";
-export const SCHEMA_VERSION = 17;
+export const SCHEMA_VERSION = 18;
 
 export function loadStoredState(): AppState {
   const defaults = createDefaults();
@@ -72,12 +72,29 @@ function mergeState(defaults: AppState, stored: Partial<AppState>): AppState {
           ...defaults.settings.forecast.visibleScales,
           ...safeSettings.forecast?.visibleScales
         }
+      },
+      notifications: {
+        ...defaults.settings.notifications,
+        ...safeSettings.notifications,
+        channels: {
+          ...defaults.settings.notifications.channels,
+          ...safeSettings.notifications?.channels
+        },
+        topics: {
+          ...defaults.settings.notifications.topics,
+          ...safeSettings.notifications?.topics
+        },
+        quietHours: {
+          ...defaults.settings.notifications.quietHours,
+          ...safeSettings.notifications?.quietHours
+        }
       }
     },
     profile: stored.profile || defaults.profile,
     habits: stored.habits || defaults.habits,
     logs: stored.logs || defaults.logs,
-    notes: stored.notes || defaults.notes
+    notes: stored.notes || defaults.notes,
+    notificationStates: stored.notificationStates || defaults.notificationStates
   };
 }
 
@@ -113,6 +130,22 @@ function migrateState(state: AppState): AppState {
     visibleScales: {
       ...defaults.settings.forecast.visibleScales,
       ...state.settings.forecast?.visibleScales
+    }
+  };
+  const migratedNotifications = {
+    ...defaults.settings.notifications,
+    ...state.settings.notifications,
+    channels: {
+      ...defaults.settings.notifications.channels,
+      ...state.settings.notifications?.channels
+    },
+    topics: {
+      ...defaults.settings.notifications.topics,
+      ...state.settings.notifications?.topics
+    },
+    quietHours: {
+      ...defaults.settings.notifications.quietHours,
+      ...state.settings.notifications?.quietHours
     }
   };
   if (previousVersion < 16) {
@@ -169,6 +202,7 @@ function migrateState(state: AppState): AppState {
       },
       gridHabitColorMode: legacySafeSettings.gridHabitColorMode || defaults.settings.gridHabitColorMode,
       forecast: migratedForecast,
+      notifications: migratedNotifications,
       gridDisplayMode: previousVersion < 10 && (!legacySafeSettings.gridDisplayMode || legacySafeSettings.gridDisplayMode === "calendar")
         ? "matrix"
         : legacySafeSettings.gridDisplayMode || defaults.settings.gridDisplayMode,
@@ -181,7 +215,8 @@ function migrateState(state: AppState): AppState {
       diaryLayout: legacySafeSettings.diaryLayout || defaults.settings.diaryLayout,
       customPresets: legacySafeSettings.customPresets || {}
     },
-    profile
+    profile,
+    notificationStates: state.notificationStates || defaults.notificationStates
   };
 }
 

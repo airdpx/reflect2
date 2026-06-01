@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import type React from "react";
-import type { AppActions, AppSelectors, AppState, DailyNote, Habit, HabitLog, HabitStatus, UserSettings, View } from "./types";
+import type { AppActions, AppSelectors, AppState, DailyNote, Habit, HabitLog, HabitStatus, NotificationDeliveryStatus, UserSettings, View } from "./types";
 import { MobileNav, Sidebar, Topbar } from "./components/Navigation";
 import { QuickControls } from "./components/QuickControls";
 import { Inspector } from "./components/Inspector";
@@ -13,6 +13,7 @@ import { GridView } from "./views/GridView";
 import { HabitsView } from "./views/HabitsView";
 import { DiaryView } from "./views/DiaryView";
 import { AnalyticsView } from "./views/AnalyticsView";
+import { NotificationsView } from "./views/NotificationsView";
 import { SettingsView } from "./views/SettingsView";
 import { createDefaults, habitTemplates, statusMeta } from "./lib/defaults";
 import { calculateHabitStats, getAttentionHabits, getPeriodDates, getPeriodLabel, isHabitDue, logKey } from "./lib/analytics";
@@ -106,6 +107,7 @@ export default function HabitCalendarApp({ initialState }: HabitCalendarAppProps
     applyCustomPreset,
     exportData,
     importData,
+    setNotificationState,
     saveHabit,
     deleteHabit,
     resetSettings,
@@ -153,6 +155,7 @@ export default function HabitCalendarApp({ initialState }: HabitCalendarAppProps
         {state.view === "habits" && <HabitsView state={state} selectors={selectors} actions={actions} />}
         {state.view === "diary" && <DiaryView state={state} actions={actions} />}
         {state.view === "analytics" && <AnalyticsView state={state} selectors={selectors} actions={actions} />}
+        {state.view === "notifications" && <NotificationsView state={state} selectors={selectors} actions={actions} />}
         {state.view === "settings" && <SettingsView state={state} actions={actions} />}
       </main>
       {state.settings.rightPanel && !state.settings.focusMode && <Inspector state={state} selectors={selectors} actions={actions} />}
@@ -342,6 +345,12 @@ export default function HabitCalendarApp({ initialState }: HabitCalendarAppProps
         forecast: {
           ...draft.settings.forecast,
           visibleScales: { ...draft.settings.forecast.visibleScales }
+        },
+        notifications: {
+          ...draft.settings.notifications,
+          channels: { ...draft.settings.notifications.channels },
+          topics: { ...draft.settings.notifications.topics },
+          quietHours: { ...draft.settings.notifications.quietHours }
         }
       };
       return draft;
@@ -365,6 +374,17 @@ export default function HabitCalendarApp({ initialState }: HabitCalendarAppProps
     if (!parsed) return false;
     setState(parsed);
     return true;
+  }
+
+  function setNotificationState(id: string, status: NotificationDeliveryStatus, snoozedUntil?: string) {
+    updateState((draft) => {
+      draft.notificationStates[id] = {
+        status,
+        updatedAt: new Date().toISOString(),
+        ...(snoozedUntil ? { snoozedUntil } : {})
+      };
+      return draft;
+    });
   }
 
   function saveHabit(habit: Habit) {
