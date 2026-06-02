@@ -5109,6 +5109,7 @@ button {
   font-size: clamp(34px, 4vw, 54px);
   line-height: 1;
   letter-spacing: 0;
+  color: var(--text);
 }
 
 .static-page-kicker {
@@ -5264,6 +5265,7 @@ button {
   margin: 0;
   font-size: 18px;
   line-height: 1.15;
+  color: var(--text);
 }
 
 .content-page-section p {
@@ -7712,5 +7714,180 @@ body:has(.theme-custom) { background: #111827; }
     min-height: 28px;
     padding: 5px 8px;
     font-size: 12px;
+  }
+}
+
+.static-page {
+  color: var(--text);
+}
+
+.static-page p,
+.static-page span,
+.static-page li {
+  color: inherit;
+}
+
+.static-page .muted,
+.static-page .content-page-section p,
+.static-page .about-feature-grid span,
+.static-page .about-note-list span,
+.static-page .contact-list span {
+  color: var(--muted);
+}
+
+.static-page .static-page-kicker,
+.static-page .content-page-section b,
+.static-page .about-feature-grid b,
+.static-page .about-note-list b,
+.static-page .contact-list b {
+  color: var(--text);
+}
+
+.static-page .static-page-kicker {
+  border-color: color-mix(in srgb, var(--accent) 42%, var(--line));
+  background: color-mix(in srgb, var(--accent-soft) 72%, var(--surface));
+}
+
+.static-page .content-page-section,
+.static-page .about-feature-grid div,
+.static-page .about-note-list div,
+.static-page .contact-list div {
+  background: color-mix(in srgb, var(--surface) 82%, var(--bg));
+  border-color: color-mix(in srgb, var(--line) 78%, var(--accent) 12%);
+}
+
+@media (min-width: 721px) {
+  .app > .app-footer {
+    position: fixed;
+    left: 252px;
+    right: 318px;
+    bottom: 8px;
+    z-index: 18;
+    width: auto;
+    justify-content: center;
+    gap: 14px;
+    padding: 5px 10px;
+    border-radius: 999px;
+    border: 1px solid color-mix(in srgb, var(--line) 58%, transparent);
+    background: color-mix(in srgb, var(--surface) 72%, transparent);
+    color: var(--muted);
+    font-size: 11px;
+    line-height: 1;
+    opacity: 0.78;
+    pointer-events: none;
+    backdrop-filter: blur(10px);
+  }
+
+  .app > .app-footer .footer-copy,
+  .app > .app-footer .footer-links {
+    pointer-events: auto;
+  }
+
+  .app > .app-footer .footer-links {
+    gap: 10px;
+  }
+
+  .app > .app-footer .footer-links a {
+    color: var(--muted);
+  }
+
+  .main {
+    padding-bottom: 42px;
+  }
+}
+
+@media (min-width: 721px) and (max-width: 1180px) {
+  .app > .app-footer {
+    left: 94px;
+    right: 14px;
+  }
+}
+
+@media (max-width: 720px) {
+  .app,
+  .app.focus {
+    width: 100%;
+    min-width: 0;
+    overflow-x: clip;
+    padding-bottom: 66px;
+  }
+
+  .main {
+    width: 100%;
+    min-width: 0;
+    max-width: 100%;
+    padding: 12px 10px 78px;
+    overflow-x: clip;
+  }
+
+  .grid-two,
+  .grid-two:not(.management-layout),
+  .habits-layout,
+  .notifications-view,
+  .management-layout,
+  .static-page-grid {
+    grid-template-columns: minmax(0, 1fr) !important;
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .grid-two > *,
+  .habits-layout > *,
+  .notifications-view > *,
+  .settings-card,
+  .panel,
+  .stack,
+  .content-page-main,
+  .content-page-aside {
+    min-width: 0;
+    max-width: 100%;
+  }
+
+  .settings-card,
+  .notifications-feed-panel,
+  .habits-template-panel {
+    overflow: hidden;
+  }
+
+  .app > .app-footer,
+  .static-page > .app-footer,
+  .auth-shell > .app-footer {
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 6px 10px;
+    font-size: 10px;
+    line-height: 1;
+  }
+
+  .app > .app-footer {
+    margin: 4px 10px 72px;
+    border-radius: 999px;
+    border: 1px solid color-mix(in srgb, var(--line) 55%, transparent);
+    background: color-mix(in srgb, var(--surface) 70%, transparent);
+  }
+
+  .footer-copy {
+    font-size: 10px;
+    font-weight: 700;
+  }
+
+  .footer-links {
+    gap: 8px;
+    flex-wrap: nowrap;
+  }
+
+  .footer-links a {
+    font-size: 10px;
+    white-space: nowrap;
+  }
+
+  .static-page {
+    padding: 14px 10px 18px;
+  }
+
+  .static-page > .app-footer {
+    margin-top: 2px;
   }
 }
