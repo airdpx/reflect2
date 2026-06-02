@@ -11,6 +11,7 @@ export type InterfaceTheme =
   | "orangeGrey"
   | "yellowMono"
   | "coralGrey"
+  | "glacier"
   | "dark"
   | "warm"
   | "sage"
@@ -26,6 +27,15 @@ export type InterfaceTheme =
   | "forest"
   | "sand"
   | "aurora"
+  | "steel"
+  | "smoke"
+  | "granite"
+  | "rain"
+  | "ember"
+  | "nocturne"
+  | "obsidian"
+  | "ink"
+  | "bronzeNight"
   | "custom";
 export type GridTheme = "soft" | "classic" | "journal" | "minimal" | "ledger" | "outline" | "slate" | "calm";
 export type GridMarkerShape = "circle" | "square" | "diamond" | "star" | "frame" | "ring" | "hex" | "pill";

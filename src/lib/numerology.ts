@@ -14,18 +14,18 @@ const metricMeta: Record<NumerologyMetricId, { label: string; order: number }> =
 };
 
 const interpretations: Record<number, { label: string; note: string; score: number }> = {
-  1: { label: "инициатива", note: "Подойдёт старт без лишних шагов.", score: 56 },
-  2: { label: "согласование", note: "Хорошо для диалога и мягкой координации.", score: 49 },
-  3: { label: "выражение", note: "Время слов, идей и заметных деталей.", score: 63 },
-  4: { label: "структура", note: "Лучше собирать день в понятный порядок.", score: 58 },
-  5: { label: "перемены", note: "Подходит для гибкости и небольших обновлений.", score: 70 },
-  6: { label: "забота", note: "День поддерживающих действий и спокойной рутины.", score: 53 },
-  7: { label: "глубина", note: "Полезно уединение, анализ и вдумчивость.", score: 61 },
-  8: { label: "результат", note: "Хорошо брать задачи с видимым итогом.", score: 74 },
-  9: { label: "завершение", note: "Уместно закрывать хвосты и подводить итоги.", score: 67 },
-  11: { label: "интуиция", note: "День для тонкого чувства и тихих решений.", score: 86 },
-  22: { label: "масштаб", note: "Можно думать шире и собирать систему.", score: 93 },
-  33: { label: "служение", note: "Хорошо делать полезное и заботливое.", score: 97 }
+  1: { label: "Инициатива", note: "Подойдёт старт без лишних шагов.", score: 56 },
+  2: { label: "Согласование", note: "Хорошо для диалога и мягкой координации.", score: 49 },
+  3: { label: "Выражение", note: "Время слов, идей и заметных деталей.", score: 63 },
+  4: { label: "Структура", note: "Лучше собирать день в понятный порядок.", score: 58 },
+  5: { label: "Перемены", note: "Подходит для гибкости и небольших обновлений.", score: 70 },
+  6: { label: "Забота", note: "День поддерживающих действий и спокойной рутины.", score: 53 },
+  7: { label: "Глубина", note: "Полезно уединение, анализ и вдумчивость.", score: 61 },
+  8: { label: "Результат", note: "Хорошо брать задачи с видимым итогом.", score: 74 },
+  9: { label: "Завершение", note: "Уместно закрывать хвосты и подводить итоги.", score: 67 },
+  11: { label: "Интуиция", note: "День для тонкого чувства и тихих решений.", score: 86 },
+  22: { label: "Масштаб", note: "Можно думать шире и собирать систему.", score: 93 },
+  33: { label: "Служение", note: "Хорошо делать полезное и заботливое.", score: 97 }
 };
 
 const masterNumbers = new Set([11, 22, 33]);
@@ -54,18 +54,13 @@ export function getNumerology(date: string, birthDate: string, settings: Numerol
   const summaryLabel = scoreToLabel(summaryScore);
   const dominant = [...metrics].sort((a, b) => b.score * Math.max(0, b.weight) - a.score * Math.max(0, a.weight))[0];
   const recommendation = buildRecommendation(summaryLabel, dominant || metrics[0]);
-  const notes = [
-    `В расчёте участвуют ${metrics.map((metric) => `${metric.label} ${metric.value}`).join(" · ")}.`,
-    dominant ? `Сильнее всего сейчас звучит ${dominant.label}: ${dominant.interpretation}.` : "Нумерологический индекс рассчитан по дате рождения и выбранному дню."
-  ];
-
   return {
     date,
     summaryScore,
     summaryLabel,
     metrics,
     recommendation,
-    notes,
+    notes: [],
     source: "numerology"
   };
 }

@@ -6,6 +6,7 @@ import { themeOptions } from "../lib/defaults";
 import type { InterfaceTheme } from "../types";
 import { AppFooter } from "./Footer";
 import { AppIcon } from "./AppIcons";
+import { loadPublicThemeState, savePublicThemeState } from "../lib/public-theme";
 
 type StaticPageShellProps = {
   kicker: string;
@@ -17,8 +18,6 @@ type StaticPageShellProps = {
   showFooter?: boolean;
 };
 
-const STORAGE_KEY = "reflect2_public_theme";
-
 export function StaticPageShell({
   kicker,
   title,
@@ -28,21 +27,26 @@ export function StaticPageShell({
   className = "",
   showFooter = true
 }: StaticPageShellProps) {
-  const [theme, setTheme] = useState<InterfaceTheme>(() => {
-    if (typeof window === "undefined") return "dark";
-    const saved = window.localStorage.getItem(STORAGE_KEY) as InterfaceTheme | null;
-    return saved && themeOptions.some((item) => item.id === saved) ? saved : "dark";
-  });
+  const [themeState, setThemeState] = useState(() => loadPublicThemeState("dark"));
+  const theme = themeState.theme;
   const palette = themeOptions.find((item) => item.id === theme) || themeOptions[0];
 
   useEffect(() => {
-    window.localStorage.setItem(STORAGE_KEY, theme);
-  }, [theme]);
+    savePublicThemeState({ theme, customTheme: theme === "custom" ? themeState.customTheme : undefined });
+  }, [theme, themeState.customTheme]);
 
   const shellStyle = useMemo(() => ({
     "--page-accent": palette.colors[2],
-    "--page-text": palette.colors[3]
-  } as React.CSSProperties), [palette]);
+    "--page-text": palette.colors[3],
+    ...(themeState.theme === "custom" && themeState.customTheme ? {
+      "--bg": themeState.customTheme.bg,
+      "--surface": themeState.customTheme.surface,
+      "--surface-soft": themeState.customTheme.surface,
+      "--text": themeState.customTheme.text,
+      "--accent": themeState.customTheme.accent,
+      "--accent-soft": `${themeState.customTheme.accent}24`
+    } : {})
+  } as React.CSSProperties), [palette, themeState.theme, themeState.customTheme]);
 
   return (
     <main className={`static-page theme-${theme} ${className}`.trim()} style={shellStyle}>
@@ -61,7 +65,10 @@ export function StaticPageShell({
                   type="button"
                   className={`theme-dot ${theme === item.id ? "active" : ""}`}
                   title={item.title}
-                  onClick={() => setTheme(item.id as InterfaceTheme)}
+                  onClick={() => {
+                    const nextTheme = item.id as InterfaceTheme;
+                    setThemeState((current) => ({ ...current, theme: nextTheme }));
+                  }}
                 >
                   {item.colors.map((color) => <i key={color} style={{ background: color }} />)}
                 </button>

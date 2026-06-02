@@ -5,7 +5,7 @@ export function TodayNumerologyPanel({ state }: { state: AppState }) {
   if (!state.settings.numerology.enabled || !state.settings.numerology.showInToday) return null;
   const numerology = getNumerology(state.selectedDate, state.profile?.birthDate || "", state.settings.numerology);
   if (!numerology) return null;
-  return <NumerologyShell title="Рекомендации дня" numerology={numerology} displayMode={state.settings.numerology.displayMode} compact={state.settings.numerology.displayMode !== "cards"} visibleMetrics={state.settings.numerology.visibleMetrics} />;
+  return <NumerologyShell title="Цифры" numerology={numerology} displayMode={state.settings.numerology.displayMode} compact={state.settings.numerology.displayMode !== "cards"} visibleMetrics={state.settings.numerology.visibleMetrics} />;
 }
 
 export function DiaryNumerologyStrip({ state }: { state: AppState }) {
@@ -16,7 +16,7 @@ export function DiaryNumerologyStrip({ state }: { state: AppState }) {
   const visibleMetrics = numerology.metrics.filter((metric) => state.settings.numerology.visibleMetrics[metric.id]);
   return (
     <div className={`forecast-strip numerology-strip forecast-tone-${tone} numerology-mode-${state.settings.numerology.displayMode}`}>
-      <span>Нумерология: {numerology.summaryLabel}</span>
+      <span>Цифры: {numerology.summaryLabel}</span>
       <b>{numerology.summaryScore}%</b>
       <div>
         {visibleMetrics.length ? visibleMetrics.map((metric) => (
@@ -35,7 +35,7 @@ export function InspectorNumerologySummary({ state, allowToday = false }: { stat
   if (!numerology) return null;
   return (
     <div className="panel inspector-panel numerology-inspector-panel">
-      <h3>Рекомендации дня</h3>
+      <h3>Цифры</h3>
       <div className={`forecast-score forecast-tone-${numerologyTone(numerology.summaryScore)}`}>
         <strong>{numerology.summaryScore}%</strong>
         <span>{numerology.summaryLabel}</span>
@@ -72,7 +72,7 @@ function NumerologyShell({
       <div className="section-head">
         <div>
           <h3>{title}</h3>
-          <p className="muted">Числа и интерпретация по дате рождения для текущего дня.</p>
+          <p className="muted">Числа и интерпретация по дате рождения для выбранного дня.</p>
         </div>
         <div className={`forecast-score forecast-tone-${tone}`}>
           <strong>{numerology.summaryScore}%</strong>
@@ -95,9 +95,6 @@ function NumerologyShell({
         <div className="empty numerology-empty">Все параметры скрыты в настройках.</div>
       )}
       <p className="numerology-recommendation">{numerology.recommendation}</p>
-      <div className="numerology-notes">
-        {numerology.notes.map((note) => <span key={note}>{note}</span>)}
-      </div>
     </div>
   );
 }

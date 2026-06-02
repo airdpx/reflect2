@@ -692,11 +692,19 @@ button {
 }
 
 .numerology-panel {
-  gap: 10px;
+  gap: 12px;
 }
 
 .numerology-panel .forecast-score {
   min-width: 92px;
+}
+
+.numerology-panel .section-head {
+  margin-bottom: 2px;
+}
+
+.numerology-panel .section-head h3 {
+  font-size: 18px;
 }
 
 .numerology-metric-grid {
@@ -749,17 +757,6 @@ button {
   margin: 0;
   color: var(--text);
   line-height: 1.45;
-}
-
-.numerology-notes {
-  display: grid;
-  gap: 4px;
-}
-
-.numerology-notes span {
-  color: var(--muted);
-  font-size: 12px;
-  line-height: 1.35;
 }
 
 .numerology-strip {
@@ -967,14 +964,14 @@ button {
 
 .hd-transit-title {
   color: var(--text);
-  font-size: 12px;
-  line-height: 1.35;
+  font-size: 13px;
+  line-height: 1.28;
   font-weight: 800;
 }
 
 .hd-transit-range {
   color: var(--muted);
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 700;
 }
 
@@ -1028,7 +1025,7 @@ button {
 .hd-transit p {
   margin: 0;
   color: var(--muted);
-  font-size: 12px;
+  font-size: 13px;
   line-height: 1.45;
 }
 
@@ -1052,7 +1049,18 @@ button {
 }
 
 .transit-panel .section-head {
-  margin-bottom: 0;
+  margin-bottom: 10px;
+}
+
+.transit-panel .section-head h3 {
+  font-size: 18px;
+  line-height: 1.12;
+}
+
+.transit-panel-title span {
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 700;
 }
 
 .forecast-pill.phase-high {
@@ -7468,7 +7476,7 @@ body:has(.theme-custom) { background: #111827; }
   .habit-admin-actions {
     grid-column: 1 / -1;
     display: flex;
-    gap: 4px;
+    gap: 3px;
     justify-content: flex-start;
     flex-wrap: nowrap;
     overflow-x: auto;
@@ -7477,9 +7485,9 @@ body:has(.theme-custom) { background: #111827; }
 
   .habit-admin-actions .btn {
     flex: 0 0 auto;
-    min-height: 28px;
-    padding: 4px 7px;
-    font-size: 10px;
+    min-height: 24px;
+    padding: 3px 6px;
+    font-size: 9px;
     white-space: nowrap;
   }
 

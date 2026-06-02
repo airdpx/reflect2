@@ -121,7 +121,7 @@ function TodayModulesPanel({ state, actions }: { state: AppState; actions: AppAc
           {[
             ["today", "Привычки"],
             ["forecast", "Биоритмы"],
-            ["numerology", "Рекомендации дня"],
+            ["numerology", "Цифры"],
             ["transit", "Транзит"],
             ["attention", "Внимание"],
             ["analytics", "Аналитика"]

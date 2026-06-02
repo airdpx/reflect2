@@ -8,8 +8,7 @@ import { themeOptions } from "../lib/defaults";
 import { clearStoredState } from "../lib/storage";
 import type { InterfaceTheme } from "../types";
 import { AppIcon, type AppIconName } from "./AppIcons";
-
-const PUBLIC_THEME_STORAGE_KEY = "reflect2_public_theme";
+import { loadPublicThemeState, savePublicThemeState } from "../lib/public-theme";
 
 type Mode = "login" | "register" | "reset";
 
@@ -27,9 +26,7 @@ export function AuthScreen() {
   const [busy, setBusy] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [theme, setTheme] = useState<InterfaceTheme>(() => {
-    if (typeof window === "undefined") return "dark";
-    const saved = window.localStorage.getItem(PUBLIC_THEME_STORAGE_KEY) as InterfaceTheme | null;
-    return saved && themeOptions.some((item) => item.id === saved) ? saved : "dark";
+    return loadPublicThemeState("dark").theme;
   });
   const palette = themeOptions.find((item) => item.id === theme) || themeOptions[0];
   const shellStyle = useMemo(() => ({
@@ -40,7 +37,7 @@ export function AuthScreen() {
   } as React.CSSProperties), [palette]);
 
   useEffect(() => {
-    window.localStorage.setItem(PUBLIC_THEME_STORAGE_KEY, theme);
+    savePublicThemeState({ theme });
   }, [theme]);
 
   const title = useMemo(() => {
@@ -99,6 +96,7 @@ export function AuthScreen() {
             body: JSON.stringify({ state: accountState })
           });
         }
+        savePublicThemeState({ theme, customTheme: theme === "custom" ? accountState?.settings?.customTheme : undefined });
       } catch {
         // Best-effort sync of the freshly authorized state.
       }

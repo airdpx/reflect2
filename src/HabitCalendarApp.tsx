@@ -20,6 +20,7 @@ import { AppFooter } from "./components/Footer";
 import { createDefaults, habitTemplates, statusMeta } from "./lib/defaults";
 import { calculateHabitStats, getAttentionHabits, getPeriodDates, getPeriodLabel, isHabitDue, logKey } from "./lib/analytics";
 import { clearStoredState, loadStoredState, parseImportedState, saveStoredState } from "./lib/storage";
+import { savePublicThemeState } from "./lib/public-theme";
 import { todayKey } from "./lib/date";
 
 type HabitCalendarAppProps = {
@@ -69,6 +70,14 @@ export default function HabitCalendarApp({ initialState }: HabitCalendarAppProps
     }, 450);
     return () => window.clearTimeout(timer);
   }, [state, hydrated]);
+
+  useEffect(() => {
+    if (!hydrated) return;
+    savePublicThemeState({
+      theme: state.settings.interfaceTheme,
+      customTheme: state.settings.interfaceTheme === "custom" ? state.settings.customTheme : undefined
+    });
+  }, [hydrated, state.settings.interfaceTheme, state.settings.customTheme]);
 
   const activeHabits = useMemo(() => state.habits.filter((habit) => !habit.archived), [state.habits]);
   const categories = useMemo(() => Array.from(new Set(activeHabits.map((habit) => habit.category).filter(Boolean))).sort(), [activeHabits]);

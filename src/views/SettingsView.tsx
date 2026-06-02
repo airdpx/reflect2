@@ -14,7 +14,7 @@ const blockLabels: Record<string, string> = {
   helped: "Что помогло",
   blocked: "Что мешало",
   forecast: "Биоритмы",
-  numerology: "Рекомендации дня",
+  numerology: "Цифры",
   transit: "Транзит",
   analytics: "Аналитика",
   completion: "Процент выполнения",
@@ -188,11 +188,11 @@ export function SettingsView({ state, actions }: { state: AppState; actions: App
         <div className="panel settings-card">
           <div className="section-head">
             <div>
-              <h3>Рекомендации дня</h3>
+              <h3>Цифры</h3>
               <p className="muted">Числа Personal Day, Personal Month, Personal Year и Life Path считаются по дате рождения и выбранному дню.</p>
             </div>
           </div>
-          <Toggle label="Включить рекомендации дня" checked={state.settings.numerology.enabled} onChange={(checked) => actions.updateSetting("numerology", { ...state.settings.numerology, enabled: checked })} />
+          <Toggle label="Включить цифры" checked={state.settings.numerology.enabled} onChange={(checked) => actions.updateSetting("numerology", { ...state.settings.numerology, enabled: checked })} />
           <div className="form-grid">
             <SelectControl label="Вид" value={state.settings.numerology.displayMode} options={["compact", "cards", "minimal"]} onChange={(value) => actions.updateSetting("numerology", { ...state.settings.numerology, displayMode: value as NumerologyDisplayMode })} />
           </div>

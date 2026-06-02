@@ -51,7 +51,7 @@ export function TransitPanel({ state }: { state: AppState }) {
     <div className="panel transit-panel">
       <div className="section-head">
         <div>
-          <h3>Транзит ({periodStart} — {periodEnd})</h3>
+          <h3 className="transit-panel-title">Транзит <span>({periodStart} — {periodEnd})</span></h3>
         </div>
       </div>
       <HumanDesignTransitBlock transit={transit} />
@@ -116,6 +116,7 @@ function useHumanDesignTransit() {
 }
 
 function HumanDesignTransitBlock({ transit }: { transit: HumanDesignTransit }) {
+  const paragraphs = transit.paragraphs.filter((paragraph) => !/^Текущий транзит/i.test(paragraph) && !/Humdes/i.test(paragraph));
   return (
     <div className="hd-transit">
       <div className="hd-transit-gates">
@@ -126,13 +127,13 @@ function HumanDesignTransitBlock({ transit }: { transit: HumanDesignTransit }) {
           </div>
         ))}
       </div>
-      {transit.paragraphs.length ? (
+      {paragraphs.length ? (
         <div className="hd-transit-copy">
-          {transit.paragraphs.map((paragraph, index) => <p key={index}>{paragraph}</p>)}
+          {paragraphs.map((paragraph, index) => <p key={index}>{paragraph}</p>)}
         </div>
       ) : null}
       <div className="hd-transit-links">
-        <a className="hd-transit-source" href={transit.descriptionUrl} target="_blank" rel="noreferrer">Описание транзита</a>
+        <a className="hd-transit-source" href={transit.descriptionUrl} target="_blank" rel="noreferrer">Описание</a>
       </div>
     </div>
   );
