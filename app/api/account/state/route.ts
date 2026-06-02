@@ -9,6 +9,14 @@ export async function GET() {
 }
 
 export async function PUT(request: Request) {
+  return saveState(request);
+}
+
+export async function POST(request: Request) {
+  return saveState(request);
+}
+
+async function saveState(request: Request) {
   const user = await getCurrentUser();
   if (!user) return NextResponse.json({ ok: false, error: "unauthorized" }, { status: 401 });
   try {

@@ -283,6 +283,7 @@ export default function HabitCalendarApp({ initialState }: HabitCalendarAppProps
       draft.logs[key] = { ...(draft.logs[key] || { habitId, date }), ...patch, updatedAt: new Date().toISOString() };
       return draft;
     });
+    void syncStateNow();
   }
 
   function clearLog(habitId: string, date: string) {
@@ -290,6 +291,7 @@ export default function HabitCalendarApp({ initialState }: HabitCalendarAppProps
       delete draft.logs[logKey(habitId, date)];
       return draft;
     });
+    void syncStateNow();
   }
 
   function setNoteField(key: keyof DailyNote, value: string | number) {
@@ -297,6 +299,7 @@ export default function HabitCalendarApp({ initialState }: HabitCalendarAppProps
       draft.notes[draft.selectedDate] = { ...(draft.notes[draft.selectedDate] || {}), [key]: value };
       return draft;
     });
+    void syncStateNow();
   }
 
   function deleteNote(date: string) {
@@ -304,6 +307,7 @@ export default function HabitCalendarApp({ initialState }: HabitCalendarAppProps
       delete draft.notes[date];
       return draft;
     });
+    void syncStateNow();
   }
 
   function setPeriod(patch: Partial<UserSettings["defaultPeriod"]>) {
@@ -311,6 +315,7 @@ export default function HabitCalendarApp({ initialState }: HabitCalendarAppProps
       draft.settings.defaultPeriod = { ...draft.settings.defaultPeriod, ...patch };
       return draft;
     });
+    void syncStateNow();
   }
 
   function applyPreset(preset: UserSettings["preset"]) {
@@ -344,6 +349,7 @@ export default function HabitCalendarApp({ initialState }: HabitCalendarAppProps
       }
       return draft;
     });
+    void syncStateNow();
   }
 
   function updateSetting<K extends keyof UserSettings>(key: K, value: UserSettings[K]) {
@@ -351,6 +357,7 @@ export default function HabitCalendarApp({ initialState }: HabitCalendarAppProps
       draft.settings[key] = value;
       return draft;
     });
+    void syncStateNow();
   }
 
   function updateVisible(group: "visibleBlocks" | "visibleGrid", key: string, value: boolean) {
@@ -358,6 +365,7 @@ export default function HabitCalendarApp({ initialState }: HabitCalendarAppProps
       draft.settings[group][key] = value;
       return draft;
     });
+    void syncStateNow();
   }
 
   function toggleStatus(status: HabitStatus, checked: boolean) {
@@ -369,6 +377,7 @@ export default function HabitCalendarApp({ initialState }: HabitCalendarAppProps
       draft.settings.activeStatuses = Array.from(set).filter((item): item is HabitStatus => item in statusMeta);
       return draft;
     });
+    void syncStateNow();
   }
 
   function cycleHabitStatus(habitId: string, date: string) {
@@ -392,6 +401,7 @@ export default function HabitCalendarApp({ initialState }: HabitCalendarAppProps
       return draft;
     });
     setBulkUndo(previous);
+    void syncStateNow();
   }
 
   function clearDay() {
@@ -406,6 +416,7 @@ export default function HabitCalendarApp({ initialState }: HabitCalendarAppProps
       return draft;
     });
     setBulkUndo(previous);
+    void syncStateNow();
   }
 
   function undoLastBulkAction() {
@@ -418,6 +429,7 @@ export default function HabitCalendarApp({ initialState }: HabitCalendarAppProps
       return draft;
     });
     setBulkUndo(null);
+    void syncStateNow();
   }
 
   function saveCustomPreset(name: string) {
@@ -464,6 +476,7 @@ export default function HabitCalendarApp({ initialState }: HabitCalendarAppProps
       };
       return draft;
     });
+    void syncStateNow();
   }
 
   function applyCustomPreset(name: string) {
@@ -472,6 +485,7 @@ export default function HabitCalendarApp({ initialState }: HabitCalendarAppProps
       if (preset) draft.settings = { ...draft.settings, ...preset };
       return draft;
     });
+    void syncStateNow();
   }
 
   function exportData() {
@@ -510,6 +524,7 @@ export default function HabitCalendarApp({ initialState }: HabitCalendarAppProps
     });
     setEditingHabitId(null);
     setDraftHabit(null);
+    void syncStateNow();
   }
 
   function deleteHabit(habitId: string) {
@@ -521,6 +536,7 @@ export default function HabitCalendarApp({ initialState }: HabitCalendarAppProps
     });
     setEditingHabitId(null);
     setDraftHabit(null);
+    void syncStateNow();
   }
 
   function openHabitModal(habitId: string | null) {
@@ -587,12 +603,23 @@ export default function HabitCalendarApp({ initialState }: HabitCalendarAppProps
     });
   }
 
+  async function syncStateNow() {
+    if (!latestStateRef.current.profile?.id) return;
+    skipNextDbSyncRef.current = true;
+    await persistState(latestStateRef.current, true);
+  }
+
   async function persistState(nextState: AppState, keepalive = false) {
     if (!nextState.profile?.id) return;
+    const body = JSON.stringify({ state: nextState });
+    if (keepalive && typeof navigator !== "undefined" && typeof navigator.sendBeacon === "function") {
+      const blob = new Blob([body], { type: "application/json" });
+      if (navigator.sendBeacon("/api/account/state", blob)) return;
+    }
     await fetch("/api/account/state", {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ state: nextState }),
+      body,
       keepalive
     }).catch(() => undefined);
   }
