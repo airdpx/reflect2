@@ -4,11 +4,12 @@ import type React from "react";
 import { useEffect, useMemo, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { AppFooter } from "./Footer";
-import { themeOptions } from "../lib/defaults";
 import { clearStoredState } from "../lib/storage";
 import type { InterfaceTheme } from "../types";
 import { AppIcon, type AppIconName } from "./AppIcons";
 import { loadPublicThemeState, savePublicThemeState } from "../lib/public-theme";
+import { ThemePicker } from "./ThemePicker";
+import { themeOptions } from "../lib/defaults";
 
 type Mode = "login" | "register" | "reset";
 
@@ -25,20 +26,23 @@ export function AuthScreen() {
   const [message, setMessage] = useState("");
   const [busy, setBusy] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-  const [theme, setTheme] = useState<InterfaceTheme>(() => {
-    return loadPublicThemeState("dark").theme;
-  });
-  const palette = themeOptions.find((item) => item.id === theme) || themeOptions[0];
+  const [themeState, setThemeState] = useState(() => loadPublicThemeState("dark"));
+  const theme = themeState.theme;
+  const palette = useMemo(() => themeOptions.find((item) => item.id === theme) || themeOptions[0], [theme]);
   const shellStyle = useMemo(() => ({
-    "--auth-bg": palette.colors[0],
-    "--auth-surface": palette.colors[1],
-    "--auth-accent": palette.colors[2],
-    "--auth-text": palette.colors[3]
-  } as React.CSSProperties), [palette]);
+    ...(theme === "custom" && themeState.customTheme ? {
+      "--auth-bg": themeState.customTheme.bg,
+      "--auth-surface": themeState.customTheme.surface,
+      "--auth-text": themeState.customTheme.text,
+      "--auth-border": `color-mix(in srgb, ${themeState.customTheme.accent} 24%, ${themeState.customTheme.surface})`,
+      "--auth-muted": `color-mix(in srgb, ${themeState.customTheme.text} 68%, ${themeState.customTheme.surface})`,
+      "--auth-accent": themeState.customTheme.accent
+    } : {})
+  } as React.CSSProperties), [theme, themeState.customTheme]);
 
   useEffect(() => {
-    savePublicThemeState({ theme });
-  }, [theme]);
+    savePublicThemeState({ theme, customTheme: themeState.customTheme });
+  }, [theme, themeState.customTheme]);
 
   const title = useMemo(() => {
     if (mode === "login") return "Вход";
@@ -136,28 +140,14 @@ export function AuthScreen() {
   return (
     <main className="auth-shell" style={shellStyle}>
       <div className="auth-theme-dock">
-        <details className="quick-popover">
-          <summary className="quick-icon" title="Тема"><AppIcon name="settings" /></summary>
-          <div className="quick-panel quick-panel-narrow">
-            <div className="quick-panel-head">
-              <b>Тема</b>
-              <span>{palette.title}</span>
-            </div>
-            <div className="theme-dot-grid auth-theme-grid">
-              {themeOptions.map((item) => (
-                <button
-                  key={item.id}
-                  type="button"
-                  className={`theme-dot ${theme === item.id ? "active" : ""}`}
-                  title={item.title}
-                  onClick={() => setTheme(item.id as InterfaceTheme)}
-                >
-                  {item.colors.map((color) => <i key={color} style={{ background: color }} />)}
-                </button>
-              ))}
-            </div>
-          </div>
-        </details>
+        <ThemePicker
+          className="auth-theme-picker"
+          panelClassName="quick-panel-narrow"
+          gridClassName="auth-theme-grid"
+          theme={theme}
+          customTheme={themeState.customTheme}
+          onThemeChange={(nextTheme) => setThemeState((current) => ({ ...current, theme: nextTheme }))}
+        />
       </div>
       <div className="auth-layout">
         <section className="auth-hero panel">

@@ -3,9 +3,8 @@
 import type React from "react";
 import { useEffect, useMemo, useState } from "react";
 import { themeOptions } from "../lib/defaults";
-import type { InterfaceTheme } from "../types";
 import { AppFooter } from "./Footer";
-import { AppIcon } from "./AppIcons";
+import { ThemePicker } from "./ThemePicker";
 import { loadPublicThemeState, savePublicThemeState } from "../lib/public-theme";
 
 type StaticPageShellProps = {
@@ -51,31 +50,16 @@ export function StaticPageShell({
   return (
     <main className={`static-page theme-${theme} ${className}`.trim()} style={shellStyle}>
       <div className="page-theme-dock">
-        <details className="quick-popover">
-          <summary className="quick-icon" title="Тема"><AppIcon name="settings" /></summary>
-          <div className="quick-panel quick-panel-narrow">
-            <div className="quick-panel-head">
-              <b>Тема</b>
-              <span>{palette.title}</span>
-            </div>
-            <div className="theme-dot-grid static-theme-grid">
-              {themeOptions.map((item) => (
-                <button
-                  key={item.id}
-                  type="button"
-                  className={`theme-dot ${theme === item.id ? "active" : ""}`}
-                  title={item.title}
-                  onClick={() => {
-                    const nextTheme = item.id as InterfaceTheme;
-                    setThemeState((current) => ({ ...current, theme: nextTheme }));
-                  }}
-                >
-                  {item.colors.map((color) => <i key={color} style={{ background: color }} />)}
-                </button>
-              ))}
-            </div>
-          </div>
-        </details>
+        <ThemePicker
+          className="static-theme-picker"
+          panelClassName="quick-panel-narrow"
+          gridClassName="static-theme-grid"
+          theme={theme}
+          customTheme={themeState.customTheme}
+          onThemeChange={(nextTheme) => {
+            setThemeState((current) => ({ ...current, theme: nextTheme }));
+          }}
+        />
       </div>
       <div className="static-page-grid">
         <section className="panel static-page-card content-page-main">

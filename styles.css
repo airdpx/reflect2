@@ -7455,9 +7455,10 @@ body:has(.theme-custom) { background: #111827; }
   }
 
   .habit-admin-card {
-    grid-template-columns: 18px 30px minmax(0, 1fr);
+    grid-template-columns: 18px 30px minmax(0, 1fr) auto;
     gap: 8px;
     padding: 8px;
+    align-items: center;
   }
 
   .habit-admin-card > i {
@@ -7475,20 +7476,19 @@ body:has(.theme-custom) { background: #111827; }
   }
 
   .habit-admin-actions {
-    grid-column: 1 / -1;
     display: flex;
     gap: 3px;
-    justify-content: flex-start;
+    justify-content: flex-end;
     flex-wrap: nowrap;
-    overflow-x: auto;
-    padding-bottom: 2px;
+    overflow: visible;
+    min-width: 0;
   }
 
   .habit-admin-actions .btn {
     flex: 0 0 auto;
-    min-height: 24px;
-    padding: 3px 6px;
-    font-size: 9px;
+    min-height: 22px;
+    padding: 2px 6px;
+    font-size: 8px;
     white-space: nowrap;
   }
 
