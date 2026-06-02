@@ -173,11 +173,11 @@ function AdminUsersPanel({ currentUserId }: { currentUserId: string }) {
               ) : (
                 <>
                   <span className="admin-table-cell admin-table-stack admin-email-cell">
-                    <b>{user.email}</b>
+                    <b title={user.email}>{user.email}</b>
                     <small className="muted">{user.birthDate}</small>
                   </span>
                   <span className="admin-table-cell admin-table-stack">
-                    <b>{user.name}</b>
+                    <b title={user.name}>{user.name}</b>
                     <small className="muted">{user.isAdmin ? "Администратор" : "Пользователь"}</small>
                   </span>
                 </>

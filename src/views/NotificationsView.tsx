@@ -192,14 +192,14 @@ export function NotificationsView({ state, selectors, actions }: { state: AppSta
                 <span className="badge">{telegramStatus?.username ? `@${telegramStatus.username}` : telegramStatus?.chatId ? telegramStatus.chatId : "—"}</span>
               </div>
               <div className="quick-actions">
-                {telegramStatus?.connected ? (
-                  <button className="btn ghost" onClick={() => void disconnectTelegram()} disabled={telegramBusy}>Отключить Telegram</button>
-                ) : (
-                  <button className="btn primary" onClick={() => void connectTelegram()} disabled={telegramBusy}>{telegramBusy ? "Подключаю..." : "Подключить Telegram"}</button>
-                )}
+                <button className={telegramStatus?.connected ? "btn ghost" : "btn primary"} onClick={() => void connectTelegram()} disabled={telegramBusy}>
+                  {telegramBusy ? "Готовлю ссылку..." : telegramStatus?.connected ? "Получить ссылку" : "Подключить Telegram"}
+                </button>
+                {telegramStatus?.connected ? <button className="btn ghost" onClick={() => void disconnectTelegram()} disabled={telegramBusy}>Отключить Telegram</button> : null}
               </div>
-              {!telegramStatus?.connected && telegramConnectUrl ? (
+              {telegramConnectUrl ? (
                 <div className="telegram-connect-link">
+                  <small className="muted">Полная ссылка подключения</small>
                   <a href={telegramConnectUrl} target="_blank" rel="noreferrer">{telegramConnectUrl}</a>
                   <div className="toolbar">
                     <button

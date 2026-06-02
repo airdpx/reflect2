@@ -4903,9 +4903,11 @@ button {
 }
 
 .admin-email-cell b {
-  overflow-wrap: anywhere;
-  text-overflow: clip;
-  white-space: normal;
+  min-width: 0;
+  overflow: hidden;
+  overflow-wrap: normal;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .admin-table-input {
@@ -4999,11 +5001,15 @@ button {
 }
 
 .icon-btn[data-tooltip]:hover::after,
-.icon-btn[data-tooltip]:focus-visible::after,
+.icon-btn[data-tooltip]:focus-visible::after {
+  opacity: 1;
+  transform: translate(-50%, 0);
+}
+
 .icon-btn[data-tooltip]:hover::before,
 .icon-btn[data-tooltip]:focus-visible::before {
   opacity: 1;
-  transform: translate(-50%, 0);
+  transform: translateX(-50%) rotate(45deg) translateY(0);
 }
 
 .app-footer,
@@ -6996,7 +7002,7 @@ body:has(.theme-custom) { background: #111827; }
     display: none;
   }
 
-  .grid-two {
+  .grid-two:not(.management-layout) {
     grid-template-columns: minmax(0, 1fr) minmax(260px, 0.72fr);
   }
 
@@ -7006,7 +7012,7 @@ body:has(.theme-custom) { background: #111827; }
 
   .admin-table-head,
   .admin-table-row {
-    grid-template-columns: minmax(0, 1fr) minmax(0, 0.9fr) 60px 60px 74px minmax(130px, 0.78fr);
+    grid-template-columns: minmax(190px, 1.35fr) minmax(130px, 0.9fr) 58px 58px 76px minmax(128px, 0.58fr);
     gap: 5px;
   }
 
