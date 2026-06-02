@@ -1,18 +1,19 @@
 import type { AppState, View } from "../types";
 import { formatDate } from "../lib/date";
+import { AppIcon, type AppIconName } from "./AppIcons";
 
-const baseNavItems: Array<[View, string, string]> = [
-  ["today", "Сегодня", "☀️"],
-  ["grid", "Календарь", "📅"],
-  ["habits", "Привычки", "✨"],
-  ["diary", "Дневник", "✍️"],
-  ["notifications", "Оповещения", "🔔"],
-  ["analytics", "Аналитика", "📈"],
-  ["settings", "Настройки", "🛠️"]
+const baseNavItems: Array<[View, string, AppIconName]> = [
+  ["today", "Сегодня", "today"],
+  ["grid", "Календарь", "calendar"],
+  ["habits", "Привычки", "habits"],
+  ["diary", "Дневник", "diary"],
+  ["notifications", "Оповещения", "notifications"],
+  ["analytics", "Аналитика", "analytics"],
+  ["settings", "Настройки", "settings"]
 ];
 
 function getNavItems(isAdmin?: boolean) {
-  return isAdmin ? [...baseNavItems, ["management", "Управление", "🛠️"] as const] : baseNavItems;
+  return isAdmin ? [...baseNavItems, ["management", "Управление", "management"] as const] : baseNavItems;
 }
 
 export function Sidebar({ state, view, onView }: { state: AppState; view: View; onView: (view: View) => void }) {
@@ -31,12 +32,12 @@ export function MobileNav({ state, view, onView }: { state: AppState; view: View
   return <Nav view={view} onView={onView} className="mobile-nav" items={getNavItems(state.profile?.isAdmin)} />;
 }
 
-function Nav({ view, onView, className, items }: { view: View; onView: (view: View) => void; className: string; items: Array<readonly [View, string, string]> }) {
+function Nav({ view, onView, className, items }: { view: View; onView: (view: View) => void; className: string; items: Array<readonly [View, string, AppIconName]> }) {
   return (
     <nav className={className}>
       {items.map(([id, label, icon]) => (
         <button className={view === id ? "active" : ""} key={id} onClick={() => onView(id)} title={label}>
-          <b>{icon}</b>
+          <b><AppIcon name={icon} /></b>
           <span>{label}</span>
         </button>
       ))}
