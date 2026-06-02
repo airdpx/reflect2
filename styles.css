@@ -935,6 +935,29 @@ button {
   margin: 10px 0;
 }
 
+.telegram-connect-link {
+  display: grid;
+  gap: 8px;
+  margin-top: 8px;
+  padding: 12px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: color-mix(in srgb, var(--panel) 84%, transparent);
+}
+
+.telegram-connect-link a {
+  word-break: break-all;
+  color: var(--accent);
+  text-decoration: none;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.telegram-connect-link .toolbar {
+  justify-content: flex-start;
+  flex-wrap: wrap;
+}
+
 .notification-topics-grid label {
   justify-content: flex-start;
 }

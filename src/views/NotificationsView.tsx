@@ -28,6 +28,7 @@ export function NotificationsView({ state, selectors, actions }: { state: AppSta
   const [telegramStatus, setTelegramStatus] = useState<TelegramConnectionStatus | null>(null);
   const [telegramMessage, setTelegramMessage] = useState("");
   const [telegramBusy, setTelegramBusy] = useState(false);
+  const [telegramConnectUrl, setTelegramConnectUrl] = useState("");
   const feed = useMemo(() => buildNotificationFeed(state, selectors), [state, selectors]);
   const quietNow = isQuietHoursActive(state.settings.notifications.quietHours.start, state.settings.notifications.quietHours.end, state.settings.notifications.quietHours.enabled);
   const visible = feed.filter((item) => {
@@ -67,7 +68,8 @@ export function NotificationsView({ state, selectors, actions }: { state: AppSta
       if (payload.connectUrl) {
         window.open(payload.connectUrl, "_blank", "noopener,noreferrer");
       }
-      setTelegramMessage("Откройте бота и нажмите Start.");
+      setTelegramConnectUrl(String(payload.connectUrl || ""));
+      setTelegramMessage("Откройте ссылку или нажмите кнопку ниже, затем в Telegram нажмите Start.");
       setTelegramStatus((current) => ({
         connected: Boolean(payload.connected),
         botUsername: payload.botUsername || current?.botUsername || "",
@@ -87,6 +89,7 @@ export function NotificationsView({ state, selectors, actions }: { state: AppSta
   async function disconnectTelegram() {
     setTelegramBusy(true);
     setTelegramMessage("");
+    setTelegramConnectUrl("");
     try {
       const response = await fetch("/api/telegram/disconnect", { method: "POST" });
       const payload = await response.json();
@@ -195,6 +198,27 @@ export function NotificationsView({ state, selectors, actions }: { state: AppSta
                   <button className="btn primary" onClick={() => void connectTelegram()} disabled={telegramBusy}>{telegramBusy ? "Подключаю..." : "Подключить Telegram"}</button>
                 )}
               </div>
+              {!telegramStatus?.connected && telegramConnectUrl ? (
+                <div className="telegram-connect-link">
+                  <a href={telegramConnectUrl} target="_blank" rel="noreferrer">{telegramConnectUrl}</a>
+                  <div className="toolbar">
+                    <button
+                      className="btn ghost"
+                      onClick={() => navigator.clipboard.writeText(telegramConnectUrl).catch(() => undefined)}
+                      type="button"
+                    >
+                      Копировать ссылку
+                    </button>
+                    <button
+                      className="btn ghost"
+                      onClick={() => window.open(telegramConnectUrl, "_blank", "noopener,noreferrer")}
+                      type="button"
+                    >
+                      Открыть ещё раз
+                    </button>
+                  </div>
+                </div>
+              ) : null}
               {telegramMessage ? <p className="muted">{telegramMessage}</p> : null}
             </div>
           </div>
