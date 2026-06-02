@@ -33,7 +33,7 @@ export async function loadTelegramStatusForUser(userId: string) {
     username: connection?.username || null,
     linkedAt: connection?.linkedAt?.toISOString() || null,
     revokedAt: connection?.revokedAt?.toISOString() || null,
-    connectUrl: botUsername ? `https://t.me/${botUsername}${connection ? "" : "?start="}` : null
+    connectUrl: null
   };
 }
 

@@ -87,6 +87,10 @@ button {
 }
 
 @media (min-width: 721px) {
+  body:has(.app) {
+    overflow: hidden;
+  }
+
   .app {
     height: 100vh;
     overflow: hidden;
@@ -4860,7 +4864,7 @@ button {
 .admin-table-head,
 .admin-table-row {
   display: grid;
-  grid-template-columns: minmax(0, 1.3fr) minmax(0, 1.1fr) 90px 90px 110px minmax(220px, 1.4fr);
+  grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr) 78px 78px 96px minmax(160px, 0.95fr);
   gap: 8px;
   align-items: center;
 }
@@ -4911,9 +4915,9 @@ button {
 
 .admin-table-actions {
   display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-  justify-content: flex-start;
+  flex-wrap: nowrap;
+  gap: 4px;
+  justify-content: flex-end;
   max-width: 100%;
   padding-bottom: 2px;
 }
@@ -4925,30 +4929,81 @@ button {
 }
 
 .admin-table-actions .btn {
-  min-height: 32px;
-  min-width: 32px;
-  padding: 6px;
+  min-height: 30px;
+  min-width: 30px;
+  padding: 5px;
   font-size: 13px;
 }
 
 .admin-toolbar .icon-btn {
-  width: 38px;
-  min-width: 38px;
-  padding: 0;
-  justify-content: center;
-}
-
-.admin-table-actions .icon-btn {
   width: 34px;
   min-width: 34px;
   padding: 0;
   justify-content: center;
 }
 
+.admin-table-actions .icon-btn {
+  width: 30px;
+  min-width: 30px;
+  padding: 0;
+  justify-content: center;
+}
+
 .admin-table-actions .app-svg-icon,
 .admin-toolbar .app-svg-icon {
-  width: 18px;
-  height: 18px;
+  width: 16px;
+  height: 16px;
+}
+
+.icon-btn[data-tooltip] {
+  position: relative;
+  overflow: visible;
+}
+
+.icon-btn[data-tooltip]::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  left: 50%;
+  bottom: calc(100% + 8px);
+  transform: translate(-50%, 6px);
+  z-index: 20;
+  opacity: 0;
+  pointer-events: none;
+  white-space: nowrap;
+  padding: 5px 8px;
+  border-radius: 999px;
+  border: 1px solid color-mix(in srgb, var(--line) 75%, transparent);
+  background: color-mix(in srgb, var(--surface) 88%, var(--bg));
+  color: var(--text);
+  font-size: 11px;
+  line-height: 1;
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.16);
+  transition: opacity 0.16s ease, transform 0.16s ease;
+}
+
+.icon-btn[data-tooltip]::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  bottom: calc(100% + 2px);
+  transform: translateX(-50%) rotate(45deg) translateY(4px);
+  width: 8px;
+  height: 8px;
+  border-left: 1px solid color-mix(in srgb, var(--line) 75%, transparent);
+  border-top: 1px solid color-mix(in srgb, var(--line) 75%, transparent);
+  background: color-mix(in srgb, var(--surface) 88%, var(--bg));
+  opacity: 0;
+  pointer-events: none;
+  z-index: 19;
+  transition: opacity 0.16s ease, transform 0.16s ease;
+}
+
+.icon-btn[data-tooltip]:hover::after,
+.icon-btn[data-tooltip]:focus-visible::after,
+.icon-btn[data-tooltip]:hover::before,
+.icon-btn[data-tooltip]:focus-visible::before {
+  opacity: 1;
+  transform: translate(-50%, 0);
 }
 
 .app-footer,
@@ -6951,8 +7006,8 @@ body:has(.theme-custom) { background: #111827; }
 
   .admin-table-head,
   .admin-table-row {
-    grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.95fr) 72px 72px 88px minmax(180px, 1fr);
-    gap: 6px;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 0.9fr) 60px 60px 74px minmax(130px, 0.78fr);
+    gap: 5px;
   }
 
   .period-range {

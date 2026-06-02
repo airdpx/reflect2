@@ -130,13 +130,13 @@ function AdminUsersPanel({ currentUserId }: { currentUserId: string }) {
       </div>
       <div className="toolbar preset-toolbar admin-toolbar">
         <input className="input" type="password" value={adminPassword} placeholder="Новый пароль администратора" onChange={(event) => setAdminPassword(event.target.value)} />
-        <button className="btn icon-btn compact-action" onClick={changeAdminPassword} title="Сменить пароль администратора" aria-label="Сменить пароль администратора">
+        <button className="btn icon-btn compact-action" onClick={changeAdminPassword} title="Сменить пароль администратора" aria-label="Сменить пароль администратора" data-tooltip="Сменить пароль администратора">
           <AppIcon name="key" />
         </button>
-        <button className="btn ghost icon-btn compact-action" onClick={() => void downloadExport("json")} title="Экспорт базы в JSON" aria-label="Экспорт базы в JSON">
+        <button className="btn ghost icon-btn compact-action" onClick={() => void downloadExport("json")} title="Экспорт базы в JSON" aria-label="Экспорт базы в JSON" data-tooltip="Экспорт базы в JSON">
           <AppIcon name="download" />
         </button>
-        <button className="btn ghost icon-btn compact-action" onClick={() => void downloadExport("sql")} title="Экспорт базы в SQL" aria-label="Экспорт базы в SQL">
+        <button className="btn ghost icon-btn compact-action" onClick={() => void downloadExport("sql")} title="Экспорт базы в SQL" aria-label="Экспорт базы в SQL" data-tooltip="Экспорт базы в SQL">
           <AppIcon name="database" />
         </button>
       </div>
@@ -189,24 +189,24 @@ function AdminUsersPanel({ currentUserId }: { currentUserId: string }) {
               </span>
               <div className="admin-table-actions">
                 {editing ? (
-                  <button className="btn icon-btn compact-action" onClick={() => saveUser(user.id)} title="Сохранить">
+                  <button className="btn icon-btn compact-action" onClick={() => saveUser(user.id)} title="Сохранить" aria-label="Сохранить" data-tooltip="Сохранить">
                     <AppIcon name="check" />
                   </button>
                 ) : (
-                  <button className="btn ghost icon-btn compact-action" onClick={() => setEditingId(user.id)} title="Редактировать">
+                  <button className="btn ghost icon-btn compact-action" onClick={() => setEditingId(user.id)} title="Редактировать" aria-label="Редактировать" data-tooltip="Редактировать">
                     <AppIcon name="edit" />
                   </button>
                 )}
-                <button className="btn ghost icon-btn compact-action" onClick={() => saveUserPayload(user.id, { isBlocked: !user.isBlocked })} title={user.isBlocked ? "Разблокировать" : "Заблокировать"}>
+                <button className="btn ghost icon-btn compact-action" onClick={() => saveUserPayload(user.id, { isBlocked: !user.isBlocked })} title={user.isBlocked ? "Разблокировать" : "Заблокировать"} aria-label={user.isBlocked ? "Разблокировать" : "Заблокировать"} data-tooltip={user.isBlocked ? "Разблокировать" : "Заблокировать"}>
                   <AppIcon name={user.isBlocked ? "lock" : "ban"} />
                 </button>
                 {user.id !== currentUserId ? (
-                  <button className="btn ghost icon-btn compact-action" onClick={() => saveUserPayload(user.id, { isAdmin: !user.isAdmin })} title={user.isAdmin ? "Убрать admin" : "Сделать admin"}>
+                  <button className="btn ghost icon-btn compact-action" onClick={() => saveUserPayload(user.id, { isAdmin: !user.isAdmin })} title={user.isAdmin ? "Убрать admin" : "Сделать admin"} aria-label={user.isAdmin ? "Убрать admin" : "Сделать admin"} data-tooltip={user.isAdmin ? "Убрать admin" : "Сделать admin"}>
                     <AppIcon name="user-plus" />
                   </button>
                 ) : null}
                 {user.id !== currentUserId ? (
-                  <button className="btn danger icon-btn compact-action" onClick={() => removeUser(user.id)} title="Удалить">
+                  <button className="btn danger icon-btn compact-action" onClick={() => removeUser(user.id)} title="Удалить" aria-label="Удалить" data-tooltip="Удалить">
                     <AppIcon name="trash" />
                   </button>
                 ) : null}
