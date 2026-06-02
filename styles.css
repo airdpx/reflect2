@@ -3003,14 +3003,50 @@ button {
   border-radius: 8px;
 }
 
-.diary-history-row span:last-child {
-  white-space: nowrap;
+.diary-history-main {
+  display: grid;
+  gap: 3px;
+  min-width: 0;
+}
+
+.diary-history-date {
+  color: color-mix(in srgb, var(--text) 94%, var(--accent) 6%);
+  letter-spacing: 0;
+}
+
+.diary-history-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
 }
 
 .diary-history-row small {
   display: inline-block;
   margin-top: 3px;
   line-height: 1.35;
+}
+
+.diary-delete-btn {
+  padding-inline: 10px;
+  min-height: 34px;
+}
+
+.diary-history-sentinel {
+  height: 1px;
+}
+
+.diary-history-strip button.active {
+  background: color-mix(in srgb, var(--accent) 16%, var(--surface));
+}
+
+.diary-history-strip button {
+  color: var(--text);
+}
+
+.diary-history-panel .empty {
+  margin-top: 8px;
 }
 
 .habit-admin-card > i,

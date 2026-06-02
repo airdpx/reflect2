@@ -97,6 +97,7 @@ export default function HabitCalendarApp({ initialState }: HabitCalendarAppProps
     setLog,
     clearLog,
     setNoteField,
+    deleteNote,
     setPeriod,
     applyPreset,
     updateSetting,
@@ -208,6 +209,13 @@ export default function HabitCalendarApp({ initialState }: HabitCalendarAppProps
   function setNoteField(key: keyof DailyNote, value: string | number) {
     updateState((draft) => {
       draft.notes[draft.selectedDate] = { ...(draft.notes[draft.selectedDate] || {}), [key]: value };
+      return draft;
+    });
+  }
+
+  function deleteNote(date: string) {
+    updateState((draft) => {
+      delete draft.notes[date];
       return draft;
     });
   }

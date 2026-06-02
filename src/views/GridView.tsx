@@ -696,7 +696,7 @@ function getDisplayStatus(status: HabitStatus | undefined, state: AppState) {
 
 function getHabitTone(habit: Habit, habitIndex: number, state: AppState) {
   if (state.settings.gridHabitColorMode === "habit") return habit.color;
-  if (state.settings.gridHabitColorMode === "muted") return state.settings.gridColors.habitMuted || `color-mix(in srgb, ${habit.color} 42%, var(--surface-soft))`;
+  if (state.settings.gridHabitColorMode === "muted") return state.settings.gridColors.habitMuted || `color-mix(in srgb, ${habit.color} 72%, transparent)`;
   if (state.settings.gridHabitColorMode === "mono") return state.settings.gridColors.habitSingle || "color-mix(in srgb, var(--accent) 78%, var(--grid-cell-empty))";
   if (state.settings.gridHabitColorMode === "alternating") return habitIndex % 2 === 0
     ? state.settings.gridColors.habitAltA || "color-mix(in srgb, var(--accent) 78%, var(--grid-cell-empty))"
@@ -717,10 +717,10 @@ function getHabitMarkStyle(state: AppState, habit: Habit, habitIndex: number, va
   const habitBackground = state.settings.gridHabitColorMode === "habit"
     ? `color-mix(in srgb, ${tone} 82%, var(--grid-cell-empty))`
     : state.settings.gridHabitColorMode === "muted"
-      ? `color-mix(in srgb, ${tone} 72%, var(--grid-cell-empty))`
+      ? `color-mix(in srgb, ${tone} 88%, var(--grid-cell-empty))`
     : tone;
   const habitBorder = state.settings.gridHabitColorMode === "habit" || state.settings.gridHabitColorMode === "muted"
-    ? `color-mix(in srgb, ${tone} 82%, var(--grid-line))`
+    ? `color-mix(in srgb, ${tone} 90%, var(--grid-line))`
     : `color-mix(in srgb, ${tone} 62%, var(--grid-line))`;
   return {
     "--habit-color": tone,

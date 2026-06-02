@@ -73,6 +73,7 @@ function mergeState(defaults: AppState, stored: Partial<AppState>): AppState {
           ...safeSettings.forecast?.visibleScales
         }
       },
+      diaryHistoryMode: safeSettings.diaryHistoryMode || defaults.settings.diaryHistoryMode,
       notifications: {
         ...defaults.settings.notifications,
         ...safeSettings.notifications,
@@ -214,6 +215,7 @@ function migrateState(state: AppState): AppState {
       gridClickAction: previousVersion < 3 ? "cycle" : legacySafeSettings.gridClickAction || defaults.settings.gridClickAction,
       selectedHabitId: legacySafeSettings.selectedHabitId || defaults.settings.selectedHabitId,
       diaryHistoryDays: legacySafeSettings.diaryHistoryDays || defaults.settings.diaryHistoryDays,
+      diaryHistoryMode: legacySafeSettings.diaryHistoryMode || defaults.settings.diaryHistoryMode,
       analyticsHistoryDays: legacySafeSettings.analyticsHistoryDays || defaults.settings.analyticsHistoryDays,
       todayLayout: legacySafeSettings.todayLayout || defaults.settings.todayLayout,
       diaryLayout: legacySafeSettings.diaryLayout || defaults.settings.diaryLayout,

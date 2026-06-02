@@ -331,6 +331,7 @@ export function mergeSettings(base: UserSettings, override?: Partial<UserSetting
       ...base.defaultPeriod,
       ...override.defaultPeriod
     },
+    diaryHistoryMode: override.diaryHistoryMode || base.diaryHistoryMode,
     visibleBlocks: {
       ...base.visibleBlocks,
       ...override.visibleBlocks
@@ -492,6 +493,7 @@ export function createDefaults(settingsOverride?: Partial<UserSettings>): AppSta
     selectedHabitId: "",
     iconSuggestionsCheckedAt: todayKey(),
     diaryHistoryDays: 30,
+    diaryHistoryMode: "period",
     analyticsHistoryDays: 30,
     defaultView: "today",
     todayLayout: "split",

@@ -45,11 +45,13 @@ export function TransitPanel({ state }: { state: AppState }) {
   const { transit, loading, error } = useHumanDesignTransit();
   if (loading && !transit) return null;
   if (error || !transit) return null;
+  const periodStart = formatDisplayDate(transit.periodStart);
+  const periodEnd = formatDisplayDate(transit.periodEnd);
   return (
     <div className="panel transit-panel">
       <div className="section-head">
         <div>
-          <h3>Транзит</h3>
+          <h3>Транзит ({periodStart} — {periodEnd})</h3>
         </div>
       </div>
       <HumanDesignTransitBlock transit={transit} />
@@ -114,14 +116,8 @@ function useHumanDesignTransit() {
 }
 
 function HumanDesignTransitBlock({ transit }: { transit: HumanDesignTransit }) {
-  const periodStart = formatDisplayDate(transit.periodStart);
-  const periodEnd = formatDisplayDate(transit.periodEnd);
-  const titleWithDates = `Транзит (${periodStart} — ${periodEnd})`;
   return (
     <div className="hd-transit">
-      <div className="hd-transit-top">
-        <div className="hd-transit-title">{titleWithDates}</div>
-      </div>
       <div className="hd-transit-gates">
         {transit.gates.map((gate) => (
           <div key={`${gate.number}-${gate.name}`}>

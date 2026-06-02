@@ -52,6 +52,7 @@ export type GridColorSettings = {
 };
 
 export type GridHabitColorMode = "habit" | "muted" | "mono" | "alternating";
+export type DiaryHistoryMode = "period" | "all";
 
 export type Habit = {
   id: string;
@@ -228,6 +229,7 @@ export type UserSettings = {
   selectedHabitId: string;
   iconSuggestionsCheckedAt: string;
   diaryHistoryDays: number;
+  diaryHistoryMode: DiaryHistoryMode;
   analyticsHistoryDays: number;
   defaultView: View;
   todayLayout: "split" | "single" | "reverse";
@@ -275,6 +277,7 @@ export type AppActions = {
   setLog: (habitId: string, date: string, patch: Partial<HabitLog>) => void;
   clearLog: (habitId: string, date: string) => void;
   setNoteField: (key: keyof DailyNote, value: string | number) => void;
+  deleteNote: (date: string) => void;
   setPeriod: (patch: Partial<UserSettings["defaultPeriod"]>) => void;
   applyPreset: (preset: UserSettings["preset"]) => void;
   updateSetting: <K extends keyof UserSettings>(key: K, value: UserSettings[K]) => void;
