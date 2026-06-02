@@ -249,12 +249,12 @@ export default function HabitCalendarApp({ initialState }: HabitCalendarAppProps
         {state.view === "habits" && <HabitsView state={state} selectors={selectors} actions={actions} />}
         {state.view === "diary" && <DiaryView state={state} actions={actions} />}
         {state.view === "analytics" && <AnalyticsView state={state} selectors={selectors} actions={actions} />}
-        {state.view === "notifications" && <NotificationsView state={state} selectors={selectors} actions={actions} />}
-        {state.view === "settings" && <SettingsView state={state} actions={actions} />}
-        {state.view === "management" && state.profile?.isAdmin && <ManagementView state={state} />}
-      </main>
-      {state.settings.rightPanel && !state.settings.focusMode && <Inspector state={state} selectors={selectors} actions={actions} />}
+      {state.view === "notifications" && <NotificationsView state={state} selectors={selectors} actions={actions} />}
+      {state.view === "settings" && <SettingsView state={state} actions={actions} />}
+      {state.view === "management" && state.profile?.isAdmin && <ManagementView state={state} />}
       <AppFooter />
+    </main>
+      {state.settings.rightPanel && !state.settings.focusMode && <Inspector state={state} selectors={selectors} actions={actions} />}
       <MobileNav state={state} view={state.view} onView={actions.setView} />
       <QuickControls state={state} actions={actions} />
       {editingHabitId && <HabitModal habit={editingHabit} isTemplateDraft={Boolean(draftHabit)} actions={actions} />}

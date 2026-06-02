@@ -5018,12 +5018,13 @@ button {
 
 .app-footer,
 .auth-footer {
-  grid-column: 1 / -1;
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 12px;
-  padding: 12px 18px 18px;
+  width: 100%;
+  margin-top: 16px;
+  padding: 14px 0 6px;
   color: var(--muted);
 }
 
@@ -7765,53 +7766,6 @@ body:has(.theme-custom) { background: #111827; }
   border-color: color-mix(in srgb, var(--line) 78%, var(--accent) 12%);
 }
 
-@media (min-width: 721px) {
-  .app > .app-footer {
-    position: fixed;
-    left: 252px;
-    right: 318px;
-    bottom: 8px;
-    z-index: 18;
-    width: auto;
-    justify-content: center;
-    gap: 14px;
-    padding: 5px 10px;
-    border-radius: 999px;
-    border: 1px solid color-mix(in srgb, var(--line) 58%, transparent);
-    background: color-mix(in srgb, var(--surface) 72%, transparent);
-    color: var(--muted);
-    font-size: 11px;
-    line-height: 1;
-    opacity: 0.78;
-    pointer-events: none;
-    backdrop-filter: blur(10px);
-  }
-
-  .app > .app-footer .footer-copy,
-  .app > .app-footer .footer-links {
-    pointer-events: auto;
-  }
-
-  .app > .app-footer .footer-links {
-    gap: 10px;
-  }
-
-  .app > .app-footer .footer-links a {
-    color: var(--muted);
-  }
-
-  .main {
-    padding-bottom: 42px;
-  }
-}
-
-@media (min-width: 721px) and (max-width: 1180px) {
-  .app > .app-footer {
-    left: 94px;
-    right: 14px;
-  }
-}
-
 @media (max-width: 720px) {
   .app,
   .app.focus {
@@ -7858,7 +7812,6 @@ body:has(.theme-custom) { background: #111827; }
     overflow: hidden;
   }
 
-  .app > .app-footer,
   .static-page > .app-footer,
   .auth-shell > .app-footer {
     flex-direction: row;
@@ -7870,11 +7823,19 @@ body:has(.theme-custom) { background: #111827; }
     line-height: 1;
   }
 
-  .app > .app-footer {
-    margin: 4px 10px 72px;
+  .app-footer {
+    margin-top: 12px;
+    padding: 10px 0 2px;
     border-radius: 999px;
     border: 1px solid color-mix(in srgb, var(--line) 55%, transparent);
-    background: color-mix(in srgb, var(--surface) 70%, transparent);
+  }
+
+  .static-page {
+    padding: 14px 10px 18px;
+  }
+
+  .static-page > .app-footer {
+    margin-top: 2px;
   }
 
   .footer-copy {
@@ -7890,13 +7851,5 @@ body:has(.theme-custom) { background: #111827; }
   .footer-links a {
     font-size: 10px;
     white-space: nowrap;
-  }
-
-  .static-page {
-    padding: 14px 10px 18px;
-  }
-
-  .static-page > .app-footer {
-    margin-top: 2px;
   }
 }
