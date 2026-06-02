@@ -146,7 +146,6 @@ export default function HabitCalendarApp({ initialState }: HabitCalendarAppProps
       "--grid-today": state.settings.gridColors.today,
       "--grid-line": state.settings.gridColors.line,
       "--grid-habit-single": state.settings.gridColors.habitSingle,
-      "--grid-habit-muted": state.settings.gridColors.habitMuted,
       "--grid-habit-alt-a": state.settings.gridColors.habitAltA,
       "--grid-habit-alt-b": state.settings.gridColors.habitAltB
     } : {})

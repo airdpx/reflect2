@@ -138,7 +138,6 @@ function CalendarSettingsPanel({ state, selectors, actions }: { state: AppState;
               ["today", "Сегодня"],
               ["line", "Линии"],
               ["habitSingle", "Привычки: один цвет"],
-              ["habitMuted", "Привычки: приглушённый"],
               ["habitAltA", "Привычки: цвет A"],
               ["habitAltB", "Привычки: цвет B"]
             ].map(([key, label]) => (
@@ -695,13 +694,14 @@ function getDisplayStatus(status: HabitStatus | undefined, state: AppState) {
 }
 
 function getHabitTone(habit: Habit, habitIndex: number, state: AppState) {
+  const mutedTone = `color-mix(in srgb, ${habit.color} 58%, var(--surface-soft))`;
   if (state.settings.gridHabitColorMode === "habit") return habit.color;
-  if (state.settings.gridHabitColorMode === "muted") return state.settings.gridColors.habitMuted || `color-mix(in srgb, ${habit.color} 72%, transparent)`;
+  if (state.settings.gridHabitColorMode === "muted") return mutedTone;
   if (state.settings.gridHabitColorMode === "mono") return state.settings.gridColors.habitSingle || "color-mix(in srgb, var(--accent) 78%, var(--grid-cell-empty))";
   if (state.settings.gridHabitColorMode === "alternating") return habitIndex % 2 === 0
     ? state.settings.gridColors.habitAltA || "color-mix(in srgb, var(--accent) 78%, var(--grid-cell-empty))"
     : state.settings.gridColors.habitAltB || "color-mix(in srgb, var(--warn) 76%, var(--grid-cell-empty))";
-  return state.settings.gridColors.habitMuted || "color-mix(in srgb, var(--grid-line) 54%, var(--surface-soft))";
+  return mutedTone;
 }
 
 function getHabitMarkStyle(state: AppState, habit: Habit, habitIndex: number, variant: "cell" | "focus" | "tile" | "dot" | "heat" = "cell") {
@@ -717,10 +717,10 @@ function getHabitMarkStyle(state: AppState, habit: Habit, habitIndex: number, va
   const habitBackground = state.settings.gridHabitColorMode === "habit"
     ? `color-mix(in srgb, ${tone} 82%, var(--grid-cell-empty))`
     : state.settings.gridHabitColorMode === "muted"
-      ? `color-mix(in srgb, ${tone} 88%, var(--grid-cell-empty))`
-    : tone;
+      ? `color-mix(in srgb, ${tone} 78%, var(--grid-cell-empty))`
+      : tone;
   const habitBorder = state.settings.gridHabitColorMode === "habit" || state.settings.gridHabitColorMode === "muted"
-    ? `color-mix(in srgb, ${tone} 90%, var(--grid-line))`
+    ? `color-mix(in srgb, ${tone} 84%, var(--grid-line))`
     : `color-mix(in srgb, ${tone} 62%, var(--grid-line))`;
   return {
     "--habit-color": tone,
