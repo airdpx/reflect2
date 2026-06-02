@@ -17,7 +17,7 @@ type StaticPageShellProps = {
   showFooter?: boolean;
 };
 
-const STORAGE_KEY = "reflect2_static_theme";
+const STORAGE_KEY = "reflect2_public_theme";
 
 export function StaticPageShell({
   kicker,

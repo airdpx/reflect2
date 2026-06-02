@@ -85,3 +85,25 @@ model AppConfig {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
+
+model ContactMessage {
+  id             String   @id @default(cuid())
+  name           String
+  email          String
+  topic          String
+  message        String
+  recipientEmail String
+  replyTo        String?
+  status         String   @default("queued")
+  provider       String?
+  providerId     String?
+  errorMessage   String?
+  ipAddress      String?
+  userAgent      String?
+  sentAt         DateTime?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@index([status])
+  @@index([createdAt])
+}

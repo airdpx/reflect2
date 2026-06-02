@@ -54,7 +54,8 @@ export const ModelName = {
   Session: 'Session',
   PasswordResetToken: 'PasswordResetToken',
   HumanDesignTransitRecord: 'HumanDesignTransitRecord',
-  AppConfig: 'AppConfig'
+  AppConfig: 'AppConfig',
+  ContactMessage: 'ContactMessage'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -155,6 +156,28 @@ export const AppConfigScalarFieldEnum = {
 } as const
 
 export type AppConfigScalarFieldEnum = (typeof AppConfigScalarFieldEnum)[keyof typeof AppConfigScalarFieldEnum]
+
+
+export const ContactMessageScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  email: 'email',
+  topic: 'topic',
+  message: 'message',
+  recipientEmail: 'recipientEmail',
+  replyTo: 'replyTo',
+  status: 'status',
+  provider: 'provider',
+  providerId: 'providerId',
+  errorMessage: 'errorMessage',
+  ipAddress: 'ipAddress',
+  userAgent: 'userAgent',
+  sentAt: 'sentAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type ContactMessageScalarFieldEnum = (typeof ContactMessageScalarFieldEnum)[keyof typeof ContactMessageScalarFieldEnum]
 
 
 export const SortOrder = {
