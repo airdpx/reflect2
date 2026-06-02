@@ -1,11 +1,19 @@
 import { createDefaults, mergeSettings } from "../lib/defaults";
-import type { UserSettings } from "../types";
+import type { TelegramAdminSettings, UserSettings } from "../types";
 import { getPrisma } from "./db";
 
 const GLOBAL_USER_DEFAULTS_KEY = "global_user_defaults";
 const SITE_CONTACT_EMAIL_KEY = "site_contact_email";
 const CONTACT_FROM_EMAIL_KEY = "contact_from_email";
 const RESEND_API_KEY_KEY = "resend_api_key";
+const TELEGRAM_ADMIN_SETTINGS_KEY = "telegram_admin_settings";
+
+type TelegramAdminConfig = {
+  enabled: boolean;
+  botToken: string;
+  botUsername: string;
+  webhookSecret: string;
+};
 
 export async function loadGlobalUserDefaults(): Promise<Partial<UserSettings>> {
   const prisma = getPrisma();
@@ -127,6 +135,81 @@ export async function clearResendApiKey() {
   const prisma = getPrisma();
   await prisma.appConfig.delete({ where: { key: RESEND_API_KEY_KEY } }).catch(() => null);
   return loadResendApiKeyState();
+}
+
+export async function loadTelegramAdminConfig(): Promise<TelegramAdminConfig> {
+  const prisma = getPrisma();
+  const record = await prisma.appConfig.findUnique({ where: { key: TELEGRAM_ADMIN_SETTINGS_KEY } });
+  const raw = record?.value && typeof record.value === "object" ? record.value as Partial<TelegramAdminConfig> : {};
+  return {
+    enabled: Boolean(raw.enabled),
+    botToken: String(raw.botToken || "").trim() || String(process.env.TELEGRAM_BOT_TOKEN || "").trim(),
+    botUsername: String(raw.botUsername || "").trim() || String(process.env.TELEGRAM_BOT_USERNAME || "").trim(),
+    webhookSecret: String(raw.webhookSecret || "").trim() || String(process.env.TELEGRAM_WEBHOOK_SECRET || "").trim()
+  };
+}
+
+export async function loadTelegramAdminSettings(): Promise<TelegramAdminSettings> {
+  const prisma = getPrisma();
+  const record = await prisma.appConfig.findUnique({ where: { key: TELEGRAM_ADMIN_SETTINGS_KEY } });
+  const raw = record?.value && typeof record.value === "object" ? record.value as Partial<TelegramAdminConfig> : {};
+  const envToken = String(process.env.TELEGRAM_BOT_TOKEN || "").trim();
+  const envSecret = String(process.env.TELEGRAM_WEBHOOK_SECRET || "").trim();
+  const token = String(raw.botToken || "").trim() || envToken;
+  const secret = String(raw.webhookSecret || "").trim() || envSecret;
+  return {
+    enabled: Boolean(raw.enabled),
+    botUsername: String(raw.botUsername || "").trim(),
+    botTokenMasked: maskSecret(token),
+    botTokenLast4: token.slice(-4),
+    botTokenConfiguredInDb: Boolean(String(raw.botToken || "").trim()),
+    botTokenSource: String(raw.botToken || "").trim() ? "db" : envToken ? "env" : "none",
+    webhookSecretMasked: maskSecret(secret),
+    webhookSecretLast4: secret.slice(-4),
+    webhookSecretConfiguredInDb: Boolean(String(raw.webhookSecret || "").trim()),
+    webhookSecretSource: String(raw.webhookSecret || "").trim() ? "db" : envSecret ? "env" : "none",
+    connectedUsersCount: 0,
+    linkedUsersCount: 0,
+    lastDeliveryAt: null,
+    lastDeliveryStatus: null,
+    lastWebhookStatus: null
+  };
+}
+
+export async function saveTelegramAdminSettings(settings: Partial<TelegramAdminConfig>) {
+  const prisma = getPrisma();
+  const current = await loadTelegramAdminConfig();
+  const next: TelegramAdminConfig = {
+    enabled: typeof settings.enabled === "boolean" ? settings.enabled : current.enabled,
+    botToken: typeof settings.botToken === "string" && settings.botToken.trim() ? settings.botToken.trim() : current.botToken,
+    botUsername: typeof settings.botUsername === "string" && settings.botUsername.trim() ? settings.botUsername.trim() : current.botUsername,
+    webhookSecret: typeof settings.webhookSecret === "string" && settings.webhookSecret.trim() ? settings.webhookSecret.trim() : current.webhookSecret
+  };
+  await prisma.appConfig.upsert({
+    where: { key: TELEGRAM_ADMIN_SETTINGS_KEY },
+    create: { key: TELEGRAM_ADMIN_SETTINGS_KEY, value: next },
+    update: { value: next }
+  });
+  return loadTelegramAdminSettings();
+}
+
+export async function clearTelegramAdminSettings() {
+  const prisma = getPrisma();
+  await prisma.appConfig.delete({ where: { key: TELEGRAM_ADMIN_SETTINGS_KEY } }).catch(() => null);
+  return loadTelegramAdminSettings();
+}
+
+export async function loadTelegramConnectionCount() {
+  const prisma = getPrisma();
+  return prisma.telegramConnection.count({ where: { revokedAt: null } });
+}
+
+export async function loadTelegramLastDelivery() {
+  const prisma = getPrisma();
+  return prisma.notificationDeliveryLog.findFirst({
+    where: { channel: "telegram" },
+    orderBy: { createdAt: "desc" }
+  });
 }
 
 function maskSecret(value: string) {

@@ -1,5 +1,5 @@
-import { useMemo, useState } from "react";
-import type { AppActions, AppSelectors, AppState, NotificationDeliveryStatus, NotificationItem, NotificationTopic } from "../types";
+import { useEffect, useMemo, useState } from "react";
+import type { AppActions, AppSelectors, AppState, TelegramConnectionStatus, NotificationDeliveryStatus, NotificationItem, NotificationTopic } from "../types";
 import { SelectControl, Toggle } from "../components/Common";
 import { buildNotificationFeed, notificationStatusLabel, notificationTone, notificationTopicLabel, resolveNotificationState } from "../lib/notifications";
 import { addDays, formatDate, fromKey, toKey } from "../lib/date";
@@ -25,6 +25,9 @@ const channelLabels: Array<[keyof AppState["settings"]["notifications"]["channel
 
 export function NotificationsView({ state, selectors, actions }: { state: AppState; selectors: AppSelectors; actions: AppActions }) {
   const [filter, setFilter] = useState<(typeof statusFilters)[number]>("all");
+  const [telegramStatus, setTelegramStatus] = useState<TelegramConnectionStatus | null>(null);
+  const [telegramMessage, setTelegramMessage] = useState("");
+  const [telegramBusy, setTelegramBusy] = useState(false);
   const feed = useMemo(() => buildNotificationFeed(state, selectors), [state, selectors]);
   const quietNow = isQuietHoursActive(state.settings.notifications.quietHours.start, state.settings.notifications.quietHours.end, state.settings.notifications.quietHours.enabled);
   const visible = feed.filter((item) => {
@@ -34,6 +37,68 @@ export function NotificationsView({ state, selectors, actions }: { state: AppSta
   const unreadCount = feed.filter((item) => resolveNotificationState(state, item).status === "new").length;
   const snoozedCount = feed.filter((item) => resolveNotificationState(state, item).status === "snoozed").length;
   const hiddenCount = feed.filter((item) => resolveNotificationState(state, item).status === "hidden").length;
+
+  useEffect(() => {
+    let mounted = true;
+    fetch("/api/telegram/me")
+      .then(async (response) => {
+        const payload = await response.json();
+        if (!response.ok || payload.ok === false) throw new Error(payload.error || "Не удалось загрузить Telegram");
+        return payload as TelegramConnectionStatus;
+      })
+      .then((payload) => {
+        if (mounted) setTelegramStatus(payload);
+      })
+      .catch(() => {
+        if (mounted) setTelegramStatus(null);
+      });
+    return () => {
+      mounted = false;
+    };
+  }, []);
+
+  async function connectTelegram() {
+    setTelegramBusy(true);
+    setTelegramMessage("");
+    try {
+      const response = await fetch("/api/telegram/connect-link");
+      const payload = await response.json();
+      if (!response.ok || payload.ok === false) throw new Error(payload.error || "Не удалось создать ссылку");
+      if (payload.connectUrl) {
+        window.open(payload.connectUrl, "_blank", "noopener,noreferrer");
+      }
+      setTelegramMessage("Откройте бота и нажмите Start.");
+      setTelegramStatus((current) => ({
+        connected: Boolean(payload.connected),
+        botUsername: payload.botUsername || current?.botUsername || "",
+        chatId: current?.chatId || null,
+        username: current?.username || null,
+        linkedAt: current?.linkedAt || null,
+        revokedAt: current?.revokedAt || null,
+        connectUrl: payload.connectUrl || null
+      }));
+    } catch (error) {
+      setTelegramMessage(error instanceof Error ? error.message : "Не удалось подключить Telegram");
+    } finally {
+      setTelegramBusy(false);
+    }
+  }
+
+  async function disconnectTelegram() {
+    setTelegramBusy(true);
+    setTelegramMessage("");
+    try {
+      const response = await fetch("/api/telegram/disconnect", { method: "POST" });
+      const payload = await response.json();
+      if (!response.ok || payload.ok === false) throw new Error(payload.error || "Не удалось отключить Telegram");
+      setTelegramStatus((current) => current ? { ...current, connected: false, revokedAt: new Date().toISOString() } : null);
+      setTelegramMessage("Telegram отключён.");
+    } catch (error) {
+      setTelegramMessage(error instanceof Error ? error.message : "Не удалось отключить Telegram");
+    } finally {
+      setTelegramBusy(false);
+    }
+  }
 
   return (
     <section className="grid-two notifications-view">
@@ -114,15 +179,24 @@ export function NotificationsView({ state, selectors, actions }: { state: AppSta
                 onChange={(event) => actions.updateSetting("notifications", { ...state.settings.notifications, emailTarget: event.target.value })}
               />
             </label>
-            <label className="field">
-              <span className="picker-label">Telegram chat / username</span>
-              <input
-                className="input"
-                value={state.settings.notifications.telegramTarget}
-                placeholder="@username или chat id"
-                onChange={(event) => actions.updateSetting("notifications", { ...state.settings.notifications, telegramTarget: event.target.value })}
-              />
-            </label>
+            <div className="field">
+              <span className="picker-label">Telegram</span>
+              <div className="settings-row telegram-connection-row">
+                <span>
+                  <b>{telegramStatus?.connected ? "Подключён" : "Не подключён"}</b><br />
+                  <small className="muted">{telegramStatus?.botUsername ? `@${telegramStatus.botUsername}` : "Один бот для всех пользователей"}</small>
+                </span>
+                <span className="badge">{telegramStatus?.username ? `@${telegramStatus.username}` : telegramStatus?.chatId ? telegramStatus.chatId : "—"}</span>
+              </div>
+              <div className="quick-actions">
+                {telegramStatus?.connected ? (
+                  <button className="btn ghost" onClick={() => void disconnectTelegram()} disabled={telegramBusy}>Отключить Telegram</button>
+                ) : (
+                  <button className="btn primary" onClick={() => void connectTelegram()} disabled={telegramBusy}>{telegramBusy ? "Подключаю..." : "Подключить Telegram"}</button>
+                )}
+              </div>
+              {telegramMessage ? <p className="muted">{telegramMessage}</p> : null}
+            </div>
           </div>
           <Toggle
             label="Push для будущего приложения"

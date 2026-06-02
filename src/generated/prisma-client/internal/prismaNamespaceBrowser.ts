@@ -55,6 +55,9 @@ export const ModelName = {
   PasswordResetToken: 'PasswordResetToken',
   HumanDesignTransitRecord: 'HumanDesignTransitRecord',
   AppConfig: 'AppConfig',
+  TelegramConnectToken: 'TelegramConnectToken',
+  TelegramConnection: 'TelegramConnection',
+  NotificationDeliveryLog: 'NotificationDeliveryLog',
   ContactMessage: 'ContactMessage'
 } as const
 
@@ -158,6 +161,51 @@ export const AppConfigScalarFieldEnum = {
 export type AppConfigScalarFieldEnum = (typeof AppConfigScalarFieldEnum)[keyof typeof AppConfigScalarFieldEnum]
 
 
+export const TelegramConnectTokenScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  tokenHash: 'tokenHash',
+  expiresAt: 'expiresAt',
+  usedAt: 'usedAt',
+  createdAt: 'createdAt'
+} as const
+
+export type TelegramConnectTokenScalarFieldEnum = (typeof TelegramConnectTokenScalarFieldEnum)[keyof typeof TelegramConnectTokenScalarFieldEnum]
+
+
+export const TelegramConnectionScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  chatId: 'chatId',
+  username: 'username',
+  linkedAt: 'linkedAt',
+  revokedAt: 'revokedAt',
+  lastSeenAt: 'lastSeenAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type TelegramConnectionScalarFieldEnum = (typeof TelegramConnectionScalarFieldEnum)[keyof typeof TelegramConnectionScalarFieldEnum]
+
+
+export const NotificationDeliveryLogScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  channel: 'channel',
+  notificationId: 'notificationId',
+  status: 'status',
+  provider: 'provider',
+  providerMessageId: 'providerMessageId',
+  errorMessage: 'errorMessage',
+  payload: 'payload',
+  sentAt: 'sentAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type NotificationDeliveryLogScalarFieldEnum = (typeof NotificationDeliveryLogScalarFieldEnum)[keyof typeof NotificationDeliveryLogScalarFieldEnum]
+
+
 export const ContactMessageScalarFieldEnum = {
   id: 'id',
   name: 'name',
@@ -193,6 +241,14 @@ export const JsonNullValueInput = {
 } as const
 
 export type JsonNullValueInput = (typeof JsonNullValueInput)[keyof typeof JsonNullValueInput]
+
+
+export const NullableJsonNullValueInput = {
+  DbNull: DbNull,
+  JsonNull: JsonNull
+} as const
+
+export type NullableJsonNullValueInput = (typeof NullableJsonNullValueInput)[keyof typeof NullableJsonNullValueInput]
 
 
 export const QueryMode = {

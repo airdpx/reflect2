@@ -24,6 +24,7 @@ export function ManagementView({ state }: { state: AppState }) {
       </div>
       <div className="stack">
         <GlobalDefaultsPanel currentSettings={state.settings} />
+        <TelegramPanel />
         <ResendKeyPanel />
         <ContactFromEmailPanel />
         <SiteContactPanel />
@@ -350,6 +351,191 @@ function SiteContactPanel() {
         <button className="btn" onClick={saveEmail} disabled={loading}>{loading ? "Сохраняю..." : "Сохранить email"}</button>
       </div>
       <p className="muted">{message || "На странице контактов будет использован именно этот адрес."}</p>
+    </div>
+  );
+}
+
+function TelegramPanel() {
+  const [enabled, setEnabled] = useState(false);
+  const [botUsername, setBotUsername] = useState("");
+  const [botToken, setBotToken] = useState("");
+  const [webhookSecret, setWebhookSecret] = useState("");
+  const [state, setState] = useState({
+    botTokenMasked: "",
+    botTokenLast4: "",
+    botTokenConfiguredInDb: false,
+    botTokenSource: "none" as "db" | "env" | "none",
+    webhookSecretMasked: "",
+    webhookSecretLast4: "",
+    webhookSecretConfiguredInDb: false,
+    webhookSecretSource: "none" as "db" | "env" | "none",
+    connectedUsersCount: 0,
+    linkedUsersCount: 0,
+    lastDeliveryAt: null as string | null,
+    lastDeliveryStatus: null as string | null,
+    lastWebhookStatus: null as string | null
+  });
+  const [loading, setLoading] = useState(false);
+  const [message, setMessage] = useState("");
+
+  useEffect(() => {
+    let mounted = true;
+    fetch("/api/admin/telegram")
+      .then(async (response) => {
+        const payload = await response.json();
+        if (!response.ok || payload.ok === false) throw new Error(payload.error || "Не удалось загрузить Telegram");
+        return payload.state;
+      })
+      .then((saved) => {
+        if (!mounted) return;
+        setEnabled(Boolean(saved.enabled));
+        setBotUsername(String(saved.botUsername || ""));
+        setState((current) => ({ ...current, ...saved }));
+      })
+      .catch(() => {
+        if (mounted) setState((current) => ({ ...current, lastWebhookStatus: "none" }));
+      });
+    return () => { mounted = false; };
+  }, []);
+
+  async function refresh() {
+    setLoading(true);
+    setMessage("");
+    try {
+      const response = await fetch("/api/admin/telegram");
+      const payload = await response.json();
+      if (!response.ok || payload.ok === false) throw new Error(payload.error || "Не удалось проверить Telegram");
+      setEnabled(Boolean(payload.state.enabled));
+      setBotUsername(String(payload.state.botUsername || ""));
+      setState((current) => ({ ...current, ...payload.state }));
+      setMessage(`Подключено пользователей: ${payload.state.connectedUsersCount || 0}`);
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : "Не удалось проверить Telegram");
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  async function save() {
+    setLoading(true);
+    setMessage("");
+    try {
+      const response = await fetch("/api/admin/telegram", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          enabled,
+          botUsername,
+          botToken,
+          webhookSecret
+        })
+      });
+      const payload = await response.json();
+      if (!response.ok || payload.ok === false) throw new Error(payload.error || "Не удалось сохранить Telegram");
+      setBotToken("");
+      setWebhookSecret("");
+      setState((current) => ({ ...current, ...payload.state }));
+      setMessage("Telegram настройки сохранены.");
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : "Не удалось сохранить Telegram");
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  async function clear() {
+    setLoading(true);
+    setMessage("");
+    try {
+      const response = await fetch("/api/admin/telegram", { method: "DELETE" });
+      const payload = await response.json();
+      if (!response.ok || payload.ok === false) throw new Error(payload.error || "Не удалось отключить Telegram");
+      setBotToken("");
+      setWebhookSecret("");
+      setEnabled(false);
+      setBotUsername("");
+      setState((current) => ({ ...current, ...payload.state }));
+      setMessage("Telegram отключён.");
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : "Не удалось отключить Telegram");
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  async function setWebhook(action: "set" | "clear") {
+    setLoading(true);
+    setMessage("");
+    try {
+      const response = await fetch("/api/admin/telegram/webhook", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action })
+      });
+      const payload = await response.json();
+      if (!response.ok || payload.ok === false) throw new Error(payload.error || "Не удалось изменить webhook");
+      setMessage(action === "set" ? `Webhook установлен: ${payload.url}` : "Webhook удалён.");
+      await refresh();
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : "Не удалось изменить webhook");
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  async function sendDigest() {
+    setLoading(true);
+    setMessage("");
+    try {
+      const response = await fetch("/api/admin/telegram/send", { method: "POST" });
+      const payload = await response.json();
+      if (!response.ok || payload.ok === false) throw new Error(payload.error || "Не удалось отправить Telegram");
+      setMessage(`Отправлено: ${payload.result.delivered}, ошибок: ${payload.result.failed}, пропусков: ${payload.result.skipped}`);
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : "Не удалось отправить Telegram");
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  return (
+    <div className="panel settings-card">
+      <div className="section-head">
+        <div>
+          <h3>Telegram</h3>
+          <p className="muted">Один бот для всех пользователей системы. Привязка через /start.</p>
+        </div>
+      </div>
+      <Toggle label="Включить Telegram" checked={enabled} onChange={setEnabled} />
+      <div className="form-grid">
+        <label className="field">
+          <span className="picker-label">Bot username</span>
+          <input className="input" value={botUsername} placeholder="botname_bot" onChange={(event) => setBotUsername(event.target.value)} />
+        </label>
+        <label className="field">
+          <span className="picker-label">Bot token</span>
+          <input className="input" type="password" value={botToken} placeholder={state.botTokenMasked || "••••••"} onChange={(event) => setBotToken(event.target.value)} />
+        </label>
+        <label className="field">
+          <span className="picker-label">Webhook secret</span>
+          <input className="input" type="password" value={webhookSecret} placeholder={state.webhookSecretMasked || "••••••"} onChange={(event) => setWebhookSecret(event.target.value)} />
+        </label>
+      </div>
+      <div className="toolbar preset-toolbar">
+        <button className="btn" onClick={save} disabled={loading}>{loading ? "Сохраняю..." : "Сохранить"}</button>
+        <button className="btn ghost" onClick={refresh} disabled={loading}>Проверить</button>
+        <button className="btn ghost" onClick={() => void setWebhook("set")} disabled={loading}>Webhook</button>
+        <button className="btn ghost" onClick={() => void setWebhook("clear")} disabled={loading}>Снять webhook</button>
+        <button className="btn ghost" onClick={sendDigest} disabled={loading}>Отправить тест</button>
+        <button className="btn danger" onClick={clear} disabled={loading}>Отключить</button>
+      </div>
+      <div className="settings-row">
+        <span><b>Статус</b><br /><small className="muted">{state.connectedUsersCount} подключено · последнее: {state.lastDeliveryStatus || "—"}</small></span>
+        <span className="badge">{state.lastWebhookStatus || "не проверен"}</span>
+      </div>
+      <p className="muted">
+        {message || `Источник bot token: ${state.botTokenSource}. Источник secret: ${state.webhookSecretSource}.`}
+      </p>
     </div>
   );
 }

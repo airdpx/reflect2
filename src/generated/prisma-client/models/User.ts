@@ -217,6 +217,8 @@ export type UserWhereInput = {
   sessions?: Prisma.SessionListRelationFilter
   resetTokens?: Prisma.PasswordResetTokenListRelationFilter
   state?: Prisma.XOR<Prisma.UserStateNullableScalarRelationFilter, Prisma.UserStateWhereInput> | null
+  telegramConnections?: Prisma.TelegramConnectionListRelationFilter
+  telegramConnectTokens?: Prisma.TelegramConnectTokenListRelationFilter
 }
 
 export type UserOrderByWithRelationInput = {
@@ -232,6 +234,8 @@ export type UserOrderByWithRelationInput = {
   sessions?: Prisma.SessionOrderByRelationAggregateInput
   resetTokens?: Prisma.PasswordResetTokenOrderByRelationAggregateInput
   state?: Prisma.UserStateOrderByWithRelationInput
+  telegramConnections?: Prisma.TelegramConnectionOrderByRelationAggregateInput
+  telegramConnectTokens?: Prisma.TelegramConnectTokenOrderByRelationAggregateInput
 }
 
 export type UserWhereUniqueInput = Prisma.AtLeast<{
@@ -250,6 +254,8 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   sessions?: Prisma.SessionListRelationFilter
   resetTokens?: Prisma.PasswordResetTokenListRelationFilter
   state?: Prisma.XOR<Prisma.UserStateNullableScalarRelationFilter, Prisma.UserStateWhereInput> | null
+  telegramConnections?: Prisma.TelegramConnectionListRelationFilter
+  telegramConnectTokens?: Prisma.TelegramConnectTokenListRelationFilter
 }, "id" | "email">
 
 export type UserOrderByWithAggregationInput = {
@@ -295,6 +301,8 @@ export type UserCreateInput = {
   sessions?: Prisma.SessionCreateNestedManyWithoutUserInput
   resetTokens?: Prisma.PasswordResetTokenCreateNestedManyWithoutUserInput
   state?: Prisma.UserStateCreateNestedOneWithoutUserInput
+  telegramConnections?: Prisma.TelegramConnectionCreateNestedManyWithoutUserInput
+  telegramConnectTokens?: Prisma.TelegramConnectTokenCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateInput = {
@@ -310,6 +318,8 @@ export type UserUncheckedCreateInput = {
   sessions?: Prisma.SessionUncheckedCreateNestedManyWithoutUserInput
   resetTokens?: Prisma.PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
   state?: Prisma.UserStateUncheckedCreateNestedOneWithoutUserInput
+  telegramConnections?: Prisma.TelegramConnectionUncheckedCreateNestedManyWithoutUserInput
+  telegramConnectTokens?: Prisma.TelegramConnectTokenUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserUpdateInput = {
@@ -325,6 +335,8 @@ export type UserUpdateInput = {
   sessions?: Prisma.SessionUpdateManyWithoutUserNestedInput
   resetTokens?: Prisma.PasswordResetTokenUpdateManyWithoutUserNestedInput
   state?: Prisma.UserStateUpdateOneWithoutUserNestedInput
+  telegramConnections?: Prisma.TelegramConnectionUpdateManyWithoutUserNestedInput
+  telegramConnectTokens?: Prisma.TelegramConnectTokenUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateInput = {
@@ -340,6 +352,8 @@ export type UserUncheckedUpdateInput = {
   sessions?: Prisma.SessionUncheckedUpdateManyWithoutUserNestedInput
   resetTokens?: Prisma.PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
   state?: Prisma.UserStateUncheckedUpdateOneWithoutUserNestedInput
+  telegramConnections?: Prisma.TelegramConnectionUncheckedUpdateManyWithoutUserNestedInput
+  telegramConnectTokens?: Prisma.TelegramConnectTokenUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateManyInput = {
@@ -473,6 +487,34 @@ export type UserUpdateOneRequiredWithoutResetTokensNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutResetTokensInput, Prisma.UserUpdateWithoutResetTokensInput>, Prisma.UserUncheckedUpdateWithoutResetTokensInput>
 }
 
+export type UserCreateNestedOneWithoutTelegramConnectTokensInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutTelegramConnectTokensInput, Prisma.UserUncheckedCreateWithoutTelegramConnectTokensInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutTelegramConnectTokensInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserUpdateOneRequiredWithoutTelegramConnectTokensNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutTelegramConnectTokensInput, Prisma.UserUncheckedCreateWithoutTelegramConnectTokensInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutTelegramConnectTokensInput
+  upsert?: Prisma.UserUpsertWithoutTelegramConnectTokensInput
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutTelegramConnectTokensInput, Prisma.UserUpdateWithoutTelegramConnectTokensInput>, Prisma.UserUncheckedUpdateWithoutTelegramConnectTokensInput>
+}
+
+export type UserCreateNestedOneWithoutTelegramConnectionsInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutTelegramConnectionsInput, Prisma.UserUncheckedCreateWithoutTelegramConnectionsInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutTelegramConnectionsInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserUpdateOneRequiredWithoutTelegramConnectionsNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutTelegramConnectionsInput, Prisma.UserUncheckedCreateWithoutTelegramConnectionsInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutTelegramConnectionsInput
+  upsert?: Prisma.UserUpsertWithoutTelegramConnectionsInput
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutTelegramConnectionsInput, Prisma.UserUpdateWithoutTelegramConnectionsInput>, Prisma.UserUncheckedUpdateWithoutTelegramConnectionsInput>
+}
+
 export type UserCreateWithoutStateInput = {
   id?: string
   email: string
@@ -485,6 +527,8 @@ export type UserCreateWithoutStateInput = {
   updatedAt?: Date | string
   sessions?: Prisma.SessionCreateNestedManyWithoutUserInput
   resetTokens?: Prisma.PasswordResetTokenCreateNestedManyWithoutUserInput
+  telegramConnections?: Prisma.TelegramConnectionCreateNestedManyWithoutUserInput
+  telegramConnectTokens?: Prisma.TelegramConnectTokenCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutStateInput = {
@@ -499,6 +543,8 @@ export type UserUncheckedCreateWithoutStateInput = {
   updatedAt?: Date | string
   sessions?: Prisma.SessionUncheckedCreateNestedManyWithoutUserInput
   resetTokens?: Prisma.PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
+  telegramConnections?: Prisma.TelegramConnectionUncheckedCreateNestedManyWithoutUserInput
+  telegramConnectTokens?: Prisma.TelegramConnectTokenUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutStateInput = {
@@ -529,6 +575,8 @@ export type UserUpdateWithoutStateInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   sessions?: Prisma.SessionUpdateManyWithoutUserNestedInput
   resetTokens?: Prisma.PasswordResetTokenUpdateManyWithoutUserNestedInput
+  telegramConnections?: Prisma.TelegramConnectionUpdateManyWithoutUserNestedInput
+  telegramConnectTokens?: Prisma.TelegramConnectTokenUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutStateInput = {
@@ -543,6 +591,8 @@ export type UserUncheckedUpdateWithoutStateInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   sessions?: Prisma.SessionUncheckedUpdateManyWithoutUserNestedInput
   resetTokens?: Prisma.PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
+  telegramConnections?: Prisma.TelegramConnectionUncheckedUpdateManyWithoutUserNestedInput
+  telegramConnectTokens?: Prisma.TelegramConnectTokenUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutSessionsInput = {
@@ -557,6 +607,8 @@ export type UserCreateWithoutSessionsInput = {
   updatedAt?: Date | string
   resetTokens?: Prisma.PasswordResetTokenCreateNestedManyWithoutUserInput
   state?: Prisma.UserStateCreateNestedOneWithoutUserInput
+  telegramConnections?: Prisma.TelegramConnectionCreateNestedManyWithoutUserInput
+  telegramConnectTokens?: Prisma.TelegramConnectTokenCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutSessionsInput = {
@@ -571,6 +623,8 @@ export type UserUncheckedCreateWithoutSessionsInput = {
   updatedAt?: Date | string
   resetTokens?: Prisma.PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
   state?: Prisma.UserStateUncheckedCreateNestedOneWithoutUserInput
+  telegramConnections?: Prisma.TelegramConnectionUncheckedCreateNestedManyWithoutUserInput
+  telegramConnectTokens?: Prisma.TelegramConnectTokenUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutSessionsInput = {
@@ -601,6 +655,8 @@ export type UserUpdateWithoutSessionsInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   resetTokens?: Prisma.PasswordResetTokenUpdateManyWithoutUserNestedInput
   state?: Prisma.UserStateUpdateOneWithoutUserNestedInput
+  telegramConnections?: Prisma.TelegramConnectionUpdateManyWithoutUserNestedInput
+  telegramConnectTokens?: Prisma.TelegramConnectTokenUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutSessionsInput = {
@@ -615,6 +671,8 @@ export type UserUncheckedUpdateWithoutSessionsInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   resetTokens?: Prisma.PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
   state?: Prisma.UserStateUncheckedUpdateOneWithoutUserNestedInput
+  telegramConnections?: Prisma.TelegramConnectionUncheckedUpdateManyWithoutUserNestedInput
+  telegramConnectTokens?: Prisma.TelegramConnectTokenUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutResetTokensInput = {
@@ -629,6 +687,8 @@ export type UserCreateWithoutResetTokensInput = {
   updatedAt?: Date | string
   sessions?: Prisma.SessionCreateNestedManyWithoutUserInput
   state?: Prisma.UserStateCreateNestedOneWithoutUserInput
+  telegramConnections?: Prisma.TelegramConnectionCreateNestedManyWithoutUserInput
+  telegramConnectTokens?: Prisma.TelegramConnectTokenCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutResetTokensInput = {
@@ -643,6 +703,8 @@ export type UserUncheckedCreateWithoutResetTokensInput = {
   updatedAt?: Date | string
   sessions?: Prisma.SessionUncheckedCreateNestedManyWithoutUserInput
   state?: Prisma.UserStateUncheckedCreateNestedOneWithoutUserInput
+  telegramConnections?: Prisma.TelegramConnectionUncheckedCreateNestedManyWithoutUserInput
+  telegramConnectTokens?: Prisma.TelegramConnectTokenUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutResetTokensInput = {
@@ -673,6 +735,8 @@ export type UserUpdateWithoutResetTokensInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   sessions?: Prisma.SessionUpdateManyWithoutUserNestedInput
   state?: Prisma.UserStateUpdateOneWithoutUserNestedInput
+  telegramConnections?: Prisma.TelegramConnectionUpdateManyWithoutUserNestedInput
+  telegramConnectTokens?: Prisma.TelegramConnectTokenUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutResetTokensInput = {
@@ -687,6 +751,168 @@ export type UserUncheckedUpdateWithoutResetTokensInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   sessions?: Prisma.SessionUncheckedUpdateManyWithoutUserNestedInput
   state?: Prisma.UserStateUncheckedUpdateOneWithoutUserNestedInput
+  telegramConnections?: Prisma.TelegramConnectionUncheckedUpdateManyWithoutUserNestedInput
+  telegramConnectTokens?: Prisma.TelegramConnectTokenUncheckedUpdateManyWithoutUserNestedInput
+}
+
+export type UserCreateWithoutTelegramConnectTokensInput = {
+  id?: string
+  email: string
+  name: string
+  passwordHash: string
+  birthDate: string
+  isAdmin?: boolean
+  isBlocked?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  sessions?: Prisma.SessionCreateNestedManyWithoutUserInput
+  resetTokens?: Prisma.PasswordResetTokenCreateNestedManyWithoutUserInput
+  state?: Prisma.UserStateCreateNestedOneWithoutUserInput
+  telegramConnections?: Prisma.TelegramConnectionCreateNestedManyWithoutUserInput
+}
+
+export type UserUncheckedCreateWithoutTelegramConnectTokensInput = {
+  id?: string
+  email: string
+  name: string
+  passwordHash: string
+  birthDate: string
+  isAdmin?: boolean
+  isBlocked?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  sessions?: Prisma.SessionUncheckedCreateNestedManyWithoutUserInput
+  resetTokens?: Prisma.PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
+  state?: Prisma.UserStateUncheckedCreateNestedOneWithoutUserInput
+  telegramConnections?: Prisma.TelegramConnectionUncheckedCreateNestedManyWithoutUserInput
+}
+
+export type UserCreateOrConnectWithoutTelegramConnectTokensInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutTelegramConnectTokensInput, Prisma.UserUncheckedCreateWithoutTelegramConnectTokensInput>
+}
+
+export type UserUpsertWithoutTelegramConnectTokensInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutTelegramConnectTokensInput, Prisma.UserUncheckedUpdateWithoutTelegramConnectTokensInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutTelegramConnectTokensInput, Prisma.UserUncheckedCreateWithoutTelegramConnectTokensInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutTelegramConnectTokensInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutTelegramConnectTokensInput, Prisma.UserUncheckedUpdateWithoutTelegramConnectTokensInput>
+}
+
+export type UserUpdateWithoutTelegramConnectTokensInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
+  birthDate?: Prisma.StringFieldUpdateOperationsInput | string
+  isAdmin?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isBlocked?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  sessions?: Prisma.SessionUpdateManyWithoutUserNestedInput
+  resetTokens?: Prisma.PasswordResetTokenUpdateManyWithoutUserNestedInput
+  state?: Prisma.UserStateUpdateOneWithoutUserNestedInput
+  telegramConnections?: Prisma.TelegramConnectionUpdateManyWithoutUserNestedInput
+}
+
+export type UserUncheckedUpdateWithoutTelegramConnectTokensInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
+  birthDate?: Prisma.StringFieldUpdateOperationsInput | string
+  isAdmin?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isBlocked?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  sessions?: Prisma.SessionUncheckedUpdateManyWithoutUserNestedInput
+  resetTokens?: Prisma.PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
+  state?: Prisma.UserStateUncheckedUpdateOneWithoutUserNestedInput
+  telegramConnections?: Prisma.TelegramConnectionUncheckedUpdateManyWithoutUserNestedInput
+}
+
+export type UserCreateWithoutTelegramConnectionsInput = {
+  id?: string
+  email: string
+  name: string
+  passwordHash: string
+  birthDate: string
+  isAdmin?: boolean
+  isBlocked?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  sessions?: Prisma.SessionCreateNestedManyWithoutUserInput
+  resetTokens?: Prisma.PasswordResetTokenCreateNestedManyWithoutUserInput
+  state?: Prisma.UserStateCreateNestedOneWithoutUserInput
+  telegramConnectTokens?: Prisma.TelegramConnectTokenCreateNestedManyWithoutUserInput
+}
+
+export type UserUncheckedCreateWithoutTelegramConnectionsInput = {
+  id?: string
+  email: string
+  name: string
+  passwordHash: string
+  birthDate: string
+  isAdmin?: boolean
+  isBlocked?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  sessions?: Prisma.SessionUncheckedCreateNestedManyWithoutUserInput
+  resetTokens?: Prisma.PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
+  state?: Prisma.UserStateUncheckedCreateNestedOneWithoutUserInput
+  telegramConnectTokens?: Prisma.TelegramConnectTokenUncheckedCreateNestedManyWithoutUserInput
+}
+
+export type UserCreateOrConnectWithoutTelegramConnectionsInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutTelegramConnectionsInput, Prisma.UserUncheckedCreateWithoutTelegramConnectionsInput>
+}
+
+export type UserUpsertWithoutTelegramConnectionsInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutTelegramConnectionsInput, Prisma.UserUncheckedUpdateWithoutTelegramConnectionsInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutTelegramConnectionsInput, Prisma.UserUncheckedCreateWithoutTelegramConnectionsInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutTelegramConnectionsInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutTelegramConnectionsInput, Prisma.UserUncheckedUpdateWithoutTelegramConnectionsInput>
+}
+
+export type UserUpdateWithoutTelegramConnectionsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
+  birthDate?: Prisma.StringFieldUpdateOperationsInput | string
+  isAdmin?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isBlocked?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  sessions?: Prisma.SessionUpdateManyWithoutUserNestedInput
+  resetTokens?: Prisma.PasswordResetTokenUpdateManyWithoutUserNestedInput
+  state?: Prisma.UserStateUpdateOneWithoutUserNestedInput
+  telegramConnectTokens?: Prisma.TelegramConnectTokenUpdateManyWithoutUserNestedInput
+}
+
+export type UserUncheckedUpdateWithoutTelegramConnectionsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
+  birthDate?: Prisma.StringFieldUpdateOperationsInput | string
+  isAdmin?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isBlocked?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  sessions?: Prisma.SessionUncheckedUpdateManyWithoutUserNestedInput
+  resetTokens?: Prisma.PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
+  state?: Prisma.UserStateUncheckedUpdateOneWithoutUserNestedInput
+  telegramConnectTokens?: Prisma.TelegramConnectTokenUncheckedUpdateManyWithoutUserNestedInput
 }
 
 
@@ -697,11 +923,15 @@ export type UserUncheckedUpdateWithoutResetTokensInput = {
 export type UserCountOutputType = {
   sessions: number
   resetTokens: number
+  telegramConnections: number
+  telegramConnectTokens: number
 }
 
 export type UserCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   sessions?: boolean | UserCountOutputTypeCountSessionsArgs
   resetTokens?: boolean | UserCountOutputTypeCountResetTokensArgs
+  telegramConnections?: boolean | UserCountOutputTypeCountTelegramConnectionsArgs
+  telegramConnectTokens?: boolean | UserCountOutputTypeCountTelegramConnectTokensArgs
 }
 
 /**
@@ -728,6 +958,20 @@ export type UserCountOutputTypeCountResetTokensArgs<ExtArgs extends runtime.Type
   where?: Prisma.PasswordResetTokenWhereInput
 }
 
+/**
+ * UserCountOutputType without action
+ */
+export type UserCountOutputTypeCountTelegramConnectionsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.TelegramConnectionWhereInput
+}
+
+/**
+ * UserCountOutputType without action
+ */
+export type UserCountOutputTypeCountTelegramConnectTokensArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.TelegramConnectTokenWhereInput
+}
+
 
 export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -742,6 +986,8 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   sessions?: boolean | Prisma.User$sessionsArgs<ExtArgs>
   resetTokens?: boolean | Prisma.User$resetTokensArgs<ExtArgs>
   state?: boolean | Prisma.User$stateArgs<ExtArgs>
+  telegramConnections?: boolean | Prisma.User$telegramConnectionsArgs<ExtArgs>
+  telegramConnectTokens?: boolean | Prisma.User$telegramConnectTokensArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["user"]>
 
@@ -786,6 +1032,8 @@ export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   sessions?: boolean | Prisma.User$sessionsArgs<ExtArgs>
   resetTokens?: boolean | Prisma.User$resetTokensArgs<ExtArgs>
   state?: boolean | Prisma.User$stateArgs<ExtArgs>
+  telegramConnections?: boolean | Prisma.User$telegramConnectionsArgs<ExtArgs>
+  telegramConnectTokens?: boolean | Prisma.User$telegramConnectTokensArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type UserIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
@@ -797,6 +1045,8 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     sessions: Prisma.$SessionPayload<ExtArgs>[]
     resetTokens: Prisma.$PasswordResetTokenPayload<ExtArgs>[]
     state: Prisma.$UserStatePayload<ExtArgs> | null
+    telegramConnections: Prisma.$TelegramConnectionPayload<ExtArgs>[]
+    telegramConnectTokens: Prisma.$TelegramConnectTokenPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -1205,6 +1455,8 @@ export interface Prisma__UserClient<T, Null = never, ExtArgs extends runtime.Typ
   sessions<T extends Prisma.User$sessionsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$sessionsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$SessionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   resetTokens<T extends Prisma.User$resetTokensArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$resetTokensArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$PasswordResetTokenPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   state<T extends Prisma.User$stateArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$stateArgs<ExtArgs>>): Prisma.Prisma__UserStateClient<runtime.Types.Result.GetResult<Prisma.$UserStatePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  telegramConnections<T extends Prisma.User$telegramConnectionsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$telegramConnectionsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$TelegramConnectionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  telegramConnectTokens<T extends Prisma.User$telegramConnectTokensArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$telegramConnectTokensArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$TelegramConnectTokenPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1695,6 +1947,54 @@ export type User$stateArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs
    */
   include?: Prisma.UserStateInclude<ExtArgs> | null
   where?: Prisma.UserStateWhereInput
+}
+
+/**
+ * User.telegramConnections
+ */
+export type User$telegramConnectionsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the TelegramConnection
+   */
+  select?: Prisma.TelegramConnectionSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the TelegramConnection
+   */
+  omit?: Prisma.TelegramConnectionOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.TelegramConnectionInclude<ExtArgs> | null
+  where?: Prisma.TelegramConnectionWhereInput
+  orderBy?: Prisma.TelegramConnectionOrderByWithRelationInput | Prisma.TelegramConnectionOrderByWithRelationInput[]
+  cursor?: Prisma.TelegramConnectionWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.TelegramConnectionScalarFieldEnum | Prisma.TelegramConnectionScalarFieldEnum[]
+}
+
+/**
+ * User.telegramConnectTokens
+ */
+export type User$telegramConnectTokensArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the TelegramConnectToken
+   */
+  select?: Prisma.TelegramConnectTokenSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the TelegramConnectToken
+   */
+  omit?: Prisma.TelegramConnectTokenOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.TelegramConnectTokenInclude<ExtArgs> | null
+  where?: Prisma.TelegramConnectTokenWhereInput
+  orderBy?: Prisma.TelegramConnectTokenOrderByWithRelationInput | Prisma.TelegramConnectTokenOrderByWithRelationInput[]
+  cursor?: Prisma.TelegramConnectTokenWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.TelegramConnectTokenScalarFieldEnum | Prisma.TelegramConnectTokenScalarFieldEnum[]
 }
 
 /**

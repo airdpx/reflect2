@@ -160,6 +160,34 @@ export type NotificationSettings = {
   pushReady: boolean;
 };
 
+export type TelegramAdminSettings = {
+  enabled: boolean;
+  botUsername: string;
+  botTokenMasked: string;
+  botTokenLast4: string;
+  botTokenConfiguredInDb: boolean;
+  botTokenSource: "db" | "env" | "none";
+  webhookSecretMasked: string;
+  webhookSecretLast4: string;
+  webhookSecretConfiguredInDb: boolean;
+  webhookSecretSource: "db" | "env" | "none";
+  connectedUsersCount: number;
+  linkedUsersCount: number;
+  lastDeliveryAt?: string | null;
+  lastDeliveryStatus?: string | null;
+  lastWebhookStatus?: string | null;
+};
+
+export type TelegramConnectionStatus = {
+  connected: boolean;
+  botUsername: string;
+  chatId?: string | null;
+  username?: string | null;
+  linkedAt?: string | null;
+  revokedAt?: string | null;
+  connectUrl?: string | null;
+};
+
 export type NotificationStateEntry = {
   status: NotificationDeliveryStatus;
   updatedAt: string;

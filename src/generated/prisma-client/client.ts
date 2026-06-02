@@ -68,11 +68,26 @@ export type PasswordResetToken = Prisma.PasswordResetTokenModel
 export type HumanDesignTransitRecord = Prisma.HumanDesignTransitRecordModel
 /**
  * Model AppConfig
- *
+ * 
  */
 export type AppConfig = Prisma.AppConfigModel
 /**
+ * Model TelegramConnectToken
+ * 
+ */
+export type TelegramConnectToken = Prisma.TelegramConnectTokenModel
+/**
+ * Model TelegramConnection
+ * 
+ */
+export type TelegramConnection = Prisma.TelegramConnectionModel
+/**
+ * Model NotificationDeliveryLog
+ * 
+ */
+export type NotificationDeliveryLog = Prisma.NotificationDeliveryLogModel
+/**
  * Model ContactMessage
- *
+ * 
  */
 export type ContactMessage = Prisma.ContactMessageModel
