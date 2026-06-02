@@ -32,6 +32,7 @@ export default function HabitCalendarApp({ initialState }: HabitCalendarAppProps
   const [hydrated, setHydrated] = useState(false);
   const skipNextDbSyncRef = useRef(false);
   const legacyMigrationInFlightRef = useRef(false);
+  const latestStateRef = useRef<AppState>(initialState || createDefaults());
   const [editingHabitId, setEditingHabitId] = useState<string | null>(null);
   const [draftHabit, setDraftHabit] = useState<Habit | null>(null);
   const [activeCell, setActiveCell] = useState<{ habitId: string; date: string } | null>(null);
@@ -40,9 +41,15 @@ export default function HabitCalendarApp({ initialState }: HabitCalendarAppProps
   useEffect(() => {
     const stored = initialState || createDefaults();
     const startingView = stored.settings.defaultView === "management" && !stored.profile?.isAdmin ? "today" : stored.settings.defaultView;
-    setState({ ...stored, view: startingView, selectedDate: todayKey() });
+    const nextState = { ...stored, view: startingView, selectedDate: todayKey() };
+    latestStateRef.current = nextState;
+    setState(nextState);
     setHydrated(true);
   }, [initialState]);
+
+  useEffect(() => {
+    latestStateRef.current = state;
+  }, [state]);
 
   useEffect(() => {
     if (!hydrated) return;
@@ -51,15 +58,32 @@ export default function HabitCalendarApp({ initialState }: HabitCalendarAppProps
       return;
     }
     if (!state.profile?.id) return;
+    const currentState = latestStateRef.current;
     const timer = window.setTimeout(() => {
-      fetch("/api/account/state", {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ state })
-      }).catch(() => undefined);
+      void persistState(currentState);
     }, 450);
     return () => window.clearTimeout(timer);
   }, [state, hydrated]);
+
+  useEffect(() => {
+    if (!hydrated || !state.profile?.id) return;
+    const flush = () => {
+      const current = latestStateRef.current;
+      if (!current.profile?.id) return;
+      void persistState(current, true);
+    };
+    const onVisibilityChange = () => {
+      if (document.visibilityState === "hidden") flush();
+    };
+    window.addEventListener("pagehide", flush);
+    window.addEventListener("beforeunload", flush);
+    document.addEventListener("visibilitychange", onVisibilityChange);
+    return () => {
+      window.removeEventListener("pagehide", flush);
+      window.removeEventListener("beforeunload", flush);
+      document.removeEventListener("visibilitychange", onVisibilityChange);
+    };
+  }, [hydrated, state.profile?.id]);
 
   useEffect(() => {
     if (!hydrated) return;
@@ -135,7 +159,11 @@ export default function HabitCalendarApp({ initialState }: HabitCalendarAppProps
   const periodDates = allPeriodDates;
 
   function updateState(updater: (draft: AppState) => AppState) {
-    setState((current) => updater(structuredClone(current)));
+    setState((current) => {
+      const next = updater(structuredClone(current));
+      latestStateRef.current = next;
+      return next;
+    });
   }
 
   const selectors: AppSelectors = {
@@ -453,13 +481,10 @@ export default function HabitCalendarApp({ initialState }: HabitCalendarAppProps
   async function importData(json: string) {
     const parsed = parseImportedState(json);
     if (!parsed) return false;
+    latestStateRef.current = parsed;
     setState(parsed);
     if (parsed.profile?.id) {
-      await fetch("/api/account/state", {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ state: parsed })
-      }).catch(() => undefined);
+      await persistState(parsed);
     }
     return true;
   }
@@ -539,13 +564,7 @@ export default function HabitCalendarApp({ initialState }: HabitCalendarAppProps
 
   async function signOut() {
     try {
-      if (state.profile?.id) {
-        await fetch("/api/account/state", {
-          method: "PUT",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ state })
-        });
-      }
+      if (state.profile?.id) await persistState(latestStateRef.current);
     } catch {
       // Best-effort flush before sign-out.
     } finally {
@@ -566,5 +585,15 @@ export default function HabitCalendarApp({ initialState }: HabitCalendarAppProps
       draft.habits.splice(to, 0, habit);
       return draft;
     });
+  }
+
+  async function persistState(nextState: AppState, keepalive = false) {
+    if (!nextState.profile?.id) return;
+    await fetch("/api/account/state", {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ state: nextState }),
+      keepalive
+    }).catch(() => undefined);
   }
 }

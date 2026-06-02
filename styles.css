@@ -4816,6 +4816,18 @@ button {
   gap: 12px;
 }
 
+.management-layout {
+  align-items: start;
+}
+
+.management-layout > .stack {
+  min-width: 0;
+}
+
+.admin-toolbar {
+  align-items: center;
+}
+
 .admin-table {
   display: grid;
   gap: 8px;
@@ -4875,9 +4887,34 @@ button {
 
 .admin-table-actions {
   display: flex;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   gap: 6px;
   justify-content: flex-start;
+  max-width: 100%;
+  overflow-x: auto;
+  padding-bottom: 2px;
+  scrollbar-width: thin;
+}
+
+.admin-table-actions .btn,
+.admin-toolbar .btn,
+.compact-action {
+  white-space: nowrap;
+}
+
+.admin-table-actions .btn {
+  min-height: 32px;
+  padding: 6px 10px;
+  font-size: 13px;
+}
+
+.admin-table-actions::-webkit-scrollbar {
+  height: 4px;
+}
+
+.admin-table-actions::-webkit-scrollbar-thumb {
+  background: color-mix(in srgb, var(--line) 72%, transparent);
+  border-radius: 999px;
 }
 
 .app-footer,
@@ -6872,6 +6909,16 @@ body:has(.theme-custom) { background: #111827; }
 
   .grid-two {
     grid-template-columns: minmax(0, 1fr) minmax(260px, 0.72fr);
+  }
+
+  .management-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .admin-table-head,
+  .admin-table-row {
+    grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.95fr) 72px 72px 88px minmax(180px, 1fr);
+    gap: 6px;
   }
 
   .period-range {

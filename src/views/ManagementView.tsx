@@ -18,7 +18,7 @@ type AdminUserRecord = {
 
 export function ManagementView({ state }: { state: AppState }) {
   return (
-    <section className="grid-two">
+    <section className="grid-two management-layout">
       <div className="stack">
         <AdminUsersPanel currentUserId={state.profile?.id || ""} />
       </div>
@@ -127,7 +127,7 @@ function AdminUsersPanel({ currentUserId }: { currentUserId: string }) {
           <p className="muted">Список аккаунтов, полные email, привычки и отметки в календаре.</p>
         </div>
       </div>
-      <div className="toolbar preset-toolbar">
+      <div className="toolbar preset-toolbar admin-toolbar">
         <input className="input" type="password" value={adminPassword} placeholder="Новый пароль администратора" onChange={(event) => setAdminPassword(event.target.value)} />
         <button className="btn" onClick={changeAdminPassword}>Сменить пароль админа</button>
         <button className="btn ghost" onClick={() => void downloadExport("json")}>JSON</button>
@@ -182,17 +182,17 @@ function AdminUsersPanel({ currentUserId }: { currentUserId: string }) {
               </span>
               <div className="admin-table-actions">
                 {editing ? (
-                  <button className="btn" onClick={() => saveUser(user.id)}>Сохранить</button>
+                  <button className="btn compact-action" onClick={() => saveUser(user.id)}>Сохранить</button>
                 ) : (
-                  <button className="btn ghost" onClick={() => setEditingId(user.id)}>Редактировать</button>
+                  <button className="btn ghost compact-action" onClick={() => setEditingId(user.id)}>Редактировать</button>
                 )}
-                <button className="btn ghost" onClick={() => saveUserPayload(user.id, { isBlocked: !user.isBlocked })}>{user.isBlocked ? "Разблокировать" : "Заблокировать"}</button>
+                <button className="btn ghost compact-action" onClick={() => saveUserPayload(user.id, { isBlocked: !user.isBlocked })}>{user.isBlocked ? "Разблокировать" : "Заблокировать"}</button>
                 {user.id !== currentUserId ? (
-                  <button className="btn ghost" onClick={() => saveUserPayload(user.id, { isAdmin: !user.isAdmin })}>
+                  <button className="btn ghost compact-action" onClick={() => saveUserPayload(user.id, { isAdmin: !user.isAdmin })}>
                     {user.isAdmin ? "Убрать admin" : "Сделать admin"}
                   </button>
                 ) : null}
-                {user.id !== currentUserId ? <button className="btn danger" onClick={() => removeUser(user.id)}>Удалить</button> : null}
+                {user.id !== currentUserId ? <button className="btn danger compact-action" onClick={() => removeUser(user.id)}>Удалить</button> : null}
               </div>
             </div>
           );
