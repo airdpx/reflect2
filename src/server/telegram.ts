@@ -1,7 +1,7 @@
 import { randomBytes, createHash } from "node:crypto";
 import { getPrisma } from "./db";
 import { loadUserState } from "./auth";
-import { loadTelegramAdminConfig, loadTelegramAdminSettings } from "./site-settings";
+import { loadTelegramAdminConfig, loadTelegramAdminSettings, normalizeTelegramBotUsername, saveTelegramAdminSettings } from "./site-settings";
 import { buildNotificationFeed } from "../lib/notifications";
 import { calculateHabitStats, getAttentionHabits, getPeriodDates, getPeriodLabel, isHabitDue, logKey } from "../lib/analytics";
 import { formatDate } from "../lib/date";
@@ -25,14 +25,15 @@ export async function loadTelegramStatusForUser(userId: string) {
     orderBy: { linkedAt: "desc" }
   });
   const config = await loadTelegramAdminConfig();
+  const botUsername = await resolveTelegramBotUsername(config.botUsername, config.botToken);
   return {
     connected: Boolean(connection),
-    botUsername: config.botUsername,
+    botUsername,
     chatId: connection?.chatId || null,
     username: connection?.username || null,
     linkedAt: connection?.linkedAt?.toISOString() || null,
     revokedAt: connection?.revokedAt?.toISOString() || null,
-    connectUrl: config.botUsername ? `https://t.me/${config.botUsername}${connection ? "" : "?start="}` : null
+    connectUrl: botUsername ? `https://t.me/${botUsername}${connection ? "" : "?start="}` : null
   };
 }
 
@@ -41,7 +42,8 @@ export async function createTelegramConnectLink(userId: string) {
   if (!config.enabled) {
     throw new Error("Telegram отключён администратором");
   }
-  if (!config.botUsername) {
+  const botUsername = await resolveTelegramBotUsername(config.botUsername, config.botToken);
+  if (!botUsername) {
     throw new Error("Не задан bot username");
   }
   const prisma = getPrisma();
@@ -54,7 +56,8 @@ export async function createTelegramConnectLink(userId: string) {
   return {
     token,
     expiresAt: expiresAt.toISOString(),
-    connectUrl: `https://t.me/${config.botUsername}?start=${token}`
+    botUsername,
+    connectUrl: `https://t.me/${botUsername}?start=${token}`
   };
 }
 
@@ -358,6 +361,29 @@ export async function getTelegramAdminDashboardState() {
     lastDeliveryStatus: lastDelivery?.status || null,
     lastWebhookStatus: webhookInfo.status === "active" ? "active" : webhookInfo.status === "not-set" ? "not-set" : webhookInfo.status === "no-token" ? "no-token" : "error"
   };
+}
+
+export async function resolveTelegramBotUsername(preferred?: string, tokenOverride?: string) {
+  const normalizedPreferred = normalizeTelegramBotUsername(preferred || "");
+  if (normalizedPreferred) return normalizedPreferred;
+  const config = await loadTelegramAdminConfig();
+  const botToken = String(tokenOverride || config.botToken || "").trim();
+  if (!botToken) return "";
+  const response = await fetch(`${TELEGRAM_API_BASE}/bot${botToken}/getMe`, {
+    method: "GET",
+    headers: { "Content-Type": "application/json" }
+  });
+  const payload = await response.json().catch(() => ({})) as {
+    ok?: boolean;
+    description?: string;
+    result?: { username?: string };
+  };
+  const username = normalizeTelegramBotUsername(String(payload.result?.username || "").trim());
+  if (response.ok && payload.ok && username) {
+    await saveTelegramAdminSettings({ botUsername: username });
+    return username;
+  }
+  return "";
 }
 
 function buildTelegramDigestText(state: AppState, items: NotificationItem[]) {

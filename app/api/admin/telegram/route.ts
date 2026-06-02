@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { requireCurrentAdmin } from "../../../../src/server/auth";
-import { clearTelegramAdminSettings, saveTelegramAdminSettings } from "../../../../src/server/site-settings";
-import { getTelegramAdminDashboardState, setTelegramWebhook } from "../../../../src/server/telegram";
+import { clearTelegramAdminSettings, loadTelegramAdminConfig, saveTelegramAdminSettings } from "../../../../src/server/site-settings";
+import { getTelegramAdminDashboardState, resolveTelegramBotUsername, setTelegramWebhook } from "../../../../src/server/telegram";
 
 export async function GET() {
   try {
@@ -23,6 +23,8 @@ export async function PUT(request: Request) {
       botUsername: typeof body?.botUsername === "string" ? body.botUsername : undefined,
       webhookSecret: typeof body?.webhookSecret === "string" ? body.webhookSecret : undefined
     });
+    const config = await loadTelegramAdminConfig();
+    await resolveTelegramBotUsername(config.botUsername, config.botToken).catch(() => undefined);
     let webhookAttempt: { ok: boolean; url?: string; error?: string } | null = null;
     if (state.enabled) {
       try {

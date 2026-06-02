@@ -15,6 +15,17 @@ type TelegramAdminConfig = {
   webhookSecret: string;
 };
 
+export function normalizeTelegramBotUsername(value: string) {
+  const trimmed = String(value || "").trim();
+  if (!trimmed) return "";
+  return trimmed
+    .replace(/^https?:\/\/t\.me\//i, "")
+    .replace(/^@+/, "")
+    .replace(/\?.*$/, "")
+    .replace(/\/.*$/, "")
+    .trim();
+}
+
 export async function loadGlobalUserDefaults(): Promise<Partial<UserSettings>> {
   const prisma = getPrisma();
   const record = await prisma.appConfig.findUnique({ where: { key: GLOBAL_USER_DEFAULTS_KEY } });
@@ -144,7 +155,7 @@ export async function loadTelegramAdminConfig(): Promise<TelegramAdminConfig> {
   return {
     enabled: Boolean(raw.enabled),
     botToken: String(raw.botToken || "").trim() || String(process.env.TELEGRAM_BOT_TOKEN || "").trim(),
-    botUsername: String(raw.botUsername || "").trim() || String(process.env.TELEGRAM_BOT_USERNAME || "").trim(),
+    botUsername: normalizeTelegramBotUsername(String(raw.botUsername || "").trim() || String(process.env.TELEGRAM_BOT_USERNAME || "").trim()),
     webhookSecret: String(raw.webhookSecret || "").trim() || String(process.env.TELEGRAM_WEBHOOK_SECRET || "").trim()
   };
 }
@@ -159,7 +170,7 @@ export async function loadTelegramAdminSettings(): Promise<TelegramAdminSettings
   const secret = String(raw.webhookSecret || "").trim() || envSecret;
   return {
     enabled: Boolean(raw.enabled),
-    botUsername: String(raw.botUsername || "").trim(),
+    botUsername: normalizeTelegramBotUsername(String(raw.botUsername || "").trim()),
     botTokenMasked: maskSecret(token),
     botTokenLast4: token.slice(-4),
     botTokenConfiguredInDb: Boolean(String(raw.botToken || "").trim()),
@@ -182,7 +193,7 @@ export async function saveTelegramAdminSettings(settings: Partial<TelegramAdminC
   const next: TelegramAdminConfig = {
     enabled: typeof settings.enabled === "boolean" ? settings.enabled : current.enabled,
     botToken: typeof settings.botToken === "string" && settings.botToken.trim() ? settings.botToken.trim() : current.botToken,
-    botUsername: typeof settings.botUsername === "string" && settings.botUsername.trim() ? settings.botUsername.trim() : current.botUsername,
+    botUsername: typeof settings.botUsername === "string" && normalizeTelegramBotUsername(settings.botUsername) ? normalizeTelegramBotUsername(settings.botUsername) : current.botUsername,
     webhookSecret: typeof settings.webhookSecret === "string" && settings.webhookSecret.trim() ? settings.webhookSecret.trim() : current.webhookSecret
   };
   await prisma.appConfig.upsert({
