@@ -1,6 +1,6 @@
-import { AppFooter } from "../../src/components/Footer";
 import { ContactForm } from "../../src/components/ContactForm";
 import { loadSiteContactEmail } from "../../src/server/site-settings";
+import { StaticPageShell } from "../../src/components/StaticPageShell";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -8,33 +8,24 @@ export const revalidate = 0;
 export default async function ContactsPage() {
   const contactEmail = await loadSiteContactEmail();
   return (
-    <main className="static-page">
-      <div className="static-page-grid">
-        <section className="panel static-page-card contact-page-card contact-hero-card">
-          <div className="static-page-hero-copy">
-            <span className="static-page-kicker">Связь</span>
-            <h1>Контакты</h1>
-            <p className="muted">
-              Напиши нам прямо из формы. Сообщение отправится на адрес, который администратор
-              укажет в настройках сайта.
-            </p>
+    <StaticPageShell
+      kicker="Связь"
+      title="Контакты"
+      intro="Напиши нам прямо из формы. Сообщение отправится на адрес, который администратор укажет в настройках сайта."
+      aside={(
+        <div className="contact-list">
+          <div>
+            <b>Когда писать</b>
+            <span>Если нужен отклик по продукту, идее, ошибке или предложению.</span>
           </div>
-          <div className="contact-list">
-            <div>
-              <b>Когда писать</b>
-              <span>Если нужен отклик по продукту, идее, ошибке или предложению.</span>
-            </div>
-            <div>
-              <b>Как это работает</b>
-              <span>Форма собирает письмо и открывает почтовый клиент с готовым текстом.</span>
-            </div>
+          <div>
+            <b>Как это работает</b>
+            <span>Форма собирает письмо и открывает почтовый клиент с готовым текстом.</span>
           </div>
-        </section>
-        <section className="panel static-page-card contact-page-card contact-form-card">
-          <ContactForm recipientEmail={contactEmail} />
-        </section>
-      </div>
-      <AppFooter />
-    </main>
+        </div>
+      )}
+    >
+      <ContactForm recipientEmail={contactEmail} />
+    </StaticPageShell>
   );
 }

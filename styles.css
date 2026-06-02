@@ -4753,6 +4753,29 @@ button {
   gap: 16px;
 }
 
+.page-theme-dock {
+  position: fixed;
+  top: 14px;
+  right: 14px;
+  z-index: 60;
+}
+
+.page-theme-dock .quick-icon {
+  background: color-mix(in srgb, var(--surface) 72%, var(--bg));
+  border-color: var(--line);
+  color: var(--text);
+}
+
+.page-theme-dock .quick-panel {
+  background: color-mix(in srgb, var(--surface) 88%, var(--bg));
+  border-color: var(--line);
+  color: var(--text);
+}
+
+.page-theme-dock .quick-panel span {
+  color: var(--muted);
+}
+
 .static-page-card {
   width: 100%;
   display: grid;
@@ -4895,6 +4918,48 @@ button {
   font-size: 12px;
 }
 
+.content-page-main {
+  display: grid;
+  gap: 18px;
+}
+
+.content-page-body {
+  display: grid;
+  gap: 12px;
+}
+
+.content-page-sections {
+  display: grid;
+  gap: 12px;
+}
+
+.content-page-section {
+  display: grid;
+  gap: 6px;
+  padding: 14px;
+  border-radius: 10px;
+  border: 1px solid color-mix(in srgb, var(--line) 72%, transparent);
+  background: color-mix(in srgb, var(--surface-soft) 84%, var(--surface));
+}
+
+.content-page-section h2 {
+  margin: 0;
+  font-size: 18px;
+  line-height: 1.15;
+}
+
+.content-page-section p {
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.45;
+}
+
+.content-page-aside {
+  display: grid;
+  align-content: start;
+  gap: 12px;
+}
+
 @media (max-width: 720px) {
   .static-page {
     padding: 18px;
@@ -4902,6 +4967,13 @@ button {
 
   .static-page-grid {
     grid-template-columns: 1fr;
+  }
+
+  .page-theme-dock {
+    top: 10px;
+    right: 10px;
+    transform: scale(0.9);
+    transform-origin: top right;
   }
 
   .admin-table-head {
