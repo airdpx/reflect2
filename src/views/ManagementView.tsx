@@ -24,6 +24,7 @@ export function ManagementView({ state }: { state: AppState }) {
       </div>
       <div className="stack">
         <GlobalDefaultsPanel currentSettings={state.settings} />
+        <ResendKeyPanel />
         <SiteContactPanel />
       </div>
     </section>
@@ -348,6 +349,151 @@ function SiteContactPanel() {
         <button className="btn" onClick={saveEmail} disabled={loading}>{loading ? "Сохраняю..." : "Сохранить email"}</button>
       </div>
       <p className="muted">{message || "На странице контактов будет использован именно этот адрес."}</p>
+    </div>
+  );
+}
+
+function ResendKeyPanel() {
+  const [apiKey, setApiKey] = useState("");
+  const [state, setState] = useState<{ hasValue: boolean; source: "db" | "env" | "none"; masked: string; last4: string; configuredInDb: boolean }>({
+    hasValue: false,
+    source: "none",
+    masked: "",
+    last4: "",
+    configuredInDb: false
+  });
+  const [loading, setLoading] = useState(false);
+  const [message, setMessage] = useState("");
+
+  useEffect(() => {
+    let mounted = true;
+    void loadState();
+    return () => {
+      mounted = false;
+    };
+
+    async function loadState() {
+      try {
+        const response = await fetch("/api/admin/resend-key");
+        const payload = await response.json();
+        if (!response.ok || payload.ok === false) throw new Error(payload.error || "Не удалось загрузить ключ");
+        if (!mounted) return;
+        setState({
+          hasValue: Boolean(payload.hasValue),
+          source: (payload.source || "none") as "db" | "env" | "none",
+          masked: String(payload.masked || ""),
+          last4: String(payload.last4 || ""),
+          configuredInDb: Boolean(payload.configuredInDb)
+        });
+      } catch {
+        if (mounted) {
+          setState({ hasValue: false, source: "none", masked: "", last4: "", configuredInDb: false });
+        }
+      }
+    }
+  }, []);
+
+  async function refreshState() {
+    setLoading(true);
+    setMessage("");
+    try {
+      const response = await fetch("/api/admin/resend-key");
+      const payload = await response.json();
+      if (!response.ok || payload.ok === false) throw new Error(payload.error || "Не удалось проверить ключ");
+      setState({
+        hasValue: Boolean(payload.hasValue),
+        source: (payload.source || "none") as "db" | "env" | "none",
+        masked: String(payload.masked || ""),
+        last4: String(payload.last4 || ""),
+        configuredInDb: Boolean(payload.configuredInDb)
+      });
+      setMessage(payload.source === "db" ? "Ключ задан в базе." : payload.source === "env" ? "Используется ключ из окружения." : "Ключ не задан.");
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : "Не удалось проверить ключ");
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  async function saveKey() {
+    setLoading(true);
+    setMessage("");
+    try {
+      const response = await fetch("/api/admin/resend-key", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ apiKey })
+      });
+      const payload = await response.json();
+      if (!response.ok || payload.ok === false) throw new Error(payload.error || "Не удалось сохранить ключ");
+      setApiKey("");
+      setState({
+        hasValue: Boolean(payload.hasValue),
+        source: (payload.source || "none") as "db" | "env" | "none",
+        masked: String(payload.masked || ""),
+        last4: String(payload.last4 || ""),
+        configuredInDb: Boolean(payload.configuredInDb)
+      });
+      setMessage("Resend API key сохранён.");
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : "Не удалось сохранить ключ");
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  async function clearKey() {
+    setLoading(true);
+    setMessage("");
+    try {
+      const response = await fetch("/api/admin/resend-key", { method: "DELETE" });
+      const payload = await response.json();
+      if (!response.ok || payload.ok === false) throw new Error(payload.error || "Не удалось очистить ключ");
+      setApiKey("");
+      setState({
+        hasValue: Boolean(payload.hasValue),
+        source: (payload.source || "none") as "db" | "env" | "none",
+        masked: String(payload.masked || ""),
+        last4: String(payload.last4 || ""),
+        configuredInDb: Boolean(payload.configuredInDb)
+      });
+      setMessage("Ключ очищен, теперь будет использован fallback из env, если он задан.");
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : "Не удалось очистить ключ");
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  return (
+    <div className="panel settings-card">
+      <div className="section-head">
+        <div>
+          <h3>Resend API key</h3>
+          <p className="muted">Ключ для отправки формы контактов. Полный секрет не показывается.</p>
+        </div>
+      </div>
+      <div className="form-grid">
+        <div className="field">
+          <label>API key</label>
+          <input
+            className="input"
+            type="password"
+            value={apiKey}
+            placeholder={state.hasValue ? `Сейчас: ${state.masked || "••••"}` : "sk_..."}
+            autoComplete="off"
+            onChange={(event) => setApiKey(event.target.value)}
+          />
+        </div>
+      </div>
+      <div className="toolbar preset-toolbar">
+        <button className="btn" onClick={saveKey} disabled={loading}>{loading ? "Сохраняю..." : "Сохранить"}</button>
+        <button className="btn ghost" onClick={clearKey} disabled={loading}>Очистить</button>
+        <button className="btn ghost" onClick={refreshState} disabled={loading}>Проверить</button>
+      </div>
+      <p className="muted">
+        {message || `Источник: ${state.source === "db" ? "база" : state.source === "env" ? "окружение" : "не задан"}${state.hasValue && state.last4 ? ` · ****${state.last4}` : ""}`}
+      </p>
     </div>
   );
 }

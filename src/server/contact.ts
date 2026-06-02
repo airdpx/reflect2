@@ -1,4 +1,5 @@
 import { getPrisma } from "./db";
+import { loadResendApiKey } from "./site-settings";
 
 type ContactInput = {
   name: string;
@@ -64,7 +65,7 @@ export async function sendContactMessage(input: {
   topic: string;
   message: string;
 }) {
-  const apiKey = process.env.RESEND_API_KEY;
+  const apiKey = await loadResendApiKey();
   const from = process.env.CONTACT_FROM_EMAIL;
   if (!apiKey) return { ok: false, error: "RESEND_API_KEY is not set" } satisfies ContactSendResult;
   if (!from) return { ok: false, error: "CONTACT_FROM_EMAIL is not set" } satisfies ContactSendResult;
