@@ -2,27 +2,17 @@ import type { AppState } from "../types";
 import { createDefaults } from "./defaults";
 
 export const STORAGE_KEY = "habit-calendar-next-mvp-v1";
+export const LEGACY_MIGRATION_FLAG_PREFIX = "habit-calendar-next-mvp-v1:migrated:";
 export const SCHEMA_VERSION = 20;
 
 export function loadStoredState(): AppState {
-  const defaults = createDefaults();
-  if (typeof window === "undefined") return defaults;
-  try {
-    const raw = window.sessionStorage.getItem(STORAGE_KEY);
-    if (!raw) return defaults;
-    return migrateState(mergeState(defaults, JSON.parse(raw) as Partial<AppState>));
-  } catch {
-    return defaults;
-  }
+  return createDefaults();
 }
 
-export function saveStoredState(state: AppState) {
-  if (typeof window !== "undefined") {
-    const copy = structuredClone(state) as AppState & { settings: { forecast: Record<string, unknown> } };
-    delete copy.settings.forecast.birthDate;
-    window.sessionStorage.setItem(STORAGE_KEY, JSON.stringify(copy));
-    window.localStorage.removeItem(STORAGE_KEY);
-  }
+export function saveStoredState(_state: AppState) {
+  if (typeof window === "undefined") return;
+  window.sessionStorage.removeItem(STORAGE_KEY);
+  window.localStorage.removeItem(STORAGE_KEY);
 }
 
 export function clearStoredState() {
@@ -30,6 +20,37 @@ export function clearStoredState() {
     window.sessionStorage.removeItem(STORAGE_KEY);
     window.localStorage.removeItem(STORAGE_KEY);
   }
+}
+
+export function loadLegacyStoredState(): AppState | null {
+  if (typeof window === "undefined") return null;
+  try {
+    const raw = window.sessionStorage.getItem(STORAGE_KEY);
+    if (!raw) return null;
+    return migrateState(mergeState(createDefaults(), JSON.parse(raw) as Partial<AppState>));
+  } catch {
+    return null;
+  }
+}
+
+export function markLegacyStateMigrated(userId: string) {
+  if (typeof window === "undefined") return;
+  window.sessionStorage.setItem(`${LEGACY_MIGRATION_FLAG_PREFIX}${userId}`, "1");
+}
+
+export function wasLegacyStateMigrated(userId: string) {
+  if (typeof window === "undefined") return false;
+  return window.sessionStorage.getItem(`${LEGACY_MIGRATION_FLAG_PREFIX}${userId}`) === "1";
+}
+
+export function shouldMigrateLegacyState(state: AppState) {
+  return Boolean(
+    state.habits.length ||
+    Object.keys(state.logs).length ||
+    Object.keys(state.notes).length ||
+    Object.keys(state.notificationStates).length ||
+    Object.keys(state.settings.customPresets || {}).length
+  );
 }
 
 function mergeState(defaults: AppState, stored: Partial<AppState>): AppState {

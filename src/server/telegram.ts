@@ -152,6 +152,58 @@ export async function clearTelegramWebhook() {
   return { ok: true };
 }
 
+export async function getTelegramWebhookInfo() {
+  const config = await loadTelegramAdminConfig();
+  if (!config.botToken) {
+    return {
+      ok: false,
+      status: "no-token" as const,
+      url: null,
+      pendingUpdateCount: 0,
+      lastErrorMessage: null,
+      lastErrorDate: null,
+      ipAddress: null
+    };
+  }
+  const response = await fetch(`${TELEGRAM_API_BASE}/bot${config.botToken}/getWebhookInfo`, {
+    method: "GET",
+    headers: { "Content-Type": "application/json" }
+  });
+  const payload = await response.json().catch(() => ({})) as {
+    ok?: boolean;
+    description?: string;
+    result?: {
+      url?: string;
+      pending_update_count?: number;
+      last_error_message?: string;
+      last_error_date?: number;
+      ip_address?: string;
+    };
+  };
+  if (!response.ok || !payload.ok) {
+    return {
+      ok: false,
+      status: "error" as const,
+      error: payload.description || "Не удалось проверить webhook",
+      url: null,
+      pendingUpdateCount: 0,
+      lastErrorMessage: null,
+      lastErrorDate: null,
+      ipAddress: null
+    };
+  }
+  const result = payload.result || {};
+  return {
+    ok: true,
+    status: result.url ? "active" as const : "not-set" as const,
+    url: result.url || null,
+    pendingUpdateCount: Number(result.pending_update_count || 0),
+    lastErrorMessage: result.last_error_message || null,
+    lastErrorDate: typeof result.last_error_date === "number" ? new Date(result.last_error_date * 1000).toISOString() : null,
+    ipAddress: result.ip_address || null
+  };
+}
+
 export async function handleTelegramWebhookUpdate(update: unknown) {
   const message = getNested<string>(update, ["message", "text"]);
   const chatId = getNested<number | string>(update, ["message", "chat", "id"]);
@@ -292,10 +344,11 @@ export async function dispatchTelegramDigestForAllUsers() {
 export async function getTelegramAdminDashboardState() {
   const settings = await loadTelegramAdminSettings();
   const prisma = getPrisma();
-  const [connectedUsersCount, linkedUsersCount, lastDelivery] = await Promise.all([
+  const [connectedUsersCount, linkedUsersCount, lastDelivery, webhookInfo] = await Promise.all([
     prisma.telegramConnection.count({ where: { revokedAt: null } }),
     prisma.telegramConnection.count(),
-    prisma.notificationDeliveryLog.findFirst({ where: { channel: "telegram" }, orderBy: { createdAt: "desc" } })
+    prisma.notificationDeliveryLog.findFirst({ where: { channel: "telegram" }, orderBy: { createdAt: "desc" } }),
+    getTelegramWebhookInfo()
   ]);
   return {
     ...settings,
@@ -303,7 +356,7 @@ export async function getTelegramAdminDashboardState() {
     linkedUsersCount,
     lastDeliveryAt: lastDelivery?.createdAt?.toISOString() || null,
     lastDeliveryStatus: lastDelivery?.status || null,
-    lastWebhookStatus: settings.enabled ? "active" : "disabled"
+    lastWebhookStatus: webhookInfo.status === "active" ? "active" : webhookInfo.status === "not-set" ? "not-set" : webhookInfo.status === "no-token" ? "no-token" : "error"
   };
 }
 

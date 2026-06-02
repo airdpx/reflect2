@@ -434,8 +434,16 @@ function TelegramPanel() {
       if (!response.ok || payload.ok === false) throw new Error(payload.error || "Не удалось сохранить Telegram");
       setBotToken("");
       setWebhookSecret("");
+      setEnabled(Boolean(payload.state.enabled));
+      setBotUsername(String(payload.state.botUsername || ""));
       setState((current) => ({ ...current, ...payload.state }));
-      setMessage("Telegram настройки сохранены.");
+      if (payload.webhookAttempt?.ok) {
+        setMessage(`Telegram настройки сохранены. Webhook установлен: ${payload.webhookAttempt.url}`);
+      } else if (payload.webhookAttempt?.error) {
+        setMessage(`Telegram настройки сохранены, но webhook не установлен: ${payload.webhookAttempt.error}`);
+      } else {
+        setMessage("Telegram настройки сохранены.");
+      }
     } catch (error) {
       setMessage(error instanceof Error ? error.message : "Не удалось сохранить Telegram");
     } finally {

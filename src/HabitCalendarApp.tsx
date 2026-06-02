@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import type React from "react";
 import type { AppActions, AppSelectors, AppState, DailyNote, Habit, HabitLog, HabitStatus, NotificationDeliveryStatus, UserSettings, View } from "./types";
 import { MobileNav, Sidebar, Topbar } from "./components/Navigation";
@@ -19,7 +19,7 @@ import { ManagementView } from "./views/ManagementView";
 import { AppFooter } from "./components/Footer";
 import { createDefaults, habitTemplates, statusMeta } from "./lib/defaults";
 import { calculateHabitStats, getAttentionHabits, getPeriodDates, getPeriodLabel, isHabitDue, logKey } from "./lib/analytics";
-import { clearStoredState, loadStoredState, parseImportedState, saveStoredState } from "./lib/storage";
+import { clearStoredState, loadLegacyStoredState, markLegacyStateMigrated, parseImportedState, shouldMigrateLegacyState, wasLegacyStateMigrated } from "./lib/storage";
 import { savePublicThemeState } from "./lib/public-theme";
 import { todayKey } from "./lib/date";
 
@@ -30,20 +30,35 @@ type HabitCalendarAppProps = {
 export default function HabitCalendarApp({ initialState }: HabitCalendarAppProps) {
   const [state, setState] = useState<AppState>(() => initialState || createDefaults());
   const [hydrated, setHydrated] = useState(false);
+  const skipNextDbSyncRef = useRef(false);
+  const legacyMigrationInFlightRef = useRef(false);
   const [editingHabitId, setEditingHabitId] = useState<string | null>(null);
   const [draftHabit, setDraftHabit] = useState<Habit | null>(null);
   const [activeCell, setActiveCell] = useState<{ habitId: string; date: string } | null>(null);
   const [bulkUndo, setBulkUndo] = useState<Record<string, HabitLog | undefined> | null>(null);
 
   useEffect(() => {
-    const stored = initialState || loadStoredState();
+    const stored = initialState || createDefaults();
     const startingView = stored.settings.defaultView === "management" && !stored.profile?.isAdmin ? "today" : stored.settings.defaultView;
     setState({ ...stored, view: startingView, selectedDate: todayKey() });
     setHydrated(true);
   }, [initialState]);
 
   useEffect(() => {
-    if (hydrated) saveStoredState(state);
+    if (!hydrated) return;
+    if (skipNextDbSyncRef.current) {
+      skipNextDbSyncRef.current = false;
+      return;
+    }
+    if (!state.profile?.id) return;
+    const timer = window.setTimeout(() => {
+      fetch("/api/account/state", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ state })
+      }).catch(() => undefined);
+    }, 450);
+    return () => window.clearTimeout(timer);
   }, [state, hydrated]);
 
   useEffect(() => {
@@ -61,15 +76,50 @@ export default function HabitCalendarApp({ initialState }: HabitCalendarAppProps
 
   useEffect(() => {
     if (!hydrated || !state.profile?.id) return;
-    const timer = window.setTimeout(() => {
-      fetch("/api/account/state", {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ state })
-      }).catch(() => undefined);
-    }, 450);
-    return () => window.clearTimeout(timer);
-  }, [state, hydrated]);
+    const userId = state.profile.id;
+    const currentEmail = String(state.profile.email || "").trim().toLowerCase();
+    if (legacyMigrationInFlightRef.current) return;
+    if (wasLegacyStateMigrated(userId)) return;
+    const legacy = loadLegacyStoredState();
+    if (!legacy) {
+      markLegacyStateMigrated(userId);
+      clearStoredState();
+      return;
+    }
+    const legacyEmail = String(legacy.profile?.email || "").trim().toLowerCase();
+    if (legacyEmail && legacyEmail !== currentEmail) {
+      markLegacyStateMigrated(userId);
+      clearStoredState();
+      return;
+    }
+    if (!shouldMigrateLegacyState(legacy)) {
+      markLegacyStateMigrated(userId);
+      clearStoredState();
+      return;
+    }
+    let cancelled = false;
+    legacyMigrationInFlightRef.current = true;
+    (async () => {
+      try {
+        skipNextDbSyncRef.current = true;
+        setState(legacy);
+        await fetch("/api/account/state", {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ state: legacy })
+        });
+        if (cancelled) return;
+        markLegacyStateMigrated(userId);
+        clearStoredState();
+      } catch {
+        skipNextDbSyncRef.current = false;
+        legacyMigrationInFlightRef.current = false;
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [hydrated, state.profile?.id, state.profile?.email]);
 
   useEffect(() => {
     if (!hydrated) return;
