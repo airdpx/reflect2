@@ -47,7 +47,7 @@ export function InspectorNumerologySummary({ state, allowToday = false }: { stat
           </span>
         )) : <span>Параметры скрыты</span>}
       </div>
-      <p className="muted numerology-recommendation">{numerology.recommendation}</p>
+      <p className="numerology-recommendation">{numerology.recommendation}</p>
     </div>
   );
 }
@@ -72,7 +72,6 @@ function NumerologyShell({
       <div className="section-head">
         <div>
           <h3>{title}</h3>
-          <p className="muted">Числа и интерпретация по дате рождения для выбранного дня.</p>
         </div>
         <div className={`forecast-score forecast-tone-${tone}`}>
           <strong>{numerology.summaryScore}%</strong>

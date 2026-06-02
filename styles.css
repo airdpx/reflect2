@@ -756,6 +756,7 @@ button {
 .numerology-recommendation {
   margin: 0;
   color: var(--text);
+  font-size: 13px;
   line-height: 1.45;
 }
 
@@ -826,7 +827,7 @@ button {
 }
 
 .numerology-mode-minimal .numerology-recommendation {
-  font-size: 12px;
+  font-size: 13px;
 }
 
 .notifications-view {
