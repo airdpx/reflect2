@@ -30,15 +30,17 @@ export function AuthScreen() {
   const theme = themeState.theme;
   const palette = useMemo(() => themeOptions.find((item) => item.id === theme) || themeOptions[0], [theme]);
   const shellStyle = useMemo(() => ({
-    ...(theme === "custom" && themeState.customTheme ? {
-      "--auth-bg": themeState.customTheme.bg,
-      "--auth-surface": themeState.customTheme.surface,
-      "--auth-text": themeState.customTheme.text,
-      "--auth-border": `color-mix(in srgb, ${themeState.customTheme.accent} 24%, ${themeState.customTheme.surface})`,
-      "--auth-muted": `color-mix(in srgb, ${themeState.customTheme.text} 68%, ${themeState.customTheme.surface})`,
-      "--auth-accent": themeState.customTheme.accent
-    } : {})
-  } as React.CSSProperties), [theme, themeState.customTheme]);
+    "--auth-bg": theme === "custom" && themeState.customTheme ? themeState.customTheme.bg : palette.colors[0],
+    "--auth-surface": theme === "custom" && themeState.customTheme ? themeState.customTheme.surface : palette.colors[1],
+    "--auth-text": theme === "custom" && themeState.customTheme ? themeState.customTheme.text : palette.colors[3],
+    "--auth-border": theme === "custom" && themeState.customTheme
+      ? `color-mix(in srgb, ${themeState.customTheme.accent} 24%, ${themeState.customTheme.surface})`
+      : `color-mix(in srgb, ${palette.colors[2]} 24%, ${palette.colors[1]})`,
+    "--auth-muted": theme === "custom" && themeState.customTheme
+      ? `color-mix(in srgb, ${themeState.customTheme.text} 68%, ${themeState.customTheme.surface})`
+      : `color-mix(in srgb, ${palette.colors[3]} 64%, ${palette.colors[1]})`,
+    "--auth-accent": theme === "custom" && themeState.customTheme ? themeState.customTheme.accent : palette.colors[2]
+  } as React.CSSProperties), [palette, theme, themeState.customTheme]);
 
   useEffect(() => {
     savePublicThemeState({ theme, customTheme: themeState.customTheme });

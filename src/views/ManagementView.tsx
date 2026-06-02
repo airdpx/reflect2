@@ -25,6 +25,7 @@ export function ManagementView({ state }: { state: AppState }) {
       <div className="stack">
         <GlobalDefaultsPanel currentSettings={state.settings} />
         <ResendKeyPanel />
+        <ContactFromEmailPanel />
         <SiteContactPanel />
       </div>
     </section>
@@ -335,13 +336,13 @@ function SiteContactPanel() {
     <div className="panel settings-card">
       <div className="section-head">
         <div>
-          <h3>Контакты сайта</h3>
-          <p className="muted">Адрес используется страницей контактов и формой связи.</p>
+          <h3>Получатель формы</h3>
+          <p className="muted">Адрес, на который приходят сообщения с формы контактов.</p>
         </div>
       </div>
       <div className="form-grid">
         <div className="field">
-          <label>Email для формы</label>
+          <label>Email получателя</label>
           <input className="input" type="email" value={email} placeholder="support@practway.app" onChange={(event) => setEmail(event.target.value)} />
         </div>
       </div>
@@ -494,6 +495,71 @@ function ResendKeyPanel() {
       <p className="muted">
         {message || `Источник: ${state.source === "db" ? "база" : state.source === "env" ? "окружение" : "не задан"}${state.hasValue && state.last4 ? ` · ****${state.last4}` : ""}`}
       </p>
+    </div>
+  );
+}
+
+function ContactFromEmailPanel() {
+  const [email, setEmail] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [message, setMessage] = useState("");
+
+  useEffect(() => {
+    let mounted = true;
+    fetch("/api/admin/contact-from-email")
+      .then(async (response) => {
+        const payload = await response.json();
+        if (!response.ok || payload.ok === false) throw new Error(payload.error || "Не удалось загрузить email отправителя");
+        return String(payload.email || "");
+      })
+      .then((saved) => {
+        if (mounted) setEmail(saved);
+      })
+      .catch(() => {
+        if (mounted) setEmail("");
+      });
+    return () => {
+      mounted = false;
+    };
+  }, []);
+
+  async function saveEmail() {
+    setLoading(true);
+    setMessage("");
+    try {
+      const response = await fetch("/api/admin/contact-from-email", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email })
+      });
+      const payload = await response.json();
+      if (!response.ok || payload.ok === false) throw new Error(payload.error || "Не удалось сохранить email");
+      setMessage("Contact from email сохранён.");
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : "Не удалось сохранить email");
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  return (
+    <div className="panel settings-card">
+      <div className="section-head">
+        <div>
+          <h3>Contact from email</h3>
+          <p className="muted">Адрес отправителя для писем через Resend.</p>
+        </div>
+      </div>
+      <div className="form-grid">
+        <div className="field">
+          <label>From email</label>
+          <input className="input" type="email" value={email} placeholder="mail@your-domain.com" onChange={(event) => setEmail(event.target.value)} />
+        </div>
+      </div>
+      <div className="toolbar preset-toolbar">
+        <button className="btn" onClick={saveEmail} disabled={loading}>{loading ? "Сохраняю..." : "Сохранить"}</button>
+      </div>
+      <p className="muted">{message || "Если поле пустое, будет использован env CONTACT_FROM_EMAIL."}</p>
     </div>
   );
 }

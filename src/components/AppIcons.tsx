@@ -17,7 +17,8 @@ export type AppIconName =
   | "key"
   | "shield"
   | "bolt"
-  | "check";
+  | "check"
+  | "palette";
 
 export function AppIcon({ name }: { name: AppIconName | string }) {
   const line = {
@@ -143,6 +144,15 @@ export function AppIcon({ name }: { name: AppIconName | string }) {
         <>
           <circle {...line} cx="17" cy="29" r="8" />
           <path {...line} d="m23 23 16-16M31 15l5 5M35 11l4 4" />
+        </>
+      ) : name === "palette" ? (
+        <>
+          <path d="M24 6c9 0 18 7 18 16s-7 14-14 14h-3c-4 0-5 2-5 4 0 1.5-1 2-2 2-4 0-9-3-9-10C9 16 14 6 24 6Z" fill={soft} />
+          <circle cx="16" cy="18" r="2.8" fill={cool} />
+          <circle cx="22" cy="13" r="2.8" fill={warm} />
+          <circle cx="30" cy="14" r="2.8" fill={green} />
+          <circle cx="34" cy="21" r="2.8" fill={violet} />
+          <circle cx="18" cy="26" r="2.8" fill={warm} />
         </>
       ) : (
         <>

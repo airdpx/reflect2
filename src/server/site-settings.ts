@@ -4,6 +4,7 @@ import { getPrisma } from "./db";
 
 const GLOBAL_USER_DEFAULTS_KEY = "global_user_defaults";
 const SITE_CONTACT_EMAIL_KEY = "site_contact_email";
+const CONTACT_FROM_EMAIL_KEY = "contact_from_email";
 const RESEND_API_KEY_KEY = "resend_api_key";
 
 export async function loadGlobalUserDefaults(): Promise<Partial<UserSettings>> {
@@ -43,6 +44,33 @@ export async function saveSiteContactEmail(email: string) {
     where: { key: SITE_CONTACT_EMAIL_KEY },
     create: {
       key: SITE_CONTACT_EMAIL_KEY,
+      value
+    },
+    update: {
+      value
+    }
+  });
+  return value;
+}
+
+export async function loadContactFromEmail(): Promise<string> {
+  const prisma = getPrisma();
+  const record = await prisma.appConfig.findUnique({ where: { key: CONTACT_FROM_EMAIL_KEY } });
+  const saved = typeof record?.value === "string" ? record.value.trim() : "";
+  return saved || String(process.env.CONTACT_FROM_EMAIL || "").trim();
+}
+
+export async function saveContactFromEmail(email: string) {
+  const prisma = getPrisma();
+  const value = String(email || "").trim();
+  if (!value) {
+    await prisma.appConfig.delete({ where: { key: CONTACT_FROM_EMAIL_KEY } }).catch(() => null);
+    return loadContactFromEmail();
+  }
+  await prisma.appConfig.upsert({
+    where: { key: CONTACT_FROM_EMAIL_KEY },
+    create: {
+      key: CONTACT_FROM_EMAIL_KEY,
       value
     },
     update: {

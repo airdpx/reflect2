@@ -89,7 +89,7 @@ function buildRecommendation(summaryLabel: NumerologyResult["summaryLabel"], dom
     : summaryLabel === "ровный"
       ? "Хороший день для спокойного ритма, последовательности и мягкой дисциплины."
       : "Лучше держать темп проще и опираться на один понятный шаг за раз.";
-  return `${lead} Опора дня — ${dominant.label}: ${dominant.interpretation}.`;
+  return `${lead} Опора дня — ${dominant.label}: ${dominant.interpretation}`;
 }
 
 function scoreToLabel(score: number): NumerologyResult["summaryLabel"] {

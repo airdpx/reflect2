@@ -1613,9 +1613,11 @@ button {
   place-items: start center;
   padding: 30px 32px 22px;
   background:
-    linear-gradient(180deg, rgba(1, 12, 24, 0.94) 0%, rgba(1, 14, 28, 0.98) 100%),
+    linear-gradient(180deg,
+      color-mix(in srgb, var(--auth-bg, var(--bg)) 84%, var(--auth-surface, var(--surface))) 0%,
+      var(--auth-bg, var(--bg)) 100%),
     var(--auth-bg, var(--bg));
-  color: #f7fafc;
+  color: var(--auth-text, var(--text));
 }
 
 .auth-shell::before {
@@ -1624,9 +1626,9 @@ button {
   inset: 0;
   pointer-events: none;
   background:
-    radial-gradient(circle at 17% 6%, rgba(35, 245, 229, 0.08), transparent 22%),
-    radial-gradient(circle at 82% 9%, rgba(246, 168, 0, 0.07), transparent 21%),
-    linear-gradient(90deg, rgba(27, 201, 190, 0.03), rgba(133, 92, 255, 0.025));
+    radial-gradient(circle at 17% 6%, color-mix(in srgb, var(--auth-accent, var(--accent)) 14%, transparent), transparent 22%),
+    radial-gradient(circle at 82% 9%, color-mix(in srgb, var(--auth-accent, var(--accent)) 10%, transparent), transparent 21%),
+    linear-gradient(90deg, color-mix(in srgb, var(--auth-accent, var(--accent)) 4%, transparent), color-mix(in srgb, var(--auth-accent, var(--accent)) 2%, transparent));
 }
 
 .auth-layout {
@@ -1642,14 +1644,14 @@ button {
 .auth-card {
   padding: clamp(30px, 3vw, 50px);
   border-radius: 10px;
-  border: 1px solid rgba(121, 157, 185, 0.28);
+  border: 1px solid color-mix(in srgb, var(--auth-accent, var(--accent)) 24%, var(--auth-bg, var(--bg)));
   background:
-    linear-gradient(145deg, rgba(9, 25, 42, 0.9), rgba(6, 18, 31, 0.86)),
-    color-mix(in srgb, var(--auth-surface, #102030) 58%, #06111f);
+    linear-gradient(145deg, color-mix(in srgb, var(--auth-surface, var(--surface)) 96%, var(--auth-bg, var(--bg))), color-mix(in srgb, var(--auth-bg, var(--bg)) 92%, var(--auth-surface, var(--surface)))),
+    color-mix(in srgb, var(--auth-surface, var(--surface)) 82%, var(--auth-bg, var(--bg)));
   box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.035),
-    0 30px 80px rgba(0, 0, 0, 0.32);
-  color: #f6f7fb;
+    inset 0 1px 0 color-mix(in srgb, var(--auth-text, var(--text)) 5%, transparent),
+    0 30px 80px color-mix(in srgb, var(--auth-bg, var(--bg)) 55%, transparent);
+  color: var(--auth-text, var(--text));
 }
 
 .auth-hero {
@@ -1668,9 +1670,9 @@ button {
   min-height: 44px;
   padding: 8px 18px;
   border-radius: 12px;
-  border-color: rgba(64, 241, 230, 0.5);
-  background: rgba(23, 184, 174, 0.08);
-  color: #42f3e8;
+  border-color: color-mix(in srgb, var(--auth-accent, var(--accent)) 48%, transparent);
+  background: color-mix(in srgb, var(--auth-accent, var(--accent)) 10%, transparent);
+  color: var(--auth-accent, var(--accent));
   font-size: 16px;
   font-weight: 500;
 }
@@ -1689,19 +1691,19 @@ button {
   font-size: clamp(48px, 4.75vw, 72px);
   line-height: 1.02;
   font-weight: 900;
-  color: #f5f7fa;
-  text-shadow: 0 2px 0 rgba(255, 255, 255, 0.04), 0 12px 34px rgba(0, 0, 0, 0.4);
+  color: var(--auth-text, var(--text));
+  text-shadow: 0 2px 0 color-mix(in srgb, var(--auth-text, var(--text)) 6%, transparent), 0 12px 34px color-mix(in srgb, var(--auth-bg, var(--bg)) 45%, transparent);
 }
 
 .auth-hero h1 span {
   display: inline;
-  color: #20bdb4;
+  color: var(--auth-accent, var(--accent));
 }
 
 .auth-hero p {
   max-width: 720px;
   margin: 0;
-  color: rgba(238, 242, 247, 0.78);
+  color: color-mix(in srgb, var(--auth-text, var(--text)) 78%, var(--auth-bg, var(--bg)));
   font-size: 20px;
   line-height: 1.45;
 }
@@ -1716,8 +1718,8 @@ button {
   min-height: 148px;
   padding: 24px;
   border-radius: 8px;
-  border-color: rgba(123, 156, 184, 0.26);
-  background: rgba(9, 23, 39, 0.68);
+  border-color: color-mix(in srgb, var(--auth-accent, var(--accent)) 22%, var(--auth-bg, var(--bg)));
+  background: color-mix(in srgb, var(--auth-surface, var(--surface)) 90%, var(--auth-bg, var(--bg)));
 }
 
 .auth-feature-icon {
@@ -1739,13 +1741,13 @@ button {
 
 .auth-feature-card b {
   margin-bottom: 8px;
-  color: #f7fafc;
+  color: var(--auth-text, var(--text));
   font-size: 21px;
   line-height: 1.1;
 }
 
 .auth-feature-card span {
-  color: rgba(238, 242, 247, 0.74);
+  color: color-mix(in srgb, var(--auth-text, var(--text)) 74%, var(--auth-bg, var(--bg)));
   font-size: 16px;
   line-height: 1.4;
 }
@@ -1754,7 +1756,7 @@ button {
   justify-content: space-between;
   gap: 14px;
   padding-top: 18px;
-  border-top-color: rgba(238, 242, 247, 0.2);
+  border-top-color: color-mix(in srgb, var(--auth-text, var(--text)) 18%, transparent);
 }
 
 .auth-benefits span {
@@ -1762,7 +1764,7 @@ button {
   padding: 5px 8px;
   border: 0;
   background: transparent;
-  color: rgba(238, 242, 247, 0.72);
+  color: color-mix(in srgb, var(--auth-text, var(--text)) 72%, var(--auth-bg, var(--bg)));
   font-size: 16px;
 }
 
@@ -1772,8 +1774,8 @@ button {
   width: 36px;
   height: 36px;
   border-radius: 999px;
-  border: 1px solid rgba(64, 241, 230, 0.4);
-  color: #40f1e6;
+  border: 1px solid color-mix(in srgb, var(--auth-accent, var(--accent)) 40%, transparent);
+  color: var(--auth-accent, var(--accent));
   font-size: 18px;
 }
 
@@ -1788,7 +1790,7 @@ button {
 
 .auth-card h2 {
   margin: 0;
-  color: #f8fafc;
+  color: var(--auth-text, var(--text));
   font-size: clamp(38px, 3vw, 52px);
   line-height: 1.08;
   font-weight: 900;
@@ -1796,7 +1798,7 @@ button {
 
 .auth-card .section-head p {
   margin-top: 12px;
-  color: rgba(238, 242, 247, 0.82);
+  color: color-mix(in srgb, var(--auth-text, var(--text)) 82%, var(--auth-bg, var(--bg)));
   font-size: 19px;
 }
 
@@ -1813,19 +1815,19 @@ button {
   align-items: center;
   justify-content: center;
   gap: 12px;
-  border: 1px solid rgba(246, 168, 0, 0.78);
+  border: 1px solid color-mix(in srgb, var(--auth-accent, var(--accent)) 72%, var(--auth-bg, var(--bg)));
   border-radius: 5px;
   background: transparent;
-  color: #f6a800;
+  color: var(--auth-accent, var(--accent));
   font-size: 18px;
   font-weight: 700;
 }
 
 .auth-tabs button.active {
-  border-color: rgba(64, 241, 230, 0.75);
-  background: linear-gradient(135deg, rgba(40, 226, 213, 0.9), rgba(15, 160, 149, 0.88));
-  color: #fff;
-  box-shadow: 0 0 24px rgba(35, 213, 202, 0.12);
+  border-color: color-mix(in srgb, var(--auth-accent, var(--accent)) 76%, transparent);
+  background: linear-gradient(135deg, color-mix(in srgb, var(--auth-accent, var(--accent)) 86%, white), color-mix(in srgb, var(--auth-accent, var(--accent)) 78%, black));
+  color: color-mix(in srgb, var(--auth-bg, var(--bg)) 10%, white);
+  box-shadow: 0 0 24px color-mix(in srgb, var(--auth-accent, var(--accent)) 12%, transparent);
 }
 
 .auth-tabs svg {
@@ -1848,7 +1850,7 @@ button {
 }
 
 .auth-form label {
-  color: #f8fafc;
+  color: var(--auth-text, var(--text));
   font-size: 17px;
   font-weight: 500;
 }
@@ -1863,24 +1865,24 @@ button {
   padding-left: 58px;
   padding-right: 48px;
   border-radius: 5px;
-  border-color: rgba(123, 156, 184, 0.34);
-  background: rgba(3, 14, 26, 0.58);
-  color: #f8fafc;
+  border-color: color-mix(in srgb, var(--auth-accent, var(--accent)) 22%, var(--auth-bg, var(--bg)));
+  background: color-mix(in srgb, var(--auth-bg, var(--bg)) 72%, var(--auth-surface, var(--surface)));
+  color: var(--auth-text, var(--text));
   font-size: 17px;
 }
 
 .auth-input::placeholder {
-  color: rgba(238, 242, 247, 0.44);
+  color: color-mix(in srgb, var(--auth-text, var(--text)) 44%, var(--auth-bg, var(--bg)));
 }
 
 .auth-input:focus {
-  border-color: rgba(64, 241, 230, 0.72);
-  box-shadow: 0 0 0 3px rgba(64, 241, 230, 0.08);
+  border-color: color-mix(in srgb, var(--auth-accent, var(--accent)) 72%, transparent);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--auth-accent, var(--accent)) 12%, transparent);
 }
 
 .auth-field-icon {
   left: 22px;
-  color: #40f1e6;
+  color: var(--auth-accent, var(--accent));
 }
 
 .auth-field-icon svg {
@@ -1890,7 +1892,7 @@ button {
 
 .auth-eye {
   right: 12px;
-  color: rgba(238, 242, 247, 0.72);
+  color: color-mix(in srgb, var(--auth-text, var(--text)) 72%, var(--auth-bg, var(--bg)));
 }
 
 .auth-eye svg {
@@ -1906,8 +1908,8 @@ button {
   width: 100%;
   min-height: 62px;
   border-radius: 5px;
-  background: linear-gradient(135deg, #23d4c8, #0f9f94);
-  color: #fff;
+  background: linear-gradient(135deg, color-mix(in srgb, var(--auth-accent, var(--accent)) 86%, white), color-mix(in srgb, var(--auth-accent, var(--accent)) 74%, black));
+  color: color-mix(in srgb, var(--auth-bg, var(--bg)) 10%, white);
   font-size: 20px;
   font-weight: 800;
 }
@@ -1915,28 +1917,28 @@ button {
 .auth-actions .btn.ghost {
   width: 100%;
   min-height: 44px;
-  border-color: rgba(123, 156, 184, 0.24);
+  border-color: color-mix(in srgb, var(--auth-accent, var(--accent)) 24%, var(--auth-bg, var(--bg)));
   background: rgba(255, 255, 255, 0.03);
-  color: rgba(238, 242, 247, 0.78);
+  color: color-mix(in srgb, var(--auth-text, var(--text)) 78%, var(--auth-bg, var(--bg)));
 }
 
 .auth-note {
   min-height: 22px;
   text-align: center;
-  color: rgba(238, 242, 247, 0.64);
+  color: color-mix(in srgb, var(--auth-text, var(--text)) 64%, var(--auth-bg, var(--bg)));
 }
 
 .auth-switch {
   margin: -4px 0 0;
   text-align: center;
-  color: rgba(238, 242, 247, 0.7);
+  color: color-mix(in srgb, var(--auth-text, var(--text)) 70%, var(--auth-bg, var(--bg)));
   font-size: 15px;
 }
 
 .auth-switch button {
   border: 0;
   background: transparent;
-  color: #25d4c9;
+  color: var(--auth-accent, var(--accent));
   font: inherit;
   font-weight: 800;
   text-decoration: underline;
@@ -1952,7 +1954,7 @@ button {
   justify-content: center;
   gap: 34px;
   padding: 0;
-  color: rgba(238, 242, 247, 0.6);
+  color: color-mix(in srgb, var(--auth-text, var(--text)) 60%, var(--auth-bg, var(--bg)));
 }
 
 .auth-shell > .app-footer .footer-links {
@@ -1960,7 +1962,7 @@ button {
 }
 
 .auth-shell > .app-footer .footer-links a {
-  color: rgba(238, 242, 247, 0.68);
+  color: color-mix(in srgb, var(--auth-text, var(--text)) 68%, var(--auth-bg, var(--bg)));
   border-bottom: 0;
 }
 

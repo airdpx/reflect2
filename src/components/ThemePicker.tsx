@@ -42,7 +42,7 @@ export function ThemePicker({
 
   return (
     <details className={`quick-popover ${className}`.trim()}>
-      <summary className="quick-icon" title={title}><AppIcon name="settings" /></summary>
+      <summary className="quick-icon" title={title}><AppIcon name="palette" /></summary>
       <div className={`quick-panel ${panelClassName}`.trim()}>
         <div className="quick-panel-head">
           <b>{title}</b>
