@@ -134,6 +134,18 @@ export async function loadUserState(userId: string, profile?: UserProfile): Prom
       ...raw.settings?.forecast?.visibleScales
     }
   };
+  const migratedNumerology = {
+    ...defaults.settings.numerology,
+    ...raw.settings?.numerology,
+    visibleMetrics: {
+      ...defaults.settings.numerology.visibleMetrics,
+      ...raw.settings?.numerology?.visibleMetrics
+    },
+    weights: {
+      ...defaults.settings.numerology.weights,
+      ...raw.settings?.numerology?.weights
+    }
+  };
   if (previousVersion < 16) {
     migratedForecast.enabled = true;
   }
@@ -171,6 +183,7 @@ export async function loadUserState(userId: string, profile?: UserProfile): Prom
       },
       gridHabitColorMode: raw.settings?.gridHabitColorMode || defaults.settings.gridHabitColorMode,
       forecast: migratedForecast,
+      numerology: migratedNumerology,
       customPresets: raw.settings?.customPresets || defaults.settings.customPresets,
       analyticsHistoryDays: raw.settings?.analyticsHistoryDays || defaults.settings.analyticsHistoryDays
     },

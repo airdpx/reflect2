@@ -3,6 +3,7 @@ import { HabitCard } from "../components/HabitCard";
 import { StatsPanel } from "./AnalyticsView";
 import { habitTemplates } from "../lib/defaults";
 import { TodayForecastPanel, TransitPanel } from "../components/Forecast";
+import { TodayNumerologyPanel } from "../components/Numerology";
 
 export function TodayView({
   state,
@@ -70,6 +71,7 @@ export function TodayView({
 
   const rightPanels = [];
   if (state.settings.visibleBlocks.forecast) rightPanels.push(<TodayForecastPanel key="forecast" state={state} actions={actions} />);
+  if (state.settings.visibleBlocks.numerology) rightPanels.push(<TodayNumerologyPanel key="numerology" state={state} />);
   if (state.settings.visibleBlocks.transit) rightPanels.push(<TransitPanel key="transit" state={state} />);
   if (state.settings.visibleBlocks.analytics && selectors.hasAnyLogs) rightPanels.push(<StatsPanel key="analytics" selectors={selectors} />);
 
@@ -119,6 +121,7 @@ function TodayModulesPanel({ state, actions }: { state: AppState; actions: AppAc
           {[
             ["today", "Привычки"],
             ["forecast", "Биоритмы"],
+            ["numerology", "Рекомендации дня"],
             ["transit", "Транзит"],
             ["attention", "Внимание"],
             ["analytics", "Аналитика"]

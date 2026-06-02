@@ -2,7 +2,7 @@ import type { AppState } from "../types";
 import { createDefaults } from "./defaults";
 
 export const STORAGE_KEY = "habit-calendar-next-mvp-v1";
-export const SCHEMA_VERSION = 19;
+export const SCHEMA_VERSION = 20;
 
 export function loadStoredState(): AppState {
   const defaults = createDefaults();
@@ -77,6 +77,18 @@ function mergeState(defaults: AppState, stored: Partial<AppState>): AppState {
           ...safeSettings.forecast?.visibleScales
         }
       },
+      numerology: {
+        ...defaults.settings.numerology,
+        ...safeSettings.numerology,
+        visibleMetrics: {
+          ...defaults.settings.numerology.visibleMetrics,
+          ...safeSettings.numerology?.visibleMetrics
+        },
+        weights: {
+          ...defaults.settings.numerology.weights,
+          ...safeSettings.numerology?.weights
+        }
+      },
       diaryHistoryMode: safeSettings.diaryHistoryMode || defaults.settings.diaryHistoryMode,
       notifications: {
         ...defaults.settings.notifications,
@@ -139,6 +151,18 @@ function migrateState(state: AppState): AppState {
     visibleScales: {
       ...defaults.settings.forecast.visibleScales,
       ...state.settings.forecast?.visibleScales
+    }
+  };
+  const migratedNumerology = {
+    ...defaults.settings.numerology,
+    ...state.settings.numerology,
+    visibleMetrics: {
+      ...defaults.settings.numerology.visibleMetrics,
+      ...state.settings.numerology?.visibleMetrics
+    },
+    weights: {
+      ...defaults.settings.numerology.weights,
+      ...state.settings.numerology?.weights
     }
   };
   const migratedNotifications = {
@@ -211,6 +235,7 @@ function migrateState(state: AppState): AppState {
       },
       gridHabitColorMode: legacySafeSettings.gridHabitColorMode || defaults.settings.gridHabitColorMode,
       forecast: migratedForecast,
+      numerology: migratedNumerology,
       notifications: migratedNotifications,
       gridDisplayMode: previousVersion < 10 && (!legacySafeSettings.gridDisplayMode || legacySafeSettings.gridDisplayMode === "calendar")
         ? "matrix"

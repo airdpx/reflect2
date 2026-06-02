@@ -1,5 +1,5 @@
 import { useState } from "react";
-import type { AppActions, AppState, Density, ForecastDisplayMode, ForecastScaleId, ForecastSettings, HabitStatus, UserSettings, View } from "../types";
+import type { AppActions, AppState, Density, ForecastDisplayMode, ForecastScaleId, ForecastSettings, HabitStatus, NumerologyDisplayMode, NumerologyMetricId, NumerologySettings, UserSettings, View } from "../types";
 import { SelectControl, Toggle } from "../components/Common";
 import { statusMeta } from "../lib/defaults";
 
@@ -14,6 +14,7 @@ const blockLabels: Record<string, string> = {
   helped: "Что помогло",
   blocked: "Что мешало",
   forecast: "Биоритмы",
+  numerology: "Рекомендации дня",
   transit: "Транзит",
   analytics: "Аналитика",
   completion: "Процент выполнения",
@@ -37,8 +38,8 @@ const gridLabels: Record<string, string> = {
 const sectionGroups = [
   {
     title: "Сегодня",
-    hint: "Главный экран, прогноз, транзит и аналитика дня.",
-    keys: ["today", "forecast", "transit", "attention", "analytics"]
+    hint: "Главный экран, прогнозы, рекомендации дня, транзит и аналитика.",
+    keys: ["today", "forecast", "numerology", "transit", "attention", "analytics"]
   },
   {
     title: "Дневник",
@@ -69,6 +70,19 @@ const forecastScaleOptions: Array<[ForecastScaleId, string]> = [
   ["intellectual", "Интеллектуальная"]
 ];
 
+const numerologyPlacementOptions: Array<[keyof Pick<NumerologySettings, "showInToday" | "showInDiary" | "showInInspector">, string]> = [
+  ["showInToday", "Сегодня"],
+  ["showInDiary", "Дневник"],
+  ["showInInspector", "Правая панель"]
+];
+
+const numerologyMetricOptions: Array<[NumerologyMetricId, string]> = [
+  ["personalDay", "Personal Day"],
+  ["personalMonth", "Personal Month"],
+  ["personalYear", "Personal Year"],
+  ["lifePath", "Life Path"]
+];
+
 export function SettingsView({ state, actions }: { state: AppState; actions: AppActions }) {
   const [presetName, setPresetName] = useState("");
   const [importText, setImportText] = useState("");
@@ -96,7 +110,7 @@ export function SettingsView({ state, actions }: { state: AppState; actions: App
           <div className="section-head">
             <div>
               <h3>Профиль</h3>
-              <p className="muted">Дата рождения задаётся при регистрации и используется для прогноза.</p>
+              <p className="muted">Дата рождения задаётся при регистрации и используется для прогноза и рекомендаций.</p>
             </div>
           </div>
           <div className="settings-row">
@@ -167,6 +181,64 @@ export function SettingsView({ state, actions }: { state: AppState; actions: App
               <label key={key}>
                 <input type="checkbox" checked={state.settings.forecast.visibleScales[key]} onChange={(event) => actions.updateSetting("forecast", { ...state.settings.forecast, visibleScales: { ...state.settings.forecast.visibleScales, [key]: event.target.checked } })} />
                 <span>{label}</span>
+              </label>
+            ))}
+          </div>
+        </div>
+        <div className="panel settings-card">
+          <div className="section-head">
+            <div>
+              <h3>Рекомендации дня</h3>
+              <p className="muted">Числа Personal Day, Personal Month, Personal Year и Life Path считаются по дате рождения и выбранному дню.</p>
+            </div>
+          </div>
+          <Toggle label="Включить рекомендации дня" checked={state.settings.numerology.enabled} onChange={(checked) => actions.updateSetting("numerology", { ...state.settings.numerology, enabled: checked })} />
+          <div className="form-grid">
+            <SelectControl label="Вид" value={state.settings.numerology.displayMode} options={["compact", "cards", "minimal"]} onChange={(value) => actions.updateSetting("numerology", { ...state.settings.numerology, displayMode: value as NumerologyDisplayMode })} />
+          </div>
+          <div className="module-toggle-grid">
+            {numerologyPlacementOptions.map(([key, label]) => (
+              <label key={key}>
+                <input
+                  type="checkbox"
+                  checked={state.settings.numerology[key]}
+                  onChange={(event) => actions.updateSetting("numerology", { ...state.settings.numerology, [key]: event.target.checked })}
+                />
+                <span>{label}</span>
+              </label>
+            ))}
+          </div>
+          <div className="module-toggle-grid">
+            {numerologyMetricOptions.map(([key, label]) => (
+              <label key={key}>
+                <input
+                  type="checkbox"
+                  checked={state.settings.numerology.visibleMetrics[key]}
+                  onChange={(event) => actions.updateSetting("numerology", {
+                    ...state.settings.numerology,
+                    visibleMetrics: { ...state.settings.numerology.visibleMetrics, [key]: event.target.checked }
+                  })}
+                />
+                <span>{label}</span>
+              </label>
+            ))}
+          </div>
+          <div className="numerology-weight-grid">
+            {numerologyMetricOptions.map(([key, label]) => (
+              <label key={key} className="field numerology-weight-field">
+                <span className="picker-label">{label} · вес</span>
+                <input
+                  className="input"
+                  type="number"
+                  min="0"
+                  max="5"
+                  step="0.5"
+                  value={state.settings.numerology.weights[key]}
+                  onChange={(event) => actions.updateSetting("numerology", {
+                    ...state.settings.numerology,
+                    weights: { ...state.settings.numerology.weights, [key]: Number(event.target.value) }
+                  })}
+                />
               </label>
             ))}
           </div>

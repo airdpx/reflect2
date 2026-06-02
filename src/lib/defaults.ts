@@ -360,6 +360,18 @@ export function mergeSettings(base: UserSettings, override?: Partial<UserSetting
         ...override.forecast?.visibleScales
       }
     },
+    numerology: {
+      ...base.numerology,
+      ...override.numerology,
+      visibleMetrics: {
+        ...base.numerology.visibleMetrics,
+        ...override.numerology?.visibleMetrics
+      },
+      weights: {
+        ...base.numerology.weights,
+        ...override.numerology?.weights
+      }
+    },
     notifications: {
       ...base.notifications,
       ...override.notifications,
@@ -396,6 +408,7 @@ export function createDefaults(settingsOverride?: Partial<UserSettings>): AppSta
       helped: true,
       blocked: true,
       forecast: true,
+      numerology: true,
       transit: true,
       analytics: true,
       completion: true,
@@ -455,6 +468,25 @@ export function createDefaults(settingsOverride?: Partial<UserSettings>): AppSta
       showInGrid: false,
       displayMode: "compact"
     },
+    numerology: {
+      enabled: true,
+      displayMode: "cards",
+      visibleMetrics: {
+        personalDay: true,
+        personalMonth: true,
+        personalYear: true,
+        lifePath: true
+      },
+      weights: {
+        personalDay: 1,
+        personalMonth: 1,
+        personalYear: 1,
+        lifePath: 1
+      },
+      showInToday: true,
+      showInDiary: true,
+      showInInspector: true
+    },
     notifications: {
       enabled: true,
       channels: {
@@ -513,7 +545,7 @@ export function createDefaults(settingsOverride?: Partial<UserSettings>): AppSta
   };
   const settings = mergeSettings(defaultSettings, settingsOverride);
   return {
-    schemaVersion: 19,
+    schemaVersion: 20,
     view: "today",
     selectedDate: todayKey(),
     habits: [],

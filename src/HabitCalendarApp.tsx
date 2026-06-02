@@ -363,6 +363,11 @@ export default function HabitCalendarApp({ initialState }: HabitCalendarAppProps
           ...draft.settings.forecast,
           visibleScales: { ...draft.settings.forecast.visibleScales }
         },
+        numerology: {
+          ...draft.settings.numerology,
+          visibleMetrics: { ...draft.settings.numerology.visibleMetrics },
+          weights: { ...draft.settings.numerology.weights }
+        },
         notifications: {
           ...draft.settings.notifications,
           channels: { ...draft.settings.notifications.channels },

@@ -1,6 +1,7 @@
 import type { AppActions, AppSelectors, AppState, DailyNote } from "../types";
 import { formatDate } from "../lib/date";
 import { statusMeta } from "../lib/defaults";
+import { InspectorNumerologySummary } from "./Numerology";
 
 export function Inspector({ state, selectors, actions }: { state: AppState; selectors: AppSelectors; actions: AppActions }) {
   const note = state.notes[state.selectedDate] || {};
@@ -22,6 +23,7 @@ export function Inspector({ state, selectors, actions }: { state: AppState; sele
           </div>
         ))}
       </div>
+      <InspectorNumerologySummary state={state} />
       <div className="panel inspector-panel">
         <h3>Дневник</h3>
         <div className="mini-metrics">
@@ -67,6 +69,7 @@ function TodayDiaryInspector({ note, state, actions }: { note: DailyNote; state:
         </div>
         <div className="inspector-help-note">Состояние сохраняется в дневнике за выбранную дату.</div>
       </div>
+      <InspectorNumerologySummary state={state} allowToday />
     </aside>
   );
 }

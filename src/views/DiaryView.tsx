@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { AppActions, AppState, DailyNote } from "../types";
 import { addDays, formatDate, fromKey, todayKey, toKey } from "../lib/date";
+import { DiaryNumerologyStrip } from "../components/Numerology";
 
 export function DiaryPanel({ state, actions }: { state: AppState; actions: AppActions }) {
   const note = state.notes[state.selectedDate] || {};
@@ -69,6 +70,7 @@ export function DiaryPanel({ state, actions }: { state: AppState; actions: AppAc
         </div>
       </details>
       <div className="stack">
+        <DiaryNumerologyStrip state={state} />
         <div className="form-grid diary-scales-grid">
           <RangeField name="mood" label="Настроение" value={note.mood ?? 3} state={state} actions={actions} />
           <RangeField name="energy" label="Энергия" value={note.energy ?? 3} state={state} actions={actions} />

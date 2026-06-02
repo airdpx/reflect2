@@ -691,6 +691,147 @@ button {
   font-weight: 700;
 }
 
+.numerology-panel {
+  gap: 10px;
+}
+
+.numerology-panel .forecast-score {
+  min-width: 92px;
+}
+
+.numerology-metric-grid {
+  display: grid;
+  gap: 8px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.numerology-metric-grid-minimal {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.numerology-metric-grid-compact {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.numerology-metric-card {
+  display: grid;
+  gap: 6px;
+  padding: 10px 11px;
+  border: 1px solid color-mix(in srgb, var(--line) 74%, transparent);
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--surface-soft) 62%, var(--surface));
+}
+
+.numerology-metric-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.numerology-metric-head span {
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.numerology-metric-head b {
+  font-size: 18px;
+  line-height: 1;
+}
+
+.numerology-metric-card small {
+  color: var(--muted);
+  line-height: 1.35;
+}
+
+.numerology-recommendation {
+  margin: 0;
+  color: var(--text);
+  line-height: 1.45;
+}
+
+.numerology-notes {
+  display: grid;
+  gap: 4px;
+}
+
+.numerology-notes span {
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.35;
+}
+
+.numerology-strip {
+  align-items: flex-start;
+}
+
+.numerology-strip > div {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 6px;
+}
+
+.numerology-strip > div i {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 8px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--surface-soft) 78%, var(--surface));
+  color: var(--text);
+  font-style: normal;
+  font-size: 11px;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.numerology-mini-metrics {
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.numerology-inspector-panel {
+  display: grid;
+  gap: 10px;
+}
+
+.numerology-weight-grid {
+  display: grid;
+  gap: 8px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.numerology-weight-field {
+  gap: 6px;
+}
+
+.numerology-mode-compact .numerology-metric-card {
+  padding: 8px 9px;
+}
+
+.numerology-mode-compact .numerology-metric-head b {
+  font-size: 16px;
+}
+
+.numerology-mode-minimal .numerology-metric-grid {
+  gap: 6px;
+}
+
+.numerology-mode-minimal .numerology-metric-card {
+  padding: 8px 9px;
+  background: color-mix(in srgb, var(--surface) 92%, var(--surface-soft));
+}
+
+.numerology-mode-minimal .numerology-metric-head span {
+  font-size: 11px;
+}
+
+.numerology-mode-minimal .numerology-recommendation {
+  font-size: 12px;
+}
+
 .notifications-view {
   align-items: start;
 }
@@ -6998,6 +7139,24 @@ body:has(.theme-custom) { background: #111827; }
 
   .forecast-strip > div {
     gap: 3px;
+  }
+
+  .numerology-metric-grid,
+  .numerology-weight-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .numerology-metric-grid-minimal {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .numerology-strip > div {
+    justify-content: flex-start;
+  }
+
+  .numerology-strip > div i {
+    font-size: 10px;
+    padding: 3px 6px;
   }
 
   .forecast-pill {

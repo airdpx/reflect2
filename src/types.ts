@@ -34,6 +34,8 @@ export type PeriodMode = "last" | "week" | "month" | "custom";
 export type ForecastProviderId = "biorhythm" | "humanDesign" | "astrology" | "planetaryTransits" | "aiPatternForecast";
 export type ForecastScaleId = "physical" | "emotional" | "intellectual";
 export type ForecastDisplayMode = "compact" | "cards" | "minimal";
+export type NumerologyMetricId = "personalDay" | "personalMonth" | "personalYear" | "lifePath";
+export type NumerologyDisplayMode = "compact" | "cards" | "minimal";
 export type NotificationChannel = "inApp" | "browser" | "email" | "telegram" | "push";
 export type NotificationTopic = "habits" | "diary" | "forecast" | "transit" | "analytics" | "reminders";
 export type NotificationDeliveryStatus = "new" | "read" | "hidden" | "snoozed";
@@ -114,6 +116,22 @@ export type ForecastSettings = {
   displayMode: ForecastDisplayMode;
 };
 
+export type NumerologyMetricInterpretation = {
+  label: string;
+  note: string;
+  score: number;
+};
+
+export type NumerologySettings = {
+  enabled: boolean;
+  displayMode: NumerologyDisplayMode;
+  visibleMetrics: Record<NumerologyMetricId, boolean>;
+  weights: Record<NumerologyMetricId, number>;
+  showInToday: boolean;
+  showInDiary: boolean;
+  showInInspector: boolean;
+};
+
 export type NotificationSettings = {
   enabled: boolean;
   channels: Record<NotificationChannel, boolean>;
@@ -170,6 +188,25 @@ export type ForecastScale = {
   phase: "low" | "steady" | "high";
 };
 
+export type NumerologyMetric = {
+  id: NumerologyMetricId;
+  label: string;
+  value: number;
+  interpretation: string;
+  weight: number;
+  score: number;
+};
+
+export type NumerologyResult = {
+  date: string;
+  summaryScore: number;
+  summaryLabel: "низкий" | "ровный" | "сильный";
+  metrics: NumerologyMetric[];
+  recommendation: string;
+  notes: string[];
+  source: "numerology";
+};
+
 export type HumanDesignTransitGate = {
   number: string;
   name: string;
@@ -220,6 +257,7 @@ export type UserSettings = {
   statusIcons: Record<HabitStatus, string>;
   gridColors: GridColorSettings;
   forecast: ForecastSettings;
+  numerology: NumerologySettings;
   notifications: NotificationSettings;
   focusMode: boolean;
   rightPanel: boolean;
