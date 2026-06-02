@@ -22,6 +22,7 @@ export function AuthScreen() {
   const [resetToken, setResetToken] = useState(initialResetToken);
   const [message, setMessage] = useState("");
   const [busy, setBusy] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const [theme, setTheme] = useState<InterfaceTheme>(() => {
     if (typeof window === "undefined") return "dark";
     const saved = window.localStorage.getItem("reflect2_auth_theme") as InterfaceTheme | null;
@@ -44,6 +45,19 @@ export function AuthScreen() {
     if (mode === "reset") return "Сброс пароля";
     return "Регистрация";
   }, [mode]);
+
+  const featureCards = [
+    { icon: "📅", title: "Календарь", text: "Периоды, статусы, таблица и быстрые отметки", accent: "#38d9d8" },
+    { icon: "✍️", title: "Дневник", text: "Настроение, энергия, стресс и история по дням", accent: "#b56cff" },
+    { icon: "📈", title: "Аналитика", text: "Анализ привычек и состояния, визуальные отчёты и тренды", accent: "#c8e21b" },
+    { icon: "🌤️", title: "Прогнозы", text: "Биоритмы, транзиты и мягкий контекст самонаблюдения", accent: "#ffb020" }
+  ];
+
+  const benefitPoints = [
+    { icon: "🛡️", label: "Конфиденциальность" },
+    { icon: "⚡", label: "Быстро и удобно" },
+    { icon: "✓", label: "Без лишнего шума" }
+  ];
 
   async function submit(event: React.FormEvent) {
     event.preventDefault();
@@ -155,27 +169,30 @@ export function AuthScreen() {
       <div className="auth-layout">
         <section className="auth-hero panel">
           <div className="auth-hero-top">
-            <span className="auth-kicker">Самонаблюдение онлайн</span>
+            <span className="auth-kicker auth-kicker-icon"><span>👤</span>Самонаблюдение онлайн</span>
           </div>
-          <h1>Привычки, дневник и календарь для спокойного ежедневного ритма</h1>
+          <h1>
+            Привычки, дневник и <span>календарь</span> для
+            <span>ежедневного ритма</span>
+          </h1>
           <p className="muted">Вход по email, собственная база PostgreSQL, дата рождения для прогноза дня и темы, которые можно выбрать прямо здесь, до логина.</p>
-          <div className="auth-table">
-            <div>
-              <b>Календарь</b>
-              <span>Периоды, статусы, таблица и быстрые отметки</span>
-            </div>
-            <div>
-              <b>Дневник</b>
-              <span>Настроение, энергия, стресс и история по дням</span>
-            </div>
-            <div>
-              <b>Прогноз</b>
-              <span>Биоритмы с датой рождения и гибкими блоками</span>
-            </div>
-            <div>
-              <b>Темы</b>
-              <span>Контрастные, серые и градиентные палитры</span>
-            </div>
+          <div className="auth-feature-grid">
+            {featureCards.map((card) => (
+              <article key={card.title} className="auth-feature-card">
+                <span className="auth-feature-icon" style={{ "--feature-accent": card.accent } as React.CSSProperties}>
+                  {card.icon}
+                </span>
+                <div>
+                  <b>{card.title}</b>
+                  <span>{card.text}</span>
+                </div>
+              </article>
+            ))}
+          </div>
+          <div className="auth-benefits">
+            {benefitPoints.map((point) => (
+              <span key={point.label}><i>{point.icon}</i>{point.label}</span>
+            ))}
           </div>
         </section>
         <section className="auth-card panel">
@@ -195,35 +212,51 @@ export function AuthScreen() {
               <div className="form-grid">
                 <div className="field">
                   <label>Имя</label>
-                  <input className="input" value={name} onChange={(event) => setName(event.target.value)} />
+                  <div className="auth-input-shell">
+                    <span className="auth-field-icon">👤</span>
+                    <input className="input auth-input" placeholder="Введите ваше имя" value={name} onChange={(event) => setName(event.target.value)} />
+                  </div>
                 </div>
                 <div className="field">
                   <label>Дата рождения</label>
-                  <input className="input" type="date" value={birthDate} onChange={(event) => setBirthDate(event.target.value)} />
+                  <div className="auth-input-shell">
+                    <span className="auth-field-icon">📅</span>
+                    <input className="input auth-input" type="date" value={birthDate} onChange={(event) => setBirthDate(event.target.value)} />
+                  </div>
                 </div>
               </div>
             ) : null}
             <div className="form-grid">
               <div className="field">
                 <label>{mode === "login" ? "Email или логин" : "Email"}</label>
-                <input className="input" type={mode === "register" ? "email" : "text"} value={email} onChange={(event) => setEmail(event.target.value)} />
+                <div className="auth-input-shell">
+                  <span className="auth-field-icon">✉️</span>
+                  <input className="input auth-input" type={mode === "register" ? "email" : "text"} placeholder={mode === "login" ? "Введите email или логин" : "Введите email"} value={email} onChange={(event) => setEmail(event.target.value)} />
+                </div>
               </div>
               <div className="field">
                 <label>Пароль</label>
-                <input className="input" type="password" value={password} onChange={(event) => setPassword(event.target.value)} />
+                <div className="auth-input-shell">
+                  <span className="auth-field-icon">🔒</span>
+                  <input className="input auth-input" type={showPassword ? "text" : "password"} placeholder="Придумайте пароль" value={password} onChange={(event) => setPassword(event.target.value)} />
+                  <button className="auth-eye" type="button" onClick={() => setShowPassword((current) => !current)} title={showPassword ? "Скрыть пароль" : "Показать пароль"}>{showPassword ? "🙈" : "👁️"}</button>
+                </div>
               </div>
             </div>
             {mode === "reset" ? (
               <div className="field">
                 <label>Токен восстановления</label>
-                <input className="input" value={resetToken} onChange={(event) => setResetToken(event.target.value)} />
+                <div className="auth-input-shell">
+                  <span className="auth-field-icon">🔑</span>
+                  <input className="input auth-input" value={resetToken} onChange={(event) => setResetToken(event.target.value)} />
+                </div>
               </div>
             ) : null}
             <div className="toolbar auth-actions">
               <button className="btn primary" disabled={busy} type="submit">{busy ? "..." : mode === "reset" ? "Сменить пароль" : mode === "login" ? "Войти" : "Создать аккаунт"}</button>
               {mode === "login" ? <button className="btn ghost" type="button" onClick={requestReset} disabled={busy}>Запросить сброс</button> : null}
             </div>
-            <p className="muted">{message || "Все данные останутся в твоей собственной базе PostgreSQL."}</p>
+            <p className="muted auth-note">{message || "Все данные останутся в твоей собственной базе PostgreSQL."}</p>
           </form>
         </section>
       </div>
