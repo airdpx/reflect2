@@ -4852,25 +4852,28 @@ button {
 }
 
 .admin-toolbar {
+  display: grid;
+  grid-template-columns: minmax(280px, 1fr) repeat(3, max-content);
+  gap: 6px;
   align-items: center;
-  flex-wrap: wrap;
+  justify-content: start;
 }
 
 .admin-table {
   display: grid;
-  gap: 8px;
+  gap: 6px;
 }
 
 .admin-table-head,
 .admin-table-row {
   display: grid;
-  grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr) 78px 78px 96px minmax(160px, 0.95fr);
-  gap: 8px;
+  grid-template-columns: minmax(220px, 1.45fr) minmax(160px, 1.05fr) 60px 60px 84px minmax(110px, 0.56fr);
+  gap: 6px;
   align-items: center;
 }
 
 .admin-table-head {
-  padding: 0 4px;
+  padding: 0 2px;
   color: var(--muted);
   font-size: 11px;
   font-weight: 800;
@@ -4879,9 +4882,9 @@ button {
 }
 
 .admin-table-row {
-  padding: 8px;
+  padding: 6px;
   border: 1px solid color-mix(in srgb, var(--line) 72%, transparent);
-  border-radius: 12px;
+  border-radius: 10px;
   background: color-mix(in srgb, var(--surface-soft) 82%, var(--surface));
 }
 
@@ -4892,22 +4895,23 @@ button {
 
 .admin-table-stack {
   display: grid;
-  gap: 3px;
+  gap: 1px;
 }
 
 .admin-table-stack b,
 .admin-table-stack small {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  overflow: visible;
+  text-overflow: clip;
+  white-space: normal;
+  word-break: break-word;
 }
 
 .admin-email-cell b {
   min-width: 0;
   overflow: hidden;
-  overflow-wrap: normal;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  overflow-wrap: anywhere;
+  text-overflow: clip;
+  white-space: normal;
 }
 
 .admin-table-input {
@@ -4918,7 +4922,7 @@ button {
 .admin-table-actions {
   display: flex;
   flex-wrap: nowrap;
-  gap: 4px;
+  gap: 3px;
   justify-content: flex-end;
   max-width: 100%;
   padding-bottom: 2px;
@@ -4931,22 +4935,22 @@ button {
 }
 
 .admin-table-actions .btn {
-  min-height: 30px;
-  min-width: 30px;
-  padding: 5px;
-  font-size: 13px;
+  min-height: 28px;
+  min-width: 28px;
+  padding: 4px;
+  font-size: 12px;
 }
 
 .admin-toolbar .icon-btn {
-  width: 34px;
-  min-width: 34px;
+  width: 32px;
+  min-width: 32px;
   padding: 0;
   justify-content: center;
 }
 
 .admin-table-actions .icon-btn {
-  width: 30px;
-  min-width: 30px;
+  width: 28px;
+  min-width: 28px;
   padding: 0;
   justify-content: center;
 }
@@ -5306,6 +5310,7 @@ button {
 
   .admin-table-actions {
     width: 100%;
+    justify-content: flex-start;
   }
 
   .app-footer,
@@ -7014,8 +7019,12 @@ body:has(.theme-custom) { background: #111827; }
 
   .admin-table-head,
   .admin-table-row {
-    grid-template-columns: minmax(190px, 1.35fr) minmax(130px, 0.9fr) 58px 58px 76px minmax(128px, 0.58fr);
-    gap: 5px;
+    grid-template-columns: minmax(200px, 1.45fr) minmax(150px, 1.05fr) 54px 54px 72px minmax(110px, 0.52fr);
+    gap: 4px;
+  }
+
+  .admin-toolbar {
+    grid-template-columns: minmax(240px, 1fr) repeat(3, max-content);
   }
 
   .period-range {

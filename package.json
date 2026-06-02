@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "build": "next build --webpack",
     "start": "next start",
     "lint": "next lint",
     "sync:hd-transits": "node scripts/sync-humdes-transits.mjs",
@@ -14,7 +14,7 @@
   "dependencies": {
     "@prisma/adapter-pg": "^6.14.0",
     "@prisma/client": "^6.14.0",
-    "next": "^15.3.0",
+    "next": "^16.3.0-canary.37",
     "pg": "^8.12.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0"
