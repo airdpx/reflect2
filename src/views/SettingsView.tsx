@@ -137,7 +137,7 @@ export function SettingsView({ state, actions }: { state: AppState; actions: App
             <SelectControl
               label="История календаря"
               value={String(state.settings.calendarHistoryDays)}
-              options={["7", "14", "30", "60", "90", "180", "365"]}
+              options={["0", "7", "14", "30", "60", "90", "180", "365"]}
               onChange={(value) => actions.updateSetting("calendarHistoryDays", Number(value))}
             />
           </div>

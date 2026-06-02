@@ -24,6 +24,7 @@ export function ManagementView({ state }: { state: AppState }) {
       </div>
       <div className="stack">
         <GlobalDefaultsPanel currentSettings={state.settings} />
+        <SiteContactPanel />
       </div>
     </section>
   );
@@ -267,7 +268,7 @@ function GlobalDefaultsPanel({ currentSettings }: { currentSettings: AppState["s
         <SelectControl label="Календарь" value={defaults.gridTheme} options={["classic", "soft", "minimal", "journal", "ledger", "outline", "slate", "calm"]} onChange={(value) => setDefaults((state) => ({ ...state, gridTheme: value as UserSettings["gridTheme"] }))} />
         <SelectControl label="Режим таблицы" value={defaults.gridDisplayMode} options={["matrix", "calendar", "compact", "week", "habit", "timeline", "heat"]} onChange={(value) => setDefaults((state) => ({ ...state, gridDisplayMode: value as UserSettings["gridDisplayMode"] }))} />
         <SelectControl label="Цвет привычек" value={defaults.gridHabitColorMode} options={["habit", "muted", "mono", "alternating"]} onChange={(value) => setDefaults((state) => ({ ...state, gridHabitColorMode: value as UserSettings["gridHabitColorMode"] }))} />
-        <SelectControl label="История календаря" value={String(defaults.calendarHistoryDays)} options={["7", "14", "30", "60", "90", "180", "365"]} onChange={(value) => setDefaults((state) => ({ ...state, calendarHistoryDays: Number(value) }))} />
+        <SelectControl label="История календаря" value={String(defaults.calendarHistoryDays)} options={["0", "7", "14", "30", "60", "90", "180", "365"]} onChange={(value) => setDefaults((state) => ({ ...state, calendarHistoryDays: Number(value) }))} />
       </div>
       <div className="module-toggle-grid">
         <Toggle label="Правая панель" checked={defaults.rightPanel} onChange={(checked) => setDefaults((state) => ({ ...state, rightPanel: checked }))} />
@@ -282,6 +283,71 @@ function GlobalDefaultsPanel({ currentSettings }: { currentSettings: AppState["s
         <Toggle label="Транзит" checked={defaults.visibleBlocks.transit} onChange={(checked) => setDefaults((state) => ({ ...state, visibleBlocks: { ...state.visibleBlocks, transit: checked } }))} />
       </div>
       <p className="muted">{message || "Можно настроить базовую тему, стартовый экран и важные блоки по умолчанию."}</p>
+    </div>
+  );
+}
+
+function SiteContactPanel() {
+  const [email, setEmail] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [message, setMessage] = useState("");
+
+  useEffect(() => {
+    let mounted = true;
+    fetch("/api/admin/site-contact")
+      .then(async (response) => {
+        const payload = await response.json();
+        if (!response.ok || payload.ok === false) throw new Error(payload.error || "Не удалось загрузить почту контактов");
+        return String(payload.email || "");
+      })
+      .then((saved) => {
+        if (mounted) setEmail(saved);
+      })
+      .catch(() => {
+        if (mounted) setEmail("");
+      });
+    return () => {
+      mounted = false;
+    };
+  }, []);
+
+  async function saveEmail() {
+    setLoading(true);
+    setMessage("");
+    try {
+      const response = await fetch("/api/admin/site-contact", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email })
+      });
+      const payload = await response.json();
+      if (!response.ok || payload.ok === false) throw new Error(payload.error || "Не удалось сохранить email");
+      setMessage("Почта для контактов сохранена.");
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : "Не удалось сохранить email");
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  return (
+    <div className="panel settings-card">
+      <div className="section-head">
+        <div>
+          <h3>Контакты сайта</h3>
+          <p className="muted">Адрес используется страницей контактов и формой связи.</p>
+        </div>
+      </div>
+      <div className="form-grid">
+        <div className="field">
+          <label>Email для формы</label>
+          <input className="input" type="email" value={email} placeholder="support@practway.app" onChange={(event) => setEmail(event.target.value)} />
+        </div>
+      </div>
+      <div className="toolbar preset-toolbar">
+        <button className="btn" onClick={saveEmail} disabled={loading}>{loading ? "Сохраняю..." : "Сохранить email"}</button>
+      </div>
+      <p className="muted">{message || "На странице контактов будет использован именно этот адрес."}</p>
     </div>
   );
 }

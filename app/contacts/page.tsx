@@ -1,24 +1,23 @@
-import Link from "next/link";
+import { AppFooter } from "../../src/components/Footer";
+import { ContactForm } from "../../src/components/ContactForm";
+import { loadSiteContactEmail } from "../../src/server/site-settings";
 
-export default function ContactsPage() {
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
+export default async function ContactsPage() {
+  const contactEmail = await loadSiteContactEmail();
   return (
     <main className="static-page">
-      <div className="static-page-card panel">
-        <span className="auth-kicker">PractWay 2026</span>
-        <h1>Контакты</h1>
-        <p className="muted">По вопросам продукта и обратной связи используй общий канал проекта.</p>
-        <div className="contact-list">
-          <div>
-            <b>Email</b>
-            <span>support@practway.app</span>
-          </div>
-          <div>
-            <b>Telegram</b>
-            <span>@practway</span>
-          </div>
+      <div className="static-page-card panel contact-page-card">
+        <div className="static-page-hero-copy">
+          <span className="auth-kicker">PractWay 2026</span>
+          <h1>Контакты</h1>
+          <p className="muted">Напиши нам прямо из формы. Адрес получателя задаётся администратором в настройках сайта.</p>
         </div>
-        <Link className="btn primary" href="/">Вернуться в приложение</Link>
+        <ContactForm recipientEmail={contactEmail} />
       </div>
+      <AppFooter />
     </main>
   );
 }

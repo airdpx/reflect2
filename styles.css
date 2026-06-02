@@ -157,6 +157,10 @@ button {
   color: var(--text);
 }
 
+.mobile-nav button.active b {
+  background: color-mix(in srgb, var(--accent) 34%, var(--surface));
+}
+
 .main {
   min-width: 0;
   padding: 22px;
@@ -4241,15 +4245,65 @@ button {
 .static-page {
   min-height: 100vh;
   display: grid;
-  place-items: center;
+  align-content: center;
+  gap: 16px;
   padding: 24px;
-  background: var(--bg);
+  background:
+    radial-gradient(circle at top right, color-mix(in srgb, var(--accent) 8%, transparent), transparent 30%),
+    var(--bg);
 }
 
 .static-page-card {
   width: min(760px, 100%);
   display: grid;
   gap: 12px;
+}
+
+.static-page > .app-footer {
+  width: min(760px, 100%);
+  margin: 0 auto;
+}
+
+.about-page-card,
+.contact-page-card {
+  padding: 22px;
+}
+
+.static-page-hero-copy {
+  display: grid;
+  gap: 10px;
+}
+
+.static-page-hero-copy h1 {
+  margin: 0;
+  font-size: 32px;
+  line-height: 1.02;
+  letter-spacing: 0;
+}
+
+.about-feature-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.about-feature-grid div {
+  display: grid;
+  gap: 4px;
+  padding: 12px;
+  border-radius: 10px;
+  border: 1px solid color-mix(in srgb, var(--line) 70%, transparent);
+  background: color-mix(in srgb, var(--surface-soft) 84%, var(--surface));
+}
+
+.about-feature-grid b {
+  font-size: 13px;
+}
+
+.about-feature-grid span {
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.4;
 }
 
 .contact-list {
@@ -4264,6 +4318,23 @@ button {
   border-radius: 10px;
   border: 1px solid color-mix(in srgb, var(--line) 70%, transparent);
   background: color-mix(in srgb, var(--surface-soft) 82%, var(--surface));
+}
+
+.contact-form {
+  gap: 12px;
+}
+
+.contact-textarea {
+  min-height: 150px;
+}
+
+.contact-actions {
+  align-items: center;
+}
+
+.contact-hint,
+.contact-status {
+  font-size: 12px;
 }
 
 @media (max-width: 720px) {
@@ -5777,6 +5848,12 @@ body:has(.theme-custom) { background: #111827; }
     font-size: 13px;
   }
 
+  .toolbar .btn.primary {
+    min-height: 36px;
+    padding-inline: 10px;
+    font-size: 12px;
+  }
+
   .topbar-date {
     gap: 3px;
     min-width: 0;
@@ -5824,6 +5901,24 @@ body:has(.theme-custom) { background: #111827; }
   .stats,
   .grid-two {
     grid-template-columns: 1fr;
+  }
+
+  .stats {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+  }
+
+  .stat {
+    min-height: 74px;
+    padding: 10px;
+  }
+
+  .stat strong {
+    font-size: 19px;
+  }
+
+  .stat span {
+    font-size: 11px;
   }
 
   .diary-scales-grid {
@@ -6188,9 +6283,10 @@ body:has(.theme-custom) { background: #111827; }
   }
 
   .mobile-nav button b {
-    width: 24px;
-    height: 24px;
-    font-size: 12px;
+    width: 26px;
+    height: 26px;
+    font-size: 13px;
+    background: color-mix(in srgb, var(--accent) 20%, var(--surface));
   }
 
   .mobile-nav button span {
@@ -6223,21 +6319,64 @@ body:has(.theme-custom) { background: #111827; }
   .habit-admin-actions {
     grid-column: 1 / -1;
     display: flex;
-    gap: 6px;
+    gap: 4px;
     justify-content: flex-start;
-    flex-wrap: wrap;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    padding-bottom: 2px;
   }
 
   .habit-admin-actions .btn {
-    flex: 1 1 calc(50% - 6px);
-    min-height: 32px;
-    padding: 6px 8px;
-    font-size: 11px;
+    flex: 0 0 auto;
+    min-height: 28px;
+    padding: 4px 7px;
+    font-size: 10px;
+    white-space: nowrap;
   }
 
   .habits-template-panel {
     position: static;
     top: auto;
+  }
+
+  .static-page {
+    align-content: start;
+    padding: 14px 12px 80px;
+  }
+
+  .static-page-card {
+    width: 100%;
+    gap: 10px;
+  }
+
+  .static-page > .app-footer {
+    width: 100%;
+  }
+
+  .about-page-card,
+  .contact-page-card {
+    padding: 16px;
+  }
+
+  .static-page-hero-copy h1 {
+    font-size: 24px;
+  }
+
+  .about-feature-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .contact-textarea {
+    min-height: 122px;
+  }
+
+  .contact-actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .contact-hint {
+    margin-top: 2px;
   }
 
   .settings-row-action {

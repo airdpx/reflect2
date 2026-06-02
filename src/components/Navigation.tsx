@@ -3,12 +3,12 @@ import { formatDate } from "../lib/date";
 
 const baseNavItems: Array<[View, string, string]> = [
   ["today", "Сегодня", "☀️"],
-  ["grid", "Календарь", "🗓️"],
+  ["grid", "Календарь", "📅"],
   ["habits", "Привычки", "✨"],
   ["diary", "Дневник", "✍️"],
   ["notifications", "Оповещения", "🔔"],
-  ["analytics", "Аналитика", "📊"],
-  ["settings", "Настройки", "🎛️"]
+  ["analytics", "Аналитика", "📈"],
+  ["settings", "Настройки", "🛠️"]
 ];
 
 function getNavItems(isAdmin?: boolean) {
