@@ -8,7 +8,7 @@ export function loadStoredState(): AppState {
   const defaults = createDefaults();
   if (typeof window === "undefined") return defaults;
   try {
-    const raw = window.localStorage.getItem(STORAGE_KEY);
+    const raw = window.sessionStorage.getItem(STORAGE_KEY);
     if (!raw) return defaults;
     return migrateState(mergeState(defaults, JSON.parse(raw) as Partial<AppState>));
   } catch {
@@ -20,12 +20,16 @@ export function saveStoredState(state: AppState) {
   if (typeof window !== "undefined") {
     const copy = structuredClone(state) as AppState & { settings: { forecast: Record<string, unknown> } };
     delete copy.settings.forecast.birthDate;
-    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(copy));
+    window.sessionStorage.setItem(STORAGE_KEY, JSON.stringify(copy));
+    window.localStorage.removeItem(STORAGE_KEY);
   }
 }
 
 export function clearStoredState() {
-  if (typeof window !== "undefined") window.localStorage.removeItem(STORAGE_KEY);
+  if (typeof window !== "undefined") {
+    window.sessionStorage.removeItem(STORAGE_KEY);
+    window.localStorage.removeItem(STORAGE_KEY);
+  }
 }
 
 function mergeState(defaults: AppState, stored: Partial<AppState>): AppState {

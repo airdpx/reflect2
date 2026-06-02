@@ -5,7 +5,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { AppFooter } from "./Footer";
 import { themeOptions } from "../lib/defaults";
-import { STORAGE_KEY, parseImportedState } from "../lib/storage";
+import { clearStoredState } from "../lib/storage";
 import type { InterfaceTheme } from "../types";
 
 type Mode = "login" | "register" | "reset";
@@ -83,21 +83,8 @@ export function AuthScreen() {
         accountState.settings.interfaceTheme = theme;
       }
       try {
-        const legacyRaw = window.localStorage.getItem(STORAGE_KEY);
-        if (legacyRaw) {
-          const imported = parseImportedState(legacyRaw);
-          if (imported) {
-            imported.profile = data.state?.profile || imported.profile;
-            imported.settings.interfaceTheme = theme;
-            imported.settings.forecast.enabled = true;
-            await fetch("/api/account/state", {
-              method: "PUT",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ state: imported })
-            });
-            window.localStorage.removeItem(STORAGE_KEY);
-          }
-        } else if (accountState) {
+        clearStoredState();
+        if (accountState) {
           await fetch("/api/account/state", {
             method: "PUT",
             headers: { "Content-Type": "application/json" },
@@ -105,7 +92,7 @@ export function AuthScreen() {
           });
         }
       } catch {
-        // Guest cache migration is best-effort.
+        // Best-effort sync of the freshly authorized state.
       }
       setMessage(mode === "reset" ? "Пароль обновлён. Сейчас перенаправлю." : "Готово. Сейчас открою приложение.");
       router.refresh();

@@ -474,10 +474,23 @@ export default function HabitCalendarApp({ initialState }: HabitCalendarAppProps
     setState(createDefaults());
   }
 
-  function signOut() {
-    fetch("/api/auth/logout", { method: "POST" }).finally(() => {
-      window.location.reload();
-    });
+  async function signOut() {
+    try {
+      if (state.profile?.id) {
+        await fetch("/api/account/state", {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ state })
+        });
+      }
+    } catch {
+      // Best-effort flush before sign-out.
+    } finally {
+      clearStoredState();
+      fetch("/api/auth/logout", { method: "POST" }).finally(() => {
+        window.location.reload();
+      });
+    }
   }
 
   function reorderHabit(habitId: string, targetHabitId: string) {
