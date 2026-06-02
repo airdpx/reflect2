@@ -86,6 +86,29 @@ button {
   overflow-x: clip;
 }
 
+@media (min-width: 721px) {
+  .app {
+    height: 100vh;
+    overflow: hidden;
+  }
+
+  .main {
+    height: 100vh;
+    overflow: auto;
+    scrollbar-width: none;
+  }
+
+  .inspector {
+    scrollbar-width: none;
+  }
+
+  .main::-webkit-scrollbar,
+  .inspector::-webkit-scrollbar {
+    width: 0;
+    height: 0;
+  }
+}
+
 .app.focus .sidebar,
 .app.focus .inspector {
   display: none;
@@ -4826,6 +4849,7 @@ button {
 
 .admin-toolbar {
   align-items: center;
+  flex-wrap: wrap;
 }
 
 .admin-table {
@@ -4887,13 +4911,11 @@ button {
 
 .admin-table-actions {
   display: flex;
-  flex-wrap: nowrap;
+  flex-wrap: wrap;
   gap: 6px;
   justify-content: flex-start;
   max-width: 100%;
-  overflow-x: auto;
   padding-bottom: 2px;
-  scrollbar-width: thin;
 }
 
 .admin-table-actions .btn,
@@ -4904,17 +4926,29 @@ button {
 
 .admin-table-actions .btn {
   min-height: 32px;
-  padding: 6px 10px;
+  min-width: 32px;
+  padding: 6px;
   font-size: 13px;
 }
 
-.admin-table-actions::-webkit-scrollbar {
-  height: 4px;
+.admin-toolbar .icon-btn {
+  width: 38px;
+  min-width: 38px;
+  padding: 0;
+  justify-content: center;
 }
 
-.admin-table-actions::-webkit-scrollbar-thumb {
-  background: color-mix(in srgb, var(--line) 72%, transparent);
-  border-radius: 999px;
+.admin-table-actions .icon-btn {
+  width: 34px;
+  min-width: 34px;
+  padding: 0;
+  justify-content: center;
+}
+
+.admin-table-actions .app-svg-icon,
+.admin-toolbar .app-svg-icon {
+  width: 18px;
+  height: 18px;
 }
 
 .app-footer,

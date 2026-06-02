@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import type { AppState, Density, InterfaceTheme, UserSettings, View } from "../types";
+import { AppIcon } from "../components/AppIcons";
 import { SelectControl, Toggle } from "../components/Common";
 import { createDefaults, themeOptions } from "../lib/defaults";
 
@@ -129,9 +130,15 @@ function AdminUsersPanel({ currentUserId }: { currentUserId: string }) {
       </div>
       <div className="toolbar preset-toolbar admin-toolbar">
         <input className="input" type="password" value={adminPassword} placeholder="Новый пароль администратора" onChange={(event) => setAdminPassword(event.target.value)} />
-        <button className="btn" onClick={changeAdminPassword}>Сменить пароль админа</button>
-        <button className="btn ghost" onClick={() => void downloadExport("json")}>JSON</button>
-        <button className="btn ghost" onClick={() => void downloadExport("sql")}>SQL</button>
+        <button className="btn icon-btn compact-action" onClick={changeAdminPassword} title="Сменить пароль администратора" aria-label="Сменить пароль администратора">
+          <AppIcon name="key" />
+        </button>
+        <button className="btn ghost icon-btn compact-action" onClick={() => void downloadExport("json")} title="Экспорт базы в JSON" aria-label="Экспорт базы в JSON">
+          <AppIcon name="download" />
+        </button>
+        <button className="btn ghost icon-btn compact-action" onClick={() => void downloadExport("sql")} title="Экспорт базы в SQL" aria-label="Экспорт базы в SQL">
+          <AppIcon name="database" />
+        </button>
       </div>
       {loading ? <p className="muted">Загружаю пользователей...</p> : null}
       {error ? <p className="muted">{error}</p> : null}
@@ -182,17 +189,27 @@ function AdminUsersPanel({ currentUserId }: { currentUserId: string }) {
               </span>
               <div className="admin-table-actions">
                 {editing ? (
-                  <button className="btn compact-action" onClick={() => saveUser(user.id)}>Сохранить</button>
+                  <button className="btn icon-btn compact-action" onClick={() => saveUser(user.id)} title="Сохранить">
+                    <AppIcon name="check" />
+                  </button>
                 ) : (
-                  <button className="btn ghost compact-action" onClick={() => setEditingId(user.id)}>Редактировать</button>
+                  <button className="btn ghost icon-btn compact-action" onClick={() => setEditingId(user.id)} title="Редактировать">
+                    <AppIcon name="edit" />
+                  </button>
                 )}
-                <button className="btn ghost compact-action" onClick={() => saveUserPayload(user.id, { isBlocked: !user.isBlocked })}>{user.isBlocked ? "Разблокировать" : "Заблокировать"}</button>
+                <button className="btn ghost icon-btn compact-action" onClick={() => saveUserPayload(user.id, { isBlocked: !user.isBlocked })} title={user.isBlocked ? "Разблокировать" : "Заблокировать"}>
+                  <AppIcon name={user.isBlocked ? "lock" : "ban"} />
+                </button>
                 {user.id !== currentUserId ? (
-                  <button className="btn ghost compact-action" onClick={() => saveUserPayload(user.id, { isAdmin: !user.isAdmin })}>
-                    {user.isAdmin ? "Убрать admin" : "Сделать admin"}
+                  <button className="btn ghost icon-btn compact-action" onClick={() => saveUserPayload(user.id, { isAdmin: !user.isAdmin })} title={user.isAdmin ? "Убрать admin" : "Сделать admin"}>
+                    <AppIcon name="user-plus" />
                   </button>
                 ) : null}
-                {user.id !== currentUserId ? <button className="btn danger compact-action" onClick={() => removeUser(user.id)}>Удалить</button> : null}
+                {user.id !== currentUserId ? (
+                  <button className="btn danger icon-btn compact-action" onClick={() => removeUser(user.id)} title="Удалить">
+                    <AppIcon name="trash" />
+                  </button>
+                ) : null}
               </div>
             </div>
           );

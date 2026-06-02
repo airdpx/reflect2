@@ -18,6 +18,11 @@ export type AppIconName =
   | "shield"
   | "bolt"
   | "check"
+  | "edit"
+  | "trash"
+  | "ban"
+  | "database"
+  | "download"
   | "palette";
 
 export function AppIcon({ name }: { name: AppIconName | string }) {
@@ -139,6 +144,36 @@ export function AppIcon({ name }: { name: AppIconName | string }) {
         <>
           <circle {...line} cx="24" cy="24" r="18" />
           <path {...line} d="m16 24 6 6 12-15" stroke={green} />
+        </>
+      ) : name === "edit" ? (
+        <>
+          <path d="M11 32.5 31.5 12a3 3 0 0 1 4.2 0l0.3.3a3 3 0 0 1 0 4.2L15.5 37H11z" fill={soft} />
+          <path {...line} d="M31.5 12 36 16.5M11 32.5 15.5 37" stroke={cool} />
+          <path {...line} d="M13 34.5 12 41h6.5" stroke={warm} />
+        </>
+      ) : name === "trash" ? (
+        <>
+          <path d="M14 16h20l-2 22a4 4 0 0 1-4 3H20a4 4 0 0 1-4-3l-2-22Z" fill={soft} />
+          <path {...line} d="M19 16V11h10v5M9 16h30M20 22v12M28 22v12" stroke={warm} />
+        </>
+      ) : name === "ban" ? (
+        <>
+          <circle {...line} cx="24" cy="24" r="16" />
+          <path {...line} d="M13 35 35 13" stroke={warm} />
+          <circle cx="24" cy="24" r="8" fill={soft} />
+        </>
+      ) : name === "database" ? (
+        <>
+          <ellipse cx="24" cy="13" rx="14" ry="6" fill={soft} />
+          <path {...line} d="M10 13v10c0 3.3 6.3 6 14 6s14-2.7 14-6V13" />
+          <path {...line} d="M10 23v10c0 3.3 6.3 6 14 6s14-2.7 14-6V23" stroke={cool} />
+        </>
+      ) : name === "download" ? (
+        <>
+          <path d="M24 5v18" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" />
+          <path {...line} d="m16 20 8 8 8-8" stroke={warm} />
+          <path {...line} d="M10 39h28" />
+          <rect x="11" y="28" width="26" height="7" rx="3.5" fill={soft} />
         </>
       ) : name === "key" ? (
         <>
