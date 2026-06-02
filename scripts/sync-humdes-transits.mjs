@@ -32,7 +32,8 @@ async function main() {
     const html = await fetchHtml(`${HUMDES_TRANSITS_URL}?PAGEN_1=${pageNumber}`);
     const items = parseListings(html, pageNumber);
     for (const item of items) {
-      await upsertTransit(item);
+      const details = await fetchDetails(item.descriptionUrl);
+      await upsertTransit(item, details);
       importedItems += 1;
     }
     console.log(`Imported page ${pageNumber}/${HUMDES_TRANSIT_PAGES}`);
@@ -79,6 +80,20 @@ function parseListings(html, pageNumber) {
   return items;
 }
 
+async function fetchDetails(descriptionUrl) {
+  const html = await fetchHtml(descriptionUrl);
+  const publishedAt = matchFirst(html, /<meta property="article:published_time" content="([^"]+)">/i);
+  const transitBody = matchFirst(html, /<div class="transit__text">([\s\S]*?)<\/div>/i);
+  const paragraphs = Array.from(transitBody.matchAll(/<p>([\s\S]*?)<\/p>/gi)).map((item) => cleanText(stripTags(item[1])));
+  const traits = Array.from(html.matchAll(/<div class="transit__trait">\s*<span class="transit__trait-lead">([^<]+)<\/span>\s*<div class="transit__trait-text">([\s\S]*?)<\/div>/gi))
+    .map((item) => `${cleanText(item[1])} ${cleanText(stripTags(item[2]))}`.trim())
+    .filter(Boolean);
+  return {
+    paragraphs: [...paragraphs, ...traits],
+    publishedAt: publishedAt ? new Date(publishedAt) : null
+  };
+}
+
 function parseGate(block) {
   const number = cleanText(matchFirst(block, /<span class="transit-list-item__gate-number">([\s\S]*?)<\/span>/i));
   const name = cleanText(matchFirst(block, /<span class="transit-list-item__gate-name"><a [^>]*>([\s\S]*?)<\/a><\/span>/i));
@@ -111,7 +126,7 @@ function parseDateRange(title, descriptionUrl) {
   };
 }
 
-async function upsertTransit(item) {
+async function upsertTransit(item, details) {
   const params = [
     randomUUID(),
     item.title,
@@ -127,16 +142,17 @@ async function upsertTransit(item) {
     item.gates[1]?.name || "",
     item.gates[1]?.url || "",
     JSON.stringify(item.gates),
-    JSON.stringify([]),
+    JSON.stringify(details?.paragraphs || []),
+    details?.publishedAt || null,
     new Date(),
     new Date()
   ];
   await pool.query(
     `
       INSERT INTO "HumanDesignTransitRecord"
-        ("id", "title", "periodStart", "periodEnd", "listingUrl", "descriptionUrl", "pageNumber", "gateSunNumber", "gateSunName", "gateSunUrl", "gateEarthNumber", "gateEarthName", "gateEarthUrl", "gates", "paragraphs", "fetchedAt", "updatedAt")
+        ("id", "title", "periodStart", "periodEnd", "listingUrl", "descriptionUrl", "pageNumber", "gateSunNumber", "gateSunName", "gateSunUrl", "gateEarthNumber", "gateEarthName", "gateEarthUrl", "gates", "paragraphs", "publishedAt", "fetchedAt", "updatedAt")
       VALUES
-        ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14::jsonb, $15::jsonb, $16, $17)
+        ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14::jsonb, $15::jsonb, $16, $17, $18)
       ON CONFLICT ("descriptionUrl")
       DO UPDATE SET
         "title" = EXCLUDED."title",
@@ -151,6 +167,8 @@ async function upsertTransit(item) {
         "gateEarthName" = EXCLUDED."gateEarthName",
         "gateEarthUrl" = EXCLUDED."gateEarthUrl",
         "gates" = EXCLUDED."gates",
+        "paragraphs" = EXCLUDED."paragraphs",
+        "publishedAt" = EXCLUDED."publishedAt",
         "fetchedAt" = EXCLUDED."fetchedAt",
         "updatedAt" = NOW()
     `,
@@ -178,6 +196,13 @@ function decodeEntities(value) {
     .replace(/&#39;/g, "'")
     .replace(/&lt;/g, "<")
     .replace(/&gt;/g, ">");
+}
+
+function stripTags(value) {
+  return String(value || "")
+    .replace(/<br\s*\/?>/gi, "\n")
+    .replace(/<\/(div|li|p|h[1-6])>/gi, "\n")
+    .replace(/<[^>]+>/g, "");
 }
 
 function absolutize(value) {

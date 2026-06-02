@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { todayKey } from "../../../src/lib/date";
-import { fetchHumdesTransitListings, HUMDES_TRANSIT_PAGES } from "../../../src/lib/humdes";
+import { fetchHumdesTransitDetails, fetchHumdesTransitListings, HUMDES_TRANSIT_PAGES } from "../../../src/lib/humdes";
 import { getPrisma } from "../../../src/server/db";
 import type { HumanDesignTransit, HumanDesignTransitGate } from "../../../src/types";
 
@@ -95,6 +95,16 @@ async function syncHumdesTransits(prisma: ReturnType<typeof getPrisma>) {
   for (let pageNumber = 1; pageNumber <= HUMDES_TRANSIT_PAGES; pageNumber += 1) {
     const listings = await fetchHumdesTransitListings(pageNumber);
     for (const listing of listings) {
+      let paragraphs: string[] = [];
+      let publishedAt: Date | null = null;
+      try {
+        const details = await fetchHumdesTransitDetails(listing.descriptionUrl);
+        paragraphs = details.paragraphs;
+        publishedAt = details.publishedAt;
+      } catch {
+        paragraphs = [];
+        publishedAt = null;
+      }
       await prisma.humanDesignTransitRecord.upsert({
         where: { descriptionUrl: listing.descriptionUrl },
         create: {
@@ -111,7 +121,8 @@ async function syncHumdesTransits(prisma: ReturnType<typeof getPrisma>) {
           gateEarthName: listing.gates[1]?.name || "",
           gateEarthUrl: listing.gates[1]?.url || "",
           gates: listing.gates,
-          paragraphs: [],
+          paragraphs,
+          publishedAt,
           fetchedAt: new Date()
         },
         update: {
@@ -127,6 +138,8 @@ async function syncHumdesTransits(prisma: ReturnType<typeof getPrisma>) {
           gateEarthName: listing.gates[1]?.name || "",
           gateEarthUrl: listing.gates[1]?.url || "",
           gates: listing.gates,
+          paragraphs,
+          publishedAt: publishedAt || undefined,
           fetchedAt: new Date()
         }
       });
