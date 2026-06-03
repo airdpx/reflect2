@@ -225,6 +225,41 @@ function GlobalDefaultsPanel({ currentSettings }: { currentSettings: AppState["s
   const [defaults, setDefaults] = useState<UserSettings>(createDefaults().settings);
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
+  const defaultViewOptions = [
+    { value: "today", label: "Сегодня" },
+    { value: "grid", label: "Календарь" },
+    { value: "habits", label: "Привычки" },
+    { value: "diary", label: "Дневник" },
+    { value: "notifications", label: "Оповещения" },
+    { value: "analytics", label: "Аналитика" },
+    { value: "settings", label: "Настройки" },
+    { value: "management", label: "Управление" }
+  ];
+  const gridThemeOptions = [
+    ["classic", "Классика"],
+    ["soft", "Мягкий"],
+    ["minimal", "Мини"],
+    ["journal", "Дневник"],
+    ["ledger", "Таблица"],
+    ["outline", "Контур"],
+    ["slate", "Сланец"],
+    ["calm", "Спокойный"]
+  ] as const;
+  const gridDisplayModeOptions = [
+    ["matrix", "Таблица"],
+    ["calendar", "Календарь"],
+    ["compact", "Мини"],
+    ["week", "Неделя"],
+    ["habit", "Привычка"],
+    ["timeline", "Лента"],
+    ["heat", "Тепло"]
+  ] as const;
+  const gridHabitColorModeOptions = [
+    ["habit", "Как привычка"],
+    ["muted", "Приглушённые"],
+    ["mono", "Моно"],
+    ["alternating", "Чередование"]
+  ] as const;
 
   useEffect(() => {
     let mounted = true;
@@ -282,13 +317,27 @@ function GlobalDefaultsPanel({ currentSettings }: { currentSettings: AppState["s
         <button className="btn" onClick={saveDefaults} disabled={loading}>{loading ? "Сохраняю..." : "Сохранить дефолт"}</button>
       </div>
       <div className="form-grid">
-        <SelectControl label="Тема" value={defaults.interfaceTheme} options={themeOptions.map((item) => item.id)} onChange={(value) => setDefaults((state) => ({ ...state, interfaceTheme: value as InterfaceTheme }))} />
-        <SelectControl label="Стартовый экран" value={defaults.defaultView} options={["today", "grid", "habits", "diary", "notifications", "analytics", "settings", "management"]} onChange={(value) => setDefaults((state) => ({ ...state, defaultView: value as View }))} />
-        <SelectControl label="Плотность" value={defaults.density} options={["compact", "standard", "comfortable"]} onChange={(value) => setDefaults((state) => ({ ...state, density: value as Density }))} />
-        <SelectControl label="Календарь" value={defaults.gridTheme} options={["classic", "soft", "minimal", "journal", "ledger", "outline", "slate", "calm"]} onChange={(value) => setDefaults((state) => ({ ...state, gridTheme: value as UserSettings["gridTheme"] }))} />
-        <SelectControl label="Режим таблицы" value={defaults.gridDisplayMode} options={["matrix", "calendar", "compact", "week", "habit", "timeline", "heat"]} onChange={(value) => setDefaults((state) => ({ ...state, gridDisplayMode: value as UserSettings["gridDisplayMode"] }))} />
-        <SelectControl label="Цвет привычек" value={defaults.gridHabitColorMode} options={["habit", "muted", "mono", "alternating"]} onChange={(value) => setDefaults((state) => ({ ...state, gridHabitColorMode: value as UserSettings["gridHabitColorMode"] }))} />
-        <SelectControl label="История календаря" value={String(defaults.calendarHistoryDays)} options={["0", "7", "14", "30", "60", "90", "180", "365"]} onChange={(value) => setDefaults((state) => ({ ...state, calendarHistoryDays: Number(value) }))} />
+        <SelectControl label="Тема" value={defaults.interfaceTheme} options={themeOptions.map((item) => ({ value: item.id, label: item.title }))} onChange={(value) => setDefaults((state) => ({ ...state, interfaceTheme: value as InterfaceTheme }))} />
+        <SelectControl label="Display preset" value={defaults.preset} options={["Simple", "Balanced", "Journal", "Analytical", "Focus"]} onChange={(value) => setDefaults((state) => ({ ...state, preset: value as UserSettings["preset"] }))} />
+        <SelectControl label="Плотность" value={defaults.density} options={[
+          { value: "compact", label: "compact" },
+          { value: "standard", label: "standard" },
+          { value: "comfortable", label: "comfortable" }
+        ]} onChange={(value) => setDefaults((state) => ({ ...state, density: value as Density }))} />
+        <SelectControl label="Стартовый экран" value={defaults.defaultView} options={defaultViewOptions} onChange={(value) => setDefaults((state) => ({ ...state, defaultView: value as View }))} />
+        <SelectControl label="Тема календаря" value={defaults.gridTheme} options={gridThemeOptions.map(([value, label]) => ({ value, label }))} onChange={(value) => setDefaults((state) => ({ ...state, gridTheme: value as UserSettings["gridTheme"] }))} />
+        <SelectControl label="Режим таблицы" value={defaults.gridDisplayMode} options={gridDisplayModeOptions.map(([value, label]) => ({ value, label }))} onChange={(value) => setDefaults((state) => ({ ...state, gridDisplayMode: value as UserSettings["gridDisplayMode"] }))} />
+        <SelectControl label="Цвет привычек" value={defaults.gridHabitColorMode} options={gridHabitColorModeOptions.map(([value, label]) => ({ value, label }))} onChange={(value) => setDefaults((state) => ({ ...state, gridHabitColorMode: value as UserSettings["gridHabitColorMode"] }))} />
+        <SelectControl label="История календаря" value={String(defaults.calendarHistoryDays)} options={[
+          { value: "0", label: "0" },
+          { value: "7", label: "7" },
+          { value: "14", label: "14" },
+          { value: "30", label: "30" },
+          { value: "60", label: "60" },
+          { value: "90", label: "90" },
+          { value: "180", label: "180" },
+          { value: "365", label: "365" }
+        ]} onChange={(value) => setDefaults((state) => ({ ...state, calendarHistoryDays: Number(value) }))} />
       </div>
       <div className="module-toggle-grid">
         <Toggle label="Правая панель" checked={defaults.rightPanel} onChange={(checked) => setDefaults((state) => ({ ...state, rightPanel: checked }))} />
