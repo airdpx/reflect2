@@ -654,8 +654,7 @@ function GridCell({
         onClick={() => state.settings.gridClickAction === "cycle" ? actions.cycleHabitStatus(habit.id, date) : actions.openCellSheet({ habitId: habit.id, date })}
       >
         <span className="mark-core">
-          {state.settings.gridTheme === "classic" && visibleStatus === "done" ? statusIcon(visibleStatus, state) : ""}
-          {state.settings.gridTheme !== "classic" && visibleStatus && visibleStatus !== "planned" ? statusIcon(visibleStatus, state) : ""}
+          {visibleStatus && visibleStatus !== "planned" ? statusIcon(visibleStatus, state) : ""}
           {state.settings.visibleGrid.noteMarker && log?.note && <i className="marker-note" />}
           {state.settings.visibleGrid.moodMarker && (log?.mood || state.notes[date]?.mood) && <i className="marker-mood" />}
         </span>

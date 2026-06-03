@@ -381,7 +381,8 @@ export default function HabitCalendarApp({ initialState }: HabitCalendarAppProps
   }
 
   function cycleHabitStatus(habitId: string, date: string) {
-    const enabled: HabitStatus[] = state.settings.activeStatuses.length ? state.settings.activeStatuses : ["done"];
+    const statusOrder: HabitStatus[] = ["done", "partial", "skipped", "missed", "planned"];
+    const enabled: HabitStatus[] = statusOrder.filter((item) => state.settings.activeStatuses.includes(item));
     const current = state.logs[logKey(habitId, date)]?.status;
     const currentIndex = current ? enabled.indexOf(current) : -1;
     const nextStatus = currentIndex < 0 ? enabled[0] : currentIndex === enabled.length - 1 ? null : enabled[currentIndex + 1];
