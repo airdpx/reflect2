@@ -360,9 +360,15 @@ export default function HabitCalendarApp({ initialState }: HabitCalendarAppProps
     void syncStateNow();
   }
 
-  function updateVisible(group: "visibleBlocks" | "visibleGrid", key: string, value: boolean) {
+  function updateVisible(group: "visibleBlocks" | "visibleGrid" | "mobileTodayBlocks", key: string, value: boolean) {
     updateState((draft) => {
-      draft.settings[group][key] = value;
+      if (group === "mobileTodayBlocks") {
+        draft.settings.mobileTodayBlocks[key as keyof typeof draft.settings.mobileTodayBlocks] = value;
+      } else if (group === "visibleGrid") {
+        draft.settings.visibleGrid[key] = value;
+      } else {
+        draft.settings.visibleBlocks[key] = value;
+      }
       return draft;
     });
     void syncStateNow();

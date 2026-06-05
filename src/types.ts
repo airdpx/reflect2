@@ -50,6 +50,7 @@ export type NotificationChannel = "inApp" | "browser" | "email" | "telegram" | "
 export type NotificationTopic = "habits" | "diary" | "forecast" | "transit" | "analytics" | "reminders";
 export type NotificationDeliveryStatus = "new" | "read" | "hidden" | "snoozed";
 export type NotificationPriority = "low" | "medium" | "high";
+export type TodayBlockKey = "today" | "attention" | "forecast" | "numerology" | "transit" | "analytics" | "noteText";
 export type GridColorSettings = {
   mode: "theme" | "custom";
   bg: string;
@@ -283,6 +284,7 @@ export type UserSettings = {
     end: string;
   };
   visibleBlocks: Record<string, boolean>;
+  mobileTodayBlocks: Record<TodayBlockKey, boolean>;
   visibleGrid: Record<string, boolean>;
   density: Density;
   interfaceTheme: InterfaceTheme;
@@ -357,7 +359,7 @@ export type AppActions = {
   setPeriod: (patch: Partial<UserSettings["defaultPeriod"]>) => void;
   applyPreset: (preset: UserSettings["preset"]) => void;
   updateSetting: <K extends keyof UserSettings>(key: K, value: UserSettings[K]) => void;
-  updateVisible: (group: "visibleBlocks" | "visibleGrid", key: string, value: boolean) => void;
+  updateVisible: (group: "visibleBlocks" | "visibleGrid" | "mobileTodayBlocks", key: string, value: boolean) => void;
   toggleStatus: (status: HabitStatus, checked: boolean) => void;
   cycleHabitStatus: (habitId: string, date: string) => void;
   markDayDone: () => void;

@@ -1,4 +1,4 @@
-import type { AppState, HabitStatus, HabitTemplate, HabitType, UserSettings } from "../types";
+import type { AppState, HabitStatus, HabitTemplate, HabitType, TodayBlockKey, UserSettings } from "../types";
 import { todayKey } from "./date";
 
 export const statusMeta: Record<HabitStatus, { label: string; short: string; className: string }> = {
@@ -67,6 +67,8 @@ const habitIconRules: Array<{ terms: string[]; icon: string }> = [
   { terms: ["любов", "отнош", "family", "heart"], icon: "❤️" },
   { terms: ["детокс", "avoid", "no", "stop", "less"], icon: "🚫" }
 ];
+
+const todayBlockKeys: TodayBlockKey[] = ["today", "attention", "forecast", "numerology", "transit", "analytics", "noteText"];
 
 export const statusIconPresets: Record<HabitStatus, string[]> = {
   done: ["❤️", "✓", "✔", "✅", "💚", "🌿", "🎉"],
@@ -414,6 +416,7 @@ export function createDefaults(settingsOverride?: Partial<UserSettings>): AppSta
       completion: true,
       lastDone: true
     },
+    mobileTodayBlocks: Object.fromEntries(todayBlockKeys.map((key) => [key, true])) as Record<TodayBlockKey, boolean>,
     visibleGrid: {
       color: true,
       icon: true,

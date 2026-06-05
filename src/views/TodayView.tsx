@@ -1,4 +1,5 @@
-import type { AppActions, AppSelectors, AppState, Habit } from "../types";
+import { useEffect, useState } from "react";
+import type { AppActions, AppSelectors, AppState, Habit, TodayBlockKey } from "../types";
 import { HabitCard } from "../components/HabitCard";
 import { StatsPanel } from "./AnalyticsView";
 import { habitTemplates } from "../lib/defaults";
@@ -14,6 +15,8 @@ export function TodayView({
   selectors: AppSelectors;
   actions: AppActions;
 }) {
+  const viewportWidth = useViewportWidth();
+  const isMobile = viewportWidth <= 720;
   const dueHabits = selectors.activeHabits.filter((habit) => selectors.isDue(habit, state.selectedDate));
   const attention = selectors.getAttentionHabits();
   const attentionIds = new Set(attention.map(({ habit }) => habit.id));
@@ -26,12 +29,15 @@ export function TodayView({
   }
 
   const todayLayout = state.settings.todayLayout === "single" ? "single" : "split";
+  const mobileBlockVisible = (key: TodayBlockKey) => state.settings.mobileTodayBlocks[key] !== false;
+  const isTodayBlockVisible = (key: TodayBlockKey) => state.settings.visibleBlocks[key] && (!isMobile || mobileBlockVisible(key));
 
   const leftColumn = (
     <section className="stack">
       <TodayModulesPanel state={state} actions={actions} />
-      {state.settings.visibleBlocks.attention && <AttentionPanel attention={attention} />}
-      {state.settings.visibleBlocks.today && (
+      {isTodayBlockVisible("noteText") && <TodayNotePreview state={state} actions={actions} />}
+      {isTodayBlockVisible("attention") && <AttentionPanel attention={attention} />}
+      {isTodayBlockVisible("today") && (
         <div className="panel">
           <div className="section-head">
             <div>
@@ -70,10 +76,10 @@ export function TodayView({
   );
 
   const rightPanels = [];
-  if (state.settings.visibleBlocks.forecast) rightPanels.push(<TodayForecastPanel key="forecast" state={state} actions={actions} />);
-  if (state.settings.visibleBlocks.numerology) rightPanels.push(<TodayNumerologyPanel key="numerology" state={state} />);
-  if (state.settings.visibleBlocks.transit) rightPanels.push(<TransitPanel key="transit" state={state} />);
-  if (state.settings.visibleBlocks.analytics && selectors.hasAnyLogs) rightPanels.push(<StatsPanel key="analytics" selectors={selectors} />);
+  if (isTodayBlockVisible("forecast")) rightPanels.push(<TodayForecastPanel key="forecast" state={state} actions={actions} />);
+  if (isTodayBlockVisible("numerology")) rightPanels.push(<TodayNumerologyPanel key="numerology" state={state} />);
+  if (isTodayBlockVisible("transit")) rightPanels.push(<TransitPanel key="transit" state={state} />);
+  if (isTodayBlockVisible("analytics") && selectors.hasAnyLogs) rightPanels.push(<StatsPanel key="analytics" selectors={selectors} />);
 
   if (!rightPanels.length || todayLayout === "single") {
     return <div className="stack">{leftColumn}{rightPanels.length ? <section className="stack observation-column">{rightPanels}</section> : null}</div>;
@@ -157,6 +163,17 @@ function TodayNotePreview({ state, actions }: { state: AppState; actions: AppAct
       />
     </div>
   );
+}
+
+function useViewportWidth() {
+  const [width, setWidth] = useState(0);
+  useEffect(() => {
+    const update = () => setWidth(window.innerWidth);
+    update();
+    window.addEventListener("resize", update);
+    return () => window.removeEventListener("resize", update);
+  }, []);
+  return width;
 }
 
 function OnboardingPanel({ actions }: { actions: AppActions }) {

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import type { AppActions, AppState, Density, ForecastDisplayMode, ForecastScaleId, ForecastSettings, HabitStatus, NumerologyDisplayMode, NumerologyMetricId, NumerologySettings, UserSettings, View } from "../types";
+import type { AppActions, AppState, Density, ForecastDisplayMode, ForecastScaleId, ForecastSettings, HabitStatus, NumerologyDisplayMode, NumerologyMetricId, NumerologySettings, TodayBlockKey, UserSettings, View } from "../types";
 import { SelectControl, Toggle } from "../components/Common";
 import { statusMeta } from "../lib/defaults";
 
@@ -20,6 +20,16 @@ const blockLabels: Record<string, string> = {
   completion: "Процент выполнения",
   lastDone: "Последнее выполнение"
 };
+
+const mobileTodayLabels: Array<[TodayBlockKey, string]> = [
+  ["today", "Привычки"],
+  ["attention", "Внимание"],
+  ["forecast", "Биоритмы"],
+  ["numerology", "Цифры"],
+  ["transit", "Транзит"],
+  ["analytics", "Аналитика"],
+  ["noteText", "Короткая заметка"]
+];
 
 const gridLabels: Record<string, string> = {
   color: "Цвет привычки",
@@ -154,6 +164,24 @@ export function SettingsView({ state, actions }: { state: AppState; actions: App
               options={["0", "7", "14", "30", "60", "90", "180", "365"]}
               onChange={(value) => actions.updateSetting("calendarHistoryDays", Number(value))}
             />
+          </div>
+        </div>
+        <div className="panel settings-card">
+          <div className="section-head">
+            <div>
+              <h3>Сегодня на мобильном</h3>
+              <p className="muted">Можно скрывать отдельные блоки только в мобильной версии экрана Сегодня.</p>
+            </div>
+          </div>
+          <div className="module-toggle-grid">
+            {mobileTodayLabels.map(([key, label]) => (
+              <Toggle
+                key={key}
+                label={label}
+                checked={state.settings.mobileTodayBlocks[key]}
+                onChange={(checked) => actions.updateVisible("mobileTodayBlocks", key, checked)}
+              />
+            ))}
           </div>
         </div>
         <div className="panel settings-card">

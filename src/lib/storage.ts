@@ -73,6 +73,10 @@ function mergeState(defaults: AppState, stored: Partial<AppState>): AppState {
         ...defaults.settings.visibleBlocks,
         ...safeSettings.visibleBlocks
       },
+      mobileTodayBlocks: {
+        ...defaults.settings.mobileTodayBlocks,
+        ...safeSettings.mobileTodayBlocks
+      },
       visibleGrid: {
         ...defaults.settings.visibleGrid,
         ...safeSettings.visibleGrid
@@ -240,6 +244,10 @@ function migrateState(state: AppState): AppState {
       visibleBlocks: {
         ...defaults.settings.visibleBlocks,
         ...legacySafeSettings.visibleBlocks
+      },
+      mobileTodayBlocks: {
+        ...defaults.settings.mobileTodayBlocks,
+        ...legacySafeSettings.mobileTodayBlocks
       },
       visibleGrid: migratedVisibleGrid,
       customTheme: {
