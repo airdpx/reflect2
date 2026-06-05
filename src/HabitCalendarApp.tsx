@@ -126,6 +126,7 @@ export default function HabitCalendarApp({ initialState }: HabitCalendarAppProps
     (async () => {
       try {
         skipNextDbSyncRef.current = true;
+        latestStateRef.current = legacy;
         setState(legacy);
         await fetch("/api/account/state", {
           method: "PUT",
@@ -159,11 +160,10 @@ export default function HabitCalendarApp({ initialState }: HabitCalendarAppProps
   const periodDates = allPeriodDates;
 
   function updateState(updater: (draft: AppState) => AppState) {
-    setState((current) => {
-      const next = updater(structuredClone(current));
-      latestStateRef.current = next;
-      return next;
-    });
+    const next = updater(structuredClone(latestStateRef.current));
+    latestStateRef.current = next;
+    setState(next);
+    return next;
   }
 
   const selectors: AppSelectors = {
@@ -582,7 +582,9 @@ export default function HabitCalendarApp({ initialState }: HabitCalendarAppProps
   function resetAll() {
     if (!window.confirm("Сбросить все данные прототипа?")) return;
     clearStoredState();
-    setState(createDefaults());
+    const defaults = createDefaults();
+    latestStateRef.current = defaults;
+    setState(defaults);
   }
 
   async function signOut() {
