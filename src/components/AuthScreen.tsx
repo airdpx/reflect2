@@ -157,9 +157,7 @@ export function AuthScreen() {
             <span className="auth-kicker auth-kicker-icon"><AppIcon name="user" />Самонаблюдение онлайн</span>
           </div>
           <h1>
-            Привычки, дневник и<br />
-            <span>календарь</span> для<br />
-            ежедневного <span>ритма</span>
+            Привычки, дневник и <span>календарь</span> для ежедневного <span>ритма</span>
           </h1>
           <p className="muted">Ведите календарь привычек, фиксируйте состояние дня и анализируйте динамику личного ритма на основе данных, прогнозов и ежедневных наблюдений.</p>
           <div className="auth-feature-grid">

@@ -7601,8 +7601,8 @@ body:has(.theme-custom) { background: #111827; }
     bottom: 0;
     display: grid;
     grid-template-columns: repeat(7, 1fr);
-    gap: 2px;
-    padding: 7px 6px 6px;
+    gap: 1px;
+    padding: 5px 4px 4px;
     border-top: 1px solid var(--line);
     background: var(--surface);
     z-index: 20;
@@ -7611,18 +7611,19 @@ body:has(.theme-custom) { background: #111827; }
   .mobile-nav button {
     display: grid;
     justify-items: center;
-    gap: 4px;
+    gap: 2px;
     min-width: 0;
-    min-height: 56px;
-    padding: 5px 1px;
-    font-size: 9px;
-    line-height: 1.05;
+    min-height: 50px;
+    padding: 4px 0;
+    font-size: 8px;
+    line-height: 1;
+    overflow: hidden;
   }
 
   .mobile-nav button b {
-    width: 26px;
-    height: 26px;
-    font-size: 13px;
+    width: 24px;
+    height: 24px;
+    font-size: 12px;
     background: color-mix(in srgb, var(--accent) 20%, var(--surface));
   }
 
@@ -7630,7 +7631,9 @@ body:has(.theme-custom) { background: #111827; }
     display: block;
     max-width: 100%;
     text-align: center;
-    white-space: normal;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 
   .habit-admin-card {
@@ -7840,7 +7843,7 @@ body:has(.theme-custom) { background: #111827; }
 
   .footer-copy {
     font-size: 10px;
-    font-weight: 700;
+    font-weight: 600;
   }
 
   .footer-links {
