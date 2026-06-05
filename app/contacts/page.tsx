@@ -11,19 +11,7 @@ export default async function ContactsPage() {
     <StaticPageShell
       kicker="Контакты"
       title="Контакты"
-      intro="Напиши нам прямо из формы. Сообщение уйдёт через сервер на адрес, который администратор укажет в настройках сайта, и сохранится в базе."
-      aside={(
-        <div className="contact-list">
-          <div>
-            <b>Когда писать</b>
-            <span>Если нужен отклик по продукту, идее, ошибке, предложению или теме сотрудничества.</span>
-          </div>
-          <div>
-            <b>Как это работает</b>
-            <span>Форма отправляет письмо через сервер, а адрес получателя задаётся в админке.</span>
-          </div>
-        </div>
-      )}
+      intro="Напиши нам прямо из формы."
     >
       <ContactForm recipientEmail={contactEmail} />
     </StaticPageShell>
