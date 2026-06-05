@@ -35,7 +35,6 @@ export function TodayView({
   const leftColumn = (
     <section className="stack">
       <TodayModulesPanel state={state} actions={actions} />
-      {isTodayBlockVisible("noteText") && <TodayNotePreview state={state} actions={actions} />}
       {isTodayBlockVisible("attention") && <AttentionPanel attention={attention} />}
       {isTodayBlockVisible("today") && (
         <div className="panel">
@@ -140,28 +139,6 @@ function TodayModulesPanel({ state, actions }: { state: AppState; actions: AppAc
         </div>
       </div>
     </details>
-  );
-}
-
-function TodayNotePreview({ state, actions }: { state: AppState; actions: AppActions }) {
-  const note = state.notes[state.selectedDate];
-  if (!state.settings.visibleBlocks.noteText) return null;
-  return (
-    <div className="panel today-note-preview">
-      <div className="section-head">
-        <div>
-          <h3>Короткая заметка</h3>
-          <p className="muted">Останется в дневнике за выбранный день.</p>
-        </div>
-        <button className="btn ghost" onClick={() => actions.setView("diary")}>Открыть</button>
-      </div>
-      <textarea
-        className="textarea compact-textarea"
-        value={note?.text || ""}
-        placeholder="Что важно заметить сегодня?"
-        onChange={(event) => actions.setNoteField("text", event.target.value)}
-      />
-    </div>
   );
 }
 

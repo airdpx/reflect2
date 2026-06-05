@@ -1,7 +1,6 @@
 import type { AppActions, AppSelectors, AppState, DailyNote } from "../types";
 import { formatDate } from "../lib/date";
 import { statusMeta } from "../lib/defaults";
-import { InspectorNumerologySummary } from "./Numerology";
 
 export function Inspector({ state, selectors, actions }: { state: AppState; selectors: AppSelectors; actions: AppActions }) {
   const note = state.notes[state.selectedDate] || {};
@@ -23,7 +22,6 @@ export function Inspector({ state, selectors, actions }: { state: AppState; sele
           </div>
         ))}
       </div>
-      <InspectorNumerologySummary state={state} />
       <div className="panel inspector-panel">
         <h3>Дневник</h3>
         <div className="mini-metrics">
@@ -41,20 +39,22 @@ function TodayDiaryInspector({ note, state, actions }: { note: DailyNote; state:
   return (
     <aside className="inspector today-diary-inspector observation-panel">
       <ObservationHeader state={state} actions={actions} title="Наблюдение" />
-      <div className="panel inspector-panel today-diary-panel">
-        <div className="section-head">
-          <div>
-            <h3>Запись дня</h3>
+      {state.settings.visibleBlocks.noteText && (
+        <div className="panel inspector-panel today-diary-panel">
+          <div className="section-head">
+            <div>
+              <h3>Запись дня</h3>
+            </div>
+            <button className="btn ghost" onClick={() => actions.setView("diary")}>Открыть</button>
           </div>
-          <button className="btn ghost" onClick={() => actions.setView("diary")}>Открыть</button>
+          <textarea
+            className="textarea compact-textarea inspector-note-textarea"
+            value={note.text || ""}
+            placeholder="Короткая заметка на сегодня"
+            onChange={(event) => actions.setNoteField("text", event.target.value)}
+          />
         </div>
-        <textarea
-          className="textarea compact-textarea inspector-note-textarea"
-          value={note.text || ""}
-          placeholder="Короткая заметка на сегодня"
-          onChange={(event) => actions.setNoteField("text", event.target.value)}
-        />
-      </div>
+      )}
       <div className="panel inspector-panel today-state-panel">
         <div className="section-head">
           <div>
@@ -69,7 +69,6 @@ function TodayDiaryInspector({ note, state, actions }: { note: DailyNote; state:
         </div>
         <div className="inspector-help-note">Состояние сохраняется в дневнике за выбранную дату.</div>
       </div>
-      <InspectorNumerologySummary state={state} allowToday />
     </aside>
   );
 }
