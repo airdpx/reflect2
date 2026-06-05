@@ -13,7 +13,7 @@ const baseNavItems: Array<[View, string, AppIconName]> = [
 ];
 
 function getNavItems(isAdmin?: boolean) {
-  return isAdmin ? [...baseNavItems, ["management", "Управление", "management"] as const] : baseNavItems;
+  return baseNavItems;
 }
 
 export function Sidebar({ state, view, onView }: { state: AppState; view: View; onView: (view: View) => void }) {

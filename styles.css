@@ -4698,8 +4698,10 @@ button {
   top: 14px;
   right: 14px;
   z-index: 45;
-  display: grid;
+  display: flex;
+  align-items: center;
   gap: 8px;
+  flex-wrap: nowrap;
 }
 
 .quick-popover {
@@ -4734,6 +4736,11 @@ button {
 }
 
 .quick-signout:hover {
+  color: var(--text);
+  border-color: color-mix(in srgb, var(--accent) 35%, var(--line));
+}
+
+.quick-management:hover {
   color: var(--text);
   border-color: color-mix(in srgb, var(--accent) 35%, var(--line));
 }
