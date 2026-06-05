@@ -9,11 +9,14 @@ import { SelectControl, Toggle } from "../components/Common";
 
 const gridAppearancePresets = [
   { value: "classic-square", label: "Классика", theme: "classic", shape: "square" },
-  { value: "compact-square", label: "Прототип: компактные плашки", theme: "compact", shape: "square" },
-  { value: "ledger-micro", label: "Прототип: ledger micro", theme: "micro", shape: "square" },
-  { value: "glass-frame", label: "Прототип: стекло", theme: "glass", shape: "frame" },
-  { value: "heatmap-circle", label: "Прототип: тепло-акцент", theme: "heatmap", shape: "circle" },
-  { value: "hybrid-ring", label: "Прототип: гибрид", theme: "hybrid", shape: "ring" },
+  { value: "neon-board-square", label: "Неоновая доска", theme: "neonBoard", shape: "square" },
+  { value: "week-checks-ring", label: "Чек-лист недели", theme: "weekChecks", shape: "ring" },
+  { value: "signal-cards-square", label: "Сигнальные карточки", theme: "signalCards", shape: "square" },
+  { value: "compact-square", label: "Компактные плашки", theme: "compact", shape: "square" },
+  { value: "ledger-micro", label: "Ledger micro", theme: "micro", shape: "square" },
+  { value: "glass-frame", label: "Стеклянная сетка", theme: "glass", shape: "frame" },
+  { value: "heatmap-circle", label: "Тепло-акцент", theme: "heatmap", shape: "circle" },
+  { value: "hybrid-ring", label: "Гибридное кольцо", theme: "hybrid", shape: "ring" },
   { value: "soft-circle", label: "Мягкий круг", theme: "soft", shape: "circle" },
   { value: "soft-ring", label: "Мягкое кольцо", theme: "soft", shape: "ring" },
   { value: "ledger-square", label: "Ledger Flat", theme: "ledger", shape: "square" },
@@ -413,7 +416,7 @@ function WeekMatrixGrid({
               {week.map((date) => <div className={`grid-head ${date === todayKey() ? "today" : ""}`} key={date}><span>{weekdayShort(date)}</span><b>{formatDate(date, "short")}</b></div>)}
               {habits.map((habit) => (
                 <Fragment key={`${habit.id}-${index}`}>
-                  <div className="grid-name matrix-name">
+                  <div className="grid-name matrix-name" style={getHabitMarkStyle(state, habit, habitIndexMap.get(habit.id) || 0, "row")}>
                     {state.settings.visibleGrid.color && <i className="habit-dot" style={{ height: 18, background: getHabitTone(habit, habitIndexMap.get(habit.id) || 0, state) }} />}
                     <div className="grid-habit-text">
                       <strong>{state.settings.visibleGrid.icon ? habit.icon : ""} {habit.title}</strong>
@@ -648,7 +651,24 @@ function GridCell({
   const status = log?.status || (selectors.isDue(habit, date) ? "planned" : undefined);
   const visibleStatus = getDisplayStatus(status, state);
   const className = visibleStatus ? statusMeta[visibleStatus].className : "";
-  const themeClass = ["soft", "classic", "journal", "minimal", "ledger", "outline", "slate", "calm", "compact", "glass", "heatmap", "hybrid", "micro"].includes(state.settings.gridTheme) ? state.settings.gridTheme : "";
+  const themeClass = [
+    "soft",
+    "classic",
+    "journal",
+    "minimal",
+    "ledger",
+    "outline",
+    "slate",
+    "calm",
+    "compact",
+    "glass",
+    "heatmap",
+    "hybrid",
+    "micro",
+    "neonBoard",
+    "weekChecks",
+    "signalCards"
+  ].includes(state.settings.gridTheme) ? state.settings.gridTheme : "";
   const markStyle = getHabitMarkStyle(state, habit, habitIndex, "cell");
   return (
     <div className={`grid-cell ${date === todayKey() ? "today" : ""} ${themeClass}`}>
@@ -708,8 +728,19 @@ function getHabitTone(habit: Habit, habitIndex: number, state: AppState) {
   return mutedTone;
 }
 
-function getHabitMarkStyle(state: AppState, habit: Habit, habitIndex: number, variant: "cell" | "focus" | "tile" | "dot" | "heat" = "cell") {
+function getHabitMarkStyle(state: AppState, habit: Habit, habitIndex: number, variant: "cell" | "focus" | "tile" | "dot" | "heat" | "row" = "cell") {
   const tone = getHabitTone(habit, habitIndex, state);
+  if (variant === "row") {
+    return {
+      "--habit-color": tone
+    } as React.CSSProperties & Record<"--habit-color", string>;
+  }
+  if (state.settings.gridTheme === "weekChecks" && variant === "cell") {
+    return {
+      "--habit-color": tone,
+      borderColor: "color-mix(in srgb, var(--muted) 58%, var(--grid-line))"
+    } as React.CSSProperties & Record<"--habit-color", string>;
+  }
   const fallbackBackground = variant === "dot"
     ? "color-mix(in srgb, var(--surface-soft) 68%, var(--surface))"
     : variant === "heat"

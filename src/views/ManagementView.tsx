@@ -237,13 +237,21 @@ function GlobalDefaultsPanel({ currentSettings }: { currentSettings: AppState["s
   ];
   const gridThemeOptions = [
     ["classic", "Классика"],
+    ["neonBoard", "Неоновая доска"],
+    ["weekChecks", "Чек-лист недели"],
+    ["signalCards", "Сигнальные карточки"],
     ["soft", "Мягкий"],
     ["minimal", "Мини"],
     ["journal", "Дневник"],
     ["ledger", "Таблица"],
     ["outline", "Контур"],
     ["slate", "Сланец"],
-    ["calm", "Спокойный"]
+    ["calm", "Нейтральный"],
+    ["compact", "Компактные плашки"],
+    ["micro", "Ledger micro"],
+    ["glass", "Стеклянная сетка"],
+    ["heatmap", "Тепло-акцент"],
+    ["hybrid", "Гибридное кольцо"]
   ] as const;
   const gridDisplayModeOptions = [
     ["matrix", "Таблица"],

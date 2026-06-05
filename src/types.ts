@@ -37,7 +37,23 @@ export type InterfaceTheme =
   | "ink"
   | "bronzeNight"
   | "custom";
-export type GridTheme = "soft" | "classic" | "journal" | "minimal" | "ledger" | "outline" | "slate" | "calm" | "compact" | "glass" | "heatmap" | "hybrid" | "micro";
+export type GridTheme =
+  | "soft"
+  | "classic"
+  | "journal"
+  | "minimal"
+  | "ledger"
+  | "outline"
+  | "slate"
+  | "calm"
+  | "compact"
+  | "glass"
+  | "heatmap"
+  | "hybrid"
+  | "micro"
+  | "neonBoard"
+  | "weekChecks"
+  | "signalCards";
 export type GridMarkerShape = "circle" | "square" | "diamond" | "star" | "frame" | "ring" | "hex" | "pill";
 export type GridDisplayMode = "calendar" | "compact" | "matrix" | "week" | "habit" | "timeline" | "heat";
 export type PeriodMode = "last" | "week" | "month" | "custom";
