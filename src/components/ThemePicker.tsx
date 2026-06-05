@@ -1,6 +1,7 @@
 "use client";
 
 import type React from "react";
+import { useEffect, useRef, useState } from "react";
 import { themeOptions } from "../lib/defaults";
 import { AppIcon } from "./AppIcons";
 import type { InterfaceTheme, UserSettings } from "../types";
@@ -39,11 +40,38 @@ export function ThemePicker({
   title = "Тема"
 }: ThemePickerProps) {
   const palette = themeOptions.find((item) => item.id === theme) || themeOptions[0];
+  const [open, setOpen] = useState(false);
+  const rootRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    if (!open) return;
+    const onPointerDown = (event: PointerEvent) => {
+      if (!rootRef.current?.contains(event.target as Node)) setOpen(false);
+    };
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setOpen(false);
+    };
+    document.addEventListener("pointerdown", onPointerDown);
+    document.addEventListener("keydown", onKeyDown);
+    return () => {
+      document.removeEventListener("pointerdown", onPointerDown);
+      document.removeEventListener("keydown", onKeyDown);
+    };
+  }, [open]);
 
   return (
-    <details className={`quick-popover ${className}`.trim()}>
-      <summary className="quick-icon" title={title}><AppIcon name="palette" /></summary>
-      <div className={`quick-panel ${panelClassName}`.trim()}>
+    <div ref={rootRef} className={`quick-popover ${open ? "open" : ""} ${className}`.trim()}>
+      <button
+        className="quick-icon"
+        type="button"
+        title={title}
+        aria-label={title}
+        aria-expanded={open}
+        onClick={() => setOpen((current) => !current)}
+      >
+        <AppIcon name="palette" />
+      </button>
+      {open ? <div className={`quick-panel ${panelClassName}`.trim()}>
         <div className="quick-panel-head">
           <b>{title}</b>
           <span>{palette.title}</span>
@@ -75,7 +103,7 @@ export function ThemePicker({
             ))}
           </div>
         ) : null}
-      </div>
-    </details>
+      </div> : null}
+    </div>
   );
 }
