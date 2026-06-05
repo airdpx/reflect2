@@ -9,6 +9,11 @@ import { SelectControl, Toggle } from "../components/Common";
 
 const gridAppearancePresets = [
   { value: "classic-square", label: "Классика", theme: "classic", shape: "square" },
+  { value: "compact-square", label: "Прототип: компактные плашки", theme: "compact", shape: "square" },
+  { value: "ledger-micro", label: "Прототип: ledger micro", theme: "micro", shape: "square" },
+  { value: "glass-frame", label: "Прототип: стекло", theme: "glass", shape: "frame" },
+  { value: "heatmap-circle", label: "Прототип: тепло-акцент", theme: "heatmap", shape: "circle" },
+  { value: "hybrid-ring", label: "Прототип: гибрид", theme: "hybrid", shape: "ring" },
   { value: "soft-circle", label: "Мягкий круг", theme: "soft", shape: "circle" },
   { value: "soft-ring", label: "Мягкое кольцо", theme: "soft", shape: "ring" },
   { value: "ledger-square", label: "Ledger Flat", theme: "ledger", shape: "square" },
@@ -643,7 +648,7 @@ function GridCell({
   const status = log?.status || (selectors.isDue(habit, date) ? "planned" : undefined);
   const visibleStatus = getDisplayStatus(status, state);
   const className = visibleStatus ? statusMeta[visibleStatus].className : "";
-  const themeClass = ["soft", "classic", "journal", "minimal", "ledger", "outline", "slate", "calm"].includes(state.settings.gridTheme) ? state.settings.gridTheme : "";
+  const themeClass = ["soft", "classic", "journal", "minimal", "ledger", "outline", "slate", "calm", "compact", "glass", "heatmap", "hybrid", "micro"].includes(state.settings.gridTheme) ? state.settings.gridTheme : "";
   const markStyle = getHabitMarkStyle(state, habit, habitIndex, "cell");
   return (
     <div className={`grid-cell ${date === todayKey() ? "today" : ""} ${themeClass}`}>

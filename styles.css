@@ -6824,6 +6824,154 @@ body:has(.theme-custom) { background: #111827; }
     var(--grid-bg);
 }
 
+.grid-theme-compact {
+  padding: 8px;
+  background:
+    linear-gradient(180deg, color-mix(in srgb, var(--grid-head) 58%, transparent), transparent 44%),
+    color-mix(in srgb, var(--grid-bg) 92%, var(--bg));
+}
+
+.grid-theme-compact .week-matrix {
+  border-radius: 8px;
+}
+
+.grid-theme-compact .week-matrix-grid {
+  gap: 2px;
+  background: color-mix(in srgb, var(--grid-line) 48%, transparent);
+}
+
+.grid-theme-compact .grid-head,
+.grid-theme-compact .grid-name,
+.grid-theme-compact .grid-cell {
+  border: 0;
+}
+
+.grid-theme-compact .grid-cell button {
+  width: clamp(32px, calc(var(--cell) - 6px), 44px);
+  height: clamp(32px, calc(var(--grid-row) - 6px), 44px);
+  border-radius: 6px;
+  box-shadow: inset 0 -2px 0 color-mix(in srgb, #000 10%, transparent);
+}
+
+.grid-theme-micro {
+  padding: 6px;
+  background: var(--grid-bg);
+}
+
+.grid-theme-micro .week-matrix {
+  border-radius: 6px;
+  background: color-mix(in srgb, var(--grid-line) 78%, transparent);
+}
+
+.grid-theme-micro .week-matrix-grid {
+  gap: 0;
+}
+
+.grid-theme-micro .grid-head,
+.grid-theme-micro .grid-name,
+.grid-theme-micro .grid-cell {
+  border-right: 1px solid color-mix(in srgb, var(--grid-line) 58%, transparent);
+  border-bottom: 1px solid color-mix(in srgb, var(--grid-line) 58%, transparent);
+}
+
+.grid-theme-micro .grid-cell button {
+  width: clamp(20px, calc(var(--cell) - 16px), 30px);
+  height: clamp(20px, calc(var(--grid-row) - 16px), 30px);
+  border-radius: 3px;
+  font-size: 12px;
+}
+
+.grid-theme-glass {
+  padding: 10px;
+  background:
+    linear-gradient(135deg, color-mix(in srgb, var(--accent) 10%, transparent), transparent 42%),
+    color-mix(in srgb, var(--grid-bg) 72%, transparent);
+}
+
+.grid-theme-glass .week-matrix {
+  border-color: color-mix(in srgb, var(--grid-line) 70%, transparent);
+  background: color-mix(in srgb, var(--grid-bg) 48%, transparent);
+  backdrop-filter: blur(16px);
+}
+
+.grid-theme-glass .week-matrix-grid {
+  gap: 3px;
+  padding: 3px;
+  background: color-mix(in srgb, var(--grid-line) 28%, transparent);
+}
+
+.grid-theme-glass .grid-head,
+.grid-theme-glass .grid-name,
+.grid-theme-glass .grid-cell {
+  border: 0;
+  border-radius: 6px;
+  background: color-mix(in srgb, var(--grid-cell) 70%, transparent);
+}
+
+.grid-theme-glass .grid-cell button {
+  border-radius: 8px;
+  border-color: color-mix(in srgb, #fff 18%, var(--grid-line));
+  box-shadow:
+    inset 0 1px 0 color-mix(in srgb, #fff 24%, transparent),
+    0 7px 16px color-mix(in srgb, #000 16%, transparent);
+}
+
+.grid-theme-heatmap {
+  padding: 8px;
+  background:
+    radial-gradient(circle at top left, color-mix(in srgb, var(--accent) 12%, transparent), transparent 28%),
+    var(--grid-bg);
+}
+
+.grid-theme-heatmap .week-matrix-grid {
+  gap: 2px;
+  background: color-mix(in srgb, var(--grid-line) 44%, transparent);
+}
+
+.grid-theme-heatmap .grid-head,
+.grid-theme-heatmap .grid-name,
+.grid-theme-heatmap .grid-cell {
+  border: 0;
+}
+
+.grid-theme-heatmap .grid-cell button {
+  width: clamp(34px, calc(var(--cell) - 5px), 46px);
+  height: clamp(34px, calc(var(--grid-row) - 5px), 46px);
+  border-radius: 10px;
+  box-shadow:
+    inset 0 0 0 1px color-mix(in srgb, #000 12%, transparent),
+    inset 0 -10px 20px color-mix(in srgb, #000 9%, transparent);
+}
+
+.grid-theme-hybrid {
+  padding: 9px;
+  background:
+    linear-gradient(180deg, color-mix(in srgb, var(--grid-head) 76%, transparent), transparent 36%),
+    var(--grid-bg);
+}
+
+.grid-theme-hybrid .week-matrix {
+  border-radius: 10px;
+}
+
+.grid-theme-hybrid .week-matrix-grid {
+  gap: 1px;
+}
+
+.grid-theme-hybrid .grid-head,
+.grid-theme-hybrid .grid-name,
+.grid-theme-hybrid .grid-cell {
+  border-color: color-mix(in srgb, var(--grid-line) 66%, transparent);
+}
+
+.grid-theme-hybrid .grid-cell button {
+  border-radius: 8px;
+  background:
+    radial-gradient(circle at center, color-mix(in srgb, var(--grid-cell) 18%, transparent) 38%, transparent 39%) padding-box,
+    linear-gradient(135deg, color-mix(in srgb, var(--habit-color) 92%, white), color-mix(in srgb, var(--habit-color) 54%, var(--grid-line))) border-box;
+  border: 2px solid transparent;
+}
+
 .month-calendar,
 .week-focus-grid {
   border-color: color-mix(in srgb, var(--grid-line) 86%, transparent);
