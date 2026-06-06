@@ -1,4 +1,5 @@
 export type View = "today" | "grid" | "habits" | "diary" | "analytics" | "notifications" | "settings" | "management";
+export type Language = "ru" | "en";
 export type HabitType = "boolean" | "numeric" | "multiple" | "avoid" | "reflection";
 export type HabitStatus = "done" | "partial" | "skipped" | "missed" | "planned";
 export type Density = "compact" | "standard" | "comfortable";
@@ -291,6 +292,7 @@ export type ForecastResult = {
 };
 
 export type UserSettings = {
+  language: Language;
   preset: "Simple" | "Balanced" | "Journal" | "Analytical" | "Focus";
   activeStatuses: HabitStatus[];
   defaultPeriod: {

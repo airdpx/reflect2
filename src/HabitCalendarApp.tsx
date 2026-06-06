@@ -17,6 +17,7 @@ import { NotificationsView } from "./views/NotificationsView";
 import { SettingsView } from "./views/SettingsView";
 import { ManagementView } from "./views/ManagementView";
 import { AppFooter } from "./components/Footer";
+import { RuntimeTranslator } from "./components/RuntimeTranslator";
 import { createDefaults, habitTemplates, statusMeta } from "./lib/defaults";
 import { calculateHabitStats, getAttentionHabits, getPeriodDates, getPeriodLabel, isHabitDue, logKey } from "./lib/analytics";
 import { clearStoredState, loadLegacyStoredState, markLegacyStateMigrated, parseImportedState, shouldMigrateLegacyState, wasLegacyStateMigrated } from "./lib/storage";
@@ -150,9 +151,10 @@ export default function HabitCalendarApp({ initialState }: HabitCalendarAppProps
     if (!hydrated) return;
     savePublicThemeState({
       theme: state.settings.interfaceTheme,
+      language: state.settings.language,
       customTheme: state.settings.interfaceTheme === "custom" ? state.settings.customTheme : undefined
     });
-  }, [hydrated, state.settings.interfaceTheme, state.settings.customTheme]);
+  }, [hydrated, state.settings.interfaceTheme, state.settings.language, state.settings.customTheme]);
 
   const activeHabits = useMemo(() => state.habits.filter((habit) => !habit.archived), [state.habits]);
   const categories = useMemo(() => Array.from(new Set(activeHabits.map((habit) => habit.category).filter(Boolean))).sort(), [activeHabits]);
@@ -241,6 +243,7 @@ export default function HabitCalendarApp({ initialState }: HabitCalendarAppProps
 
   return (
     <div className={appClass} style={customThemeStyle}>
+      <RuntimeTranslator language={state.settings.language} />
       <Sidebar state={state} view={state.view} onView={actions.setView} />
       <main className="main">
         <Topbar state={state} onAdd={() => actions.openHabitModal("new")} />
@@ -252,7 +255,7 @@ export default function HabitCalendarApp({ initialState }: HabitCalendarAppProps
       {state.view === "notifications" && <NotificationsView state={state} selectors={selectors} actions={actions} />}
       {state.view === "settings" && <SettingsView state={state} actions={actions} />}
       {state.view === "management" && state.profile?.isAdmin && <ManagementView state={state} />}
-      <AppFooter />
+      <AppFooter language={state.settings.language} />
     </main>
       {state.settings.rightPanel && !state.settings.focusMode && <Inspector state={state} selectors={selectors} actions={actions} />}
       <MobileNav state={state} view={state.view} onView={actions.setView} />

@@ -9,9 +9,9 @@ export default async function ContactsPage() {
   const contactEmail = await loadSiteContactEmail();
   return (
     <StaticPageShell
-      kicker="Контакты"
-      title="Контакты"
-      intro="Напиши нам прямо из формы."
+      kicker={{ ru: "Контакты", en: "Contacts" }}
+      title={{ ru: "Контакты", en: "Contacts" }}
+      intro={{ ru: "Напиши нам прямо из формы.", en: "Send us a message directly from the form." }}
     >
       <ContactForm recipientEmail={contactEmail} />
     </StaticPageShell>

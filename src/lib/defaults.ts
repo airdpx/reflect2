@@ -395,6 +395,7 @@ export function mergeSettings(base: UserSettings, override?: Partial<UserSetting
 
 export function createDefaults(settingsOverride?: Partial<UserSettings>): AppState {
   const defaultSettings: UserSettings = {
+    language: "ru",
     preset: "Balanced",
     activeStatuses: ["done", "partial", "skipped"],
     defaultPeriod: { mode: "last", days: 30, start: todayKey(), end: todayKey() },

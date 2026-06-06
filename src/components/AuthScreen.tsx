@@ -5,11 +5,14 @@ import { useEffect, useMemo, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { AppFooter } from "./Footer";
 import { clearStoredState } from "../lib/storage";
-import type { InterfaceTheme } from "../types";
+import type { InterfaceTheme, Language } from "../types";
 import { AppIcon, type AppIconName } from "./AppIcons";
 import { loadPublicThemeState, savePublicThemeState } from "../lib/public-theme";
 import { ThemePicker } from "./ThemePicker";
 import { themeOptions } from "../lib/defaults";
+import { LanguagePicker } from "./LanguagePicker";
+import { authText, commonText, normalizeLanguage } from "../lib/i18n";
+import { RuntimeTranslator } from "./RuntimeTranslator";
 
 type Mode = "login" | "register" | "reset";
 
@@ -28,6 +31,9 @@ export function AuthScreen() {
   const [showPassword, setShowPassword] = useState(false);
   const [themeState, setThemeState] = useState(() => loadPublicThemeState("dark"));
   const theme = themeState.theme;
+  const language = normalizeLanguage(themeState.language);
+  const text = authText[language];
+  const common = commonText[language];
   const palette = useMemo(() => themeOptions.find((item) => item.id === theme) || themeOptions[0], [theme]);
   const shellStyle = useMemo(() => ({
     "--auth-bg": theme === "custom" && themeState.customTheme ? themeState.customTheme.bg : palette.colors[0],
@@ -43,31 +49,31 @@ export function AuthScreen() {
   } as React.CSSProperties), [palette, theme, themeState.customTheme]);
 
   useEffect(() => {
-    savePublicThemeState({ theme, customTheme: themeState.customTheme });
-  }, [theme, themeState.customTheme]);
+    savePublicThemeState({ theme, language, customTheme: themeState.customTheme });
+  }, [theme, language, themeState.customTheme]);
 
   const title = useMemo(() => {
-    if (mode === "login") return "Вход";
-    if (mode === "reset") return "Сброс пароля";
-    return "Регистрация";
-  }, [mode]);
+    if (mode === "login") return text.login;
+    if (mode === "reset") return text.reset;
+    return text.register;
+  }, [mode, text]);
   const subtitle = mode === "login"
-    ? "Войди по email или по логину admin."
+    ? text.loginSubtitle
     : mode === "reset"
-      ? "Сначала запроси ссылку, затем задай новый пароль."
+      ? text.resetSubtitle
       : "";
 
   const featureCards = [
-    { icon: "calendar" as AppIconName, title: "Календарь", text: "Периоды, статусы, таблица и быстрые отметки", accent: "#40f1e6" },
-    { icon: "diary" as AppIconName, title: "Дневник", text: "Настроение, энергия, стресс и история по дням", accent: "#a855f7" },
-    { icon: "analytics" as AppIconName, title: "Аналитика", text: "Анализ привычек и состояния, визуальные отчёты и тренды", accent: "#a3e635" },
-    { icon: "forecast" as AppIconName, title: "Прогнозы", text: "Сопоставляйте данные с прогнозами и наблюдениями", accent: "#f6a800" }
+    { icon: "calendar" as AppIconName, title: text.features.calendar[0], text: text.features.calendar[1], accent: "#40f1e6" },
+    { icon: "diary" as AppIconName, title: text.features.diary[0], text: text.features.diary[1], accent: "#a855f7" },
+    { icon: "analytics" as AppIconName, title: text.features.analytics[0], text: text.features.analytics[1], accent: "#a3e635" },
+    { icon: "forecast" as AppIconName, title: text.features.forecast[0], text: text.features.forecast[1], accent: "#f6a800" }
   ];
 
   const benefitPoints = [
-    { icon: "shield" as AppIconName, label: "Конфиденциальность" },
-    { icon: "bolt" as AppIconName, label: "Быстро и удобно" },
-    { icon: "check" as AppIconName, label: "Без лишнего" }
+    { icon: "shield" as AppIconName, label: text.benefits[0] },
+    { icon: "bolt" as AppIconName, label: text.benefits[1] },
+    { icon: "check" as AppIconName, label: text.benefits[2] }
   ];
 
   async function submit(event: React.FormEvent) {
@@ -92,6 +98,7 @@ export function AuthScreen() {
       const accountState = data.state ? structuredClone(data.state) : null;
       if (accountState?.settings) {
         accountState.settings.interfaceTheme = theme;
+        accountState.settings.language = language;
       }
       try {
         clearStoredState();
@@ -102,7 +109,7 @@ export function AuthScreen() {
             body: JSON.stringify({ state: accountState })
           });
         }
-        savePublicThemeState({ theme, customTheme: theme === "custom" ? accountState?.settings?.customTheme : undefined });
+        savePublicThemeState({ theme, language, customTheme: theme === "custom" ? accountState?.settings?.customTheme : undefined });
       } catch {
         // Best-effort sync of the freshly authorized state.
       }
@@ -141,6 +148,7 @@ export function AuthScreen() {
 
   return (
     <main className="auth-shell" style={shellStyle}>
+      <RuntimeTranslator language={language} selector=".auth-shell" />
       <div className="auth-theme-dock">
         <ThemePicker
           className="auth-theme-picker"
@@ -149,17 +157,23 @@ export function AuthScreen() {
           theme={theme}
           customTheme={themeState.customTheme}
           onThemeChange={(nextTheme) => setThemeState((current) => ({ ...current, theme: nextTheme }))}
+          title={common.theme}
+        />
+        <LanguagePicker
+          language={language}
+          onLanguageChange={(nextLanguage: Language) => setThemeState((current) => ({ ...current, language: nextLanguage }))}
+          title={common.language}
         />
       </div>
       <div className="auth-layout">
         <section className="auth-hero panel">
           <div className="auth-hero-top">
-            <span className="auth-kicker auth-kicker-icon"><AppIcon name="user" />Самонаблюдение онлайн</span>
+            <span className="auth-kicker auth-kicker-icon"><AppIcon name="user" />{text.online}</span>
           </div>
           <h1>
-            Привычки, дневник и <span>календарь</span> для ежедневного <span>ритма</span>
+            {text.heroTitlePrefix} <span>{text.heroTitleAccent1}</span> {text.heroTitleMiddle} <span>{text.heroTitleAccent2}</span>
           </h1>
-          <p className="muted">Ведите календарь привычек, фиксируйте состояние дня и анализируйте динамику личного ритма на основе данных, прогнозов и ежедневных наблюдений.</p>
+          <p className="muted">{text.heroIntro}</p>
           <div className="auth-feature-grid">
             {featureCards.map((card) => (
               <article key={card.title} className="auth-feature-card">
@@ -187,21 +201,21 @@ export function AuthScreen() {
             </div>
           </div>
           <div className="auth-tabs">
-            <button className={mode === "register" ? "active" : ""} onClick={() => setMode("register")}><AppIcon name="user-plus" />Регистрация</button>
-            <button className={mode === "login" ? "active" : ""} onClick={() => setMode("login")}><AppIcon name="user" />Вход</button>
+            <button className={mode === "register" ? "active" : ""} onClick={() => setMode("register")}><AppIcon name="user-plus" />{text.register}</button>
+            <button className={mode === "login" ? "active" : ""} onClick={() => setMode("login")}><AppIcon name="user" />{text.login}</button>
           </div>
           <form className="stack auth-form" onSubmit={submit}>
             {mode !== "reset" && mode !== "login" ? (
               <div className="form-grid">
                 <div className="field">
-                  <label>Имя</label>
+                  <label>{text.name}</label>
                   <div className="auth-input-shell">
                     <span className="auth-field-icon"><AppIcon name="user" /></span>
-                    <input className="input auth-input" placeholder="Введите ваше имя" value={name} onChange={(event) => setName(event.target.value)} />
+                    <input className="input auth-input" placeholder={text.namePlaceholder} value={name} onChange={(event) => setName(event.target.value)} />
                   </div>
                 </div>
                 <div className="field">
-                  <label>Дата рождения</label>
+                  <label>{text.birthDate}</label>
                   <div className="auth-input-shell">
                     <span className="auth-field-icon"><AppIcon name="calendar" /></span>
                     <input className="input auth-input" type="date" value={birthDate} onChange={(event) => setBirthDate(event.target.value)} />
@@ -211,17 +225,17 @@ export function AuthScreen() {
             ) : null}
             <div className="form-grid">
               <div className="field">
-                <label>{mode === "login" ? "Email или логин" : "Email"}</label>
+                <label>{mode === "login" ? text.emailOrLogin : text.email}</label>
                 <div className="auth-input-shell">
                   <span className="auth-field-icon"><AppIcon name="mail" /></span>
-                  <input className="input auth-input" type={mode === "register" ? "email" : "text"} placeholder={mode === "login" ? "Введите email или логин" : "Введите email"} value={email} onChange={(event) => setEmail(event.target.value)} />
+                  <input className="input auth-input" type={mode === "register" ? "email" : "text"} placeholder={mode === "login" ? text.loginPlaceholder : text.emailPlaceholder} value={email} onChange={(event) => setEmail(event.target.value)} />
                 </div>
               </div>
               <div className="field">
-                <label>Пароль</label>
+                <label>{text.password}</label>
                 <div className="auth-input-shell">
                   <span className="auth-field-icon"><AppIcon name="lock" /></span>
-                  <input className="input auth-input" type={showPassword ? "text" : "password"} placeholder="Придумайте пароль" value={password} onChange={(event) => setPassword(event.target.value)} />
+                  <input className="input auth-input" type={showPassword ? "text" : "password"} placeholder={text.passwordPlaceholder} value={password} onChange={(event) => setPassword(event.target.value)} />
                   <button className="auth-eye" type="button" onClick={() => setShowPassword((current) => !current)} title={showPassword ? "Скрыть пароль" : "Показать пароль"}><AppIcon name={showPassword ? "eye-off" : "eye"} /></button>
                 </div>
               </div>
@@ -236,19 +250,19 @@ export function AuthScreen() {
               </div>
             ) : null}
             <div className="toolbar auth-actions">
-              <button className="btn primary" disabled={busy} type="submit">{busy ? "..." : mode === "reset" ? "Сменить пароль" : mode === "login" ? "Войти" : "Создать аккаунт"}</button>
-              {mode === "login" ? <button className="btn ghost" type="button" onClick={requestReset} disabled={busy}>Запросить сброс</button> : null}
+              <button className="btn primary" disabled={busy} type="submit">{busy ? "..." : mode === "reset" ? text.changePassword : mode === "login" ? text.signIn : text.createAccount}</button>
+              {mode === "login" ? <button className="btn ghost" type="button" onClick={requestReset} disabled={busy}>{text.requestReset}</button> : null}
             </div>
             {mode === "register" ? (
-              <p className="auth-switch">Уже есть аккаунт? <button type="button" onClick={() => setMode("login")}>Войти</button></p>
+              <p className="auth-switch">{text.hasAccount} <button type="button" onClick={() => setMode("login")}>{text.signIn}</button></p>
             ) : mode === "login" ? (
-              <p className="auth-switch">Нет аккаунта? <button type="button" onClick={() => setMode("register")}>Создать</button></p>
+              <p className="auth-switch">{text.noAccount} <button type="button" onClick={() => setMode("register")}>{text.create}</button></p>
             ) : null}
             {message ? <p className="muted auth-note">{message}</p> : null}
           </form>
         </section>
       </div>
-      <AppFooter />
+      <AppFooter language={language} />
     </main>
   );
 }

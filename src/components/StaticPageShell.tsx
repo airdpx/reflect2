@@ -6,11 +6,16 @@ import { themeOptions } from "../lib/defaults";
 import { AppFooter } from "./Footer";
 import { ThemePicker } from "./ThemePicker";
 import { loadPublicThemeState, savePublicThemeState } from "../lib/public-theme";
+import { LanguagePicker } from "./LanguagePicker";
+import type { Language } from "../types";
+import { commonText, normalizeLanguage } from "../lib/i18n";
+import { RuntimeTranslator } from "./RuntimeTranslator";
 
+type LocalizedText = string | Record<Language, string>;
 type StaticPageShellProps = {
-  kicker: string;
-  title: string;
-  intro: string;
+  kicker: LocalizedText;
+  title: LocalizedText;
+  intro: LocalizedText;
   children: React.ReactNode;
   aside?: React.ReactNode;
   className?: string;
@@ -28,11 +33,13 @@ export function StaticPageShell({
 }: StaticPageShellProps) {
   const [themeState, setThemeState] = useState(() => loadPublicThemeState("dark"));
   const theme = themeState.theme;
+  const language = normalizeLanguage(themeState.language);
+  const common = commonText[language];
   const palette = themeOptions.find((item) => item.id === theme) || themeOptions[0];
 
   useEffect(() => {
-    savePublicThemeState({ theme, customTheme: theme === "custom" ? themeState.customTheme : undefined });
-  }, [theme, themeState.customTheme]);
+    savePublicThemeState({ theme, language, customTheme: theme === "custom" ? themeState.customTheme : undefined });
+  }, [theme, language, themeState.customTheme]);
 
   const shellStyle = useMemo(() => ({
     "--page-accent": palette.colors[2],
@@ -46,9 +53,11 @@ export function StaticPageShell({
       "--accent-soft": `${themeState.customTheme.accent}24`
     } : {})
   } as React.CSSProperties), [palette, themeState.theme, themeState.customTheme]);
+  const localize = (value: LocalizedText) => typeof value === "string" ? value : value[language];
 
   return (
-    <main className={`static-page theme-${theme} ${className}`.trim()} style={shellStyle}>
+    <main className={`static-page theme-${theme} ${className}`.trim()} style={shellStyle} data-language={language}>
+      <RuntimeTranslator language={language} selector=".static-page" />
       <div className="page-theme-dock">
         <ThemePicker
           className="static-theme-picker"
@@ -59,20 +68,26 @@ export function StaticPageShell({
           onThemeChange={(nextTheme) => {
             setThemeState((current) => ({ ...current, theme: nextTheme }));
           }}
+          title={common.theme}
+        />
+        <LanguagePicker
+          language={language}
+          onLanguageChange={(nextLanguage) => setThemeState((current) => ({ ...current, language: nextLanguage }))}
+          title={common.language}
         />
       </div>
       <div className="static-page-grid">
         <section className="panel static-page-card content-page-main">
           <div className="static-page-hero-copy">
-            <span className="static-page-kicker">{kicker}</span>
-            <h1>{title}</h1>
-            <p className="muted">{intro}</p>
+            <span className="static-page-kicker">{localize(kicker)}</span>
+            <h1>{localize(title)}</h1>
+            <p className="muted">{localize(intro)}</p>
           </div>
           <div className="content-page-body">{children}</div>
         </section>
         {aside ? <aside className="panel static-page-card content-page-aside">{aside}</aside> : null}
       </div>
-      {showFooter ? <AppFooter /> : null}
+      {showFooter ? <AppFooter language={language} /> : null}
     </main>
   );
 }

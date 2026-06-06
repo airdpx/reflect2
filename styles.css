@@ -1459,6 +1459,9 @@ button {
   top: 14px;
   right: 14px;
   z-index: 60;
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
 .auth-theme-dock .quick-icon {
@@ -4730,6 +4733,18 @@ button {
   cursor: pointer;
 }
 
+.language-toggle {
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+}
+
+.language-toggle span {
+  display: inline-grid;
+  place-items: center;
+  min-width: 20px;
+}
+
 .quick-signout {
   font-size: 17px;
   color: var(--muted);
@@ -5077,6 +5092,9 @@ button {
   top: 14px;
   right: 14px;
   z-index: 60;
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
 .page-theme-dock .quick-icon {
@@ -5093,6 +5111,11 @@ button {
 
 .page-theme-dock .quick-panel span {
   color: var(--muted);
+}
+
+.static-page[data-language="ru"] .i18n-en,
+.static-page[data-language="en"] .i18n-ru {
+  display: none;
 }
 
 .static-page-card {

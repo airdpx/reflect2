@@ -1,9 +1,10 @@
-import type { InterfaceTheme, UserSettings } from "../types";
+import type { InterfaceTheme, Language, UserSettings } from "../types";
 
 export const PUBLIC_THEME_STORAGE_KEY = "reflect2_public_theme";
 
 export type PublicThemeState = {
   theme: InterfaceTheme;
+  language?: Language;
   customTheme?: UserSettings["customTheme"];
 };
 
@@ -57,6 +58,7 @@ export function loadPublicThemeState(defaultTheme: InterfaceTheme = "dark"): Pub
     if (parsed && typeof parsed === "object" && parsed.theme && themeIds.includes(parsed.theme)) {
       return {
         theme: parsed.theme,
+        language: parsed.language === "en" ? "en" : parsed.language === "ru" ? "ru" : undefined,
         customTheme: parsed.customTheme
       };
     }

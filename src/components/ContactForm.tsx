@@ -1,14 +1,17 @@
 "use client";
 
 import type React from "react";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { AppIcon } from "./AppIcons";
+import type { Language } from "../types";
+import { normalizeLanguage } from "../lib/i18n";
 
 type Props = {
   recipientEmail: string;
 };
 
 export function ContactForm({ recipientEmail }: Props) {
+  const [language, setLanguage] = useState<Language>("ru");
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [topic, setTopic] = useState("Обратная связь");
@@ -16,17 +19,58 @@ export function ContactForm({ recipientEmail }: Props) {
   const [website, setWebsite] = useState("");
   const [loading, setLoading] = useState(false);
   const [status, setStatus] = useState("");
+  const text = language === "en" ? {
+    name: "Name",
+    namePlaceholder: "How should we address you?",
+    email: "Your email",
+    topic: "Topic",
+    topicPlaceholder: "PractWay feedback",
+    defaultTopic: "Feedback",
+    message: "Message",
+    messagePlaceholder: "Describe your question or idea",
+    sending: "Sending...",
+    send: "Send",
+    missingRecipient: "The recipient address is not configured yet.",
+    missingMessage: "Add a message first.",
+    sent: "Message sent.",
+    failed: "Could not send the message"
+  } : {
+    name: "Имя",
+    namePlaceholder: "Как к вам обращаться",
+    email: "Ваш email",
+    topic: "Тема",
+    topicPlaceholder: "Обратная связь PractWay",
+    defaultTopic: "Обратная связь",
+    message: "Сообщение",
+    messagePlaceholder: "Опиши вопрос или идею",
+    sending: "Отправляю...",
+    send: "Отправить",
+    missingRecipient: "Адрес получателя ещё не задан.",
+    missingMessage: "Добавь текст сообщения.",
+    sent: "Сообщение отправлено.",
+    failed: "Не удалось отправить сообщение"
+  };
+
+  useEffect(() => {
+    const root = document.querySelector(".static-page");
+    if (!root) return;
+    const sync = () => setLanguage(normalizeLanguage(root.getAttribute("data-language") || "ru"));
+    sync();
+    const observer = new MutationObserver(sync);
+    observer.observe(root, { attributes: true, attributeFilter: ["data-language"] });
+    return () => observer.disconnect();
+  }, []);
 
   const canSend = useMemo(() => Boolean(recipientEmail.trim() && message.trim() && !loading), [loading, message, recipientEmail]);
 
   async function submit(event: React.FormEvent) {
     event.preventDefault();
     if (!recipientEmail.trim()) {
-      setStatus("Адрес получателя ещё не задан в админке.");
+      setStatus(text.missingRecipient);
       return;
     }
     if (!message.trim()) {
-      setStatus("Добавь текст сообщения.");
+      setStatus(text.missingMessage);
       return;
     }
 
@@ -48,16 +92,16 @@ export function ContactForm({ recipientEmail }: Props) {
       });
       const payload = await response.json();
       if (!response.ok || payload.ok === false) {
-        throw new Error(payload.error || "Не удалось отправить сообщение");
+        throw new Error(payload.error || text.failed);
       }
       setName("");
       setEmail("");
-      setTopic("Обратная связь");
+      setTopic(text.defaultTopic);
       setMessage("");
       setWebsite("");
-      setStatus("Сообщение отправлено через сервер и сохранено в базе.");
+      setStatus(text.sent);
     } catch (error) {
-      setStatus(error instanceof Error ? error.message : "Не удалось отправить сообщение");
+      setStatus(error instanceof Error ? error.message : text.failed);
     } finally {
       setLoading(false);
     }
@@ -76,14 +120,14 @@ export function ContactForm({ recipientEmail }: Props) {
       />
       <div className="form-grid">
         <div className="field">
-          <label>Имя</label>
+          <label>{text.name}</label>
           <div className="auth-input-shell">
             <span className="auth-field-icon"><AppIcon name="user" /></span>
-            <input className="input auth-input" value={name} onChange={(event) => setName(event.target.value)} placeholder="Как к вам обращаться" />
+            <input className="input auth-input" value={name} onChange={(event) => setName(event.target.value)} placeholder={text.namePlaceholder} />
           </div>
         </div>
         <div className="field">
-          <label>Ваш email</label>
+          <label>{text.email}</label>
           <div className="auth-input-shell">
             <span className="auth-field-icon"><AppIcon name="mail" /></span>
             <input className="input auth-input" type="email" value={email} onChange={(event) => setEmail(event.target.value)} placeholder="name@example.com" />
@@ -91,19 +135,18 @@ export function ContactForm({ recipientEmail }: Props) {
         </div>
       </div>
       <div className="field">
-        <label>Тема</label>
+        <label>{text.topic}</label>
         <div className="auth-input-shell">
           <span className="auth-field-icon"><AppIcon name="diary" /></span>
-          <input className="input auth-input" value={topic} onChange={(event) => setTopic(event.target.value)} placeholder="Обратная связь PractWay" />
+          <input className="input auth-input" value={topic} onChange={(event) => setTopic(event.target.value)} placeholder={text.topicPlaceholder} />
         </div>
       </div>
       <div className="field">
-        <label>Сообщение</label>
-        <textarea className="textarea contact-textarea" value={message} onChange={(event) => setMessage(event.target.value)} placeholder="Опиши вопрос или идею" />
+        <label>{text.message}</label>
+        <textarea className="textarea contact-textarea" value={message} onChange={(event) => setMessage(event.target.value)} placeholder={text.messagePlaceholder} />
       </div>
       <div className="toolbar preset-toolbar contact-actions">
-        <button className="btn primary" type="submit" disabled={!canSend}>{loading ? "Отправляю..." : "Отправить"}</button>
-        <span className="muted contact-hint">{recipientEmail ? "Письмо уйдёт на адрес, заданный администратором." : "Адрес получателя задаётся в админке."}</span>
+        <button className="btn primary" type="submit" disabled={!canSend}>{loading ? text.sending : text.send}</button>
       </div>
       {status ? <p className="muted contact-status">{status}</p> : null}
     </form>

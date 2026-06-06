@@ -1,15 +1,16 @@
 import type { AppState, View } from "../types";
 import { formatDate } from "../lib/date";
 import { AppIcon, type AppIconName } from "./AppIcons";
+import { commonText, normalizeLanguage, viewText } from "../lib/i18n";
 
-const baseNavItems: Array<[View, string, AppIconName]> = [
-  ["today", "Сегодня", "today"],
-  ["grid", "Календарь", "calendar"],
-  ["habits", "Привычки", "habits"],
-  ["diary", "Дневник", "diary"],
-  ["notifications", "Оповещения", "notifications"],
-  ["analytics", "Аналитика", "analytics"],
-  ["settings", "Настройки", "settings"]
+const baseNavItems: Array<[View, AppIconName]> = [
+  ["today", "today"],
+  ["grid", "calendar"],
+  ["habits", "habits"],
+  ["diary", "diary"],
+  ["notifications", "notifications"],
+  ["analytics", "analytics"],
+  ["settings", "settings"]
 ];
 
 function getNavItems(isAdmin?: boolean) {
@@ -17,30 +18,35 @@ function getNavItems(isAdmin?: boolean) {
 }
 
 export function Sidebar({ state, view, onView }: { state: AppState; view: View; onView: (view: View) => void }) {
+  const language = normalizeLanguage(state.settings.language);
+  const common = commonText[language];
   return (
     <aside className="sidebar">
       <div className="brand">
-        <h1>Дневник привычек</h1>
-        <p>Самонаблюдение онлайн.</p>
+        <h1>{common.brand}</h1>
+        <p>{common.brandSubtitle}</p>
       </div>
-      <Nav view={view} onView={onView} className="nav" items={getNavItems(state.profile?.isAdmin)} />
+      <Nav view={view} onView={onView} className="nav" items={getNavItems(state.profile?.isAdmin)} language={language} />
     </aside>
   );
 }
 
 export function MobileNav({ state, view, onView }: { state: AppState; view: View; onView: (view: View) => void }) {
-  return <Nav view={view} onView={onView} className="mobile-nav" items={getNavItems(state.profile?.isAdmin)} />;
+  return <Nav view={view} onView={onView} className="mobile-nav" items={getNavItems(state.profile?.isAdmin)} language={normalizeLanguage(state.settings.language)} />;
 }
 
-function Nav({ view, onView, className, items }: { view: View; onView: (view: View) => void; className: string; items: Array<readonly [View, string, AppIconName]> }) {
+function Nav({ view, onView, className, items, language }: { view: View; onView: (view: View) => void; className: string; items: Array<readonly [View, AppIconName]>; language: ReturnType<typeof normalizeLanguage> }) {
   return (
     <nav className={className}>
-      {items.map(([id, label, icon]) => (
-        <button className={view === id ? "active" : ""} key={id} onClick={() => onView(id)} title={label}>
-          <b><AppIcon name={icon} /></b>
-          <span>{label}</span>
-        </button>
-      ))}
+      {items.map(([id, icon]) => {
+        const label = viewText[language][id].label;
+        return (
+          <button className={view === id ? "active" : ""} key={id} onClick={() => onView(id)} title={label}>
+            <b><AppIcon name={icon} /></b>
+            <span>{label}</span>
+          </button>
+        );
+      })}
     </nav>
   );
 }
@@ -52,17 +58,9 @@ export function Topbar({
   state: AppState;
   onAdd: () => void;
 }) {
-  const titles: Record<View, [string, string]> = {
-    today: ["Сегодня", formatDate(state.selectedDate)],
-    grid: ["Календарь", "Периоды, режимы сетки и мягкие статусы"],
-    habits: ["Привычки", "Шаблоны, категории, иконки и расписание"],
-    diary: ["Дневник", "Настроение, энергия и заметки за день"],
-    notifications: ["Оповещения", "Интерфейсные и внешние каналы доставки"],
-    analytics: ["Аналитика", "История выполнения и мягкие сигналы"],
-    settings: ["Настройки", "Профиль, статусы, прогноз и видимость блоков"],
-    management: ["Управление", "Пользователи, экспорт и глобальные настройки"]
-  };
-  const [title, subtitle] = titles[state.view];
+  const language = normalizeLanguage(state.settings.language);
+  const title = viewText[language][state.view].title;
+  const subtitle = state.view === "today" ? formatDate(state.selectedDate) : viewText[language][state.view].subtitle;
   return (
     <header className="topbar">
       <div className="topbar-heading">
@@ -80,7 +78,7 @@ export function Topbar({
           </div>
         ) : null}
         <button className="btn primary" onClick={onAdd}>
-          + Привычка
+          {commonText[language].addHabit}
         </button>
       </div>
     </header>
