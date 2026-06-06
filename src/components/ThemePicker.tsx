@@ -67,7 +67,16 @@ export function ThemePicker({
         title={title}
         aria-label={title}
         aria-expanded={open}
-        onClick={() => setOpen((current) => !current)}
+        onPointerDown={(event) => {
+          event.preventDefault();
+          setOpen((current) => !current);
+        }}
+        onKeyDown={(event) => {
+          if (event.key === "Enter" || event.key === " ") {
+            event.preventDefault();
+            setOpen((current) => !current);
+          }
+        }}
       >
         <AppIcon name="palette" />
       </button>
