@@ -2103,6 +2103,19 @@ button {
   gap: 10px;
 }
 
+.calendar-history-field {
+  min-width: 150px;
+}
+
+.calendar-history-field select.input {
+  cursor: pointer;
+}
+
+.period-total-note {
+  margin-top: -2px;
+  font-size: 12px;
+}
+
 .calendar-mode-row,
 .status-preview-strip {
   display: flex;

@@ -94,6 +94,18 @@ export function GridView({
             <label>N дней</label>
             <input className="input" type="number" min="1" max="365" value={p.days} onChange={(event) => actions.setPeriod({ mode: "last", days: clampDays(event.target.value) })} />
           </div>
+          <div className="period-custom compact-period-field calendar-history-field">
+            <label>История календаря</label>
+            <select
+              className="input"
+              value={String(state.settings.calendarHistoryDays)}
+              onChange={(event) => actions.updateSetting("calendarHistoryDays", Number(event.target.value))}
+            >
+              {["0", "7", "14", "30", "60", "90", "180", "365"].map((days) => (
+                <option key={days} value={days}>{days} дней</option>
+              ))}
+            </select>
+          </div>
           <details className="period-range-details">
             <summary>Диапазон</summary>
             <div className="period-range">
@@ -102,6 +114,9 @@ export function GridView({
             </div>
           </details>
         </div>
+        <p className="muted period-total-note">
+          Отображается: {historyDays} дней истории + {periodDays} дней периода.
+        </p>
       </div>
       <CalendarSettingsPanel state={state} selectors={selectors} actions={actions} />
       <CalendarGrid state={state} selectors={selectors} actions={actions} dates={gridDates} viewportWidth={viewportWidth} habitIndexMap={habitIndexMap} />
