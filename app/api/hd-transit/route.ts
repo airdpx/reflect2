@@ -1,14 +1,17 @@
 import { NextResponse } from "next/server";
 import { todayKey } from "../../../src/lib/date";
 import { fetchHumdesTransitDetails, fetchHumdesTransitListings, HUMDES_TRANSIT_PAGES } from "../../../src/lib/humdes";
+import { localizeHumanDesignTransit } from "../../../src/lib/human-design-i18n";
+import { normalizeLanguage } from "../../../src/lib/i18n";
 import { getPrisma } from "../../../src/server/db";
 import type { HumanDesignTransit, HumanDesignTransitGate } from "../../../src/types";
 
 export const dynamic = "force-dynamic";
 
-export async function GET(_request: Request) {
+export async function GET(request: Request) {
   const prisma = getPrisma();
   const today = todayKey();
+  const language = normalizeLanguage(new URL(request.url).searchParams.get("language") || undefined);
   try {
     const transit = await findTransitFromDatabase(prisma, today);
     if (!transit) {
@@ -19,7 +22,7 @@ export async function GET(_request: Request) {
         { status: 404 }
       );
     }
-    return NextResponse.json(mapTransit(transit, today), {
+    return NextResponse.json(localizeHumanDesignTransit(mapTransit(transit, today), language), {
       headers: {
         "Cache-Control": "public, max-age=300, stale-while-revalidate=1800"
       }

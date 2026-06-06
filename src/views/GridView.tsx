@@ -4,6 +4,7 @@ import type { AppActions, AppSelectors, AppState, Density, GridDisplayMode, Grid
 import { addDays, formatDate, fromKey, rangeDates, todayKey, weekdayShort } from "../lib/date";
 import { habitTypeLabels, statusIconPresets, statusMeta } from "../lib/defaults";
 import { forecastTone, getForecast } from "../lib/forecast";
+import { normalizeLanguage } from "../lib/i18n";
 import { TemplateChooser } from "./TodayView";
 import { SelectControl, Toggle } from "../components/Common";
 
@@ -345,9 +346,10 @@ function CalendarMonthGrid({
 
 function ForecastDayMarker({ date, state }: { date: string; state: AppState }) {
   if (!state.settings.forecast.enabled || !state.settings.forecast.showInGrid) return null;
-  const forecast = getForecast(date, state.settings.forecast, state.profile?.birthDate || "");
+  const language = normalizeLanguage(state.settings.language);
+  const forecast = getForecast(date, state.settings.forecast, state.profile?.birthDate || "", language);
   if (!forecast) return null;
-  return <i className={`forecast-day-marker forecast-marker-${forecastTone(forecast.summaryScore)}`} title={`Прогноз дня: ${forecast.summaryScore}%`} />;
+  return <i className={`forecast-day-marker forecast-marker-${forecastTone(forecast.summaryScore)}`} title={`${language === "en" ? "Day forecast" : "Прогноз дня"}: ${forecast.summaryScore}%`} />;
 }
 
 function CalendarHabitMark({

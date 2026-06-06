@@ -256,7 +256,7 @@ export type NumerologyMetric = {
 export type NumerologyResult = {
   date: string;
   summaryScore: number;
-  summaryLabel: "низкий" | "ровный" | "сильный";
+  summaryLabel: string;
   metrics: NumerologyMetric[];
   recommendation: string;
   notes: string[];
@@ -285,7 +285,7 @@ export type HumanDesignTransit = {
 export type ForecastResult = {
   date: string;
   summaryScore: number;
-  summaryLabel: "низкий" | "ровный" | "сильный";
+  summaryLabel: string;
   scales: ForecastScale[];
   notes: string[];
   source: ForecastProviderId;

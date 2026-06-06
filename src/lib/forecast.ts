@@ -1,16 +1,27 @@
-import type { ForecastProviderId, ForecastResult, ForecastScale, ForecastScaleId, ForecastSettings } from "../types";
+import type { ForecastProviderId, ForecastResult, ForecastScale, ForecastScaleId, ForecastSettings, Language } from "../types";
 import { fromKey } from "./date";
+import { normalizeLanguage } from "./i18n";
 
 export type ForecastProvider = {
   id: ForecastProviderId;
   label: string;
-  calculate: (date: string, settings: ForecastSettings, birthDate: string) => ForecastResult | null;
+  calculate: (date: string, settings: ForecastSettings, birthDate: string, language?: Language) => ForecastResult | null;
 };
 
-const scaleMeta: Record<ForecastScaleId, { label: string; cycle: number }> = {
-  physical: { label: "Физическая", cycle: 23 },
-  emotional: { label: "Эмоциональная", cycle: 28 },
-  intellectual: { label: "Интеллектуальная", cycle: 33 }
+const scaleMeta: Record<ForecastScaleId, { label: Record<Language, string>; cycle: number }> = {
+  physical: { label: { ru: "Физическая", en: "Physical" }, cycle: 23 },
+  emotional: { label: { ru: "Эмоциональная", en: "Emotional" }, cycle: 28 },
+  intellectual: { label: { ru: "Интеллектуальная", en: "Intellectual" }, cycle: 33 }
+};
+
+const summaryLabels: Record<Language, { low: string; steady: string; high: string }> = {
+  ru: { low: "низкий", steady: "ровный", high: "сильный" },
+  en: { low: "low", steady: "steady", high: "strong" }
+};
+
+const forecastNotes: Record<Language, string> = {
+  ru: "Ориентир для самонаблюдения, не прогноз-обязательство.",
+  en: "A self-observation reference, not a fixed prediction."
 };
 
 export const forecastProviders: ForecastProvider[] = [
@@ -26,10 +37,10 @@ export const forecastProviders: ForecastProvider[] = [
   }
 ];
 
-export function getForecast(date: string, settings: ForecastSettings, birthDate: string): ForecastResult | null {
+export function getForecast(date: string, settings: ForecastSettings, birthDate: string, language: Language = "ru"): ForecastResult | null {
   if (!settings.enabled) return null;
   if (!birthDate) return null;
-  return calculateBiorhythmForecast(date, settings, birthDate);
+  return calculateBiorhythmForecast(date, settings, birthDate, language);
 }
 
 export function forecastTone(score: number) {
@@ -38,7 +49,8 @@ export function forecastTone(score: number) {
   return "steady";
 }
 
-function calculateBiorhythmForecast(date: string, settings: ForecastSettings, birthDate: string): ForecastResult | null {
+function calculateBiorhythmForecast(date: string, settings: ForecastSettings, birthDate: string, language: Language = "ru"): ForecastResult | null {
+  const lang = normalizeLanguage(language);
   const birth = fromKey(birthDate);
   const target = fromKey(date);
   if (Number.isNaN(birth.getTime()) || Number.isNaN(target.getTime())) return null;
@@ -52,7 +64,7 @@ function calculateBiorhythmForecast(date: string, settings: ForecastSettings, bi
       const value = Math.round(((wave + 1) / 2) * 100);
       return {
         id,
-        label: meta.label,
+        label: meta.label[lang],
         value,
         phase: forecastTone(value)
       };
@@ -62,20 +74,21 @@ function calculateBiorhythmForecast(date: string, settings: ForecastSettings, bi
   return {
     date,
     summaryScore,
-    summaryLabel: summaryScore >= 64 ? "сильный" : summaryScore <= 42 ? "низкий" : "ровный",
+    summaryLabel: summaryLabels[lang][forecastTone(summaryScore)],
     scales,
-    notes: ["Ориентир для самонаблюдения, не прогноз-обязательство."],
+    notes: [forecastNotes[lang]],
     source: "biorhythm"
   };
 }
 
-function calculateHumanDesignForecast(date: string): ForecastResult {
+function calculateHumanDesignForecast(date: string, _settings?: ForecastSettings, _birthDate?: string, language: Language = "ru"): ForecastResult {
+  const lang = normalizeLanguage(language);
   return {
     date,
     summaryScore: 50,
-    summaryLabel: "ровный",
+    summaryLabel: summaryLabels[lang].steady,
     scales: [],
-    notes: ["Текущий транзит Солнца и Земли из Humdes."],
+    notes: [lang === "en" ? "Current Sun and Earth transit from the local database." : "Текущий транзит Солнца и Земли из Humdes."],
     source: "humanDesign"
   };
 }

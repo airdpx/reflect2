@@ -9,6 +9,7 @@ import type {
 } from "../types";
 import { formatDate } from "./date";
 import { forecastTone, getForecast } from "./forecast";
+import { normalizeLanguage } from "./i18n";
 
 const channelOrder: Array<NotificationItem["channels"][number]> = ["inApp", "browser", "email", "telegram", "push"];
 
@@ -16,6 +17,7 @@ export function buildNotificationFeed(state: AppState, selectors: AppSelectors) 
   const items: NotificationItem[] = [];
   const notifications = state.settings.notifications;
   if (!notifications.enabled) return items;
+  const language = normalizeLanguage(state.settings.language);
   const enabledChannels = channelOrder.filter((channel) => notifications.channels[channel]);
   const note = state.notes[state.selectedDate] || {};
   const dueHabits = selectors.activeHabits.filter((habit) => selectors.isDue(habit, state.selectedDate));
@@ -70,17 +72,17 @@ export function buildNotificationFeed(state: AppState, selectors: AppSelectors) 
   }
 
   if (notifications.topics.forecast && notifications.enabled && state.settings.forecast.enabled && state.settings.forecast.showInToday) {
-    const forecast = getForecast(state.selectedDate, state.settings.forecast, state.profile?.birthDate || "");
+    const forecast = getForecast(state.selectedDate, state.settings.forecast, state.profile?.birthDate || "", language);
     if (forecast) {
       pushItem(makeItem({
         id: `forecast:${state.selectedDate}`,
         topic: "forecast",
-        title: "Прогноз дня",
+        title: language === "en" ? "Day Forecast" : "Прогноз дня",
         message: `${forecast.summaryScore}% · ${forecast.summaryLabel}`,
         detail: forecast.scales.map((scale) => `${scale.label} ${scale.value}%`).join(" · "),
         targetView: "today",
         targetDate: state.selectedDate,
-        actionLabel: "Посмотреть биоритмы",
+        actionLabel: language === "en" ? "View biorhythms" : "Посмотреть биоритмы",
         priority: forecastTone(forecast.summaryScore) === "high" ? "high" : forecastTone(forecast.summaryScore) === "low" ? "medium" : "low",
         channels: enabledChannels,
         icon: "🌗",

@@ -2,22 +2,25 @@ import { useEffect, useState } from "react";
 import type { AppActions, AppState, ForecastResult, ForecastScale, HumanDesignTransit } from "../types";
 import { formatDate } from "../lib/date";
 import { forecastTone, getForecast } from "../lib/forecast";
+import { normalizeLanguage } from "../lib/i18n";
 
 export function TodayForecastPanel({ state, actions }: { state: AppState; actions: AppActions }) {
   if (!state.settings.forecast.enabled || !state.settings.forecast.showInToday) return null;
-  const forecast = getForecast(state.selectedDate, state.settings.forecast, state.profile?.birthDate || "");
+  const language = normalizeLanguage(state.settings.language);
+  const forecast = getForecast(state.selectedDate, state.settings.forecast, state.profile?.birthDate || "", language);
   if (!forecast) return null;
-  return <ForecastShell title="Биоритмы" forecast={forecast} />;
+  return <ForecastShell title={language === "en" ? "Biorhythms" : "Биоритмы"} forecast={forecast} />;
 }
 
 export function DiaryForecastStrip({ state, actions }: { state: AppState; actions: AppActions }) {
   if (!state.settings.forecast.enabled || !state.settings.forecast.showInDiary) return null;
-  const forecast = getForecast(state.selectedDate, state.settings.forecast, state.profile?.birthDate || "");
+  const language = normalizeLanguage(state.settings.language);
+  const forecast = getForecast(state.selectedDate, state.settings.forecast, state.profile?.birthDate || "", language);
   if (!forecast) return null;
   const tone = forecastTone(forecast.summaryScore);
   return (
     <div className={`forecast-strip forecast-tone-${tone}`}>
-      <span>Биоритмы: {forecast.summaryLabel}</span>
+      <span>{language === "en" ? "Biorhythms" : "Биоритмы"}: {forecast.summaryLabel}</span>
       <b>{forecast.summaryScore}%</b>
       <div>{forecast.scales.map((scale) => <ForecastPill key={scale.id} scale={scale} />)}</div>
     </div>
@@ -26,12 +29,13 @@ export function DiaryForecastStrip({ state, actions }: { state: AppState; action
 
 export function InspectorForecastSummary({ state }: { state: AppState }) {
   if (!state.settings.forecast.enabled || !state.settings.forecast.showInInspector || state.view === "today") return null;
-  const forecast = getForecast(state.selectedDate, state.settings.forecast, state.profile?.birthDate || "");
+  const language = normalizeLanguage(state.settings.language);
+  const forecast = getForecast(state.selectedDate, state.settings.forecast, state.profile?.birthDate || "", language);
   if (!forecast) return null;
   const tone = forecastTone(forecast.summaryScore);
   return (
     <div className="panel inspector-panel">
-      <h3>Прогноз дня</h3>
+      <h3>{language === "en" ? "Day Forecast" : "Прогноз дня"}</h3>
       <div className={`forecast-score forecast-tone-${tone}`}><strong>{forecast.summaryScore}%</strong><span>{forecast.summaryLabel}</span></div>
       <div className="mini-metrics">
         {forecast.scales.map((scale) => <span key={scale.id}>{scale.label} <b>{scale.value}</b></span>)}
@@ -42,7 +46,8 @@ export function InspectorForecastSummary({ state }: { state: AppState }) {
 
 export function TransitPanel({ state }: { state: AppState }) {
   if (!state.settings.visibleBlocks.transit) return null;
-  const { transit, loading, error } = useHumanDesignTransit();
+  const language = normalizeLanguage(state.settings.language);
+  const { transit, loading, error } = useHumanDesignTransit(language);
   if (loading && !transit) return null;
   if (error || !transit) return null;
   const periodStart = formatDisplayDate(transit.periodStart);
@@ -51,10 +56,10 @@ export function TransitPanel({ state }: { state: AppState }) {
     <div className="panel transit-panel">
       <div className="section-head">
         <div>
-          <h3 className="transit-panel-title">Транзит <span>({periodStart} — {periodEnd})</span></h3>
+          <h3 className="transit-panel-title">{language === "en" ? "Transit" : "Транзит"} <span>({periodStart} — {periodEnd})</span></h3>
         </div>
       </div>
-      <HumanDesignTransitBlock transit={transit} />
+      <HumanDesignTransitBlock transit={transit} language={language} />
     </div>
   );
 }
@@ -83,11 +88,11 @@ function ForecastShell({
   );
 }
 
-function useHumanDesignTransit() {
+function useHumanDesignTransit(language: ReturnType<typeof normalizeLanguage>) {
   const [transit, setTransit] = useState<HumanDesignTransit | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const requestUrl = "/api/hd-transit";
+  const requestUrl = `/api/hd-transit?language=${language}`;
 
   useEffect(() => {
     if (!requestUrl) return;
@@ -115,8 +120,10 @@ function useHumanDesignTransit() {
   return { transit, loading, error };
 }
 
-function HumanDesignTransitBlock({ transit }: { transit: HumanDesignTransit }) {
-  const paragraphs = transit.paragraphs.filter((paragraph) => !/^Текущий транзит/i.test(paragraph) && !/Humdes/i.test(paragraph));
+function HumanDesignTransitBlock({ transit, language }: { transit: HumanDesignTransit; language: ReturnType<typeof normalizeLanguage> }) {
+  const paragraphs = language === "en"
+    ? transit.paragraphs
+    : transit.paragraphs.filter((paragraph) => !/^Текущий транзит/i.test(paragraph) && !/Humdes/i.test(paragraph));
   return (
     <div className="hd-transit">
       <div className="hd-transit-gates">
@@ -133,7 +140,7 @@ function HumanDesignTransitBlock({ transit }: { transit: HumanDesignTransit }) {
         </div>
       ) : null}
       <div className="hd-transit-links">
-        <a className="hd-transit-source" href={transit.descriptionUrl} target="_blank" rel="noreferrer">Описание</a>
+        <a className="hd-transit-source" href={transit.descriptionUrl} target="_blank" rel="noreferrer">{language === "en" ? "Description" : "Описание"}</a>
       </div>
     </div>
   );
