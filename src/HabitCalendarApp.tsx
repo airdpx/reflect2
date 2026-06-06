@@ -176,7 +176,7 @@ export default function HabitCalendarApp({ initialState }: HabitCalendarAppProps
     isDue: isHabitDue,
     calculateStats: (habit, dates = periodDates) => calculateHabitStats(habit, dates, state.logs),
     getAttentionHabits: () => getAttentionHabits(activeHabits, periodDates, state.logs),
-    periodLabel: () => getPeriodLabel(state.settings.defaultPeriod),
+    periodLabel: () => getPeriodLabel(state.settings.defaultPeriod, state.settings.language),
     categories
   };
 

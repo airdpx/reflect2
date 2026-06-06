@@ -30,11 +30,11 @@ export function getPeriodDates(period: UserSettings["defaultPeriod"], showWeeken
   return withoutHiddenWeekends(Array.from({ length: period.days }, (_, i) => toKey(addDays(today, i - period.days + 1))));
 }
 
-export function getPeriodLabel(period: UserSettings["defaultPeriod"]) {
-  if (period.mode === "week") return "Текущая неделя";
-  if (period.mode === "month") return "Текущий месяц";
-  if (period.mode === "custom") return `${formatDate(period.start, "short")} – ${formatDate(period.end, "short")}`;
-  return `Последние ${period.days} дней`;
+export function getPeriodLabel(period: UserSettings["defaultPeriod"], language: "ru" | "en" = "ru") {
+  if (period.mode === "week") return language === "en" ? "Current week" : "Текущая неделя";
+  if (period.mode === "month") return language === "en" ? "Current month" : "Текущий месяц";
+  if (period.mode === "custom") return `${formatDate(period.start, "short", language)} – ${formatDate(period.end, "short", language)}`;
+  return language === "en" ? `Last ${period.days} days` : `Последние ${period.days} дней`;
 }
 
 export function calculateHabitStats(

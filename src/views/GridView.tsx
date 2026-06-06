@@ -2,57 +2,158 @@ import { Fragment, useEffect, useState } from "react";
 import type React from "react";
 import type { AppActions, AppSelectors, AppState, Density, GridDisplayMode, GridHabitColorMode, Habit, HabitStatus } from "../types";
 import { addDays, formatDate, fromKey, rangeDates, todayKey, weekdayShort } from "../lib/date";
-import { habitTypeLabels, statusIconPresets, statusMeta } from "../lib/defaults";
+import { statusIconPresets, statusMeta } from "../lib/defaults";
 import { forecastTone, getForecast } from "../lib/forecast";
 import { normalizeLanguage } from "../lib/i18n";
 import { TemplateChooser } from "./TodayView";
 import { SelectControl, Toggle } from "../components/Common";
 
 const gridAppearancePresets = [
-  { value: "classic-square", label: "Классика", theme: "classic", shape: "square" },
-  { value: "neon-board-square", label: "Неоновая доска", theme: "neonBoard", shape: "square" },
-  { value: "week-checks-ring", label: "Чек-лист недели", theme: "weekChecks", shape: "ring" },
-  { value: "signal-cards-square", label: "Сигнальные карточки", theme: "signalCards", shape: "square" },
-  { value: "compact-square", label: "Компактные плашки", theme: "compact", shape: "square" },
-  { value: "ledger-micro", label: "Ledger micro", theme: "micro", shape: "square" },
-  { value: "glass-frame", label: "Стеклянная сетка", theme: "glass", shape: "frame" },
-  { value: "heatmap-circle", label: "Тепло-акцент", theme: "heatmap", shape: "circle" },
-  { value: "hybrid-ring", label: "Гибридное кольцо", theme: "hybrid", shape: "ring" },
-  { value: "soft-circle", label: "Мягкий круг", theme: "soft", shape: "circle" },
-  { value: "soft-ring", label: "Мягкое кольцо", theme: "soft", shape: "ring" },
-  { value: "ledger-square", label: "Ledger Flat", theme: "ledger", shape: "square" },
-  { value: "outline-ring", label: "Outline Ring", theme: "outline", shape: "ring" },
-  { value: "slate-pill", label: "Slate Pills", theme: "slate", shape: "pill" },
-  { value: "calm-frame", label: "Calm Frame", theme: "calm", shape: "frame" },
-  { value: "journal-star", label: "Дневник со звездой", theme: "journal", shape: "star" },
-  { value: "minimal-hex", label: "Минимум", theme: "minimal", shape: "hex" },
-  { value: "minimal-pill", label: "Минимум-пилюля", theme: "minimal", shape: "pill" }
+  { value: "classic-square", label: { ru: "Классика", en: "Classic" }, theme: "classic", shape: "square" },
+  { value: "neon-board-square", label: { ru: "Неоновая доска", en: "Neon Board" }, theme: "neonBoard", shape: "square" },
+  { value: "week-checks-ring", label: { ru: "Чек-лист недели", en: "Weekly Checklist" }, theme: "weekChecks", shape: "ring" },
+  { value: "signal-cards-square", label: { ru: "Сигнальные карточки", en: "Signal Cards" }, theme: "signalCards", shape: "square" },
+  { value: "compact-square", label: { ru: "Компактные плашки", en: "Compact Pills" }, theme: "compact", shape: "square" },
+  { value: "ledger-micro", label: { ru: "Ledger micro", en: "Ledger Micro" }, theme: "micro", shape: "square" },
+  { value: "glass-frame", label: { ru: "Стеклянная сетка", en: "Glass Grid" }, theme: "glass", shape: "frame" },
+  { value: "heatmap-circle", label: { ru: "Тепло-акцент", en: "Heat Accent" }, theme: "heatmap", shape: "circle" },
+  { value: "hybrid-ring", label: { ru: "Гибридное кольцо", en: "Hybrid Ring" }, theme: "hybrid", shape: "ring" },
+  { value: "soft-circle", label: { ru: "Мягкий круг", en: "Soft Circle" }, theme: "soft", shape: "circle" },
+  { value: "soft-ring", label: { ru: "Мягкое кольцо", en: "Soft Ring" }, theme: "soft", shape: "ring" },
+  { value: "ledger-square", label: { ru: "Ledger Flat", en: "Ledger Flat" }, theme: "ledger", shape: "square" },
+  { value: "outline-ring", label: { ru: "Outline Ring", en: "Outline Ring" }, theme: "outline", shape: "ring" },
+  { value: "slate-pill", label: { ru: "Slate Pills", en: "Slate Pills" }, theme: "slate", shape: "pill" },
+  { value: "calm-frame", label: { ru: "Calm Frame", en: "Calm Frame" }, theme: "calm", shape: "frame" },
+  { value: "journal-star", label: { ru: "Дневник со звездой", en: "Journal Star" }, theme: "journal", shape: "star" },
+  { value: "minimal-hex", label: { ru: "Минимум", en: "Minimal" }, theme: "minimal", shape: "hex" },
+  { value: "minimal-pill", label: { ru: "Минимум-пилюля", en: "Minimal Pill" }, theme: "minimal", shape: "pill" }
 ] as const;
 
-const gridLabels: Record<string, string> = {
-  color: "Цвет привычки",
-  icon: "Иконка привычки",
-  statusText: "Иконка статуса",
-  completion: "Процент",
-  daysSince: "Дней с выполнения"
+const gridLabels: Record<string, { ru: string; en: string }> = {
+  color: { ru: "Цвет привычки", en: "Habit color" },
+  icon: { ru: "Иконка привычки", en: "Habit icon" },
+  statusText: { ru: "Иконка статуса", en: "Status icon" },
+  completion: { ru: "Процент", en: "Completion" },
+  daysSince: { ru: "Дней с выполнения", en: "Days since done" }
 };
 
-const gridModes: Array<[GridDisplayMode, string]> = [
-  ["calendar", "Календарь"],
-  ["compact", "Мини"],
-  ["matrix", "Таблица"],
-  ["week", "Неделя"],
-  ["habit", "Привычка"],
-  ["timeline", "Лента"],
-  ["heat", "Тепло"]
+const gridModes: Array<[GridDisplayMode, { ru: string; en: string }]> = [
+  ["calendar", { ru: "Календарь", en: "Calendar" }],
+  ["compact", { ru: "Мини", en: "Mini" }],
+  ["matrix", { ru: "Таблица", en: "Table" }],
+  ["week", { ru: "Неделя", en: "Week" }],
+  ["habit", { ru: "Привычка", en: "Habit" }],
+  ["timeline", { ru: "Лента", en: "Timeline" }],
+  ["heat", { ru: "Тепло", en: "Heat" }]
 ];
 
-const gridHabitColorOptions: Array<[GridHabitColorMode, string]> = [
-  ["habit", "По цвету привычки"],
-  ["muted", "Приглушенные цвета"],
-  ["mono", "Один цвет"],
-  ["alternating", "Два цвета"]
+const gridHabitColorOptions: Array<[GridHabitColorMode, { ru: string; en: string }]> = [
+  ["habit", { ru: "По цвету привычки", en: "By habit color" }],
+  ["muted", { ru: "Приглушенные цвета", en: "Muted colors" }],
+  ["mono", { ru: "Один цвет", en: "Single color" }],
+  ["alternating", { ru: "Два цвета", en: "Two colors" }]
 ];
+
+const gridText = {
+  ru: {
+    period: "Период сетки",
+    daysSuffix: "дней",
+    dayHistory: "История календаря",
+    displayed: "Отображается",
+    configure: "Настроить календарь и таблицу",
+    tableStyle: "Оформление таблицы",
+    habitColor: "Цвет привычек",
+    tableColors: "Цвета таблицы",
+    gridDensity: "Плотность сетки",
+    cellClick: "Клик по ячейке",
+    filterVisibility: "Фильтр и видимость",
+    showWeekends: "Показывать выходные",
+    visibleElements: "Видимые элементы",
+    checkInIcons: "Иконки отметок",
+    habitColumn: "Привычка",
+    noHabitsTitle: "Сетка появится после первой привычки",
+    noHabitsText: "Создайте привычку с нуля или начните с готового шаблона.",
+    createHabit: "Создать привычку",
+    noCategoryTitle: "В этой категории пока нет привычек",
+    noCategoryText: "Выберите другую категорию или добавьте привычку в текущую.",
+    noDatesTitle: "В выбранном периоде нет дат",
+    noDatesText: "Проверьте диапазон или верните выходные в настройках сетки.",
+    clickCycle: "клик меняет статус",
+    clickDetails: "детали отметки",
+    fastCycle: "быстрая смена статуса",
+    details: "детали",
+    todayLabel: "сегодня",
+    selectedDay: "Выбранный день",
+    grid: "Сетка",
+    note: "заметка"
+  },
+  en: {
+    period: "Grid period",
+    daysSuffix: "days",
+    dayHistory: "Calendar history",
+    displayed: "Displayed",
+    configure: "Customize calendar and table",
+    tableStyle: "Table style",
+    habitColor: "Habit color",
+    tableColors: "Table colors",
+    gridDensity: "Grid density",
+    cellClick: "Cell click",
+    filterVisibility: "Filter and visibility",
+    showWeekends: "Show weekends",
+    visibleElements: "Visible elements",
+    checkInIcons: "Check-in icons",
+    habitColumn: "Habit",
+    noHabitsTitle: "The grid will appear after your first habit",
+    noHabitsText: "Create a habit from scratch or start with a ready-made template.",
+    createHabit: "Create habit",
+    noCategoryTitle: "There are no habits in this category yet",
+    noCategoryText: "Pick another category or add a habit to the current one.",
+    noDatesTitle: "There are no dates in the selected period",
+    noDatesText: "Check the range or bring weekends back in grid settings.",
+    clickCycle: "click cycles status",
+    clickDetails: "check-in details",
+    fastCycle: "quick status change",
+    details: "details",
+    todayLabel: "today",
+    selectedDay: "Selected day",
+    grid: "Grid",
+    note: "note"
+  }
+} as const;
+
+const statusLabels = {
+  ru: {
+    done: "Выполнено",
+    partial: "Частично",
+    skipped: "Пропуск",
+    missed: "Не выполнено",
+    planned: "Запланировано"
+  },
+  en: {
+    done: "Done",
+    partial: "Partial",
+    skipped: "Skip",
+    missed: "Missed",
+    planned: "Planned"
+  }
+} as const;
+
+const habitTypeLabelsLocalized = {
+  ru: {
+    boolean: "Обычная",
+    numeric: "Числовая",
+    multiple: "Несколько раз в день",
+    avoid: "Не делать",
+    reflection: "Самонаблюдение"
+  },
+  en: {
+    boolean: "Boolean",
+    numeric: "Numeric",
+    multiple: "Multiple",
+    avoid: "Avoid",
+    reflection: "Reflection"
+  }
+} as const;
 
 export function GridView({
   state,
@@ -63,6 +164,8 @@ export function GridView({
   selectors: AppSelectors;
   actions: AppActions;
 }) {
+  const language = normalizeLanguage(state.settings.language);
+  const t = gridText[language];
   const p = state.settings.defaultPeriod;
   const viewportWidth = useViewportWidth();
   const historyDays = Math.max(0, state.settings.calendarHistoryDays);
@@ -77,38 +180,38 @@ export function GridView({
       <div className="panel period-panel">
         <div className="section-head">
           <div>
-            <h3>Период сетки</h3>
-            <p className="muted">{selectors.periodLabel()} · {selectors.periodDates.length} дней</p>
+            <h3>{t.period}</h3>
+            <p className="muted">{selectors.periodLabel()} · {selectors.periodDates.length} {t.daysSuffix}</p>
           </div>
         </div>
         <div className="period-layout compact-period-layout">
           <div className="chips">
             {[7, 14, 30, 90].map((days) => (
               <button className={`chip ${p.mode === "last" && p.days === days ? "active" : ""}`} key={days} onClick={() => actions.setPeriod({ mode: "last", days })}>
-                {days} дней
+                {days} {t.daysSuffix}
               </button>
             ))}
-            <button className={`chip ${p.mode === "week" ? "active" : ""}`} onClick={() => actions.setPeriod({ mode: "week" })}>Неделя</button>
-            <button className={`chip ${p.mode === "month" ? "active" : ""}`} onClick={() => actions.setPeriod({ mode: "month" })}>Месяц</button>
+            <button className={`chip ${p.mode === "week" ? "active" : ""}`} onClick={() => actions.setPeriod({ mode: "week" })}>{language === "en" ? "Week" : "Неделя"}</button>
+            <button className={`chip ${p.mode === "month" ? "active" : ""}`} onClick={() => actions.setPeriod({ mode: "month" })}>{language === "en" ? "Month" : "Месяц"}</button>
           </div>
           <div className="period-custom compact-period-field">
-            <label>N дней</label>
+            <label>{language === "en" ? "N days" : "N дней"}</label>
             <input className="input" type="number" min="1" max="365" value={p.days} onChange={(event) => actions.setPeriod({ mode: "last", days: clampDays(event.target.value) })} />
           </div>
           <div className="period-custom compact-period-field calendar-history-field">
-            <label>История календаря</label>
+            <label>{t.dayHistory}</label>
             <select
               className="input"
               value={String(state.settings.calendarHistoryDays)}
               onChange={(event) => actions.updateSetting("calendarHistoryDays", Number(event.target.value))}
             >
               {["0", "7", "14", "30", "60", "90", "180", "365"].map((days) => (
-                <option key={days} value={days}>{days} дней</option>
+                <option key={days} value={days}>{days} {t.daysSuffix}</option>
               ))}
             </select>
           </div>
           <details className="period-range-details">
-            <summary>Диапазон</summary>
+            <summary>{language === "en" ? "Range" : "Диапазон"}</summary>
             <div className="period-range">
               <input className="input" type="date" value={p.start} onChange={(event) => actions.setPeriod({ mode: "custom", start: event.target.value })} />
               <input className="input" type="date" value={p.end} onChange={(event) => actions.setPeriod({ mode: "custom", end: event.target.value })} />
@@ -116,7 +219,7 @@ export function GridView({
           </details>
         </div>
         <p className="muted period-total-note">
-          Отображается: {historyDays} дней истории + {periodDays} дней периода.
+          {t.displayed}: {historyDays} {t.daysSuffix} {language === "en" ? "of history" : "истории"} + {periodDays} {t.daysSuffix} {language === "en" ? "of period" : "периода"}.
         </p>
       </div>
       <CalendarSettingsPanel state={state} selectors={selectors} actions={actions} />
@@ -126,16 +229,17 @@ export function GridView({
 }
 
 function CalendarSettingsPanel({ state, selectors, actions }: { state: AppState; selectors: AppSelectors; actions: AppActions }) {
+  const language = normalizeLanguage(state.settings.language);
   const appearanceValue = gridAppearancePresets.find((preset) => preset.theme === state.settings.gridTheme && preset.shape === state.settings.gridMarkerShape)?.value || "classic-square";
   return (
     <details className="panel module-panel calendar-settings-panel">
-      <summary>Настроить календарь и таблицу</summary>
+      <summary>{gridText[language].configure}</summary>
       <div className="module-controls">
         <div className="calendar-settings-grid">
           <SelectControl
-            label="Оформление таблицы"
+            label={gridText[language].tableStyle}
             value={appearanceValue}
-            options={gridAppearancePresets.map(({ value, label }) => ({ value, label }))}
+            options={gridAppearancePresets.map(({ value, label }) => ({ value, label: label[language] }))}
             onChange={(value) => {
               const preset = gridAppearancePresets.find((item) => item.value === value);
               if (!preset) return;
@@ -144,14 +248,39 @@ function CalendarSettingsPanel({ state, selectors, actions }: { state: AppState;
             }}
           />
           <SelectControl
-            label="Цвет привычек"
+            label={gridText[language].habitColor}
             value={state.settings.gridHabitColorMode}
-            options={gridHabitColorOptions.map(([value, label]) => ({ value, label }))}
+            options={gridHabitColorOptions.map(([value, label]) => ({ value, label: label[language] }))}
             onChange={(value) => actions.updateSetting("gridHabitColorMode", value as GridHabitColorMode)}
           />
-          <SelectControl label="Цвета таблицы" value={state.settings.gridColors.mode} options={[{ value: "theme", label: "По теме" }, { value: "custom", label: "Свои цвета" }]} onChange={(value) => actions.updateSetting("gridColors", { ...state.settings.gridColors, mode: value as "theme" | "custom" })} />
-          <SelectControl label="Плотность сетки" value={state.settings.gridDensity} options={["compact", "standard", "comfortable"]} onChange={(value) => actions.updateSetting("gridDensity", value as Density)} />
-          <SelectControl label="Клик по ячейке" value={state.settings.gridClickAction} options={["cycle", "details"]} onChange={(value) => actions.updateSetting("gridClickAction", value as "cycle" | "details")} />
+          <SelectControl
+            label={gridText[language].tableColors}
+            value={state.settings.gridColors.mode}
+            options={[
+              { value: "theme", label: language === "en" ? "By theme" : "По теме" },
+              { value: "custom", label: language === "en" ? "Custom colors" : "Свои цвета" }
+            ]}
+            onChange={(value) => actions.updateSetting("gridColors", { ...state.settings.gridColors, mode: value as "theme" | "custom" })}
+          />
+          <SelectControl
+            label={gridText[language].gridDensity}
+            value={state.settings.gridDensity}
+            options={[
+              { value: "compact", label: language === "en" ? "Compact" : "compact" },
+              { value: "standard", label: language === "en" ? "Standard" : "standard" },
+              { value: "comfortable", label: language === "en" ? "Comfortable" : "comfortable" }
+            ]}
+            onChange={(value) => actions.updateSetting("gridDensity", value as Density)}
+          />
+          <SelectControl
+            label={gridText[language].cellClick}
+            value={state.settings.gridClickAction}
+            options={[
+              { value: "cycle", label: language === "en" ? "Cycle" : "cycle" },
+              { value: "details", label: language === "en" ? "Details" : "details" }
+            ]}
+            onChange={(value) => actions.updateSetting("gridClickAction", value as "cycle" | "details")}
+          />
         </div>
         {state.settings.gridColors.mode === "custom" && (
           <div className="mini-color-grid calendar-color-grid">
@@ -177,10 +306,15 @@ function CalendarSettingsPanel({ state, selectors, actions }: { state: AppState;
           </div>
         )}
         <details className="quick-subsection">
-          <summary>Фильтр и видимость</summary>
+          <summary>{gridText[language].filterVisibility}</summary>
           <div className="module-controls">
-            <SelectControl label="Категория" value={state.settings.selectedCategory} options={["all", ...selectors.categories]} onChange={(value) => actions.updateSetting("selectedCategory", value)} />
-            <Toggle label="Показывать выходные" checked={state.settings.showWeekends} className="compact-check-row" onChange={(checked) => actions.updateSetting("showWeekends", checked)} />
+            <SelectControl
+              label={language === "en" ? "Category" : "Категория"}
+              value={state.settings.selectedCategory}
+              options={[{ value: "all", label: language === "en" ? "All categories" : "all" }, ...selectors.categories.map((category) => ({ value: category, label: category }))]}
+              onChange={(value) => actions.updateSetting("selectedCategory", value)}
+            />
+            <Toggle label={gridText[language].showWeekends} checked={state.settings.showWeekends} className="compact-check-row" onChange={(checked) => actions.updateSetting("showWeekends", checked)} />
           </div>
         </details>
         <div className="calendar-mode-row">
@@ -188,11 +322,11 @@ function CalendarSettingsPanel({ state, selectors, actions }: { state: AppState;
             <button
               key={mode}
               className={state.settings.gridDisplayMode === mode ? "active" : ""}
-              title={label}
+              title={label[language]}
               onClick={() => actions.updateSetting("gridDisplayMode", mode)}
             >
               <b>{modeIcon(mode)}</b>
-              <span>{label}</span>
+              <span>{label[language]}</span>
             </button>
           ))}
         </div>
@@ -202,30 +336,30 @@ function CalendarSettingsPanel({ state, selectors, actions }: { state: AppState;
               key={status}
               className={`${statusMeta[status].className} ${state.settings.activeStatuses.includes(status) ? "active" : ""}`}
               onClick={() => actions.toggleStatus(status, !state.settings.activeStatuses.includes(status))}
-              title="Включить или выключить статус"
+              title={language === "en" ? "Enable or disable status" : "Включить или выключить статус"}
             >
               <b>{state.settings.statusIcons[status] || statusMeta[status].short}</b>
-              <span>{statusMeta[status].label}</span>
+              <span>{statusLabels[language][status]}</span>
             </button>
           ))}
         </div>
         <details className="quick-subsection">
-          <summary>Видимые элементы</summary>
+          <summary>{gridText[language].visibleElements}</summary>
           <div className="module-toggle-grid">
             {Object.entries(gridLabels).map(([key, label]) => (
               <label key={key}>
                 <input type="checkbox" checked={state.settings.visibleGrid[key]} onChange={(event) => actions.updateVisible("visibleGrid", key, event.target.checked)} />
-                <span>{label}</span>
+                <span>{label[language]}</span>
               </label>
             ))}
           </div>
         </details>
         <details className="quick-subsection">
-          <summary>Иконки отметок</summary>
+          <summary>{gridText[language].checkInIcons}</summary>
           <div className="status-icon-grid">
             {(Object.keys(statusMeta) as HabitStatus[]).map((status) => (
               <label key={status}>
-                <span>{statusMeta[status].label}</span>
+                <span>{statusLabels[language][status]}</span>
                 <input
                   maxLength={4}
                   value={state.settings.statusIcons[status] || statusMeta[status].short}
@@ -273,17 +407,18 @@ function CalendarGrid({
       <div className="stack">
         <div className="empty action-empty">
           <div>
-            <b>Сетка появится после первой привычки</b>
-            <span>Создайте привычку с нуля или начните с готового шаблона.</span>
+            <b>{gridText[normalizeLanguage(state.settings.language)].noHabitsTitle}</b>
+            <span>{gridText[normalizeLanguage(state.settings.language)].noHabitsText}</span>
           </div>
-          <button className="btn primary" onClick={() => actions.openHabitModal("new")}>Создать привычку</button>
+          <button className="btn primary" onClick={() => actions.openHabitModal("new")}>{gridText[normalizeLanguage(state.settings.language)].createHabit}</button>
         </div>
         <TemplateChooser actions={actions} />
       </div>
     );
   }
-  if (!visibleHabits.length) return <div className="empty action-empty"><b>В этой категории пока нет привычек</b><span>Выберите другую категорию или добавьте привычку в текущую.</span></div>;
-  if (!dates.length) return <div className="empty action-empty"><b>В выбранном периоде нет дат</b><span>Проверьте диапазон или верните выходные в настройках сетки.</span></div>;
+  const language = normalizeLanguage(state.settings.language);
+  if (!visibleHabits.length) return <div className="empty action-empty"><b>{gridText[language].noCategoryTitle}</b><span>{gridText[language].noCategoryText}</span></div>;
+  if (!dates.length) return <div className="empty action-empty"><b>{gridText[language].noDatesTitle}</b><span>{gridText[language].noDatesText}</span></div>;
   const renderers: Record<GridDisplayMode, React.ReactNode> = {
     calendar: <CalendarMonthGrid habits={visibleHabits} habitIndexMap={habitIndexMap} dates={dates} compact={false} state={state} selectors={selectors} actions={actions} />,
     compact: <CalendarMonthGrid habits={visibleHabits} habitIndexMap={habitIndexMap} dates={dates} compact state={state} selectors={selectors} actions={actions} />,
@@ -314,21 +449,18 @@ function CalendarMonthGrid({
   actions: AppActions;
 }) {
   const weeks = chunkWeeks(dates);
+  const language = normalizeLanguage(state.settings.language);
   return (
     <div>
       <div className={`month-calendar ${compact ? "compact-calendar" : ""}`}>
-        <div className="month-week-head">Пн</div>
-        <div className="month-week-head">Вт</div>
-        <div className="month-week-head">Ср</div>
-        <div className="month-week-head">Чт</div>
-        <div className="month-week-head">Пт</div>
-        <div className="month-week-head">Сб</div>
-        <div className="month-week-head">Вс</div>
+        {["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"].map((day, index) => (
+          <div className="month-week-head" key={index}>{language === "en" ? day : ["Пн", "Вт", "Ср", "Чт", "Пт", "Сб", "Вс"][index]}</div>
+        ))}
         {weeks.flat().map((date, index) => date ? (
           <div className={`calendar-day ${date === todayKey() ? "today" : ""}`} key={date}>
             <div className="calendar-day-head">
-              <b>{formatDate(date, "short")}</b>
-              <span>{weekdayShort(date)}</span>
+              <b>{formatDate(date, "short", language)}</b>
+              <span>{weekdayShort(date, language)}</span>
             </div>
             <ForecastDayMarker date={date} state={state} />
             <div className="calendar-day-list">
@@ -369,10 +501,11 @@ function CalendarHabitMark({
   selectors: AppSelectors;
   actions: AppActions;
 }) {
+  const language = normalizeLanguage(state.settings.language);
   const log = selectors.getLog(habit.id, date);
   const status = getDisplayStatus(log?.status || "planned", state);
   const className = status ? statusMeta[status].className : "";
-  const title = `${habit.title} · ${formatDate(date)} · ${state.settings.gridClickAction === "cycle" ? "клик меняет статус" : "детали отметки"}`;
+  const title = `${habit.title} · ${formatDate(date, "long", language)} · ${state.settings.gridClickAction === "cycle" ? (language === "en" ? "click cycles status" : "клик меняет статус") : (language === "en" ? "check-in details" : "детали отметки")}`;
   const markStyle = getHabitMarkStyle(state, habit, habitIndex);
   return (
     <button
@@ -396,7 +529,7 @@ function CalendarHabitMark({
           {state.settings.visibleGrid.statusText && status && status !== "planned" && <em>{statusIcon(status, state)}</em>}
           {!state.settings.visibleGrid.statusText && status && status !== "planned" && <em>{statusIcon(status, state)}</em>}
           {state.settings.visibleGrid.noteMarker && log?.note && <small className="marker-note-inline" />}
-          {state.settings.visibleGrid.type && <small>{habitTypeLabels[habit.type]}</small>}
+          {state.settings.visibleGrid.type && <small>{habitTypeLabelsLocalized[language][habit.type]}</small>}
           {state.settings.visibleGrid.target && habit.target > 1 && <small>{habit.target}</small>}
         </>
       )}
@@ -423,14 +556,15 @@ function WeekMatrixGrid({
 }) {
   const chunkSize = getMatrixChunkSize(viewportWidth);
   const weeks = chunkByCount(dates, chunkSize);
+  const language = normalizeLanguage(state.settings.language);
   return (
     <div>
       <div className="week-matrix-stack">
         {weeks.map((week, index) => (
           <div className="week-matrix" key={index}>
             <div className="week-matrix-grid" style={{ "--days": week.length } as React.CSSProperties & Record<"--days", number>}>
-              <div className="grid-head">Привычка</div>
-              {week.map((date) => <div className={`grid-head ${date === todayKey() ? "today" : ""}`} key={date}><span>{weekdayShort(date)}</span><b>{formatDate(date, "short")}</b></div>)}
+              <div className="grid-head">{gridText[language].habitColumn}</div>
+              {week.map((date) => <div className={`grid-head ${date === todayKey() ? "today" : ""}`} key={date}><span>{weekdayShort(date, language)}</span><b>{formatDate(date, "short", language)}</b></div>)}
               {habits.map((habit) => (
                 <Fragment key={`${habit.id}-${index}`}>
                   <div className="grid-name matrix-name" style={getHabitMarkStyle(state, habit, habitIndexMap.get(habit.id) || 0, "row")}>
@@ -468,21 +602,22 @@ function WeekFocusGrid({
   actions: AppActions;
 }) {
   const focusDates = dates.slice(-Math.min(14, dates.length)).slice(-7);
+  const language = normalizeLanguage(state.settings.language);
   return (
     <div>
       <div className="week-focus-grid">
         {focusDates.map((date) => (
           <div className={`week-focus-day ${date === todayKey() ? "today" : ""}`} key={date}>
             <div className="calendar-day-head">
-              <b>{formatDate(date, "short")}</b>
-              <span>{weekdayShort(date)}</span>
+              <b>{formatDate(date, "short", language)}</b>
+              <span>{weekdayShort(date, language)}</span>
             </div>
             <div className="week-focus-list">
               {habits.filter((habit) => selectors.isDue(habit, date)).map((habit) => (
                 <button
                   className={`week-check ${statusClass(getDisplayStatus(selectors.getLog(habit.id, date)?.status || "planned", state))}`}
                   key={habit.id}
-                  title={`${habit.title} · ${formatDate(date)}`}
+                  title={`${habit.title} · ${formatDate(date, "long", language)}`}
                   style={getHabitMarkStyle(state, habit, habitIndexMap.get(habit.id) || 0, "focus")}
                   onClick={() => state.settings.gridClickAction === "cycle" ? actions.cycleHabitStatus(habit.id, date) : actions.openCellSheet({ habitId: habit.id, date })}
                   onDoubleClick={() => actions.openCellSheet({ habitId: habit.id, date })}
@@ -517,12 +652,13 @@ function HabitTimelineGrid({
   actions: AppActions;
 }) {
   const habit = habits.find((item) => item.id === state.settings.selectedHabitId) || habits[0];
+  const language = normalizeLanguage(state.settings.language);
   return (
     <div className="habit-timeline">
       <div className="section-head compact-head">
         <div>
           <h3>{habit.icon} {habit.title}</h3>
-          <p className="muted">{gridHabitMeta(habit, state, selectors) || habit.category || "История выбранной привычки"}</p>
+          <p className="muted">{gridHabitMeta(habit, state, selectors) || (language === "en" ? "History of the selected habit" : "История выбранной привычки")}</p>
         </div>
         <select className="select compact-select" value={habit.id} onChange={(event) => actions.updateSetting("selectedHabitId", event.target.value)}>
           {habits.map((item) => <option key={item.id} value={item.id}>{item.icon} {item.title}</option>)}
@@ -535,12 +671,12 @@ function HabitTimelineGrid({
               <button
                 className={`habit-day-chip ${statusClass(getDisplayStatus(selectors.getLog(habit.id, date)?.status || (selectors.isDue(habit, date) ? "planned" : undefined), state))}`}
                 key={date}
-                title={`${habit.title} · ${formatDate(date)}`}
+                title={`${habit.title} · ${formatDate(date, "long", language)}`}
                 style={getHabitMarkStyle(state, habit, habitIndexMap.get(habit.id) || 0, "tile")}
                 onClick={() => state.settings.gridClickAction === "cycle" ? actions.cycleHabitStatus(habit.id, date) : actions.openCellSheet({ habitId: habit.id, date })}
                 onDoubleClick={() => actions.openCellSheet({ habitId: habit.id, date })}
               >
-                <span>{formatDate(date, "short")}</span>
+                <span>{formatDate(date, "short", language)}</span>
                 <b>{displayStatusIcon(selectors.getLog(habit.id, date)?.status || "planned", state)}</b>
               </button>
             ))}
@@ -567,21 +703,22 @@ function TimelineGrid({
   selectors: AppSelectors;
   actions: AppActions;
 }) {
+  const language = normalizeLanguage(state.settings.language);
   return (
     <div>
       <div className="timeline-grid">
         {dates.map((date) => (
           <div className={`timeline-day ${date === todayKey() ? "today" : ""}`} key={date}>
             <div className="timeline-date">
-              <b>{formatDate(date, "short")}</b>
-              <span>{weekdayShort(date)}</span>
+              <b>{formatDate(date, "short", language)}</b>
+              <span>{weekdayShort(date, language)}</span>
             </div>
             <div className="timeline-dots">
               {habits.filter((habit) => selectors.isDue(habit, date)).map((habit) => (
                 <button
                   className={`timeline-dot ${statusClass(getDisplayStatus(selectors.getLog(habit.id, date)?.status || "planned", state))}`}
                   key={habit.id}
-                  title={`${habit.title} · ${formatDate(date)}`}
+                  title={`${habit.title} · ${formatDate(date, "long", language)}`}
                   style={getHabitMarkStyle(state, habit, habitIndexMap.get(habit.id) || 0, "dot")}
                   onClick={() => state.settings.gridClickAction === "cycle" ? actions.cycleHabitStatus(habit.id, date) : actions.openCellSheet({ habitId: habit.id, date })}
                   onDoubleClick={() => actions.openCellSheet({ habitId: habit.id, date })}
@@ -613,6 +750,7 @@ function HeatGrid({
   selectors: AppSelectors;
   actions: AppActions;
 }) {
+  const language = normalizeLanguage(state.settings.language);
   return (
     <div>
       <div className="heat-grid">
@@ -623,7 +761,7 @@ function HeatGrid({
           return (
             <div className={`heat-day heat-${intensity} ${date === todayKey() ? "today" : ""}`} key={date}>
               <div className="calendar-day-head">
-                <b>{formatDate(date, "short")}</b>
+                <b>{formatDate(date, "short", language)}</b>
                 <span>{done}/{dueHabits.length}</span>
               </div>
               <div className="heat-actions">
@@ -631,7 +769,7 @@ function HeatGrid({
                 <button
                   className={`heat-dot ${statusClass(getDisplayStatus(selectors.getLog(habit.id, date)?.status || "planned", state))}`}
                   key={habit.id}
-                  title={`${habit.title} · ${formatDate(date)}`}
+                  title={`${habit.title} · ${formatDate(date, "long", language)}`}
                   style={getHabitMarkStyle(state, habit, habitIndexMap.get(habit.id) || 0, "heat")}
                   onClick={() => state.settings.gridClickAction === "cycle" ? actions.cycleHabitStatus(habit.id, date) : actions.openCellSheet({ habitId: habit.id, date })}
                   onDoubleClick={() => actions.openCellSheet({ habitId: habit.id, date })}
@@ -664,6 +802,7 @@ function GridCell({
   selectors: AppSelectors;
   actions: AppActions;
 }) {
+  const language = normalizeLanguage(state.settings.language);
   const log = selectors.getLog(habit.id, date);
   const status = log?.status || (selectors.isDue(habit, date) ? "planned" : undefined);
   const visibleStatus = getDisplayStatus(status, state);
@@ -692,7 +831,7 @@ function GridCell({
       <button
         className={`${className} shape-${state.settings.gridMarkerShape}`}
         style={markStyle}
-        title={`${habit.title} · ${formatDate(date)} · ${state.settings.gridClickAction === "cycle" ? "быстрая смена статуса" : "детали"}`}
+        title={`${habit.title} · ${formatDate(date, "long", language)} · ${state.settings.gridClickAction === "cycle" ? (language === "en" ? "quick status change" : "быстрая смена статуса") : (language === "en" ? "details" : "детали")}`}
         onClick={() => state.settings.gridClickAction === "cycle" ? actions.cycleHabitStatus(habit.id, date) : actions.openCellSheet({ habitId: habit.id, date })}
       >
         <span className="mark-core">
@@ -709,7 +848,7 @@ function gridHabitMeta(habit: Habit, state: AppState, selectors: AppSelectors) {
   const stats = selectors.calculateStats(habit);
   const parts = [];
   if (state.settings.visibleGrid.category && habit.category) parts.push(habit.category);
-  if (state.settings.visibleGrid.type) parts.push(habitTypeLabels[habit.type]);
+  if (state.settings.visibleGrid.type) parts.push(habitTypeLabelsLocalized[normalizeLanguage(state.settings.language)][habit.type]);
   if (state.settings.visibleGrid.target && habit.target > 1) parts.push(`цель ${habit.target}`);
   if (state.settings.visibleGrid.completion) parts.push(`${stats.completion}%`);
   if (state.settings.visibleGrid.daysSince) parts.push(`${stats.daysSince ?? "нет"} дн.`);
@@ -808,9 +947,10 @@ function modeIcon(mode: GridDisplayMode) {
 
 function Legend({ statuses, state }: { statuses: HabitStatus[]; state?: AppState }) {
   const visibleStatuses = Array.from(new Set(statuses));
+  const language = normalizeLanguage(state?.settings.language);
   return (
     <div className="legend">
-      {visibleStatuses.map((status) => <span key={status}>{state ? `${statusIcon(status, state)} ` : ""}{statusMeta[status].label}</span>)}
+      {visibleStatuses.map((status) => <span key={status}>{state ? `${statusIcon(status, state)} ` : ""}{statusLabels[language][status]}</span>)}
     </div>
   );
 }

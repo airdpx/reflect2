@@ -20,18 +20,18 @@ export function addDays(date: Date, amount: number) {
   return next;
 }
 
-export function formatDate(key: string, mode: "short" | "long" = "long") {
+export function formatDate(key: string, mode: "short" | "long" = "long", language: "ru" | "en" = "ru") {
   const date = fromKey(key);
   return date.toLocaleDateString(
-    "ru-RU",
+    language === "en" ? "en-US" : "ru-RU",
     mode === "short"
       ? { day: "2-digit", month: "2-digit" }
       : { day: "numeric", month: "long", weekday: "long" }
   );
 }
 
-export function weekdayShort(key: string) {
-  return fromKey(key).toLocaleDateString("ru-RU", { weekday: "short" }).replace(".", "");
+export function weekdayShort(key: string, language: "ru" | "en" = "ru") {
+  return fromKey(key).toLocaleDateString(language === "en" ? "en-US" : "ru-RU", { weekday: "short" }).replace(".", "");
 }
 
 export function rangeDates(startKey: string, endKey: string) {
