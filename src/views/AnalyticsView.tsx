@@ -2,15 +2,42 @@ import { useEffect, useMemo, useState } from "react";
 import type { AppActions, AppSelectors, AppState, HabitStatus } from "../types";
 import { addDays, fromKey, rangeDates, todayKey, toKey, formatDate } from "../lib/date";
 import { statusMeta } from "../lib/defaults";
+import { normalizeLanguage } from "../lib/i18n";
 
-export function StatsPanel({ selectors }: { selectors: AppSelectors }) {
+export function StatsPanel({ selectors, state }: { selectors: AppSelectors; state: AppState }) {
+  const language = normalizeLanguage(state.settings.language);
+  const text = language === "en" ? {
+    title: "Quick Analytics",
+    emptyTitle: "Analytics will appear after your first check-ins",
+    emptyText: "No zeros as a judgment here. Make a few gentle check-ins, and the statistics will become useful.",
+    completion: "completion",
+    current: "current",
+    best: "best",
+    signals: "signals",
+    chartTitle: "Habit Chart",
+    chartHint: "Select several habits to see them on one wave chart with status icons by date.",
+    chooseHabitTitle: "Choose at least one habit",
+    chooseHabitText: "The chart becomes clearer when at least one line is visible."
+  } : {
+    title: "Краткая аналитика",
+    emptyTitle: "Аналитика появится после первых отметок",
+    emptyText: "Пока здесь не будет нулей как оценки. Сделайте несколько спокойных отметок, и статистика станет полезной.",
+    completion: "выполнение",
+    current: "текущая",
+    best: "лучшая",
+    signals: "сигналы",
+    chartTitle: "График привычек",
+    chartHint: "Выбери несколько привычек, чтобы видеть их на одном волновом графике с иконками статусов на датах.",
+    chooseHabitTitle: "Выбери хотя бы одну привычку",
+    chooseHabitText: "График станет наглядным, когда здесь появится хотя бы одна линия."
+  };
   if (!selectors.hasAnyLogs) {
     return (
       <div className="panel">
-        <h3>Краткая аналитика</h3>
+        <h3>{text.title}</h3>
         <div className="empty action-empty">
-          <b>Аналитика появится после первых отметок</b>
-          <span>Пока здесь не будет нулей как оценки. Сделайте несколько спокойных отметок, и статистика станет полезной.</span>
+          <b>{text.emptyTitle}</b>
+          <span>{text.emptyText}</span>
         </div>
       </div>
     );
@@ -22,18 +49,19 @@ export function StatsPanel({ selectors }: { selectors: AppSelectors }) {
   const attention = selectors.getAttentionHabits().length;
   return (
     <div className="panel">
-      <h3>Краткая аналитика</h3>
+      <h3>{text.title}</h3>
       <div className="stats">
-        <div className="stat"><strong>{avg}%</strong><span>выполнение</span></div>
-        <div className="stat"><strong>{series}</strong><span>серия</span></div>
-        <div className="stat"><strong>{best}</strong><span>лучшая серия</span></div>
-        <div className="stat"><strong>{attention}</strong><span>сигналы</span></div>
+        <div className="stat"><strong>{avg}%</strong><span>{text.completion}</span></div>
+        <div className="stat"><strong>{series}</strong><span>{text.current}</span></div>
+        <div className="stat"><strong>{best}</strong><span>{text.best}</span></div>
+        <div className="stat"><strong>{attention}</strong><span>{text.signals}</span></div>
       </div>
     </div>
   );
 }
 
 export function AnalyticsView({ state, selectors, actions }: { state: AppState; selectors: AppSelectors; actions: AppActions }) {
+  const language = normalizeLanguage(state.settings.language);
   const [selectedHabitIds, setSelectedHabitIds] = useState<string[]>([]);
   const chartDays = Math.max(7, Math.min(180, state.settings.analyticsHistoryDays || 30));
   const start = toKey(addDays(fromKey(todayKey()), -(chartDays - 1)));
@@ -56,19 +84,19 @@ export function AnalyticsView({ state, selectors, actions }: { state: AppState; 
   if (!selectors.hasAnyLogs) {
     return (
       <section className="stack">
-        <StatsPanel selectors={selectors} />
+        <StatsPanel selectors={selectors} state={state} />
       </section>
     );
   }
 
   return (
     <section className="stack">
-      <StatsPanel selectors={selectors} />
+      <StatsPanel selectors={selectors} state={state} />
       <div className="panel analytics-wave-panel">
         <div className="section-head">
           <div>
-            <h3>График привычек</h3>
-            <p className="muted">Выбери несколько привычек, чтобы видеть их на одном волновом графике с иконками статусов на датах.</p>
+            <h3>{language === "en" ? "Habit Chart" : "График привычек"}</h3>
+            <p className="muted">{language === "en" ? "Select several habits to see them on one wave chart with status icons by date." : "Выбери несколько привычек, чтобы видеть их на одном волновом графике с иконками статусов на датах."}</p>
           </div>
         </div>
         <div className="analytics-habit-picks">
@@ -102,8 +130,8 @@ export function AnalyticsView({ state, selectors, actions }: { state: AppState; 
             </>
           ) : (
             <div className="empty action-empty">
-              <b>Выбери хотя бы одну привычку</b>
-              <span>График станет наглядным, когда здесь появится хотя бы одна линия.</span>
+              <b>{language === "en" ? "Choose at least one habit" : "Выбери хотя бы одну привычку"}</b>
+              <span>{language === "en" ? "The chart becomes clearer when at least one line is visible." : "График станет наглядным, когда здесь появится хотя бы одна линия."}</span>
             </div>
           )}
         </div>

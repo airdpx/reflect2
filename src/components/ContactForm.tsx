@@ -14,7 +14,7 @@ export function ContactForm({ recipientEmail }: Props) {
   const [language, setLanguage] = useState<Language>("ru");
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
-  const [topic, setTopic] = useState("Обратная связь");
+  const [topic, setTopic] = useState("");
   const [message, setMessage] = useState("");
   const [website, setWebsite] = useState("");
   const [loading, setLoading] = useState(false);
@@ -54,7 +54,15 @@ export function ContactForm({ recipientEmail }: Props) {
   useEffect(() => {
     const root = document.querySelector(".static-page");
     if (!root) return;
-    const sync = () => setLanguage(normalizeLanguage(root.getAttribute("data-language") || "ru"));
+    const sync = () => {
+      const nextLanguage = normalizeLanguage(root.getAttribute("data-language") || "ru");
+      setLanguage(nextLanguage);
+      setTopic((current) => {
+        const defaultTopics = ["Обратная связь", "Feedback"];
+        if (current && !defaultTopics.includes(current)) return current;
+        return nextLanguage === "en" ? "Feedback" : "Обратная связь";
+      });
+    };
     sync();
     const observer = new MutationObserver(sync);
     observer.observe(root, { attributes: true, attributeFilter: ["data-language"] });
@@ -87,7 +95,8 @@ export function ContactForm({ recipientEmail }: Props) {
           email,
           topic,
           message,
-          website
+          website,
+          language
         })
       });
       const payload = await response.json();

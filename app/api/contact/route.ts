@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 import { getPrisma } from "../../../src/server/db";
 import { loadSiteContactEmail } from "../../../src/server/site-settings";
 import { createContactMessage, markContactMessageFailed, markContactMessageSent, sendContactMessage } from "../../../src/server/contact";
+import { normalizeLanguage } from "../../../src/lib/i18n";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
@@ -15,20 +16,24 @@ export async function POST(request: Request) {
     const topic = normalizeText(body?.topic, 120);
     const message = normalizeText(body?.message, 5000);
     const honeypot = normalizeText(body?.website);
+    const language = normalizeLanguage(normalizeText(body?.language, 2));
+    const defaultTopic = language === "en" ? "PractWay feedback" : "Обратная связь PractWay";
+    const unknownName = language === "en" ? "Not specified" : "Не указано";
+    const unknownEmail = language === "en" ? "Not specified" : "Не указан";
 
     if (honeypot) {
       return NextResponse.json({ ok: true, ignored: true });
     }
     if (!message) {
-      return NextResponse.json({ ok: false, error: "Добавь текст сообщения." }, { status: 400 });
+      return NextResponse.json({ ok: false, error: language === "en" ? "Add a message first." : "Добавь текст сообщения." }, { status: 400 });
     }
     if (email && !isEmail(email)) {
-      return NextResponse.json({ ok: false, error: "Укажи корректный email." }, { status: 400 });
+      return NextResponse.json({ ok: false, error: language === "en" ? "Enter a valid email." : "Укажи корректный email." }, { status: 400 });
     }
 
     const recipientEmail = await loadSiteContactEmail();
     if (!recipientEmail) {
-      return NextResponse.json({ ok: false, error: "Администратор ещё не указал email для контактов." }, { status: 400 });
+      return NextResponse.json({ ok: false, error: language === "en" ? "The contact email is not configured yet." : "Администратор ещё не указал email для контактов." }, { status: 400 });
     }
 
     const requestHeaders = await headers();
@@ -37,13 +42,13 @@ export async function POST(request: Request) {
 
     const recentCount = await countRecentMessages(ipAddress, email);
     if (recentCount >= 3) {
-      return NextResponse.json({ ok: false, error: "Слишком много сообщений подряд. Попробуй чуть позже." }, { status: 429 });
+      return NextResponse.json({ ok: false, error: language === "en" ? "Too many messages in a row. Try again a little later." : "Слишком много сообщений подряд. Попробуй чуть позже." }, { status: 429 });
     }
 
     const record = await createContactMessage({
-      name: name || "Не указано",
-      email: email || "Не указан",
-      topic: topic || "Обратная связь PractWay",
+      name: name || unknownName,
+      email: email || unknownEmail,
+      topic: topic || defaultTopic,
       message,
       recipientEmail,
       replyTo: email || undefined,
@@ -53,10 +58,11 @@ export async function POST(request: Request) {
 
     const result = await sendContactMessage({
       recipientEmail,
-      senderName: name || "Не указано",
+      senderName: name || unknownName,
       senderEmail: email,
-      topic: topic || "Обратная связь PractWay",
-      message
+      topic: topic || defaultTopic,
+      message,
+      language
     });
 
     if (!result.ok) {
