@@ -3419,6 +3419,30 @@ button {
   gap: 12px;
 }
 
+.analytics-summary-panel-prominent {
+  border-color: color-mix(in srgb, var(--accent) 30%, var(--line));
+  background:
+    linear-gradient(180deg, color-mix(in srgb, var(--accent) 12%, transparent) 0%, transparent 24%),
+    color-mix(in srgb, var(--surface) 94%, var(--accent-soft));
+}
+
+.analytics-summary-kicker {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0;
+}
+
+.analytics-summary-badge {
+  background: color-mix(in srgb, var(--accent) 18%, var(--surface));
+  color: color-mix(in srgb, var(--accent) 75%, var(--text));
+  border: 1px solid color-mix(in srgb, var(--accent) 28%, var(--line));
+}
+
 .analytics-summary-intro {
   margin: -2px 0 0;
   max-width: 72ch;
@@ -3461,15 +3485,17 @@ button {
 .analytics-summary-card {
   display: grid;
   gap: 4px;
-  min-height: 124px;
-  padding: 13px 14px;
+  min-height: 132px;
+  padding: 14px 15px;
   border-radius: var(--radius);
   border: 1px solid var(--line);
-  background: var(--surface);
+  background:
+    linear-gradient(180deg, color-mix(in srgb, var(--accent) 6%, transparent), transparent 58%),
+    var(--surface);
 }
 
 .analytics-summary-card b {
-  font-size: 28px;
+  font-size: 32px;
   line-height: 1;
   color: var(--text);
 }
@@ -3492,6 +3518,22 @@ button {
 
 .analytics-summary-card-empty b {
   color: var(--accent);
+}
+
+.analytics-summary-card-done {
+  border-color: color-mix(in srgb, var(--status-done-bg) 46%, var(--line));
+}
+
+.analytics-summary-card-accent {
+  border-color: color-mix(in srgb, var(--accent) 42%, var(--line));
+}
+
+.analytics-summary-card-warm {
+  border-color: color-mix(in srgb, var(--status-partial-bg) 46%, var(--line));
+}
+
+.analytics-summary-card-warn {
+  border-color: color-mix(in srgb, var(--warn) 38%, var(--line));
 }
 
 .stats {

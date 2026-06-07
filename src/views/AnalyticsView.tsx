@@ -49,7 +49,11 @@ export function StatsPanel({ selectors, state }: { selectors: AppSelectors; stat
   };
   if (!selectors.hasAnyLogs) {
     return (
-      <div className="panel analytics-summary-panel">
+      <div className="panel analytics-summary-panel analytics-summary-panel-prominent">
+        <div className="analytics-summary-kicker">
+          <span className="badge analytics-summary-badge">{language === "en" ? "New" : "Новое"}</span>
+          <span>{text.summaryTitle}</span>
+        </div>
         <h3>{text.title}</h3>
         <p className="muted analytics-summary-intro">{text.intro}</p>
         <div className="analytics-summary-banner analytics-summary-banner-empty">
@@ -80,7 +84,11 @@ export function StatsPanel({ selectors, state }: { selectors: AppSelectors; stat
   const attention = selectors.getAttentionHabits().length;
   const summary = summarizeAnalytics(language, avg, series, best, attention);
   return (
-    <div className="panel analytics-summary-panel">
+    <div className="panel analytics-summary-panel analytics-summary-panel-prominent">
+      <div className="analytics-summary-kicker">
+        <span className="badge analytics-summary-badge">{language === "en" ? "New" : "Новое"}</span>
+        <span>{text.summaryTitle}</span>
+      </div>
       <h3>{text.title}</h3>
       <p className="muted analytics-summary-intro">{text.intro}</p>
       <div className="analytics-summary-banner">
@@ -88,22 +96,22 @@ export function StatsPanel({ selectors, state }: { selectors: AppSelectors; stat
         <span>{summary || text.summaryFallback}</span>
       </div>
       <div className="analytics-summary-grid">
-        <div className="analytics-summary-card">
+        <div className="analytics-summary-card analytics-summary-card-done">
           <b>{avg}%</b>
           <span>{text.completion}</span>
           <small>{text.completionHint}</small>
         </div>
-        <div className="analytics-summary-card">
+        <div className="analytics-summary-card analytics-summary-card-accent">
           <b>{series}</b>
           <span>{text.current}</span>
           <small>{text.currentHint}</small>
         </div>
-        <div className="analytics-summary-card">
+        <div className="analytics-summary-card analytics-summary-card-warm">
           <b>{best}</b>
           <span>{text.best}</span>
           <small>{text.bestHint}</small>
         </div>
-        <div className="analytics-summary-card">
+        <div className="analytics-summary-card analytics-summary-card-warn">
           <b>{attention}</b>
           <span>{text.signals}</span>
           <small>{text.signalsHint}</small>
