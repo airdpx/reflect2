@@ -23,7 +23,8 @@ export type AppIconName =
   | "ban"
   | "database"
   | "download"
-  | "palette";
+  | "palette"
+  | "language";
 
 export function AppIcon({ name }: { name: AppIconName | string }) {
   const line = {
@@ -188,6 +189,14 @@ export function AppIcon({ name }: { name: AppIconName | string }) {
           <circle cx="30" cy="14" r="2.8" fill={green} />
           <circle cx="34" cy="21" r="2.8" fill={violet} />
           <circle cx="18" cy="26" r="2.8" fill={warm} />
+        </>
+      ) : name === "language" ? (
+        <>
+          <circle cx="24" cy="24" r="16" fill={soft} />
+          <circle {...line} cx="24" cy="24" r="14" />
+          <path {...line} d="M10 24h28M24 10c4 4 6 9 6 14s-2 10-6 14c-4-4-6-9-6-14s2-10 6-14Z" stroke={cool} />
+          <path {...line} d="M16 14c2.5 1.7 5.3 2.6 8 2.6s5.5-.9 8-2.6M16 34c2.5-1.7 5.3-2.6 8-2.6s5.5.9 8 2.6" stroke={warm} />
+          <circle cx="24" cy="24" r="3" fill={green} />
         </>
       ) : (
         <>

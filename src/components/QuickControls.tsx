@@ -16,6 +16,7 @@ export function QuickControls({ state, actions }: { state: AppState; actions: Ap
         onThemeChange={(theme) => actions.updateSetting("interfaceTheme", theme)}
         onCustomThemeChange={(theme) => actions.updateSetting("customTheme", theme)}
         title={common.theme}
+        language={language}
       />
       <LanguagePicker
         language={language}

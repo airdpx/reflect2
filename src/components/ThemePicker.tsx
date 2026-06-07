@@ -4,7 +4,8 @@ import type React from "react";
 import { useEffect, useRef, useState } from "react";
 import { themeOptions } from "../lib/defaults";
 import { AppIcon } from "./AppIcons";
-import type { InterfaceTheme, UserSettings } from "../types";
+import type { InterfaceTheme, Language, UserSettings } from "../types";
+import { normalizeLanguage } from "../lib/i18n";
 
 type ThemePickerProps = {
   theme: InterfaceTheme;
@@ -15,6 +16,7 @@ type ThemePickerProps = {
   panelClassName?: string;
   gridClassName?: string;
   title?: string;
+  language?: Language;
 };
 
 const customThemeLabels: Record<keyof UserSettings["customTheme"], string> = {
@@ -29,6 +31,21 @@ const customThemeLabels: Record<keyof UserSettings["customTheme"], string> = {
   planned: "Запланировано"
 };
 
+const customThemeLabelsByLanguage: Record<Language, Record<keyof UserSettings["customTheme"], string>> = {
+  ru: customThemeLabels,
+  en: {
+    bg: "Background",
+    surface: "Panels",
+    text: "Text",
+    accent: "Accent",
+    done: "Done",
+    partial: "Partial",
+    skipped: "Skip",
+    missed: "Missed",
+    planned: "Planned"
+  }
+};
+
 export function ThemePicker({
   theme,
   onThemeChange,
@@ -37,9 +54,12 @@ export function ThemePicker({
   className = "",
   panelClassName = "quick-panel-narrow",
   gridClassName = "",
-  title = "Тема"
+  title,
+  language = "ru"
 }: ThemePickerProps) {
   const palette = themeOptions.find((item) => item.id === theme) || themeOptions[0];
+  const normalizedLanguage = normalizeLanguage(language);
+  const resolvedTitle = title || (normalizedLanguage === "en" ? "Theme" : "Тема");
   const [open, setOpen] = useState(false);
   const rootRef = useRef<HTMLDivElement | null>(null);
 
@@ -64,8 +84,8 @@ export function ThemePicker({
       <button
         className="quick-icon"
         type="button"
-        title={title}
-        aria-label={title}
+        title={resolvedTitle}
+        aria-label={resolvedTitle}
         aria-expanded={open}
         onPointerDown={(event) => {
           event.preventDefault();
@@ -82,7 +102,7 @@ export function ThemePicker({
       </button>
       {open ? <div className={`quick-panel ${panelClassName}`.trim()}>
         <div className="quick-panel-head">
-          <b>{title}</b>
+          <b>{resolvedTitle}</b>
           <span>{palette.title}</span>
         </div>
         <div className={`theme-dot-grid ${gridClassName}`.trim()}>
@@ -102,7 +122,7 @@ export function ThemePicker({
           <div className="mini-color-grid">
             {(Object.keys(customTheme) as Array<keyof UserSettings["customTheme"]>).map((key) => (
               <label key={key}>
-                <span>{customThemeLabels[key]}</span>
+                <span>{customThemeLabelsByLanguage[normalizedLanguage][key]}</span>
                 <input
                   type="color"
                   value={customTheme[key]}

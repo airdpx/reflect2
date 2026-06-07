@@ -69,6 +69,7 @@ export function StaticPageShell({
             setThemeState((current) => ({ ...current, theme: nextTheme }));
           }}
           title={common.theme}
+          language={language}
         />
         <LanguagePicker
           language={language}

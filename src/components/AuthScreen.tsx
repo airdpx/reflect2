@@ -158,6 +158,7 @@ export function AuthScreen() {
           customTheme={themeState.customTheme}
           onThemeChange={(nextTheme) => setThemeState((current) => ({ ...current, theme: nextTheme }))}
           title={common.theme}
+          language={language}
         />
         <LanguagePicker
           language={language}

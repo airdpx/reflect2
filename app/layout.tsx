@@ -11,7 +11,7 @@ export const revalidate = 0;
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="ru">
+    <html lang="ru" suppressHydrationWarning>
       <body>{children}</body>
     </html>
   );

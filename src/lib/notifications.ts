@@ -37,13 +37,19 @@ export function buildNotificationFeed(state: AppState, selectors: AppSelectors) 
         id: `habit:${habit.id}:${state.selectedDate}`,
         topic: "habits",
         title: habit.title,
-        message: `${habit.icon} привычка ждёт отметку на ${formatDate(state.selectedDate, "short")}`,
+        message: language === "en"
+          ? `${habit.icon} habit is waiting for a check-in on ${formatDate(state.selectedDate, "short")}`
+          : `${habit.icon} привычка ждёт отметку на ${formatDate(state.selectedDate, "short")}`,
         detail: stats.daysSince !== null
-          ? `Последняя серия: ${stats.streak} · без выполнения: ${stats.daysSince} дн.`
-          : "Пока нет истории выполнения.",
+          ? language === "en"
+            ? `Last streak: ${stats.streak} · without completion: ${stats.daysSince} d.`
+            : `Последняя серия: ${stats.streak} · без выполнения: ${stats.daysSince} дн.`
+          : language === "en"
+            ? "No completion history yet."
+            : "Пока нет истории выполнения.",
         targetView: "today",
         targetDate: state.selectedDate,
-        actionLabel: "Открыть сегодня",
+        actionLabel: language === "en" ? "Open today" : "Открыть сегодня",
         priority: stats.daysSince !== null && habit.warningThreshold <= stats.daysSince ? "high" : "medium",
         channels: enabledChannels,
         icon: habit.icon || "🔔",
@@ -57,12 +63,16 @@ export function buildNotificationFeed(state: AppState, selectors: AppSelectors) 
     pushItem(makeItem({
       id: `diary:${state.selectedDate}`,
       topic: "diary",
-      title: "Короткая заметка",
-      message: `Добавьте запись за ${formatDate(state.selectedDate, "short")}.`,
-      detail: "Это поможет сохранить контекст дня без перегруза.",
+      title: language === "en" ? "Short note" : "Короткая заметка",
+      message: language === "en"
+        ? `Add a note for ${formatDate(state.selectedDate, "short")}.`
+        : `Добавьте запись за ${formatDate(state.selectedDate, "short")}.`,
+      detail: language === "en"
+        ? "This helps preserve the day's context without clutter."
+        : "Это поможет сохранить контекст дня без перегруза.",
       targetView: "diary",
       targetDate: state.selectedDate,
-      actionLabel: "Открыть дневник",
+      actionLabel: language === "en" ? "Open diary" : "Открыть дневник",
       priority: "medium",
       channels: enabledChannels,
       icon: "📝",
@@ -96,12 +106,14 @@ export function buildNotificationFeed(state: AppState, selectors: AppSelectors) 
     pushItem(makeItem({
       id: `analytics:${state.selectedDate}`,
       topic: "analytics",
-      title: "Требует внимания",
-      message: `${attention.length} привычек просят мягкий взгляд.`,
+      title: language === "en" ? "Needs attention" : "Требует внимания",
+      message: language === "en"
+        ? `${attention.length} habits ask for a gentle look.`
+        : `${attention.length} привычек просят мягкий взгляд.`,
       detail: attention.slice(0, 3).map(({ habit }) => habit.title).join(" · "),
       targetView: "today",
       targetDate: state.selectedDate,
-      actionLabel: "Открыть обзор",
+      actionLabel: language === "en" ? "Open overview" : "Открыть обзор",
       priority: attention.some(({ stats }) => (stats.daysSince ?? 0) >= 4) ? "high" : "medium",
       channels: enabledChannels,
       icon: "📊",
@@ -114,11 +126,15 @@ export function buildNotificationFeed(state: AppState, selectors: AppSelectors) 
     pushItem(makeItem({
       id: `browser:${state.profile?.id || "guest"}`,
       topic: "reminders",
-      title: "Браузерные оповещения",
-      message: "Можно включить Web Notifications для быстрых напоминаний.",
-      detail: "Разрешение запрашивается только в браузере и может быть отключено в любой момент.",
+      title: language === "en" ? "Browser alerts" : "Браузерные оповещения",
+      message: language === "en"
+        ? "You can enable Web Notifications for quick reminders."
+        : "Можно включить Web Notifications для быстрых напоминаний.",
+      detail: language === "en"
+        ? "Permission is requested only in the browser and can be turned off at any time."
+        : "Разрешение запрашивается только в браузере и может быть отключено в любой момент.",
       targetView: "notifications",
-      actionLabel: "Проверить браузер",
+      actionLabel: language === "en" ? "Check browser" : "Проверить браузер",
       priority: "low",
       channels: enabledChannels,
       icon: "🔔",
@@ -137,33 +153,33 @@ export function resolveNotificationState(state: AppState, item: NotificationItem
   return state.notificationStates[item.id] || { status: "new", updatedAt: new Date().toISOString() };
 }
 
-export function notificationStatusLabel(status: NotificationDeliveryStatus) {
+export function notificationStatusLabel(status: NotificationDeliveryStatus, language: "ru" | "en" = "ru") {
   switch (status) {
     case "new":
-      return "Новое";
+      return language === "en" ? "New" : "Новое";
     case "read":
-      return "Прочитано";
+      return language === "en" ? "Read" : "Прочитано";
     case "hidden":
-      return "Скрыто";
+      return language === "en" ? "Hidden" : "Скрыто";
     case "snoozed":
-      return "Отложено";
+      return language === "en" ? "Snoozed" : "Отложено";
   }
 }
 
-export function notificationTopicLabel(topic: NotificationTopic) {
+export function notificationTopicLabel(topic: NotificationTopic, language: "ru" | "en" = "ru") {
   switch (topic) {
     case "habits":
-      return "Привычки";
+      return language === "en" ? "Habits" : "Привычки";
     case "diary":
-      return "Дневник";
+      return language === "en" ? "Diary" : "Дневник";
     case "forecast":
-      return "Биоритмы";
+      return language === "en" ? "Biorhythms" : "Биоритмы";
     case "transit":
-      return "Транзит";
+      return language === "en" ? "Transit" : "Транзит";
     case "analytics":
-      return "Аналитика";
+      return language === "en" ? "Analytics" : "Аналитика";
     case "reminders":
-      return "Оповещения";
+      return language === "en" ? "Alerts" : "Оповещения";
   }
 }
 

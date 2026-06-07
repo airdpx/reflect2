@@ -3,6 +3,7 @@ import type { AppActions, AppSelectors, AppState, TelegramConnectionStatus, Noti
 import { SelectControl, Toggle } from "../components/Common";
 import { buildNotificationFeed, notificationStatusLabel, notificationTone, notificationTopicLabel, resolveNotificationState } from "../lib/notifications";
 import { addDays, formatDate, fromKey, toKey } from "../lib/date";
+import { normalizeLanguage } from "../lib/i18n";
 
 const statusFilters: Array<"all" | NotificationDeliveryStatus> = ["all", "new", "read", "hidden", "snoozed"];
 
@@ -24,6 +25,7 @@ const channelLabels: Array<[keyof AppState["settings"]["notifications"]["channel
 ];
 
 export function NotificationsView({ state, selectors, actions }: { state: AppState; selectors: AppSelectors; actions: AppActions }) {
+  const language = normalizeLanguage(state.settings.language);
   const [filter, setFilter] = useState<(typeof statusFilters)[number]>("all");
   const [telegramStatus, setTelegramStatus] = useState<TelegramConnectionStatus | null>(null);
   const [telegramMessage, setTelegramMessage] = useState("");
@@ -69,7 +71,9 @@ export function NotificationsView({ state, selectors, actions }: { state: AppSta
         window.open(payload.connectUrl, "_blank", "noopener,noreferrer");
       }
       setTelegramConnectUrl(String(payload.connectUrl || ""));
-      setTelegramMessage("Откройте ссылку или нажмите кнопку ниже, затем в Telegram нажмите Start.");
+      setTelegramMessage(language === "en"
+        ? "Open the link or press the button below, then tap Start in Telegram."
+        : "Откройте ссылку или нажмите кнопку ниже, затем в Telegram нажмите Start.");
       setTelegramStatus((current) => ({
         connected: Boolean(payload.connected),
         botUsername: payload.botUsername || current?.botUsername || "",
@@ -95,7 +99,7 @@ export function NotificationsView({ state, selectors, actions }: { state: AppSta
       const payload = await response.json();
       if (!response.ok || payload.ok === false) throw new Error(payload.error || "Не удалось отключить Telegram");
       setTelegramStatus((current) => current ? { ...current, connected: false, revokedAt: new Date().toISOString() } : null);
-      setTelegramMessage("Telegram отключён.");
+      setTelegramMessage(language === "en" ? "Telegram disconnected." : "Telegram отключён.");
     } catch (error) {
       setTelegramMessage(error instanceof Error ? error.message : "Не удалось отключить Telegram");
     } finally {
@@ -109,19 +113,21 @@ export function NotificationsView({ state, selectors, actions }: { state: AppSta
         <div className="panel notifications-feed-panel">
           <div className="section-head">
             <div>
-              <h3>Оповещения</h3>
-              <p className="muted">Интерфейсные уведомления сейчас, внешние каналы и push-слоты на будущее.</p>
+              <h3>{language === "en" ? "Alerts" : "Оповещения"}</h3>
+              <p className="muted">{language === "en"
+                ? "In-app alerts now, external channels and push slots for the future."
+                : "Интерфейсные уведомления сейчас, внешние каналы и push-слоты на будущее."}</p>
             </div>
             <div className="badge-row">
-              <span className="badge">{unreadCount} новых</span>
-              <span className="badge">{snoozedCount} отложено</span>
-              <span className="badge">{hiddenCount} скрыто</span>
+              <span className="badge">{unreadCount} {language === "en" ? "new" : "новых"}</span>
+              <span className="badge">{snoozedCount} {language === "en" ? "snoozed" : "отложено"}</span>
+              <span className="badge">{hiddenCount} {language === "en" ? "hidden" : "скрыто"}</span>
             </div>
           </div>
           <div className="status-preview-strip">
             {statusFilters.map((status) => (
               <button key={status} className={filter === status ? "active" : ""} onClick={() => setFilter(status)}>
-                {status === "all" ? "Все" : notificationStatusLabel(status)}
+                {status === "all" ? (language === "en" ? "All" : "Все") : notificationStatusLabel(status, language)}
               </button>
             ))}
           </div>
@@ -134,19 +140,20 @@ export function NotificationsView({ state, selectors, actions }: { state: AppSta
                 status={resolveNotificationState(state, item).status}
                 snoozedUntil={resolveNotificationState(state, item).snoozedUntil}
                 selectedDate={state.selectedDate}
+                language={language}
               />
-            )) : <div className="empty">Пока нет уведомлений для выбранного фильтра.</div>}
+            )) : <div className="empty">{language === "en" ? "No notifications for the selected filter yet." : "Пока нет уведомлений для выбранного фильтра."}</div>}
           </div>
         </div>
 
         <div className="panel notifications-feed-panel">
           <div className="section-head">
             <div>
-              <h3>Браузерные уведомления</h3>
-              <p className="muted">Проверка permission и тестовый показ прямо в браузере.</p>
+              <h3>{language === "en" ? "Browser notifications" : "Браузерные уведомления"}</h3>
+              <p className="muted">{language === "en" ? "Check permission and trigger a browser test right here." : "Проверка permission и тестовый показ прямо в браузере."}</p>
             </div>
           </div>
-          <BrowserNotificationTools item={visible[0] || feed[0] || null} />
+          <BrowserNotificationTools item={visible[0] || feed[0] || null} language={language} />
         </div>
       </div>
 
@@ -186,20 +193,20 @@ export function NotificationsView({ state, selectors, actions }: { state: AppSta
               <span className="picker-label">Telegram</span>
               <div className="settings-row telegram-connection-row">
                 <span>
-                  <b>{telegramStatus?.connected ? "Подключён" : "Не подключён"}</b><br />
-                  <small className="muted">{telegramStatus?.botUsername ? `@${telegramStatus.botUsername}` : "Один бот для всех пользователей"}</small>
+                  <b>{telegramStatus?.connected ? (language === "en" ? "Connected" : "Подключён") : (language === "en" ? "Not connected" : "Не подключён")}</b><br />
+                  <small className="muted">{telegramStatus?.botUsername ? `@${telegramStatus.botUsername}` : (language === "en" ? "One bot for all users" : "Один бот для всех пользователей")}</small>
                 </span>
                 <span className="badge">{telegramStatus?.username ? `@${telegramStatus.username}` : telegramStatus?.chatId ? telegramStatus.chatId : "—"}</span>
               </div>
               <div className="quick-actions">
                 <button className={telegramStatus?.connected ? "btn ghost" : "btn primary"} onClick={() => void connectTelegram()} disabled={telegramBusy}>
-                  {telegramBusy ? "Готовлю ссылку..." : telegramStatus?.connected ? "Получить ссылку" : "Подключить Telegram"}
+                  {telegramBusy ? (language === "en" ? "Preparing link..." : "Готовлю ссылку...") : telegramStatus?.connected ? (language === "en" ? "Get link" : "Получить ссылку") : (language === "en" ? "Connect Telegram" : "Подключить Telegram")}
                 </button>
-                {telegramStatus?.connected ? <button className="btn ghost" onClick={() => void disconnectTelegram()} disabled={telegramBusy}>Отключить Telegram</button> : null}
+                {telegramStatus?.connected ? <button className="btn ghost" onClick={() => void disconnectTelegram()} disabled={telegramBusy}>{language === "en" ? "Disconnect Telegram" : "Отключить Telegram"}</button> : null}
               </div>
               {telegramConnectUrl ? (
                 <div className="telegram-connect-link">
-                  <small className="muted">Полная ссылка подключения</small>
+                  <small className="muted">{language === "en" ? "Full connect link" : "Полная ссылка подключения"}</small>
                   <a href={telegramConnectUrl} target="_blank" rel="noreferrer">{telegramConnectUrl}</a>
                   <div className="toolbar">
                     <button
@@ -207,14 +214,14 @@ export function NotificationsView({ state, selectors, actions }: { state: AppSta
                       onClick={() => navigator.clipboard.writeText(telegramConnectUrl).catch(() => undefined)}
                       type="button"
                     >
-                      Копировать ссылку
+                      {language === "en" ? "Copy link" : "Копировать ссылку"}
                     </button>
                     <button
                       className="btn ghost"
                       onClick={() => window.open(telegramConnectUrl, "_blank", "noopener,noreferrer")}
                       type="button"
                     >
-                      Открыть ещё раз
+                      {language === "en" ? "Open again" : "Открыть ещё раз"}
                     </button>
                   </div>
                 </div>
@@ -341,13 +348,15 @@ function NotificationCard({
   actions,
   status,
   snoozedUntil,
-  selectedDate
+  selectedDate,
+  language
 }: {
   item: NotificationItem;
   actions: AppActions;
   status: NotificationDeliveryStatus;
   snoozedUntil?: string;
   selectedDate: string;
+  language: "ru" | "en";
 }) {
   const tone = notificationTone(item.priority);
   return (
@@ -362,10 +371,10 @@ function NotificationCard({
         </div>
         <div className="notification-detail">{item.detail}</div>
         <div className="notification-meta">
-          <span>{notificationTopicLabel(item.topic)}</span>
-          <span>{statusMetaLabel(status)}</span>
-          {snoozedUntil ? <span>до {formatDate(snoozedUntil)}</span> : null}
-          <span>{item.channels.map((channel) => channelLabel(channel)).join(" · ")}</span>
+          <span>{notificationTopicLabel(item.topic, language)}</span>
+          <span>{statusMetaLabel(status, language)}</span>
+          {snoozedUntil ? <span>{language === "en" ? "until" : "до"} {formatDate(snoozedUntil)}</span> : null}
+          <span>{item.channels.map((channel) => channelLabel(channel, language)).join(" · ")}</span>
         </div>
       </div>
       <div className="notification-actions">
@@ -374,15 +383,15 @@ function NotificationCard({
           if (item.targetDate) actions.setSelectedDate(item.targetDate);
           actions.setNotificationState(item.id, "read");
         }}>{item.actionLabel}</button>
-        <button className="btn ghost" onClick={() => actions.setNotificationState(item.id, "read")}>Прочитано</button>
-        <button className="btn ghost" onClick={() => actions.setNotificationState(item.id, "hidden")}>Скрыть</button>
-        <button className="btn ghost" onClick={() => actions.setNotificationState(item.id, "snoozed", offsetTomorrowKey(selectedDate))}>На завтра</button>
+        <button className="btn ghost" onClick={() => actions.setNotificationState(item.id, "read")}>{language === "en" ? "Read" : "Прочитано"}</button>
+        <button className="btn ghost" onClick={() => actions.setNotificationState(item.id, "hidden")}>{language === "en" ? "Hide" : "Скрыть"}</button>
+        <button className="btn ghost" onClick={() => actions.setNotificationState(item.id, "snoozed", offsetTomorrowKey(selectedDate))}>{language === "en" ? "Tomorrow" : "На завтра"}</button>
       </div>
     </div>
   );
 }
 
-function BrowserNotificationTools({ item }: { item: NotificationItem | null }) {
+function BrowserNotificationTools({ item, language }: { item: NotificationItem | null; language: "ru" | "en" }) {
   const canUse = typeof window !== "undefined" && "Notification" in window;
   const [permission, setPermission] = useState<string>(canUse ? Notification.permission : "unsupported");
 
@@ -394,51 +403,51 @@ function BrowserNotificationTools({ item }: { item: NotificationItem | null }) {
 
   function sendTest() {
     if (!canUse || permission !== "granted") return;
-    const title = item?.title || "Оповещение";
-    const body = item?.message || "Тестовое браузерное уведомление.";
+    const title = item?.title || (language === "en" ? "Notification" : "Оповещение");
+    const body = item?.message || (language === "en" ? "Test browser notification." : "Тестовое браузерное уведомление.");
     new Notification(title, { body });
   }
 
   return (
     <div className="notification-browser-card">
       <div className="settings-row">
-        <span><b>Permission</b><br /><small className="muted">{permission}</small></span>
-        <span className="badge">{canUse ? "доступно" : "недоступно"}</span>
+        <span><b>{language === "en" ? "Permission" : "Разрешение"}</b><br /><small className="muted">{permission}</small></span>
+        <span className="badge">{canUse ? (language === "en" ? "available" : "доступно") : (language === "en" ? "unavailable" : "недоступно")}</span>
       </div>
       <div className="quick-actions">
-        <button className="btn primary" onClick={requestPermission}>Разрешить</button>
-        <button className="btn ghost" onClick={sendTest}>Тест</button>
+        <button className="btn primary" onClick={requestPermission}>{language === "en" ? "Allow" : "Разрешить"}</button>
+        <button className="btn ghost" onClick={sendTest}>{language === "en" ? "Test" : "Тест"}</button>
       </div>
-      <p className="muted">Если permission запрещён, в приложении останется мягкий интерфейсный центр уведомлений.</p>
+      <p className="muted">{language === "en" ? "If permission is denied, the app still keeps a soft in-app notification center." : "Если permission запрещён, в приложении останется мягкий интерфейсный центр уведомлений."}</p>
     </div>
   );
 }
 
-function statusMetaLabel(status: NotificationDeliveryStatus) {
+function statusMetaLabel(status: NotificationDeliveryStatus, language: "ru" | "en" = "ru") {
   switch (status) {
     case "new":
-      return "Новое";
+      return language === "en" ? "New" : "Новое";
     case "read":
-      return "Прочитано";
+      return language === "en" ? "Read" : "Прочитано";
     case "hidden":
-      return "Скрыто";
+      return language === "en" ? "Hidden" : "Скрыто";
     case "snoozed":
-      return "Отложено";
+      return language === "en" ? "Snoozed" : "Отложено";
   }
 }
 
-function channelLabel(channel: NotificationItem["channels"][number]) {
+function channelLabel(channel: NotificationItem["channels"][number], language: "ru" | "en" = "ru") {
   switch (channel) {
     case "inApp":
-      return "Интерфейс";
+      return language === "en" ? "In-app" : "Интерфейс";
     case "browser":
-      return "Браузер";
+      return language === "en" ? "Browser" : "Браузер";
     case "email":
       return "Email";
     case "telegram":
       return "Telegram";
     case "push":
-      return "Push";
+      return language === "en" ? "Push" : "Push";
   }
 }
 

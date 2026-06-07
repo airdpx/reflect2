@@ -4,7 +4,7 @@ import { useEffect } from "react";
 import type { Language } from "../types";
 import { normalizeLanguage } from "../lib/i18n";
 
-const uiTranslations: Record<string, string> = {
+const ruToEnTranslations: Record<string, string> = {
   "Создать привычку": "Create habit",
   "Привычки на день": "Daily habits",
   "Быстрая отметка без лишних шагов.": "Quick check-ins without extra steps.",
@@ -40,6 +40,13 @@ const uiTranslations: Record<string, string> = {
   "Видимые элементы": "Visible elements",
   "Иконки отметок": "Check-in icons",
   "Показывать выходные": "Show weekends",
+  "Встроенная лента и подсказки внутри приложения": "Built-in feed and hints inside the app",
+  "Web Notifications в текущем браузере": "Web Notifications in the current browser",
+  "Ежедневные и еженедельные письма": "Daily and weekly emails",
+  "Сообщения через бота": "Messages through the bot",
+  "Для будущего мобильного приложения": "For the future mobile app",
+  "Что доставлять и через какие каналы.": "What to deliver and through which channels.",
+  "Тихие часы, частота и приоритеты доставки.": "Quiet hours, frequency and delivery priorities.",
   "Все категории": "All categories",
   "Выполнено": "Done",
   "Частично": "Partial",
@@ -72,11 +79,270 @@ const uiTranslations: Record<string, string> = {
   "Список аккаунтов, полные email, привычки и отметки в календаре.": "Account list, full email, habits and calendar check-ins.",
   "Глобальные настройки": "Global settings",
   "Контакты": "Contacts",
-  "О проекте": "About"
+  "О проекте": "About",
+  "Фон": "Background",
+  "Панели": "Panels",
+  "Текст": "Text",
+  "Акцент": "Accent",
+  "Выполнено": "Done",
+  "Частично": "Partial",
+  "Пропуск": "Skip",
+  "Не выполнено": "Missed",
+  "Запланировано": "Planned",
+  "Классика": "Classic",
+  "Неоновая доска": "Neon board",
+  "Чек-лист недели": "Weekly checklist",
+  "Сигнальные карточки": "Signal cards",
+  "Мягкий": "Soft",
+  "Мини": "Mini",
+  "Дневник": "Diary",
+  "Таблица": "Table",
+  "Контур": "Outline",
+  "Сланец": "Slate",
+  "Нейтральный": "Neutral",
+  "Компактные плашки": "Compact chips",
+  "Стеклянная сетка": "Glass grid",
+  "Тепло-акцент": "Warm accent",
+  "Гибридное кольцо": "Hybrid ring",
+  "Как привычка": "Habit-like",
+  "Приглушённые": "Muted",
+  "Моно": "Mono",
+  "Чередование": "Alternating",
+  "Новый пароль администратора": "New admin password",
+  "Сменить пароль администратора": "Change admin password",
+  "Экспорт базы в JSON": "Export database as JSON",
+  "Экспорт базы в SQL": "Export database as SQL",
+  "Загружаю пользователей...": "Loading users...",
+  "Имя": "Name",
+  "Привычки": "Habits",
+  "Отметки": "Check-ins",
+  "Статус": "Status",
+  "Действия": "Actions",
+  "Администратор": "Administrator",
+  "Пользователь": "User",
+  "Пользователи пока не загружены.": "No users loaded yet.",
+  "Текущий администратор:": "Current administrator:",
+  "Глобальные настройки": "Global settings",
+  "Применяются для новых пользователей после регистрации.": "Applied to new users after registration.",
+  "Взять текущие как дефолт": "Use current as default",
+  "Сохранить дефолт": "Save defaults",
+  "Тема": "Theme",
+  "Плотность": "Density",
+  "Стартовый экран": "Start screen",
+  "Тема календаря": "Calendar theme",
+  "Режим таблицы": "Table mode",
+  "Цвет привычек": "Habit color",
+  "История календаря": "Calendar history",
+  "Правая панель": "Right panel",
+  "Показывать выходные": "Show weekends",
+  "Биоритмы": "Biorhythms",
+  "Оповещения": "Alerts",
+  "Сегодня": "Today",
+  "Дневник": "Diary",
+  "Прогноз": "Forecast",
+  "Транзит": "Transit",
+  "Можно настроить базовую тему, стартовый экран и важные блоки по умолчанию.": "You can set the base theme, start screen and important blocks by default.",
+  "Почта для контактов": "Contact email",
+  "Адрес, на который приходят сообщения с формы контактов.": "Address that receives messages from the contact form.",
+  "Email получателя": "Recipient email",
+  "Сохраняю...": "Saving...",
+  "Сохранить email": "Save email",
+  "На странице контактов будет использован именно этот адрес.": "This address will be used on the Contacts page.",
+  "Один бот для всех пользователей системы. Привязка через /start.": "One bot for all system users. Link via /start.",
+  "Включить Telegram": "Enable Telegram",
+  "Сохраняю...": "Saving...",
+  "Сохранить": "Save",
+  "Проверить": "Check",
+  "Снять webhook": "Remove webhook",
+  "Отправить тест": "Send test",
+  "Отключить": "Disable",
+  "Статус": "Status",
+  "Ключ для отправки формы контактов. Полный секрет не показывается.": "Key for sending contact form messages. The full secret is not shown.",
+  "Resend API key сохранён.": "Resend API key saved.",
+  "Ключ очищен, теперь будет использован fallback из env, если он задан.": "Key cleared; env fallback will be used if available.",
+  "Пока нет уведомлений для выбранного фильтра.": "No notifications for the selected filter yet.",
+  "Все": "All",
+  "Новых": "New",
+  "Отложено": "Snoozed",
+  "Скрыто": "Hidden",
+  "Оповещения": "Alerts",
+  "Интерфейсные уведомления сейчас, внешние каналы и push-слоты на будущее.": "In-app notifications now, external channels and push slots for the future.",
+  "Каналы": "Channels",
+  "Что доставлять и через какие каналы.": "What to deliver and through which channels.",
+  "Включить систему": "Enable system",
+  "В интерфейсе": "In-app",
+  "Браузер": "Browser",
+  "Email": "Email",
+  "Telegram": "Telegram",
+  "Push": "Push",
+  "Email для дайджестов": "Digest email",
+  "Подключён": "Connected",
+  "Не подключён": "Not connected",
+  "Один бот для всех пользователей": "One bot for all users",
+  "Полная ссылка подключения": "Full connect link",
+  "Копировать ссылку": "Copy link",
+  "Открыть ещё раз": "Open again",
+  "Тихие часы сейчас": "Quiet hours now",
+  "активны": "active",
+  "не активны": "inactive",
+  "Настроение": "Mood",
+  "Энергия": "Energy",
+  "Стресс": "Stress",
+  "Заметки": "Notes",
+  "Тема": "Theme",
+  "Период сетки": "Grid period",
+  "Отображается:": "Shown:",
+  "История календаря": "Calendar history",
+  "Сохраняю...": "Saving...",
+  "Открыть сегодня": "Open today",
+  "Открыть дневник": "Open diary",
+  "Проверить браузер": "Check browser",
+  "Тихие часы сейчас": "Quiet hours now",
+  "мягкая пауза": "soft pause",
+  "доставка открыта": "delivery open",
+  "Тихие часы": "Quiet hours",
+  "Частота": "Frequency",
+  "Сразу": "Instant",
+  "Ежедневно": "Daily",
+  "Еженедельно": "Weekly",
+  "Дайджест": "Digest",
+  "День недели": "Weekday",
+  "Пн": "Mon",
+  "Вт": "Tue",
+  "Ср": "Wed",
+  "Чт": "Thu",
+  "Пт": "Fri",
+  "Сб": "Sat",
+  "Вс": "Sun",
+  "Только важное": "Important only",
+  "Начало тишины": "Quiet hours start",
+  "Конец тишины": "Quiet hours end",
+  "Последняя проверка: сегодня": "Last check: today",
+  "Последняя проверка:": "Last check:",
+  "Обычная": "Basic",
+  "Числовая": "Numeric",
+  "Несколько раз в день": "Several times a day",
+  "Не делать": "Avoid",
+  "Самонаблюдение": "Reflection",
+  "Простая отметка: сделал или не сделал.": "Simple check-in: done or not done.",
+  "Подходит для шагов, минут, страниц или любого числа.": "Fits steps, minutes, pages or any number.",
+  "Несколько коротких повторов в день, например вода.": "Several short repeats a day, like water intake.",
+  "Успех дня — не сделать нежелательное действие.": "Success means not doing the unwanted action.",
+  "Запись или заметка считается выполнением.": "A note or entry counts as completed.",
+  "Спокойное движение без давления.": "Gentle movement without pressure.",
+  "Простая ежедневная привычка.": "Simple daily habit.",
+  "Отметить спокойный режим сна или подъёма.": "Mark a calm sleep or wake-up routine.",
+  "Без чисел, просто факт хорошего режима.": "No numbers, just the fact of a good routine.",
+  "Страницы, минуты или короткая сессия.": "Pages, minutes or a short session.",
+  "Числовая цель: например 20 минут или страниц.": "Numeric goal: for example 20 minutes or pages.",
+  "Короткая заметка о дне.": "A short note about the day.",
+  "Несколько минут тишины или дыхания.": "A few minutes of silence or breathing.",
+  "Числовая цель в минутах.": "Numeric goal in minutes.",
+  "Тренировка или короткая активность.": "Workout or short activity.",
+  "По умолчанию три раза в неделю.": "Default: three times a week.",
+  "Отметить день без нежелательной привычки.": "Mark a day without the unwanted habit.",
+  "Успех — нежелательное действие не произошло.": "Success: the unwanted action did not happen.",
+  "Пресет отображения": "Display preset",
+  "Простой": "Simple",
+  "Сбалансированный": "Balanced",
+  "Журнал": "Journal",
+  "Аналитический": "Analytical",
+  "Фокус": "Focus",
+  "Стандартная": "standard",
+  "Комфортная": "comfortable",
+  "Компактная": "compact",
+  "Имя бота": "Bot username",
+  "Токен бота": "Bot token",
+  "Секрет webhook": "Webhook secret",
+  "Адрес получателя": "Recipient email",
+  "Ключ API": "API key",
+  "Разрешение": "Permission",
+  "Вебхук": "Webhook",
+  "Почта для дайджестов": "Digest email",
+  "Источник": "Source",
+  "Подключено пользователей": "Connected users",
+  "Последняя доставка": "Last delivery",
+  "admin": "Админ",
+  "active": "Активный",
+  "blocked": "Заблокированный",
+  "JSON": "JSON",
+  "SQL": "SQL",
+  "Текущая отметка": "Current check-in",
+  "нет отметки": "no check-in",
+  "нет": "none",
+  "Тип:": "Type:",
+  "Цель:": "Goal:",
+  "Статус:": "Status:",
+  "Серия:": "Streak:",
+  "Лучшая серия:": "Best streak:",
+  "Последнее:": "Last:",
+  "Значение / цель": "Value / goal",
+  "Повторы / цель": "Repeats / goal",
+  "Последние отметки": "Recent check-ins",
+  "без заметки": "no note",
+  "Заметка к отметке": "Check-in note",
+  "Настроение в этой отметке": "Mood in this check-in",
+  "История появится после первых отметок.": "History will appear after the first check-ins.",
+  "привычек выполнено": "habits completed",
+  "Заметки на этот день пока нет.": "No notes for this day yet.",
+  "Открыть": "Open",
+  "Настроение, энергия и стресс за день.": "Mood, energy and stress for the day.",
+  "Состояние сохраняется в дневнике за выбранную дату.": "The state is saved in the diary for the selected date.",
+  "Дата наблюдения": "Observation date",
+  "дней с выполнения": "days since completion",
+  "внимание": "attention",
+  "Детали": "Details",
+  "Редактировать": "Edit",
+  "Последняя серия": "Last streak",
+  "без выполнения": "without completion",
+  "Пока нет истории выполнения.": "No completion history yet.",
+  "Добавьте запись за": "Add a note for",
+  "Это поможет сохранить контекст дня без перегруза.": "This helps preserve the day's context without clutter.",
+  "Короткая заметка": "Short note",
+  "Открыть обзор": "Open overview",
+  "Можно включить Web Notifications для быстрых напоминаний.": "You can enable Web Notifications for quick reminders.",
+  "Разрешение запрашивается только в браузере и может быть отключено в любой момент.": "Permission is requested only in the browser and can be turned off at any time.",
+  "Проверить браузер": "Check browser",
+  "Здоровье": "Health",
+  "Состояние": "State",
+  "Быт": "Home",
+  "Фокус": "Focus",
+  "Развитие": "Growth",
+  "Самонаблюдение": "Self-observation",
+  "Сон": "Sleep",
+  "Спорт": "Sport",
+  "Питание": "Nutrition",
+  "Работа": "Work",
+  "Отдых": "Rest",
+  "Отношения": "Relationships",
+  "Витамины": "Vitamins",
+  "Ежедневный приём без лишней сложности.": "Daily intake without extra complexity.",
+  "Мягкий шаблон для важных мелочей.": "A gentle template for important small things.",
+  "Фрукты": "Fruit",
+  "Добавить порцию фруктов в течение дня.": "Add a portion of fruit during the day.",
+  "Подходит для питания и рутины.": "Fits nutrition and routine.",
+  "Йога": "Yoga",
+  "Спокойная практика для тела и внимания.": "A calm practice for body and attention.",
+  "Минуты, сессии или мягкий ритуал.": "Minutes, sessions or a gentle ritual.",
+  "Тренировка": "Workout",
+  "Силовая, кардио или любая активная сессия.": "Strength, cardio or any active session.",
+  "Универсальный шаблон для спорта.": "A universal template for sport.",
+  "Зарядка": "Warm-up",
+  "Короткая разминка для старта дня.": "A short warm-up to start the day.",
+  "Лёгкий шаблон на утро.": "A light template for the morning.",
+  "Покормить животное": "Feed pet",
+  "Домашний ритуал без лишней сложности.": "A home ritual without extra complexity.",
+  "Подходит для повторов в течение дня.": "Fits repeats throughout the day.",
+  "Вода": "Water",
+  "Несколько мягких отметок в течение дня.": "Several gentle check-ins throughout the day.",
+  "Хороший шаблон для привычек с повторениями.": "A good template for repeating habits.",
+  "Прогулка": "Walk"
 };
 
-const translatedNodes = new WeakMap<Text, string>();
-const translatedAttributes = new WeakMap<Element, Record<string, string>>();
+const enToRuTranslations: Record<string, string> = Object.fromEntries(
+  Object.entries(ruToEnTranslations).map(([ru, en]) => [en, ru])
+) as Record<string, string>;
+
 const attributes = ["placeholder", "title", "aria-label"];
 
 function translateRoot(root: ParentNode, language: Language) {
@@ -85,30 +351,28 @@ function translateRoot(root: ParentNode, language: Language) {
   while (walker.nextNode()) textNodes.push(walker.currentNode as Text);
 
   for (const node of textNodes) {
-    const original = translatedNodes.get(node) || node.nodeValue || "";
-    if (!translatedNodes.has(node)) translatedNodes.set(node, original);
-    const trimmed = original.trim();
+    const current = node.nodeValue || "";
+    const trimmed = current.trim();
     if (!trimmed) continue;
-    if (language === "en" && uiTranslations[trimmed]) {
-      const nextValue = original.replace(trimmed, uiTranslations[trimmed]);
+    const nextText = language === "en" ? ruToEnTranslations[trimmed] : enToRuTranslations[trimmed];
+    if (nextText && nextText !== trimmed) {
+      const nextValue = current.replace(trimmed, nextText);
       if (node.nodeValue !== nextValue) node.nodeValue = nextValue;
-    } else if (language === "ru") {
-      if (node.nodeValue !== original) node.nodeValue = original;
     }
   }
 
   const elements = root instanceof Element ? [root, ...Array.from(root.querySelectorAll("*"))] : Array.from(root.querySelectorAll("*"));
   for (const element of elements) {
-    const originalAttrs = translatedAttributes.get(element) || {};
     for (const attr of attributes) {
       const current = element.getAttribute(attr);
       if (!current) continue;
-      if (!originalAttrs[attr]) originalAttrs[attr] = current;
-      const original = originalAttrs[attr];
-      if (language === "en" && uiTranslations[original] && current !== uiTranslations[original]) element.setAttribute(attr, uiTranslations[original]);
-      if (language === "ru" && current !== original) element.setAttribute(attr, original);
+      const trimmed = current.trim();
+      const nextText = language === "en" ? ruToEnTranslations[trimmed] : enToRuTranslations[trimmed];
+      if (nextText && nextText !== trimmed) {
+        const nextValue = current.replace(trimmed, nextText);
+        if (current !== nextValue) element.setAttribute(attr, nextValue);
+      }
     }
-    if (Object.keys(originalAttrs).length) translatedAttributes.set(element, originalAttrs);
   }
 }
 
@@ -117,6 +381,8 @@ export function RuntimeTranslator({ language, selector = ".app" }: { language: L
     const normalized = normalizeLanguage(language);
     const root = document.querySelector(selector);
     if (!root) return;
+    document.documentElement.lang = normalized;
+    document.documentElement.dataset.language = normalized;
     translateRoot(root, normalized);
     const observer = new MutationObserver(() => translateRoot(root, normalized));
     observer.observe(root, { childList: true, subtree: true, characterData: true, attributes: true });
