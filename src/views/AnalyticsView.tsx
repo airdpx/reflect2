@@ -4,10 +4,12 @@ import { addDays, fromKey, rangeDates, todayKey, toKey, formatDate } from "../li
 import { statusMeta } from "../lib/defaults";
 import { normalizeLanguage } from "../lib/i18n";
 
-export function StatsPanel({ selectors, state }: { selectors: AppSelectors; state: AppState }) {
+type StatsPanelMode = "compact" | "full";
+
+export function StatsPanel({ selectors, state, mode = "full" }: { selectors: AppSelectors; state: AppState; mode?: StatsPanelMode }) {
   const language = normalizeLanguage(state.settings.language);
   const text = language === "en" ? {
-    title: "Quick Analytics",
+    title: "Digital Analytics",
     intro: "A compact readout of your current rhythm: how steadily habits are moving, where the strongest streak is, and which habits need a softer look.",
     emptyTitle: "Analytics will appear after your first check-ins",
     emptyText: "No zeros as a judgment here. Make a few gentle check-ins, and the statistics will become useful.",
@@ -22,12 +24,14 @@ export function StatsPanel({ selectors, state }: { selectors: AppSelectors; stat
     signals: "Attention flags",
     signalsHint: "Habits that crossed their soft attention threshold.",
     currentEmpty: "—",
-    chartTitle: "Habit Chart",
+    chartTitle: "Habit Trend Map",
     chartHint: "Select several habits to see them on one wave chart with status icons by date.",
     chooseHabitTitle: "Choose at least one habit",
-    chooseHabitText: "The chart becomes clearer when at least one line is visible."
+    chooseHabitText: "The chart becomes clearer when at least one line is visible.",
+    insightsTitle: "Habit snapshot",
+    insightsHint: "These rows show which habits are steady, which ones are slipping, and where the next gentle nudge would help."
   } : {
-    title: "Краткая аналитика",
+    title: "Цифровая аналитика",
     intro: "Короткий срез текущего ритма: как держатся привычки, где сейчас самая сильная серия и какие привычки просят мягкого внимания.",
     emptyTitle: "Аналитика появится после первых отметок",
     emptyText: "Пока здесь не будет нулей как оценки. Сделайте несколько спокойных отметок, и статистика станет полезной.",
@@ -42,11 +46,39 @@ export function StatsPanel({ selectors, state }: { selectors: AppSelectors; stat
     signals: "Сигналы внимания",
     signalsHint: "Привычки, которые вышли за мягкий порог внимания.",
     currentEmpty: "—",
-    chartTitle: "График привычек",
+    chartTitle: "Карта ритмов",
     chartHint: "Выбери несколько привычек, чтобы видеть их на одном волновом графике с иконками статусов на датах.",
     chooseHabitTitle: "Выбери хотя бы одну привычку",
-    chooseHabitText: "График станет наглядным, когда здесь появится хотя бы одна линия."
+    chooseHabitText: "График станет наглядным, когда здесь появится хотя бы одна линия.",
+    insightsTitle: "Снимок привычек",
+    insightsHint: "Эти строки показывают, где ритм устойчивый, где он проседает и куда полезнее дать мягкий толчок."
   };
+  const insightRows = useMemo(() => {
+    const current = selectors.activeHabits
+      .map((habit) => ({ habit, stats: selectors.calculateStats(habit) }))
+      .sort((a, b) => {
+        const priorityA = a.stats.daysSince ?? 999;
+        const priorityB = b.stats.daysSince ?? 999;
+        return priorityB - priorityA || a.stats.completion - b.stats.completion;
+      });
+    return current.slice(0, mode === "compact" ? 0 : 5).map(({ habit, stats }) => ({
+      habit,
+      stats,
+      tone: stats.completion >= 80 ? "done" : stats.completion >= 55 ? "accent" : stats.completion >= 35 ? "warm" : "warn",
+      note: language === "en"
+        ? stats.daysSince === null
+          ? "No successful check-ins yet"
+          : stats.daysSince >= habit.warningThreshold
+            ? `${stats.daysSince} days since the last win`
+            : `${stats.streak} day${stats.streak === 1 ? "" : "s"} in a row`
+        : stats.daysSince === null
+          ? "Пока нет успешных отметок"
+          : stats.daysSince >= habit.warningThreshold
+            ? `${stats.daysSince} дней с последнего успеха`
+            : `${stats.streak} дн${stats.streak === 1 ? "ь" : stats.streak < 5 ? "я" : "ей"} подряд`
+    }));
+  }, [language, mode, selectors]);
+
   if (!selectors.hasAnyLogs) {
     return (
       <div className="panel analytics-summary-panel analytics-summary-panel-prominent">
@@ -66,14 +98,28 @@ export function StatsPanel({ selectors, state }: { selectors: AppSelectors; stat
             [text.current, text.currentHint],
             [text.best, text.bestHint],
             [text.signals, text.signalsHint]
-          ].map(([label, hint]) => (
-            <div className="analytics-summary-card analytics-summary-card-empty" key={label}>
+          ].map(([label, hint], index) => (
+            <div
+              className={`analytics-summary-card analytics-summary-card-empty analytics-summary-card-${["done", "accent", "warm", "warn"][index]}`}
+              key={label}
+            >
               <b>{text.currentEmpty}</b>
               <span>{label}</span>
               <small>{hint}</small>
             </div>
           ))}
         </div>
+        {mode === "full" ? (
+          <div className="analytics-insight-empty">
+            <strong>{text.insightsTitle}</strong>
+            <span>{text.insightsHint}</span>
+            <div className="analytics-insight-empty-points">
+              <span>{language === "en" ? "Average rhythm is the shared completion across active habits." : "Средний ритм — это общий процент выполнения активных привычек."}</span>
+              <span>{language === "en" ? "Current streak shows where momentum already exists." : "Текущая серия показывает, где уже есть живой импульс."}</span>
+              <span>{language === "en" ? "Attention flags surface habits that are past a soft threshold." : "Сигналы внимания показывают привычки, которые вышли за мягкий порог."}</span>
+            </div>
+          </div>
+        ) : null}
       </div>
     );
   }
@@ -117,6 +163,35 @@ export function StatsPanel({ selectors, state }: { selectors: AppSelectors; stat
           <small>{text.signalsHint}</small>
         </div>
       </div>
+      {mode === "full" ? (
+        <div className="analytics-insight-list">
+          <div className="section-head analytics-insight-head">
+            <div>
+              <h4>{text.insightsTitle}</h4>
+              <p className="muted">{text.insightsHint}</p>
+            </div>
+          </div>
+          <div className="analytics-insight-rows">
+            {insightRows.map(({ habit, stats, tone, note }) => (
+              <div className={`analytics-insight-row analytics-insight-row-${tone}`} key={habit.id}>
+                <div className="analytics-insight-left">
+                  <span className="analytics-insight-icon" style={{ background: habit.color }}>{habit.icon}</span>
+                  <div>
+                    <strong>{habit.title}</strong>
+                    <span>{habit.category || (language === "en" ? "No category" : "Без категории")}</span>
+                  </div>
+                </div>
+                <div className="analytics-insight-metrics">
+                  <span><b>{stats.completion}%</b>{language === "en" ? " rhythm" : " выполнение"}</span>
+                  <span><b>{stats.streak}</b>{language === "en" ? " current" : " текущая"}</span>
+                  <span><b>{stats.bestStreak}</b>{language === "en" ? " best" : " лучший"}</span>
+                  <span>{note}</span>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      ) : null}
     </div>
   );
 }
@@ -145,19 +220,19 @@ export function AnalyticsView({ state, selectors, actions }: { state: AppState; 
   if (!selectors.hasAnyLogs) {
     return (
       <section className="stack">
-        <StatsPanel selectors={selectors} state={state} />
+        <StatsPanel selectors={selectors} state={state} mode="full" />
       </section>
     );
   }
 
   return (
     <section className="stack">
-      <StatsPanel selectors={selectors} state={state} />
-      <div className="panel analytics-wave-panel">
+      <StatsPanel selectors={selectors} state={state} mode="full" />
+      <div className="panel analytics-wave-panel analytics-wave-panel-prominent">
         <div className="section-head">
           <div>
-            <h3>{language === "en" ? "Habit Chart" : "График привычек"}</h3>
-            <p className="muted">{language === "en" ? "Select several habits to see them on one wave chart with status icons by date." : "Выбери несколько привычек, чтобы видеть их на одном волновом графике с иконками статусов на датах."}</p>
+            <h3>{language === "en" ? "Habit Trend Map" : "Карта ритмов"}</h3>
+            <p className="muted">{language === "en" ? "The wave chart stays below as a detail view. The report above is the new analytics layer." : "Волновой график остался ниже как детальный слой. Новый слой аналитики — это отчет выше."}</p>
           </div>
         </div>
         <div className="analytics-habit-picks">

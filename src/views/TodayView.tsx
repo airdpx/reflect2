@@ -78,7 +78,7 @@ export function TodayView({
   if (isTodayBlockVisible("forecast")) rightPanels.push(<TodayForecastPanel key="forecast" state={state} actions={actions} />);
   if (isTodayBlockVisible("numerology")) rightPanels.push(<TodayNumerologyPanel key="numerology" state={state} />);
   if (isTodayBlockVisible("transit")) rightPanels.push(<TransitPanel key="transit" state={state} />);
-  if (isTodayBlockVisible("analytics")) rightPanels.push(<StatsPanel key="analytics" selectors={selectors} state={state} />);
+  if (isTodayBlockVisible("analytics")) rightPanels.push(<StatsPanel key="analytics" selectors={selectors} state={state} mode="compact" />);
 
   if (!rightPanels.length || todayLayout === "single") {
     return <div className="stack">{leftColumn}{rightPanels.length ? <section className="stack observation-column">{rightPanels}</section> : null}</div>;
