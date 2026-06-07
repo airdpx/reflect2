@@ -14,13 +14,13 @@
   "dependencies": {
     "@prisma/adapter-pg": "^6.14.0",
     "@prisma/client": "^6.14.0",
-    "next": "^16.3.0-canary.37",
+    "next": "^16.2.7",
     "pg": "^8.12.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0"
   },
   "devDependencies": {
-    "@next/swc-wasm-nodejs": "^15.5.18",
+    "@next/swc-wasm-nodejs": "^16.2.7",
     "@types/node": "^22.0.0",
     "@types/pg": "^8.11.6",
     "@types/react": "^19.0.0",

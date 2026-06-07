@@ -3414,6 +3414,86 @@ button {
   margin-top: 0;
 }
 
+.analytics-summary-panel {
+  display: grid;
+  gap: 12px;
+}
+
+.analytics-summary-intro {
+  margin: -2px 0 0;
+  max-width: 72ch;
+}
+
+.analytics-summary-banner {
+  display: grid;
+  gap: 4px;
+  padding: 13px 14px;
+  border: 1px solid color-mix(in srgb, var(--line) 72%, transparent);
+  border-radius: var(--radius);
+  background:
+    linear-gradient(180deg, color-mix(in srgb, var(--accent) 10%, transparent), transparent 38%),
+    color-mix(in srgb, var(--surface-soft) 84%, transparent);
+}
+
+.analytics-summary-banner strong {
+  font-size: 14px;
+  color: var(--text);
+}
+
+.analytics-summary-banner span {
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+.analytics-summary-banner-empty {
+  background:
+    linear-gradient(180deg, color-mix(in srgb, var(--accent) 7%, transparent), transparent 42%),
+    color-mix(in srgb, var(--surface-soft) 88%, transparent);
+}
+
+.analytics-summary-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.analytics-summary-card {
+  display: grid;
+  gap: 4px;
+  min-height: 124px;
+  padding: 13px 14px;
+  border-radius: var(--radius);
+  border: 1px solid var(--line);
+  background: var(--surface);
+}
+
+.analytics-summary-card b {
+  font-size: 28px;
+  line-height: 1;
+  color: var(--text);
+}
+
+.analytics-summary-card span {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.analytics-summary-card small {
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.45;
+}
+
+.analytics-summary-card-empty {
+  opacity: 0.82;
+}
+
+.analytics-summary-card-empty b {
+  color: var(--accent);
+}
+
 .stats {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -7639,9 +7719,27 @@ body:has(.theme-custom) { background: #111827; }
     gap: 8px;
   }
 
+  .analytics-summary-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+  }
+
   .stat {
     min-height: 74px;
     padding: 10px;
+  }
+
+  .analytics-summary-card {
+    min-height: 110px;
+    padding: 11px 12px;
+  }
+
+  .analytics-summary-card b {
+    font-size: 23px;
+  }
+
+  .analytics-summary-banner {
+    padding: 11px 12px;
   }
 
   .stat strong {
@@ -8256,6 +8354,10 @@ body:has(.theme-custom) { background: #111827; }
   .footer-copy {
     font-size: 10px;
     font-weight: 600;
+  }
+
+  .analytics-summary-grid {
+    grid-template-columns: 1fr;
   }
 
   .footer-links {

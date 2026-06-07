@@ -1,6 +1,9 @@
 import { notFound } from "next/navigation";
 import { StaticPageShell } from "../../../src/components/StaticPageShell";
 
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 type ArticleDraft = {
   title: string;
   intro: string;

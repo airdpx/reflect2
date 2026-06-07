@@ -8,24 +8,40 @@ export function StatsPanel({ selectors, state }: { selectors: AppSelectors; stat
   const language = normalizeLanguage(state.settings.language);
   const text = language === "en" ? {
     title: "Quick Analytics",
+    intro: "A compact readout of your current rhythm: how steadily habits are moving, where the strongest streak is, and which habits need a softer look.",
     emptyTitle: "Analytics will appear after your first check-ins",
     emptyText: "No zeros as a judgment here. Make a few gentle check-ins, and the statistics will become useful.",
-    completion: "completion",
-    current: "current",
-    best: "best",
-    signals: "signals",
+    summaryTitle: "What this means",
+    summaryFallback: "Add a few check-ins and the summary will explain your rhythm in plain language.",
+    completion: "Average rhythm",
+    completionHint: "Average completion across active habits for the selected period.",
+    current: "Current streak",
+    currentHint: "The longest ongoing streak among active habits right now.",
+    best: "Best streak",
+    bestHint: "The strongest streak recorded in the selected history window.",
+    signals: "Attention flags",
+    signalsHint: "Habits that crossed their soft attention threshold.",
+    currentEmpty: "—",
     chartTitle: "Habit Chart",
     chartHint: "Select several habits to see them on one wave chart with status icons by date.",
     chooseHabitTitle: "Choose at least one habit",
     chooseHabitText: "The chart becomes clearer when at least one line is visible."
   } : {
     title: "Краткая аналитика",
+    intro: "Короткий срез текущего ритма: как держатся привычки, где сейчас самая сильная серия и какие привычки просят мягкого внимания.",
     emptyTitle: "Аналитика появится после первых отметок",
     emptyText: "Пока здесь не будет нулей как оценки. Сделайте несколько спокойных отметок, и статистика станет полезной.",
-    completion: "выполнение",
-    current: "текущая",
-    best: "лучшая",
-    signals: "сигналы",
+    summaryTitle: "Что это значит",
+    summaryFallback: "Сделайте несколько отметок, и блок начнёт объяснять ритм дня простым языком.",
+    completion: "Средний ритм",
+    completionHint: "Средний процент выполнения активных привычек за выбранный период.",
+    current: "Текущая серия",
+    currentHint: "Самая длинная текущая серия среди активных привычек.",
+    best: "Лучший рекорд",
+    bestHint: "Лучшая серия, собранная в выбранном окне истории.",
+    signals: "Сигналы внимания",
+    signalsHint: "Привычки, которые вышли за мягкий порог внимания.",
+    currentEmpty: "—",
     chartTitle: "График привычек",
     chartHint: "Выбери несколько привычек, чтобы видеть их на одном волновом графике с иконками статусов на датах.",
     chooseHabitTitle: "Выбери хотя бы одну привычку",
@@ -33,11 +49,26 @@ export function StatsPanel({ selectors, state }: { selectors: AppSelectors; stat
   };
   if (!selectors.hasAnyLogs) {
     return (
-      <div className="panel">
+      <div className="panel analytics-summary-panel">
         <h3>{text.title}</h3>
-        <div className="empty action-empty">
-          <b>{text.emptyTitle}</b>
+        <p className="muted analytics-summary-intro">{text.intro}</p>
+        <div className="analytics-summary-banner analytics-summary-banner-empty">
+          <strong>{text.emptyTitle}</strong>
           <span>{text.emptyText}</span>
+        </div>
+        <div className="analytics-summary-grid">
+          {[
+            [text.completion, text.completionHint],
+            [text.current, text.currentHint],
+            [text.best, text.bestHint],
+            [text.signals, text.signalsHint]
+          ].map(([label, hint]) => (
+            <div className="analytics-summary-card analytics-summary-card-empty" key={label}>
+              <b>{text.currentEmpty}</b>
+              <span>{label}</span>
+              <small>{hint}</small>
+            </div>
+          ))}
         </div>
       </div>
     );
@@ -47,14 +78,36 @@ export function StatsPanel({ selectors, state }: { selectors: AppSelectors; stat
   const series = rows.reduce((max, item) => Math.max(max, item.streak), 0);
   const best = rows.reduce((max, item) => Math.max(max, item.bestStreak), 0);
   const attention = selectors.getAttentionHabits().length;
+  const summary = summarizeAnalytics(language, avg, series, best, attention);
   return (
-    <div className="panel">
+    <div className="panel analytics-summary-panel">
       <h3>{text.title}</h3>
-      <div className="stats">
-        <div className="stat"><strong>{avg}%</strong><span>{text.completion}</span></div>
-        <div className="stat"><strong>{series}</strong><span>{text.current}</span></div>
-        <div className="stat"><strong>{best}</strong><span>{text.best}</span></div>
-        <div className="stat"><strong>{attention}</strong><span>{text.signals}</span></div>
+      <p className="muted analytics-summary-intro">{text.intro}</p>
+      <div className="analytics-summary-banner">
+        <strong>{text.summaryTitle}</strong>
+        <span>{summary || text.summaryFallback}</span>
+      </div>
+      <div className="analytics-summary-grid">
+        <div className="analytics-summary-card">
+          <b>{avg}%</b>
+          <span>{text.completion}</span>
+          <small>{text.completionHint}</small>
+        </div>
+        <div className="analytics-summary-card">
+          <b>{series}</b>
+          <span>{text.current}</span>
+          <small>{text.currentHint}</small>
+        </div>
+        <div className="analytics-summary-card">
+          <b>{best}</b>
+          <span>{text.best}</span>
+          <small>{text.bestHint}</small>
+        </div>
+        <div className="analytics-summary-card">
+          <b>{attention}</b>
+          <span>{text.signals}</span>
+          <small>{text.signalsHint}</small>
+        </div>
       </div>
     </div>
   );
@@ -121,9 +174,9 @@ export function AnalyticsView({ state, selectors, actions }: { state: AppState; 
         <div className="analytics-wave-chart">
           {selectedHabits.length ? (
             <>
-              <div className="analytics-wave-axis">
+        <div className="analytics-wave-axis">
                 {dates.map((date) => (
-                  <span key={date}>{formatDate(date, "short")}</span>
+                  <span key={date}>{formatDate(date, "short", language)}</span>
                 ))}
               </div>
               <WaveChart state={state} selectors={selectors} habits={selectedHabits} dates={dates} visibleStatuses={visibleStatuses} />
@@ -142,7 +195,7 @@ export function AnalyticsView({ state, selectors, actions }: { state: AppState; 
               className={state.settings.analyticsHistoryDays === days ? "active" : ""}
               onClick={() => actions.updateSetting("analyticsHistoryDays", days)}
             >
-              {days} д
+              {days} {language === "en" ? "d" : "д"}
             </button>
           ))}
         </div>
@@ -245,6 +298,30 @@ function statusToScore(status?: HabitStatus | null) {
     default:
       return 2.6;
   }
+}
+
+function summarizeAnalytics(language: "ru" | "en", avg: number, series: number, best: number, attention: number) {
+  if (language === "en") {
+    const parts: string[] = [];
+    if (avg >= 80) parts.push("The rhythm is steady and ready for bigger goals.");
+    else if (avg >= 55) parts.push("The rhythm is workable and benefits from a little consistency.");
+    else parts.push("The rhythm is uneven, so it helps to focus on fewer habits for now.");
+
+    if (series > 0) parts.push(`The current streak reaches ${series}, showing where momentum is already alive.`);
+    if (best > series) parts.push(`The best streak is ${best}, so there is room to grow beyond today’s pace.`);
+    if (attention > 0) parts.push(`${attention} habit${attention === 1 ? "" : "s"} need a softer look.`);
+    return parts.join(" ");
+  }
+
+  const parts: string[] = [];
+  if (avg >= 80) parts.push("Ритм устойчивый: можно брать более заметные цели.");
+  else if (avg >= 55) parts.push("Ритм рабочий: лучше держать курс без перегруза.");
+  else parts.push("Ритм неровный: сейчас полезнее сфокусироваться на меньшем числе привычек.");
+
+  if (series > 0) parts.push(`Текущая серия дошла до ${series}, значит, у ритма уже есть опора.`);
+  if (best > series) parts.push(`Личный рекорд — ${best}, так что здесь ещё есть запас роста.`);
+  if (attention > 0) parts.push(`${attention} привычк${attention === 1 ? "а" : attention < 5 ? "и" : "ек"} просят мягкого внимания.`);
+  return parts.join(" ");
 }
 
 function smoothPath(points: Array<{ x: number; y: number }>) {
