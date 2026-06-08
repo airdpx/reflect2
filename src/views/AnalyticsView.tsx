@@ -10,7 +10,6 @@ export function StatsPanel({ selectors, state, mode = "full" }: { selectors: App
   const language = normalizeLanguage(state.settings.language);
   const text = language === "en" ? {
     title: "Digital Analytics",
-    intro: "A compact readout of your current rhythm: how steadily habits are moving, where the strongest streak is, and which habits need a softer look.",
     emptyTitle: "Analytics will appear after your first check-ins",
     emptyText: "No zeros as a judgment here. Make a few gentle check-ins, and the statistics will become useful.",
     summaryTitle: "What this means",
@@ -32,7 +31,6 @@ export function StatsPanel({ selectors, state, mode = "full" }: { selectors: App
     insightsHint: "These rows show which habits are steady, which ones are slipping, and where the next gentle nudge would help."
   } : {
     title: "Цифровая аналитика",
-    intro: "Короткий срез текущего ритма: как держатся привычки, где сейчас самая сильная серия и какие привычки просят мягкого внимания.",
     emptyTitle: "Аналитика появится после первых отметок",
     emptyText: "Пока здесь не будет нулей как оценки. Сделайте несколько спокойных отметок, и статистика станет полезной.",
     summaryTitle: "Что это значит",
@@ -87,7 +85,6 @@ export function StatsPanel({ selectors, state, mode = "full" }: { selectors: App
           <span>{text.summaryTitle}</span>
         </div>
         <h3>{text.title}</h3>
-        <p className="muted analytics-summary-intro">{text.intro}</p>
         <div className="analytics-summary-banner analytics-summary-banner-empty">
           <strong>{text.emptyTitle}</strong>
           <span>{text.emptyText}</span>
@@ -136,7 +133,6 @@ export function StatsPanel({ selectors, state, mode = "full" }: { selectors: App
         <span>{text.summaryTitle}</span>
       </div>
       <h3>{text.title}</h3>
-      <p className="muted analytics-summary-intro">{text.intro}</p>
       <div className="analytics-summary-banner">
         <strong>{text.summaryTitle}</strong>
         <span>{summary || text.summaryFallback}</span>

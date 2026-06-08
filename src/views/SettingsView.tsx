@@ -2,6 +2,7 @@ import { useState } from "react";
 import type { AppActions, AppState, Density, ForecastDisplayMode, ForecastScaleId, ForecastSettings, HabitStatus, NumerologyDisplayMode, NumerologyMetricId, NumerologySettings, TodayBlockKey, UserSettings, View } from "../types";
 import { SelectControl, Toggle } from "../components/Common";
 import { statusMeta } from "../lib/defaults";
+import { normalizeLanguage, viewText } from "../lib/i18n";
 
 const blockLabels: Record<string, string> = {
   today: "Сегодня",
@@ -97,6 +98,31 @@ export function SettingsView({ state, actions }: { state: AppState; actions: App
   const [presetName, setPresetName] = useState("");
   const [importText, setImportText] = useState("");
   const [exportText, setExportText] = useState("");
+  const language = normalizeLanguage(state.settings.language);
+  const displayPresetOptions = language === "en"
+    ? ["Simple", "Balanced", "Journal", "Analytical", "Focus"]
+    : ["Простой", "Сбалансированный", "Журнал", "Аналитический", "Фокус"];
+  const densityOptions = language === "en"
+    ? [
+        { value: "compact", label: "Compact" },
+        { value: "standard", label: "Standard" },
+        { value: "comfortable", label: "Comfortable" }
+      ]
+    : [
+        { value: "compact", label: "Компактная" },
+        { value: "standard", label: "Стандартная" },
+        { value: "comfortable", label: "Комфортная" }
+      ];
+  const defaultViewOptions = [
+    { value: "today", label: viewText[language].today.label },
+    { value: "grid", label: viewText[language].grid.label },
+    { value: "habits", label: viewText[language].habits.label },
+    { value: "diary", label: viewText[language].diary.label },
+    { value: "notifications", label: viewText[language].notifications.label },
+    { value: "analytics", label: viewText[language].analytics.label },
+    { value: "settings", label: viewText[language].settings.label },
+    ...(state.profile?.isAdmin ? [{ value: "management", label: viewText[language].management.label }] : [])
+  ];
 
   return (
     <section className="grid-two">
@@ -109,9 +135,9 @@ export function SettingsView({ state, actions }: { state: AppState; actions: App
             </div>
           </div>
           <div className="form-grid">
-            <SelectControl label="Пресет отображения" value={state.settings.preset} options={["Simple", "Balanced", "Journal", "Analytical", "Focus"]} onChange={(value) => actions.applyPreset(value as UserSettings["preset"])} />
-            <SelectControl label="Плотность" value={state.settings.density} options={["Компактная", "Стандартная", "Комфортная"]} onChange={(value) => actions.updateSetting("density", value as Density)} />
-            <SelectControl label="Стартовый экран" value={state.settings.defaultView} options={state.profile?.isAdmin ? ["today", "grid", "habits", "diary", "notifications", "analytics", "settings", "management"] : ["today", "grid", "habits", "diary", "notifications", "analytics", "settings"]} onChange={(value) => actions.updateSetting("defaultView", value as View)} />
+            <SelectControl label="Пресет отображения" value={state.settings.preset} options={displayPresetOptions} onChange={(value) => actions.applyPreset(value as UserSettings["preset"])} />
+            <SelectControl label="Плотность" value={state.settings.density} options={densityOptions} onChange={(value) => actions.updateSetting("density", value as Density)} />
+            <SelectControl label="Стартовый экран" value={state.settings.defaultView} options={defaultViewOptions} onChange={(value) => actions.updateSetting("defaultView", value as View)} />
           </div>
           <Toggle label="Focus mode" checked={state.settings.focusMode} onChange={(checked) => actions.updateSetting("focusMode", checked)} />
           <Toggle label="Правая панель на ПК" checked={state.settings.rightPanel} onChange={(checked) => actions.updateSetting("rightPanel", checked)} />

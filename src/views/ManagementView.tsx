@@ -2,7 +2,8 @@ import { useEffect, useMemo, useState } from "react";
 import type { AppState, Density, InterfaceTheme, UserSettings, View } from "../types";
 import { AppIcon } from "../components/AppIcons";
 import { SelectControl, Toggle } from "../components/Common";
-import { createDefaults, statusMeta, themeOptions } from "../lib/defaults";
+import { createDefaults, statusIconPresets, statusMeta, themeOptions } from "../lib/defaults";
+import { normalizeLanguage, viewText } from "../lib/i18n";
 
 type AdminUserRecord = {
   id: string;
@@ -260,15 +261,16 @@ function GlobalDefaultsPanel({ currentSettings }: { currentSettings: AppState["s
   const [defaults, setDefaults] = useState<UserSettings>(createDefaults().settings);
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
+  const language = normalizeLanguage(currentSettings.language);
   const defaultViewOptions = [
-    { value: "today", label: "Сегодня" },
-    { value: "grid", label: "Календарь" },
-    { value: "habits", label: "Привычки" },
-    { value: "diary", label: "Дневник" },
-    { value: "notifications", label: "Оповещения" },
-    { value: "analytics", label: "Аналитика" },
-    { value: "settings", label: "Настройки" },
-    { value: "management", label: "Управление" }
+    { value: "today", label: viewText[language].today.label },
+    { value: "grid", label: viewText[language].grid.label },
+    { value: "habits", label: viewText[language].habits.label },
+    { value: "diary", label: viewText[language].diary.label },
+    { value: "notifications", label: viewText[language].notifications.label },
+    { value: "analytics", label: viewText[language].analytics.label },
+    { value: "settings", label: viewText[language].settings.label },
+    { value: "management", label: viewText[language].management.label }
   ];
   const gridThemeOptions = [
     ["classic", "Классика"],
@@ -362,12 +364,28 @@ function GlobalDefaultsPanel({ currentSettings }: { currentSettings: AppState["s
       </div>
       <div className="form-grid">
         <SelectControl label="Тема" value={defaults.interfaceTheme} options={themeOptions.map((item) => ({ value: item.id, label: item.title }))} onChange={(value) => setDefaults((state) => ({ ...state, interfaceTheme: value as InterfaceTheme }))} />
-        <SelectControl label="Пресет отображения" value={defaults.preset} options={["Simple", "Balanced", "Journal", "Analytical", "Focus"]} onChange={(value) => setDefaults((state) => ({ ...state, preset: value as UserSettings["preset"] }))} />
-        <SelectControl label="Плотность" value={defaults.density} options={[
-          { value: "compact", label: "Компактная" },
-          { value: "standard", label: "Стандартная" },
-          { value: "comfortable", label: "Комфортная" }
-        ]} onChange={(value) => setDefaults((state) => ({ ...state, density: value as Density }))} />
+        <SelectControl
+          label={language === "en" ? "Display preset" : "Пресет отображения"}
+          value={defaults.preset}
+          options={language === "en" ? ["Simple", "Balanced", "Journal", "Analytical", "Focus"] : ["Простой", "Сбалансированный", "Журнал", "Аналитический", "Фокус"]}
+          onChange={(value) => setDefaults((state) => ({ ...state, preset: value as UserSettings["preset"] }))}
+        />
+        <SelectControl
+          label={language === "en" ? "Density" : "Плотность"}
+          value={defaults.density}
+          options={language === "en"
+            ? [
+                { value: "compact", label: "Compact" },
+                { value: "standard", label: "Standard" },
+                { value: "comfortable", label: "Comfortable" }
+              ]
+            : [
+                { value: "compact", label: "Компактная" },
+                { value: "standard", label: "Стандартная" },
+                { value: "comfortable", label: "Комфортная" }
+              ]}
+          onChange={(value) => setDefaults((state) => ({ ...state, density: value as Density }))}
+        />
         <SelectControl label="Стартовый экран" value={defaults.defaultView} options={defaultViewOptions} onChange={(value) => setDefaults((state) => ({ ...state, defaultView: value as View }))} />
       </div>
       <div className="panel settings-card inner-settings-card">
@@ -469,7 +487,7 @@ function GlobalDefaultsPanel({ currentSettings }: { currentSettings: AppState["s
                   onChange={(event) => setDefaults((state) => ({ ...state, statusIcons: { ...state.statusIcons, [status]: event.target.value.slice(0, 4) } }))}
                 />
                 <div className="tiny-preset-row">
-                  {["❤️", "◐", "−", "❌", "🗓️", "✓", "●", "■"].map((icon) => (
+                  {statusIconPresets[status].map((icon) => (
                     <button
                       type="button"
                       key={`${status}-${icon}`}
