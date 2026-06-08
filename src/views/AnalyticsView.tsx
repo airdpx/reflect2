@@ -220,7 +220,6 @@ export function AnalyticsView({ state, selectors, actions }: { state: AppState; 
         <div className="section-head">
           <div>
             <h3>{language === "en" ? "Habit Trend Map" : "Карта ритмов"}</h3>
-            <p className="muted">{language === "en" ? "The wave chart stays below as a detail view. The report above is the new analytics layer." : "Волновой график остался ниже как детальный слой. Новый слой аналитики — это отчет выше."}</p>
           </div>
         </div>
         <div className="analytics-habit-picks">

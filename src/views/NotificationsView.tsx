@@ -31,6 +31,8 @@ export function NotificationsView({ state, selectors, actions }: { state: AppSta
   const [telegramMessage, setTelegramMessage] = useState("");
   const [telegramBusy, setTelegramBusy] = useState(false);
   const [telegramConnectUrl, setTelegramConnectUrl] = useState("");
+  const [testMessage, setTestMessage] = useState("");
+  const [testingKey, setTestingKey] = useState("");
   const feed = useMemo(() => buildNotificationFeed(state, selectors), [state, selectors]);
   const quietNow = isQuietHoursActive(state.settings.notifications.quietHours.start, state.settings.notifications.quietHours.end, state.settings.notifications.quietHours.enabled);
   const visible = feed.filter((item) => {
@@ -107,6 +109,27 @@ export function NotificationsView({ state, selectors, actions }: { state: AppSta
     }
   }
 
+  async function sendServerTest(item: NotificationItem, channel: "telegram" | "email") {
+    const key = `${channel}:${item.id}`;
+    setTestingKey(key);
+    setTestMessage("");
+    try {
+      const response = await fetch("/api/notifications/test", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ notificationId: item.id, topic: item.topic, channel })
+      });
+      const payload = await response.json();
+      if (!response.ok || payload.ok === false) throw new Error(payload.error || (language === "en" ? "Test delivery failed" : "Тестовая отправка не удалась"));
+      const status = payload.result?.status || "sent";
+      setTestMessage(language === "en" ? `Test ${channel}: ${status}` : `Тест ${channel}: ${status}`);
+    } catch (error) {
+      setTestMessage(error instanceof Error ? error.message : (language === "en" ? "Test delivery failed" : "Тестовая отправка не удалась"));
+    } finally {
+      setTestingKey("");
+    }
+  }
+
   return (
     <section className="grid-two notifications-view">
       <div className="stack">
@@ -141,9 +164,12 @@ export function NotificationsView({ state, selectors, actions }: { state: AppSta
                 snoozedUntil={resolveNotificationState(state, item).snoozedUntil}
                 selectedDate={state.selectedDate}
                 language={language}
+                onTest={sendServerTest}
+                testingKey={testingKey}
               />
             )) : <div className="empty">{language === "en" ? "No notifications for the selected filter yet." : "Пока нет уведомлений для выбранного фильтра."}</div>}
           </div>
+          {testMessage ? <p className="muted notification-test-message">{testMessage}</p> : null}
         </div>
 
         <div className="panel notifications-feed-panel">
@@ -349,7 +375,9 @@ function NotificationCard({
   status,
   snoozedUntil,
   selectedDate,
-  language
+  language,
+  onTest,
+  testingKey
 }: {
   item: NotificationItem;
   actions: AppActions;
@@ -357,6 +385,8 @@ function NotificationCard({
   snoozedUntil?: string;
   selectedDate: string;
   language: "ru" | "en";
+  onTest: (item: NotificationItem, channel: "telegram" | "email") => Promise<void>;
+  testingKey: string;
 }) {
   const tone = notificationTone(item.priority);
   return (
@@ -386,6 +416,16 @@ function NotificationCard({
         <button className="btn ghost" onClick={() => actions.setNotificationState(item.id, "read")}>{language === "en" ? "Read" : "Прочитано"}</button>
         <button className="btn ghost" onClick={() => actions.setNotificationState(item.id, "hidden")}>{language === "en" ? "Hide" : "Скрыть"}</button>
         <button className="btn ghost" onClick={() => actions.setNotificationState(item.id, "snoozed", offsetTomorrowKey(selectedDate))}>{language === "en" ? "Tomorrow" : "На завтра"}</button>
+        {item.channels.includes("telegram") ? (
+          <button className="btn ghost" onClick={() => void onTest(item, "telegram")} disabled={testingKey === `telegram:${item.id}`}>
+            {testingKey === `telegram:${item.id}` ? (language === "en" ? "Sending..." : "Отправка...") : (language === "en" ? "Test Telegram" : "Тест Telegram")}
+          </button>
+        ) : null}
+        {item.channels.includes("email") ? (
+          <button className="btn ghost" onClick={() => void onTest(item, "email")} disabled={testingKey === `email:${item.id}`}>
+            {testingKey === `email:${item.id}` ? (language === "en" ? "Sending..." : "Отправка...") : (language === "en" ? "Test Email" : "Тест Email")}
+          </button>
+        ) : null}
       </div>
     </div>
   );
