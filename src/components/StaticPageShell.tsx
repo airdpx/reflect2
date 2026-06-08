@@ -82,7 +82,7 @@ export function StaticPageShell({
           <div className="static-page-hero-copy">
             <span className="static-page-kicker">{localize(kicker)}</span>
             <h1>{localize(title)}</h1>
-            <p className="muted">{localize(intro)}</p>
+            {localize(intro).trim() ? <p className="muted">{localize(intro)}</p> : null}
           </div>
           <div className="content-page-body">{children}</div>
         </section>

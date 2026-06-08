@@ -80,10 +80,6 @@ export function StatsPanel({ selectors, state, mode = "full" }: { selectors: App
   if (!selectors.hasAnyLogs) {
     return (
       <div className="panel analytics-summary-panel analytics-summary-panel-prominent">
-        <div className="analytics-summary-kicker">
-          <span className="badge analytics-summary-badge">{language === "en" ? "New" : "Новое"}</span>
-          <span>{text.summaryTitle}</span>
-        </div>
         <h3>{text.title}</h3>
         <div className="analytics-summary-banner analytics-summary-banner-empty">
           <strong>{text.emptyTitle}</strong>
@@ -128,10 +124,6 @@ export function StatsPanel({ selectors, state, mode = "full" }: { selectors: App
   const summary = summarizeAnalytics(language, avg, series, best, attention);
   return (
     <div className="panel analytics-summary-panel analytics-summary-panel-prominent">
-      <div className="analytics-summary-kicker">
-        <span className="badge analytics-summary-badge">{language === "en" ? "New" : "Новое"}</span>
-        <span>{text.summaryTitle}</span>
-      </div>
       <h3>{text.title}</h3>
       <div className="analytics-summary-banner">
         <strong>{text.summaryTitle}</strong>

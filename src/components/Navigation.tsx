@@ -65,7 +65,7 @@ export function Topbar({
     <header className="topbar">
       <div className="topbar-heading">
         <h2>{title}</h2>
-        <p>{subtitle}</p>
+        {subtitle ? <p>{subtitle}</p> : null}
       </div>
       <div className="toolbar topbar-toolbar">
         {state.profile ? (

@@ -401,6 +401,7 @@ function CalendarGrid({
   viewportWidth: number;
   habitIndexMap: Map<string, number>;
 }) {
+  const language = normalizeLanguage(state.settings.language);
   const visibleHabits = selectors.activeHabits.filter((habit) => state.settings.selectedCategory === "all" || habit.category === state.settings.selectedCategory);
   if (!selectors.activeHabits.length) {
     return (
@@ -412,11 +413,10 @@ function CalendarGrid({
           </div>
           <button className="btn primary" onClick={() => actions.openHabitModal("new")}>{gridText[normalizeLanguage(state.settings.language)].createHabit}</button>
         </div>
-        <TemplateChooser actions={actions} />
+        <TemplateChooser actions={actions} language={language} />
       </div>
     );
   }
-  const language = normalizeLanguage(state.settings.language);
   if (!visibleHabits.length) return <div className="empty action-empty"><b>{gridText[language].noCategoryTitle}</b><span>{gridText[language].noCategoryText}</span></div>;
   if (!dates.length) return <div className="empty action-empty"><b>{gridText[language].noDatesTitle}</b><span>{gridText[language].noDatesText}</span></div>;
   const renderers: Record<GridDisplayMode, React.ReactNode> = {

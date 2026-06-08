@@ -11,7 +11,7 @@ export default async function ContactsPage() {
     <StaticPageShell
       kicker={{ ru: "Контакты", en: "Contacts" }}
       title={{ ru: "Контакты", en: "Contacts" }}
-      intro={{ ru: "Напиши нам прямо из формы.", en: "Send us a message directly from the form." }}
+      intro={{ ru: "", en: "" }}
     >
       <ContactForm recipientEmail={contactEmail} />
     </StaticPageShell>
