@@ -47,7 +47,7 @@ export function InspectorForecastSummary({ state }: { state: AppState }) {
 export function TransitPanel({ state }: { state: AppState }) {
   if (!state.settings.visibleBlocks.transit) return null;
   const language = normalizeLanguage(state.settings.language);
-  const { transit, loading, error } = useHumanDesignTransit(language);
+  const { transit, loading, error } = useHumanDesignTransit(language, state.selectedDate);
   if (loading && !transit) return null;
   if (error || !transit) return null;
   const periodStart = formatDisplayDate(transit.periodStart);
@@ -88,11 +88,11 @@ function ForecastShell({
   );
 }
 
-function useHumanDesignTransit(language: ReturnType<typeof normalizeLanguage>) {
+function useHumanDesignTransit(language: ReturnType<typeof normalizeLanguage>, date: string) {
   const [transit, setTransit] = useState<HumanDesignTransit | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const requestUrl = `/api/hd-transit?language=${language}`;
+  const requestUrl = `/api/hd-transit?language=${language}&date=${date}`;
 
   useEffect(() => {
     if (!requestUrl) return;

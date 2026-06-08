@@ -10,8 +10,10 @@ export const dynamic = "force-dynamic";
 
 export async function GET(request: Request) {
   const prisma = getPrisma();
-  const today = todayKey();
-  const language = normalizeLanguage(new URL(request.url).searchParams.get("language") || undefined);
+  const url = new URL(request.url);
+  const dateParam = url.searchParams.get("date") || "";
+  const today = /^\d{4}-\d{2}-\d{2}$/.test(dateParam) ? dateParam : todayKey();
+  const language = normalizeLanguage(url.searchParams.get("language") || undefined);
   try {
     const transit = await findTransitFromDatabase(prisma, today);
     if (!transit) {
@@ -65,12 +67,24 @@ async function findCurrentTransit(prisma: ReturnType<typeof getPrisma>, today: s
 async function findTransitFromDatabase(prisma: ReturnType<typeof getPrisma>, today: string) {
   const current = await findCurrentTransit(prisma, today);
   if (current) return current;
-  return prisma.humanDesignTransitRecord.findFirst({
+  const records = await prisma.humanDesignTransitRecord.findMany({
     orderBy: [
-      { periodStart: "desc" },
-      { periodEnd: "desc" }
+      { periodStart: "asc" },
+      { periodEnd: "asc" }
     ]
   });
+  if (!records.length) return null;
+  const todayDate = fromIsoKey(today);
+  return records.reduce((best, record) => {
+    const score = transitDistanceScore(record.periodStart, record.periodEnd, todayDate);
+    if (!best || score < best.score) return { record, score };
+    if (score === best.score) {
+      const bestStart = fromIsoKey(best.record.periodStart);
+      const currentStart = fromIsoKey(record.periodStart);
+      if (currentStart > bestStart) return { record, score };
+    }
+    return best;
+  }, null as null | { record: Awaited<ReturnType<typeof prisma.humanDesignTransitRecord.findMany>>[number]; score: number })?.record || null;
 }
 
 function mapTransit(record: Awaited<ReturnType<typeof findTransitFromDatabase>>, date: string): HumanDesignTransit {
@@ -91,6 +105,19 @@ function mapTransit(record: Awaited<ReturnType<typeof findTransitFromDatabase>>,
     paragraphs,
     sourceUrl: record.listingUrl
   };
+}
+
+function transitDistanceScore(periodStart: string, periodEnd: string, today: Date) {
+  const start = fromIsoKey(periodStart);
+  const end = fromIsoKey(periodEnd);
+  if (today < start) return start.getTime() - today.getTime();
+  if (today > end) return today.getTime() - end.getTime();
+  return 0;
+}
+
+function fromIsoKey(value: string) {
+  const [year, month, day] = value.split("-").map(Number);
+  return new Date(year, month - 1, day);
 }
 
 async function syncHumdesTransits(prisma: ReturnType<typeof getPrisma>) {

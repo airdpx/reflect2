@@ -28,7 +28,7 @@ export function StatsPanel({ selectors, state, mode = "full" }: { selectors: App
     chooseHabitTitle: "Choose at least one habit",
     chooseHabitText: "The chart becomes clearer when at least one line is visible.",
     insightsTitle: "Habit snapshot",
-    insightsHint: "These rows show which habits are steady, which ones are slipping, and where the next gentle nudge would help."
+    insightsHint: "Each row shows one habit with its completion rate, current streak, best streak, and the days since the last success. The list is sorted so the habits needing the softest nudge appear first."
   } : {
     title: "Цифровая аналитика",
     emptyTitle: "Аналитика появится после первых отметок",
@@ -49,7 +49,7 @@ export function StatsPanel({ selectors, state, mode = "full" }: { selectors: App
     chooseHabitTitle: "Выбери хотя бы одну привычку",
     chooseHabitText: "График станет наглядным, когда здесь появится хотя бы одна линия.",
     insightsTitle: "Снимок привычек",
-    insightsHint: "Эти строки показывают, где ритм устойчивый, где он проседает и куда полезнее дать мягкий толчок."
+    insightsHint: "Каждая строка показывает одну привычку: процент выполнения, текущую серию, лучший рекорд и количество дней с последнего успеха. Список отсортирован так, чтобы привычки с более длинной паузой и более слабым ритмом были наверху."
   };
   const insightRows = useMemo(() => {
     const current = selectors.activeHabits
