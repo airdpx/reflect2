@@ -1,5 +1,6 @@
 import type { AppActions, AppSelectors, AppState, DailyNote } from "../types";
 import { formatDate } from "../lib/date";
+import { calculateAverageHabitsPerDay } from "../lib/analytics";
 import { statusMeta } from "../lib/defaults";
 import { normalizeLanguage, statusText } from "../lib/i18n";
 
@@ -80,18 +81,32 @@ function TodayDiaryInspector({ note, state, selectors, actions }: { note: DailyN
 function AnalyticsSummaryPanel({ state, selectors }: { state: AppState; selectors: AppSelectors }) {
   const language = normalizeLanguage(state.settings.language);
   const rhythmStats = selectors.activeHabits.length ? calculateAverageRhythm(selectors) : null;
-  if (!rhythmStats) return null;
+  const averageHabitsPerDay = selectors.activeHabits.length
+    ? calculateAverageHabitsPerDay(selectors.activeHabits, state.logs, 30)
+    : null;
+  if (!rhythmStats && averageHabitsPerDay === null) return null;
   return (
     <div className="panel inspector-panel inspector-analytics-panel">
-        <div className="section-head">
-          <div>
-            <h3>{language === "en" ? "Analytics" : "Аналитика"}</h3>
-          </div>
+      <div className="section-head">
+        <div>
+          <h3>{language === "en" ? "Analytics" : "Аналитика"}</h3>
+        </div>
       </div>
-      <div className={`inspector-rhythm-card inspector-rhythm-card-${rhythmStats.tone}`}>
-        <span>{language === "en" ? "Average rhythm" : "Средний ритм"}</span>
-        <strong>{rhythmStats.value}%</strong>
-        <small>{language === "en" ? "Average completion of active habits." : "Средний процент выполнения активных привычек."}</small>
+      <div className="inspector-analytics-grid">
+        {rhythmStats ? (
+          <div className={`inspector-rhythm-card inspector-rhythm-card-${rhythmStats.tone}`}>
+            <span>{language === "en" ? "Average rhythm" : "Средний ритм"}</span>
+            <strong>{rhythmStats.value}%</strong>
+            <small>{language === "en" ? "Average completion of active habits." : "Средний процент выполнения активных привычек."}</small>
+          </div>
+        ) : null}
+        {averageHabitsPerDay !== null ? (
+          <div className="inspector-rhythm-card inspector-rhythm-card-accent">
+            <span>{language === "en" ? "Habits per day" : "Привычек в день"}</span>
+            <strong>{new Intl.NumberFormat(language === "en" ? "en-US" : "ru-RU", { maximumFractionDigits: 1 }).format(averageHabitsPerDay)}</strong>
+            <small>{language === "en" ? "Average successful check-ins over the last 30 days." : "Среднее число успешных отметок за последние 30 дней."}</small>
+          </div>
+        ) : null}
       </div>
     </div>
   );

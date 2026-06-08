@@ -3536,6 +3536,11 @@ button {
   border-color: color-mix(in srgb, var(--warn) 38%, var(--line));
 }
 
+.analytics-summary-card-average {
+  grid-column: 1 / -1;
+  min-height: 104px;
+}
+
 .analytics-wave-panel-prominent {
   border-color: color-mix(in srgb, var(--accent) 24%, var(--line));
   background:
@@ -3547,6 +3552,19 @@ button {
   display: grid;
   gap: 10px;
   margin-top: 2px;
+}
+
+.analytics-snapshot-panel {
+  display: grid;
+  gap: 12px;
+}
+
+.analytics-snapshot-head {
+  align-items: flex-start;
+}
+
+.analytics-snapshot-head p {
+  margin: 4px 0 0;
 }
 
 .analytics-insight-head h4 {
@@ -4240,6 +4258,11 @@ button {
 
 .inspector-rhythm-card-warn {
   border-color: color-mix(in srgb, var(--bad) 40%, var(--line));
+}
+
+.inspector-analytics-grid {
+  display: grid;
+  gap: 8px;
 }
 
 .inspector-summary {
@@ -8008,6 +8031,10 @@ body:has(.theme-custom) { background: #111827; }
     padding: 11px 12px;
   }
 
+  .analytics-summary-card-average {
+    min-height: 96px;
+  }
+
   .analytics-summary-card b {
     font-size: 23px;
   }
@@ -8019,6 +8046,10 @@ body:has(.theme-custom) { background: #111827; }
   .analytics-insight-row {
     grid-template-columns: 1fr;
     gap: 10px;
+  }
+
+  .inspector-analytics-grid {
+    gap: 6px;
   }
 
   .analytics-insight-metrics {

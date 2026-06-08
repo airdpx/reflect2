@@ -434,18 +434,38 @@ function NotificationCard({
 function BrowserNotificationTools({ item, language }: { item: NotificationItem | null; language: "ru" | "en" }) {
   const canUse = typeof window !== "undefined" && "Notification" in window;
   const [permission, setPermission] = useState<string>(canUse ? Notification.permission : "unsupported");
+  const [browserMessage, setBrowserMessage] = useState("");
 
   async function requestPermission() {
     if (!canUse) return;
     const result = await Notification.requestPermission();
     setPermission(result);
+    setBrowserMessage(result === "granted"
+      ? (language === "en" ? "Browser notifications are allowed." : "Браузерные уведомления разрешены.")
+      : result === "denied"
+        ? (language === "en" ? "Permission denied in the browser." : "Разрешение отклонено в браузере.")
+        : "");
   }
 
-  function sendTest() {
-    if (!canUse || permission !== "granted") return;
+  async function sendTest() {
+    if (!canUse) {
+      setBrowserMessage(language === "en" ? "Browser notifications are unavailable here." : "Браузерные уведомления здесь недоступны.");
+      return;
+    }
+    if (permission !== "granted") {
+      const result = await Notification.requestPermission();
+      setPermission(result);
+      if (result !== "granted") {
+        setBrowserMessage(language === "en"
+          ? "Allow browser notifications first, then test again."
+          : "Сначала разрешите браузерные уведомления, затем повторите тест.");
+        return;
+      }
+    }
     const title = item?.title || (language === "en" ? "Notification" : "Оповещение");
     const body = item?.message || (language === "en" ? "Test browser notification." : "Тестовое браузерное уведомление.");
     new Notification(title, { body });
+    setBrowserMessage(language === "en" ? "Test notification sent in the browser." : "Тестовое уведомление показано в браузере.");
   }
 
   return (
@@ -456,9 +476,10 @@ function BrowserNotificationTools({ item, language }: { item: NotificationItem |
       </div>
       <div className="quick-actions">
         <button className="btn primary" onClick={requestPermission}>{language === "en" ? "Allow" : "Разрешить"}</button>
-        <button className="btn ghost" onClick={sendTest}>{language === "en" ? "Test" : "Тест"}</button>
+        <button className="btn ghost" onClick={() => void sendTest()}>{language === "en" ? "Test" : "Тест"}</button>
       </div>
       <p className="muted">{language === "en" ? "If permission is denied, the app still keeps a soft in-app notification center." : "Если permission запрещён, в приложении останется мягкий интерфейсный центр уведомлений."}</p>
+      {browserMessage ? <p className="muted notification-test-message">{browserMessage}</p> : null}
     </div>
   );
 }

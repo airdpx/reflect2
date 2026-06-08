@@ -104,3 +104,22 @@ export function getAttentionHabits(habits: Habit[], dates: string[], logs: Recor
     .filter(({ habit, stats }) => (stats.daysSince ?? 999) >= habit.warningThreshold || stats.missedPlanned >= habit.warningThreshold)
     .slice(0, 5);
 }
+
+export function calculateAverageHabitsPerDay(habits: Habit[], logs: Record<string, HabitLog>, days = 30) {
+  if (!days || days <= 0) return 0;
+  const windowDates = rangeDates(
+    toKey(addDays(fromKey(todayKey()), -(days - 1))),
+    todayKey()
+  );
+  const total = windowDates.reduce((sum, date) => {
+    const dayTotal = habits.reduce((daySum, habit) => {
+      if (!isHabitDue(habit, date)) return daySum;
+      const log = logs[logKey(habit.id, date)] || null;
+      if (!log) return daySum;
+      if (log.status === "partial") return daySum + 0.5;
+      return isSuccessfulLog(habit, log) ? daySum + 1 : daySum;
+    }, 0);
+    return sum + dayTotal;
+  }, 0);
+  return total / days;
+}
