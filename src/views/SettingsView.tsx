@@ -109,8 +109,8 @@ export function SettingsView({ state, actions }: { state: AppState; actions: App
             </div>
           </div>
           <div className="form-grid">
-            <SelectControl label="Display preset" value={state.settings.preset} options={["Simple", "Balanced", "Journal", "Analytical", "Focus"]} onChange={(value) => actions.applyPreset(value as UserSettings["preset"])} />
-            <SelectControl label="Плотность" value={state.settings.density} options={["compact", "standard", "comfortable"]} onChange={(value) => actions.updateSetting("density", value as Density)} />
+            <SelectControl label="Пресет отображения" value={state.settings.preset} options={["Simple", "Balanced", "Journal", "Analytical", "Focus"]} onChange={(value) => actions.applyPreset(value as UserSettings["preset"])} />
+            <SelectControl label="Плотность" value={state.settings.density} options={["Компактная", "Стандартная", "Комфортная"]} onChange={(value) => actions.updateSetting("density", value as Density)} />
             <SelectControl label="Стартовый экран" value={state.settings.defaultView} options={state.profile?.isAdmin ? ["today", "grid", "habits", "diary", "notifications", "analytics", "settings", "management"] : ["today", "grid", "habits", "diary", "notifications", "analytics", "settings"]} onChange={(value) => actions.updateSetting("defaultView", value as View)} />
           </div>
           <Toggle label="Focus mode" checked={state.settings.focusMode} onChange={(checked) => actions.updateSetting("focusMode", checked)} />
