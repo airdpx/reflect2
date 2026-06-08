@@ -174,8 +174,6 @@ function OnboardingIntro({ actions, language }: { actions: AppActions; language:
       </div>
       <div className="quick-actions onboarding-actions">
         <button className="btn primary" onClick={() => actions.openHabitModal("new")}>{language === "en" ? "Create habit" : "Создать привычку"}</button>
-        <button className="btn ghost" onClick={() => actions.openHabitTemplate("journal")}>{language === "en" ? "Open diary template" : "Открыть шаблон дневника"}</button>
-        <button className="btn ghost" onClick={() => actions.setView("diary")}>{language === "en" ? "Day diary" : "Дневник дня"}</button>
       </div>
     </div>
   );

@@ -86,7 +86,6 @@ function AnalyticsSummaryPanel({ state, selectors }: { state: AppState; selector
         <div className="section-head">
           <div>
             <h3>{language === "en" ? "Analytics" : "Аналитика"}</h3>
-            <p className="muted">{language === "en" ? "Average rhythm for active habits." : "Средний ритм по активным привычкам."}</p>
           </div>
       </div>
       <div className={`inspector-rhythm-card inspector-rhythm-card-${rhythmStats.tone}`}>
