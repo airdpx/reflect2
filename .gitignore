@@ -9,3 +9,4 @@ dist
 .env.local
 screenshot-*.png
 habit-app-screenshot.png
+.vercel
