@@ -2530,7 +2530,6 @@ button {
   line-height: 1;
   text-align: center;
   pointer-events: none;
-  transform: translateX(-0.5px);
 }
 
 .calendar-mark-title {
@@ -8428,7 +8427,6 @@ body:has(.theme-custom) { background: #111827; }
     width: 100%;
     height: 100%;
     place-items: center;
-    transform: translateX(-0.5px);
   }
 
   .calendar-mark {
