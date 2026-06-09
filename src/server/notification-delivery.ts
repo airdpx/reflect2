@@ -220,15 +220,15 @@ function isScheduledSlotDue(state: AppState, now: Date) {
     const day = now.getDay() || 7;
     if (day !== notifications.weeklyDay) return false;
   }
-  return isWithinDeliveryWindow(notifications.digestTime, now, 20);
+  return hasReachedScheduledTime(notifications.digestTime, now);
 }
 
-function isWithinDeliveryWindow(time: string, now: Date, windowMinutes: number) {
+function hasReachedScheduledTime(time: string, now: Date) {
   const [hour, minute] = time.split(":").map(Number);
   if (!Number.isFinite(hour) || !Number.isFinite(minute)) return false;
   const scheduled = hour * 60 + minute;
   const current = now.getHours() * 60 + now.getMinutes();
-  return current >= scheduled && current < scheduled + windowMinutes;
+  return current >= scheduled;
 }
 
 function buildSlotKey(state: AppState, now: Date) {
