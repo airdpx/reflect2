@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { todayKey } from "../../../src/lib/date";
+import { todayKey, toKey } from "../../../src/lib/date";
 import { fetchHumdesTransitDetails, fetchHumdesTransitListings, HUMDES_TRANSIT_PAGES } from "../../../src/lib/humdes";
 import { localizeHumanDesignTransit } from "../../../src/lib/human-design-i18n";
 import { normalizeLanguage } from "../../../src/lib/i18n";
@@ -54,19 +54,24 @@ export async function POST() {
   }
 }
 
-async function findCurrentTransit(prisma: ReturnType<typeof getPrisma>, today: string) {
-  return prisma.humanDesignTransitRecord.findFirst({
-    where: {
-      periodStart: { lte: today },
-      periodEnd: { gte: today }
-    },
-    orderBy: { periodStart: "desc" }
-  });
-}
+type TransitDatabaseRecord = {
+  title: string;
+  periodStart: string;
+  periodEnd: string;
+  listingUrl: string;
+  descriptionUrl: string;
+  fetchedAt: Date | null;
+  gates: unknown;
+  paragraphs: unknown;
+};
+
+type TransitMatch = {
+  record: TransitDatabaseRecord;
+  periodStart: string;
+  periodEnd: string;
+};
 
 async function findTransitFromDatabase(prisma: ReturnType<typeof getPrisma>, today: string) {
-  const current = await findCurrentTransit(prisma, today);
-  if (current) return current;
   const records = await prisma.humanDesignTransitRecord.findMany({
     orderBy: [
       { periodStart: "asc" },
@@ -74,31 +79,32 @@ async function findTransitFromDatabase(prisma: ReturnType<typeof getPrisma>, tod
     ]
   });
   if (!records.length) return null;
-  const todayDate = fromIsoKey(today);
-  return records.reduce((best, record) => {
-    const score = transitDistanceScore(record.periodStart, record.periodEnd, todayDate);
-    if (!best || score < best.score) return { record, score };
-    if (score === best.score) {
-      const bestStart = fromIsoKey(best.record.periodStart);
-      const currentStart = fromIsoKey(record.periodStart);
-      if (currentStart > bestStart) return { record, score };
+  for (const record of records) {
+    const normalizedPeriod = normalizeTransitPeriodForDate(record.periodStart, record.periodEnd, today);
+    if (normalizedPeriod) {
+      return {
+        record,
+        periodStart: normalizedPeriod.periodStart,
+        periodEnd: normalizedPeriod.periodEnd
+      };
     }
-    return best;
-  }, null as null | { record: Awaited<ReturnType<typeof prisma.humanDesignTransitRecord.findMany>>[number]; score: number })?.record || null;
+  }
+  return null;
 }
 
-function mapTransit(record: Awaited<ReturnType<typeof findTransitFromDatabase>>, date: string): HumanDesignTransit {
-  if (!record) {
+function mapTransit(match: Awaited<ReturnType<typeof findTransitFromDatabase>>, date: string): HumanDesignTransit {
+  if (!match) {
     throw new Error("Нет текущего транзита.");
   }
+  const { record } = match;
   const gates = Array.isArray(record.gates) ? (record.gates as HumanDesignTransitGate[]) : [];
   const paragraphs = Array.isArray(record.paragraphs) ? (record.paragraphs as string[]) : [];
   return {
     date,
     fetchedAt: record.fetchedAt?.toISOString() || new Date().toISOString(),
     title: record.title,
-    periodStart: record.periodStart,
-    periodEnd: record.periodEnd,
+    periodStart: match.periodStart,
+    periodEnd: match.periodEnd,
     listingUrl: record.listingUrl,
     descriptionUrl: record.descriptionUrl,
     gates,
@@ -107,12 +113,29 @@ function mapTransit(record: Awaited<ReturnType<typeof findTransitFromDatabase>>,
   };
 }
 
-function transitDistanceScore(periodStart: string, periodEnd: string, today: Date) {
-  const start = fromIsoKey(periodStart);
-  const end = fromIsoKey(periodEnd);
-  if (today < start) return start.getTime() - today.getTime();
-  if (today > end) return today.getTime() - end.getTime();
-  return 0;
+function normalizeTransitPeriodForDate(periodStart: string, periodEnd: string, targetKey: string) {
+  const target = fromIsoKey(targetKey);
+  const sourceStart = fromIsoKey(periodStart);
+  const sourceEnd = fromIsoKey(periodEnd);
+  if ([target, sourceStart, sourceEnd].some((date) => Number.isNaN(date.getTime()))) return null;
+
+  const crossesYear = sourceEnd.getMonth() < sourceStart.getMonth()
+    || (sourceEnd.getMonth() === sourceStart.getMonth() && sourceEnd.getDate() < sourceStart.getDate());
+
+  for (const year of [target.getFullYear() - 1, target.getFullYear(), target.getFullYear() + 1]) {
+    const normalizedStart = new Date(year, sourceStart.getMonth(), sourceStart.getDate());
+    const normalizedEnd = new Date(year + (crossesYear ? 1 : 0), sourceEnd.getMonth(), sourceEnd.getDate());
+    const durationDays = Math.floor((normalizedEnd.getTime() - normalizedStart.getTime()) / 86400000) + 1;
+    if (durationDays < 1 || durationDays > 45) continue;
+    if (target >= normalizedStart && target <= normalizedEnd) {
+      return {
+        periodStart: toKey(normalizedStart),
+        periodEnd: toKey(normalizedEnd)
+      };
+    }
+  }
+
+  return null;
 }
 
 function fromIsoKey(value: string) {
