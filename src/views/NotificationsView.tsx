@@ -292,12 +292,15 @@ export function NotificationsView({ state, selectors, actions }: { state: AppSta
               ]}
               onChange={(value) => actions.updateSetting("notifications", { ...state.settings.notifications, frequency: value as AppState["settings"]["notifications"]["frequency"] })}
             />
-            <SelectControl
-              label="Дайджест"
-              value={state.settings.notifications.digestTime}
-              options={["08:00", "12:00", "18:00", "20:00"]}
-              onChange={(value) => actions.updateSetting("notifications", { ...state.settings.notifications, digestTime: value })}
-            />
+            <label className="field">
+              <span className="picker-label">Дайджест</span>
+              <input
+                className="input"
+                type="time"
+                value={state.settings.notifications.digestTime}
+                onChange={(event) => actions.updateSetting("notifications", { ...state.settings.notifications, digestTime: event.target.value })}
+              />
+            </label>
           </div>
           <div className="form-grid">
             <SelectControl
@@ -349,6 +352,10 @@ export function NotificationsView({ state, selectors, actions }: { state: AppSta
             </label>
           </div>
           <div className="module-toggle-grid notification-topics-grid">
+            <div className="notification-topics-header">
+              <h4>{language === "en" ? "Digest tasks" : "Задачи дайджеста"}</h4>
+              <p className="muted">{language === "en" ? "Tick the items that should be included in scheduled sends." : "Отметьте задачи, которые нужно включать в запланированную отправку."}</p>
+            </div>
             {topicLabels.map(([key, label]) => (
               <label key={key}>
                 <input

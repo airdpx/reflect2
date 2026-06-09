@@ -5916,6 +5916,24 @@ button {
   font-size: 12px;
 }
 
+.notification-topics-header {
+  grid-column: 1 / -1;
+  display: grid;
+  gap: 4px;
+  margin-bottom: 4px;
+  padding: 0 2px 2px;
+}
+
+.notification-topics-header h4 {
+  margin: 0;
+  font-size: 14px;
+}
+
+.notification-topics-header .muted {
+  font-size: 12px;
+  line-height: 1.35;
+}
+
 .compact-scale-field {
   gap: 8px;
 }

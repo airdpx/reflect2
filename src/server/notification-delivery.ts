@@ -234,8 +234,7 @@ function isWithinDeliveryWindow(time: string, now: Date, windowMinutes: number) 
 function buildSlotKey(state: AppState, now: Date) {
   const date = toKey(now);
   const frequency = state.settings.notifications.frequency;
-  const time = state.settings.notifications.digestTime || "00:00";
-  return `${frequency}:${date}:${time}`;
+  return `${frequency}:${date}`;
 }
 
 function scheduledNotificationId(item: NotificationItem, channel: NotificationChannel, slotKey: string) {
