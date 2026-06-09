@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import type { AppState, View } from "../types";
 import { formatDate } from "../lib/date";
 import { AppIcon, type AppIconName } from "./AppIcons";
@@ -53,10 +54,12 @@ function Nav({ view, onView, className, items, language }: { view: View; onView:
 
 export function Topbar({
   state,
-  onAdd
+  onAdd,
+  actionsSlot
 }: {
   state: AppState;
   onAdd: () => void;
+  actionsSlot?: ReactNode;
 }) {
   const language = normalizeLanguage(state.settings.language);
   const title = viewText[language][state.view].title;
@@ -80,6 +83,7 @@ export function Topbar({
         <button className="btn primary" onClick={onAdd}>
           {commonText[language].addHabit}
         </button>
+        {actionsSlot ? <div className="topbar-actions-slot">{actionsSlot}</div> : null}
       </div>
     </header>
   );

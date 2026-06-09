@@ -229,6 +229,16 @@ button {
 
 .topbar-toolbar {
   gap: 10px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.topbar-actions-slot {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
 }
 
 .topbar-chip,
@@ -5032,10 +5042,6 @@ button {
 }
 
 .quick-control-dock {
-  position: fixed;
-  top: 14px;
-  right: 14px;
-  z-index: 45;
   display: flex;
   align-items: center;
   gap: 8px;
@@ -7922,6 +7928,12 @@ body:has(.theme-custom) { background: #111827; }
     justify-content: stretch;
   }
 
+  .toolbar.topbar-toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+  }
+
   .topbar-profile-chip {
     display: none;
   }
@@ -7932,6 +7944,11 @@ body:has(.theme-custom) { background: #111827; }
 
   .toolbar .btn.primary {
     grid-column: 1 / -1;
+  }
+
+  .topbar-actions-slot {
+    width: 100%;
+    justify-content: flex-end;
   }
 
   .toolbar .btn,
@@ -8335,23 +8352,19 @@ body:has(.theme-custom) { background: #111827; }
   }
 
   .quick-control-dock {
-    top: auto;
-    right: 8px;
-    bottom: 92px;
-    transform: scale(0.92);
-    transform-origin: bottom right;
-  }
-
-  .quick-panel {
-    top: auto;
-    right: 0;
-    bottom: 46px;
+    width: 100%;
+    justify-content: flex-end;
   }
 
   .grid-head,
   .grid-name,
   .grid-cell {
     font-size: 11px;
+  }
+
+  .week-matrix .grid-cell {
+    display: grid;
+    place-items: center;
   }
 
   .grid-name {
@@ -8368,7 +8381,11 @@ body:has(.theme-custom) { background: #111827; }
     height: 28px;
     min-width: 28px;
     min-height: 28px;
+    margin: 0;
+    justify-self: center;
+    align-self: center;
     font-size: 15px;
+    line-height: 1;
   }
 
   .calendar-mark {

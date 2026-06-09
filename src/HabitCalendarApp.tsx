@@ -246,7 +246,11 @@ export default function HabitCalendarApp({ initialState }: HabitCalendarAppProps
       <RuntimeTranslator language={state.settings.language} />
       <Sidebar state={state} view={state.view} onView={actions.setView} />
       <main className="main">
-        <Topbar state={state} onAdd={() => actions.openHabitModal("new")} />
+        <Topbar
+          state={state}
+          onAdd={() => actions.openHabitModal("new")}
+          actionsSlot={<QuickControls state={state} actions={actions} />}
+        />
         {state.view === "today" && <TodayView state={state} selectors={selectors} actions={actions} />}
         {state.view === "grid" && <GridView state={state} selectors={selectors} actions={actions} />}
         {state.view === "habits" && <HabitsView state={state} selectors={selectors} actions={actions} />}
@@ -259,7 +263,6 @@ export default function HabitCalendarApp({ initialState }: HabitCalendarAppProps
     </main>
       {state.settings.rightPanel && !state.settings.focusMode && <Inspector state={state} selectors={selectors} actions={actions} />}
       <MobileNav state={state} view={state.view} onView={actions.setView} />
-      <QuickControls state={state} actions={actions} />
       {editingHabitId && <HabitModal habit={editingHabit} isTemplateDraft={Boolean(draftHabit)} actions={actions} />}
       {activeCell && <CellSheet cell={activeCell} state={state} selectors={selectors} actions={actions} />}
     </div>
