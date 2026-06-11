@@ -1389,14 +1389,14 @@ button {
 }
 
 .habit-save-inline {
-  min-height: 32px;
-  padding: 6px 12px;
+  min-height: 34px;
+  padding: 6px 14px;
   white-space: nowrap;
 }
 
 .habit-modal-actions {
   justify-content: flex-end;
-  margin-top: 2px;
+  margin-top: 8px;
 }
 
 .icon-input {
@@ -8043,7 +8043,9 @@ body:has(.theme-custom) { background: #111827; }
   .topbar {
     display: grid;
     grid-template-columns: minmax(0, 1fr) minmax(200px, 0.9fr);
-    grid-template-areas: "heading toolbar";
+    grid-template-areas:
+      "heading profile"
+      "add actions";
     gap: 8px 10px;
     align-items: start;
     margin-bottom: 12px;
@@ -8072,21 +8074,12 @@ body:has(.theme-custom) { background: #111827; }
   }
 
   .toolbar.topbar-toolbar {
-    grid-area: toolbar;
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    grid-template-areas:
-      "profile profile"
-      "add actions";
-    align-items: start;
-    justify-content: stretch;
-    gap: 8px 10px;
-    width: 100%;
+    display: contents;
   }
 
   .topbar-profile-chip {
-    display: grid;
     grid-area: profile;
+    display: grid;
     min-width: 0;
     width: 100%;
     max-width: 100%;
@@ -8105,14 +8098,28 @@ body:has(.theme-custom) { background: #111827; }
     justify-self: end;
   }
 
-  .topbar-toolbar .btn.primary {
+  .topbar-add-slot {
     grid-area: add;
     justify-self: start;
-    width: 100%;
+    width: fit-content;
+  }
+
+  .topbar-add-slot .btn.primary {
+    width: auto;
+    min-width: 168px;
   }
 
   .topbar-actions-slot:empty {
     display: none;
+  }
+
+  .habit-modal-actions {
+    width: 100%;
+  }
+
+  .habit-modal-actions .btn.primary,
+  .habit-modal-actions .btn.danger {
+    width: 100%;
   }
 
   .toolbar .btn,

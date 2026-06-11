@@ -113,7 +113,6 @@ export function HabitModal({
           <div className="field habit-schedule-field">
             <div className="habit-schedule-head">
               <label>Дни недели</label>
-              <button className="btn primary habit-save-inline" type="submit">Сохранить</button>
             </div>
             <div className="weekdays">
               {["Пн", "Вт", "Ср", "Чт", "Пт", "Сб", "Вс"].map((label, index) => {
@@ -122,6 +121,9 @@ export function HabitModal({
                 <button type="button" className={`chip ${h.schedule.includes(day) ? "active" : ""}`} data-weekday={day} key={day} onClick={(event) => event.currentTarget.classList.toggle("active")}>{label}</button>
                 );
               })}
+            </div>
+            <div className="toolbar habit-modal-actions">
+              <button className="btn primary habit-save-inline" type="submit">Сохранить</button>
             </div>
           </div>
           {habit && !isTemplateDraft ? (
