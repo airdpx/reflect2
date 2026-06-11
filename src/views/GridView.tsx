@@ -106,13 +106,13 @@ const gridText = {
     visibleElements: "Видимые элементы",
     checkInIcons: "Иконки отметок",
     habitColumn: "Привычка",
-    noHabitsTitle: "Сетка появится после первой привычки",
-    noHabitsText: "Создайте привычку с нуля или начните с готового шаблона.",
-    createHabit: "Создать привычку",
+    noHabitsTitle: "Добавьте первую привычку",
+    noHabitsText: "Чтобы календарь начал работать, добавьте хотя бы одну привычку. Тогда здесь появится хронология отметок — как в дневнике, но для ваших повторяющихся дел, чтобы видеть ритм, регулярность и те места, где нужен мягкий фокус.",
+    createHabit: "Добавить привычку",
     noCategoryTitle: "В этой категории пока нет привычек",
     noCategoryText: "Выберите другую категорию или добавьте привычку в текущую.",
-    noFilteredTitle: "Второй календарь ничего не нашёл",
-    noFilteredText: "Смените фильтр типов или выберите другой набор привычек.",
+    noFilteredTitle: "Для этого фильтра пока нет привычек",
+    noFilteredText: "Попробуйте другой набор типов или добавьте привычку нужного типа.",
     noDatesTitle: "В выбранном периоде нет дат",
     noDatesText: "Проверьте диапазон или верните выходные в настройках сетки.",
     clickCycle: "клик меняет статус",
@@ -148,13 +148,13 @@ const gridText = {
     visibleElements: "Visible elements",
     checkInIcons: "Check-in icons",
     habitColumn: "Habit",
-    noHabitsTitle: "The grid will appear after your first habit",
-    noHabitsText: "Create a habit from scratch or start with a ready-made template.",
+    noHabitsTitle: "Add your first habit",
+    noHabitsText: "To make the calendar useful, add at least one habit. Then this space will show a timeline of check-ins — like a diary, but for repeating routines, so you can see rhythm, consistency, and where gentle focus is needed.",
     createHabit: "Create habit",
     noCategoryTitle: "There are no habits in this category yet",
     noCategoryText: "Pick another category or add a habit to the current one.",
-    noFilteredTitle: "The second calendar found nothing",
-    noFilteredText: "Change the type filter or pick another habit set.",
+    noFilteredTitle: "No habits match this filter yet",
+    noFilteredText: "Try a different set of types or add a habit of the needed type.",
     noDatesTitle: "There are no dates in the selected period",
     noDatesText: "Check the range or bring weekends back in grid settings.",
     clickCycle: "click cycles status",
@@ -555,14 +555,6 @@ function CalendarGrid({
     matchesMainCalendarFilter(habit, state.settings.calendarFilterMode, state.settings.calendarFilterTypes)
   );
   if (!visibleHabits.length) {
-    if (habitsOverride) {
-      return (
-        <div className="empty action-empty">
-          <b>{gridText[language].noFilteredTitle}</b>
-          <span>{gridText[language].noFilteredText}</span>
-        </div>
-      );
-    }
     if (!selectors.activeHabits.length) {
       return (
         <div className="stack">
