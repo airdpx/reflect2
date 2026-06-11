@@ -4,6 +4,7 @@ import { SelectControl, Toggle } from "../components/Common";
 import { buildNotificationFeed, notificationStatusLabel, notificationTone, notificationTopicLabel, resolveNotificationState } from "../lib/notifications";
 import { addDays, formatDate, fromKey, toKey } from "../lib/date";
 import { normalizeLanguage } from "../lib/i18n";
+import { useRuntimeContent } from "../components/RuntimeContent";
 
 const statusFilters: Array<"all" | NotificationDeliveryStatus> = ["all", "new", "read", "hidden", "snoozed"];
 
@@ -33,7 +34,8 @@ export function NotificationsView({ state, selectors, actions }: { state: AppSta
   const [telegramConnectUrl, setTelegramConnectUrl] = useState("");
   const [testMessage, setTestMessage] = useState("");
   const [testingKey, setTestingKey] = useState("");
-  const feed = useMemo(() => buildNotificationFeed(state, selectors), [state, selectors]);
+  const { content } = useRuntimeContent();
+  const feed = useMemo(() => buildNotificationFeed(state, selectors, content), [state, selectors, content]);
   const quietNow = isQuietHoursActive(state.settings.notifications.quietHours.start, state.settings.notifications.quietHours.end, state.settings.notifications.quietHours.enabled);
   const visible = feed.filter((item) => {
     const status = resolveNotificationState(state, item).status;

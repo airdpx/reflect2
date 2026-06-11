@@ -59,6 +59,7 @@ model PasswordResetToken {
 model HumanDesignTransitRecord {
   id              String   @id @default(cuid())
   title           String
+  titleEn         String?
   periodStart     String
   periodEnd       String
   listingUrl      String
@@ -72,6 +73,11 @@ model HumanDesignTransitRecord {
   gateEarthUrl    String
   gates           Json
   paragraphs      Json
+  paragraphsEn    Json?
+  helped          Json?
+  helpedEn        Json?
+  blocked         Json?
+  blockedEn       Json?
   publishedAt     DateTime?
   fetchedAt       DateTime?
   createdAt       DateTime @default(now())

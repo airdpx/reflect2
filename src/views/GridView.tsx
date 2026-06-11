@@ -1,10 +1,11 @@
 import { Fragment, useEffect, useState } from "react";
 import type React from "react";
-import type { AppActions, AppSelectors, AppState, Density, GridDisplayMode, GridHabitColorMode, Habit, HabitStatus } from "../types";
+import type { AppActions, AppSelectors, AppState, CalendarFilterMode, Density, GridDisplayMode, GridHabitColorMode, Habit, HabitStatus, HabitType, SecondaryCalendarSettings } from "../types";
 import { addDays, formatDate, fromKey, rangeDates, todayKey, weekdayShort } from "../lib/date";
 import { statusIconPresets, statusMeta } from "../lib/defaults";
 import { forecastTone, getForecast } from "../lib/forecast";
 import { normalizeLanguage } from "../lib/i18n";
+import { useRuntimeContent } from "../components/RuntimeContent";
 import { TemplateChooser } from "./TodayView";
 import { SelectControl, Toggle } from "../components/Common";
 
@@ -54,11 +55,45 @@ const gridHabitColorOptions: Array<[GridHabitColorMode, { ru: string; en: string
   ["alternating", { ru: "Два цвета", en: "Two colors" }]
 ];
 
+const calendarFilterModes: Array<[CalendarFilterMode, { ru: string; en: string }]> = [
+  ["all", { ru: "Все привычки", en: "All habits" }],
+  ["avoid", { ru: "Не делать", en: "Avoid" }],
+  ["nonDaily", { ru: "Не каждый день", en: "Non-daily" }],
+  ["types", { ru: "Выбранные типы", en: "Selected types" }]
+];
+
+const calendarTypeLabels = {
+  ru: {
+    boolean: "Обычные",
+    daily: "Каждый день",
+    numeric: "Числовые",
+    multiple: "Несколько раз",
+    avoid: "Не делать",
+    reflection: "Не каждый день"
+  },
+  en: {
+    boolean: "Boolean",
+    daily: "Every day",
+    numeric: "Numeric",
+    multiple: "Multiple",
+    avoid: "Avoid",
+    reflection: "Non-daily"
+  }
+} as const;
+
 const gridText = {
   ru: {
     period: "Период сетки",
     daysSuffix: "дней",
     dayHistory: "История календаря",
+    calendarFilter: "Фильтр привычек",
+    calendarTypes: "Типы привычек",
+    secondaryCalendar: "Второй календарь",
+    secondaryCalendarHint: "Отдельный блок со своим фильтром привычек.",
+    secondaryCalendarToggle: "Показывать второй календарь",
+    secondaryHistory: "История второго календаря",
+    secondaryFilter: "Фильтр привычек",
+    secondaryTypes: "Типы привычек",
     displayed: "Отображается",
     configure: "Настроить календарь и таблицу",
     tableStyle: "Оформление таблицы",
@@ -76,6 +111,8 @@ const gridText = {
     createHabit: "Создать привычку",
     noCategoryTitle: "В этой категории пока нет привычек",
     noCategoryText: "Выберите другую категорию или добавьте привычку в текущую.",
+    noFilteredTitle: "Второй календарь ничего не нашёл",
+    noFilteredText: "Смените фильтр типов или выберите другой набор привычек.",
     noDatesTitle: "В выбранном периоде нет дат",
     noDatesText: "Проверьте диапазон или верните выходные в настройках сетки.",
     clickCycle: "клик меняет статус",
@@ -91,6 +128,14 @@ const gridText = {
     period: "Grid period",
     daysSuffix: "days",
     dayHistory: "Calendar history",
+    calendarFilter: "Habit filter",
+    calendarTypes: "Habit types",
+    secondaryCalendar: "Second calendar",
+    secondaryCalendarHint: "A separate block with its own habit filter.",
+    secondaryCalendarToggle: "Show second calendar",
+    secondaryHistory: "Second calendar history",
+    secondaryFilter: "Habit filter",
+    secondaryTypes: "Habit types",
     displayed: "Displayed",
     configure: "Customize calendar and table",
     tableStyle: "Table style",
@@ -108,6 +153,8 @@ const gridText = {
     createHabit: "Create habit",
     noCategoryTitle: "There are no habits in this category yet",
     noCategoryText: "Pick another category or add a habit to the current one.",
+    noFilteredTitle: "The second calendar found nothing",
+    noFilteredText: "Change the type filter or pick another habit set.",
     noDatesTitle: "There are no dates in the selected period",
     noDatesText: "Check the range or bring weekends back in grid settings.",
     clickCycle: "click cycles status",
@@ -141,17 +188,19 @@ const statusLabels = {
 const habitTypeLabelsLocalized = {
   ru: {
     boolean: "Обычная",
+    daily: "Каждый день",
     numeric: "Числовая",
     multiple: "Несколько раз в день",
     avoid: "Не делать",
-    reflection: "Самонаблюдение"
+    reflection: "Не каждый день"
   },
   en: {
     boolean: "Boolean",
+    daily: "Every day",
     numeric: "Numeric",
     multiple: "Multiple",
     avoid: "Avoid",
-    reflection: "Reflection"
+    reflection: "Non-daily"
   }
 } as const;
 
@@ -173,8 +222,19 @@ export function GridView({
   const historyStart = toKey(addDays(fromKey(todayKey()), -historyDays));
   const periodEnd = toKey(addDays(fromKey(todayKey()), periodDays - 1));
   const gridDates = rangeDates(historyStart, periodEnd);
-  const visibleHabits = selectors.activeHabits.filter((habit) => state.settings.selectedCategory === "all" || habit.category === state.settings.selectedCategory);
+  const categoryFilteredHabits = selectors.activeHabits.filter(
+    (habit) => state.settings.selectedCategory === "all" || habit.category === state.settings.selectedCategory
+  );
+  const visibleHabits = categoryFilteredHabits.filter((habit) =>
+    matchesMainCalendarFilter(habit, state.settings.calendarFilterMode, state.settings.calendarFilterTypes)
+  );
   const habitIndexMap = new Map(visibleHabits.map((habit, index) => [habit.id, index]));
+  const secondarySettings = state.settings.secondaryCalendar;
+  const secondaryHistoryDays = Math.max(0, secondarySettings.historyDays);
+  const secondaryHistoryStart = toKey(addDays(fromKey(todayKey()), -secondaryHistoryDays));
+  const secondaryGridDates = filterWeekendDates(rangeDates(secondaryHistoryStart, periodEnd), secondarySettings.showWeekends);
+  const secondaryVisibleHabits = categoryFilteredHabits.filter((habit) => matchesSecondaryCalendarFilter(habit, secondarySettings));
+  const secondaryHabitIndexMap = new Map(secondaryVisibleHabits.map((habit, index) => [habit.id, index]));
   return (
     <section className="stack">
       <div className="panel period-panel">
@@ -223,7 +283,19 @@ export function GridView({
         </p>
       </div>
       <CalendarSettingsPanel state={state} selectors={selectors} actions={actions} />
-      <CalendarGrid state={state} selectors={selectors} actions={actions} dates={gridDates} viewportWidth={viewportWidth} habitIndexMap={habitIndexMap} />
+      <CalendarGrid state={state} selectors={selectors} actions={actions} dates={gridDates} viewportWidth={viewportWidth} habitIndexMap={habitIndexMap} habitsOverride={visibleHabits} />
+      {secondarySettings.enabled ? (
+        <div className="panel module-panel secondary-calendar-panel">
+          <div className="section-head compact-head">
+            <div>
+              <h3>{t.secondaryCalendar}</h3>
+              <p className="muted">{t.secondaryCalendarHint}</p>
+            </div>
+          </div>
+          <CalendarGrid state={state} selectors={selectors} actions={actions} dates={secondaryGridDates} viewportWidth={viewportWidth} habitIndexMap={secondaryHabitIndexMap} habitsOverride={secondaryVisibleHabits} />
+        </div>
+      ) : null}
+      <SecondaryCalendarPanel state={state} actions={actions} />
     </section>
   );
 }
@@ -314,8 +386,29 @@ function CalendarSettingsPanel({ state, selectors, actions }: { state: AppState;
               options={[{ value: "all", label: language === "en" ? "All categories" : "all" }, ...selectors.categories.map((category) => ({ value: category, label: category }))]}
               onChange={(value) => actions.updateSetting("selectedCategory", value)}
             />
+            <SelectControl
+              label={gridText[language].calendarFilter}
+              value={state.settings.calendarFilterMode}
+              options={calendarFilterModes.map(([value, label]) => ({ value, label: label[language] }))}
+              onChange={(value) => actions.updateSetting("calendarFilterMode", value as CalendarFilterMode)}
+            />
             <Toggle label={gridText[language].showWeekends} checked={state.settings.showWeekends} className="compact-check-row" onChange={(checked) => actions.updateSetting("showWeekends", checked)} />
           </div>
+          {state.settings.calendarFilterMode === "types" ? (
+            <div className="module-toggle-grid type-toggle-grid">
+              {(Object.keys(calendarTypeLabels[language]) as HabitType[]).map((type) => (
+                <Toggle
+                  key={type}
+                  label={calendarTypeLabels[language][type]}
+                  checked={state.settings.calendarFilterTypes[type]}
+                  onChange={(checked) => actions.updateSetting("calendarFilterTypes", {
+                    ...state.settings.calendarFilterTypes,
+                    [type]: checked
+                  })}
+                />
+              ))}
+            </div>
+          ) : null}
         </details>
         <div className="calendar-mode-row">
           {gridModes.map(([mode, label]) => (
@@ -386,13 +479,67 @@ function CalendarSettingsPanel({ state, selectors, actions }: { state: AppState;
   );
 }
 
+function SecondaryCalendarPanel({ state, actions }: { state: AppState; actions: AppActions }) {
+  const language = normalizeLanguage(state.settings.language);
+  const text = gridText[language];
+  const secondary = state.settings.secondaryCalendar;
+  return (
+    <details className="panel module-panel calendar-settings-panel secondary-calendar-settings-panel">
+      <summary>{text.secondaryCalendar}</summary>
+      <div className="module-controls">
+        <Toggle
+          label={text.secondaryCalendarToggle}
+          checked={secondary.enabled}
+          onChange={(checked) => actions.updateSetting("secondaryCalendar", { ...secondary, enabled: checked })}
+        />
+        <div className="calendar-settings-grid">
+          <SelectControl
+            label={text.secondaryHistory}
+            value={String(secondary.historyDays)}
+            options={["0", "7", "14", "30", "60", "90", "180", "365"]}
+            onChange={(value) => actions.updateSetting("secondaryCalendar", { ...secondary, historyDays: Number(value) })}
+          />
+          <SelectControl
+            label={text.secondaryFilter}
+            value={secondary.filterMode}
+            options={calendarFilterModes.map(([value, label]) => ({ value, label: label[language] }))}
+            onChange={(value) => actions.updateSetting("secondaryCalendar", { ...secondary, filterMode: value as CalendarFilterMode })}
+          />
+        </div>
+        <Toggle
+          label={gridText[language].showWeekends}
+          checked={secondary.showWeekends}
+          onChange={(checked) => actions.updateSetting("secondaryCalendar", { ...secondary, showWeekends: checked })}
+        />
+        {secondary.filterMode === "types" ? (
+          <div className="module-toggle-grid type-toggle-grid">
+            {(Object.keys(calendarTypeLabels[language]) as HabitType[]).map((type) => (
+              <Toggle
+                key={type}
+                label={calendarTypeLabels[language][type]}
+                checked={secondary.selectedTypes[type]}
+                onChange={(checked) => actions.updateSetting("secondaryCalendar", {
+                  ...secondary,
+                  selectedTypes: { ...secondary.selectedTypes, [type]: checked }
+                })}
+              />
+            ))}
+          </div>
+        ) : null}
+        <p className="muted secondary-calendar-note">{text.secondaryCalendarHint}</p>
+      </div>
+    </details>
+  );
+}
+
 function CalendarGrid({
   state,
   selectors,
   actions,
   dates,
   viewportWidth,
-  habitIndexMap
+  habitIndexMap,
+  habitsOverride
 }: {
   state: AppState;
   selectors: AppSelectors;
@@ -400,24 +547,40 @@ function CalendarGrid({
   dates: string[];
   viewportWidth: number;
   habitIndexMap: Map<string, number>;
+  habitsOverride?: Habit[];
 }) {
   const language = normalizeLanguage(state.settings.language);
-  const visibleHabits = selectors.activeHabits.filter((habit) => state.settings.selectedCategory === "all" || habit.category === state.settings.selectedCategory);
-  if (!selectors.activeHabits.length) {
-    return (
-      <div className="stack">
+  const visibleHabits = habitsOverride || selectors.activeHabits.filter((habit) =>
+    (state.settings.selectedCategory === "all" || habit.category === state.settings.selectedCategory) &&
+    matchesMainCalendarFilter(habit, state.settings.calendarFilterMode, state.settings.calendarFilterTypes)
+  );
+  if (!visibleHabits.length) {
+    if (habitsOverride) {
+      return (
         <div className="empty action-empty">
-          <div>
-            <b>{gridText[normalizeLanguage(state.settings.language)].noHabitsTitle}</b>
-            <span>{gridText[normalizeLanguage(state.settings.language)].noHabitsText}</span>
-          </div>
-          <button className="btn primary" onClick={() => actions.openHabitModal("new")}>{gridText[normalizeLanguage(state.settings.language)].createHabit}</button>
+          <b>{gridText[language].noFilteredTitle}</b>
+          <span>{gridText[language].noFilteredText}</span>
         </div>
-        <TemplateChooser actions={actions} language={language} />
-      </div>
-    );
+      );
+    }
+    if (!selectors.activeHabits.length) {
+      return (
+        <div className="stack">
+          <div className="empty action-empty">
+            <div>
+              <b>{gridText[normalizeLanguage(state.settings.language)].noHabitsTitle}</b>
+              <span>{gridText[normalizeLanguage(state.settings.language)].noHabitsText}</span>
+            </div>
+            <button className="btn primary" onClick={() => actions.openHabitModal("new")}>{gridText[normalizeLanguage(state.settings.language)].createHabit}</button>
+          </div>
+          <TemplateChooser actions={actions} language={language} />
+        </div>
+      );
+    }
+    const emptyTitle = gridText[language].noCategoryTitle;
+    const emptyText = gridText[language].noCategoryText;
+    return <div className="empty action-empty"><b>{emptyTitle}</b><span>{emptyText}</span></div>;
   }
-  if (!visibleHabits.length) return <div className="empty action-empty"><b>{gridText[language].noCategoryTitle}</b><span>{gridText[language].noCategoryText}</span></div>;
   if (!dates.length) return <div className="empty action-empty"><b>{gridText[language].noDatesTitle}</b><span>{gridText[language].noDatesText}</span></div>;
   const renderers: Record<GridDisplayMode, React.ReactNode> = {
     calendar: <CalendarMonthGrid habits={visibleHabits} habitIndexMap={habitIndexMap} dates={dates} compact={false} state={state} selectors={selectors} actions={actions} />,
@@ -479,7 +642,8 @@ function CalendarMonthGrid({
 function ForecastDayMarker({ date, state }: { date: string; state: AppState }) {
   if (!state.settings.forecast.enabled || !state.settings.forecast.showInGrid) return null;
   const language = normalizeLanguage(state.settings.language);
-  const forecast = getForecast(date, state.settings.forecast, state.profile?.birthDate || "", language);
+  const { content } = useRuntimeContent();
+  const forecast = getForecast(date, state.settings.forecast, state.profile?.birthDate || "", language, content);
   if (!forecast) return null;
   return <i className={`forecast-day-marker forecast-marker-${forecastTone(forecast.summaryScore)}`} title={`${language === "en" ? "Day forecast" : "Прогноз дня"}: ${forecast.summaryScore}%`} />;
 }
@@ -943,6 +1107,28 @@ function modeIcon(mode: GridDisplayMode) {
     heat: "🔥"
   };
   return icons[mode];
+}
+
+function matchesSecondaryCalendarFilter(habit: Habit, settings: SecondaryCalendarSettings) {
+  if (settings.filterMode === "all") return true;
+  if (settings.filterMode === "avoid") return habit.type === "avoid";
+  if (settings.filterMode === "nonDaily") return habit.type !== "daily" && habit.schedule.length > 0 && habit.schedule.length < 7;
+  return settings.selectedTypes[habit.type];
+}
+
+function matchesMainCalendarFilter(habit: Habit, filterMode: CalendarFilterMode, selectedTypes: Record<HabitType, boolean>) {
+  if (filterMode === "all") return true;
+  if (filterMode === "avoid") return habit.type === "avoid";
+  if (filterMode === "nonDaily") return habit.type !== "daily" && habit.schedule.length > 0 && habit.schedule.length < 7;
+  return selectedTypes[habit.type];
+}
+
+function filterWeekendDates(dates: string[], showWeekends: boolean) {
+  if (showWeekends) return dates;
+  return dates.filter((date) => {
+    const day = new Date(`${date}T00:00:00`).getDay();
+    return day !== 0 && day !== 6;
+  });
 }
 
 function Legend({ statuses, state }: { statuses: HabitStatus[]; state?: AppState }) {

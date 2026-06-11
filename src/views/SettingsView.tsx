@@ -1,5 +1,5 @@
 import { useState } from "react";
-import type { AppActions, AppState, Density, ForecastDisplayMode, ForecastScaleId, ForecastSettings, HabitStatus, NumerologyDisplayMode, NumerologyMetricId, NumerologySettings, TodayBlockKey, UserSettings, View } from "../types";
+import type { AppActions, AppState, CalendarFilterMode, Density, ForecastDisplayMode, ForecastScaleId, ForecastSettings, HabitStatus, HabitType, NumerologyDisplayMode, NumerologyMetricId, NumerologySettings, TodayBlockKey, UserSettings, View } from "../types";
 import { SelectControl, Toggle } from "../components/Common";
 import { statusMeta } from "../lib/defaults";
 import { normalizeLanguage, statusText, viewText } from "../lib/i18n";
@@ -16,6 +16,30 @@ const forecastPlacementKeys: Array<keyof Pick<ForecastSettings, "showInToday" | 
 const forecastScaleKeys: ForecastScaleId[] = ["physical", "emotional", "intellectual"];
 const numerologyPlacementKeys: Array<keyof Pick<NumerologySettings, "showInToday" | "showInDiary" | "showInInspector">> = ["showInToday", "showInDiary", "showInInspector"];
 const numerologyMetricKeys: NumerologyMetricId[] = ["personalDay", "personalMonth", "personalYear", "lifePath"];
+const calendarFilterModes: Array<[CalendarFilterMode, { ru: string; en: string }]> = [
+  ["all", { ru: "Все привычки", en: "All habits" }],
+  ["avoid", { ru: "Не делать", en: "Avoid" }],
+  ["nonDaily", { ru: "Не каждый день", en: "Non-daily" }],
+  ["types", { ru: "Выбранные типы", en: "Selected types" }]
+];
+const calendarTypeLabels = {
+  ru: {
+    boolean: "Обычные",
+    daily: "Каждый день",
+    numeric: "Числовые",
+    multiple: "Несколько раз",
+    avoid: "Не делать",
+    reflection: "Не каждый день"
+  },
+  en: {
+    boolean: "Boolean",
+    daily: "Every day",
+    numeric: "Numeric",
+    multiple: "Multiple",
+    avoid: "Avoid",
+    reflection: "Non-daily"
+  }
+} as const;
 
 function getSettingsCopy(language: "ru" | "en") {
   if (language === "en") {
@@ -36,6 +60,16 @@ function getSettingsCopy(language: "ru" | "en") {
       calendarTitle: "Calendar",
       calendarHint: "How much history to show in the calendar.",
       historyLabel: "Calendar history",
+      showWeekends: "Show weekends",
+      calendarFilterLabel: "Habit filter",
+      calendarTypesLabel: "Habit types",
+      secondaryCalendarTitle: "Second calendar",
+      secondaryCalendarHint: "A separate block with its own habit filter.",
+      secondaryCalendarEnable: "Show second calendar",
+      secondaryCalendarHistory: "Second calendar history",
+      secondaryCalendarFilter: "Habit filter",
+      secondaryCalendarWeekend: "Show weekends",
+      secondaryCalendarTypes: "Habit types",
       mobileTitle: "Today on mobile",
       mobileHint: "You can hide individual blocks only in the mobile Today screen.",
       forecastTitle: "Biorhythms",
@@ -161,6 +195,16 @@ function getSettingsCopy(language: "ru" | "en") {
     calendarTitle: "Календарь",
     calendarHint: "Сколько истории показывать в календаре.",
     historyLabel: "История календаря",
+    showWeekends: "Показывать выходные",
+    calendarFilterLabel: "Фильтр привычек",
+    calendarTypesLabel: "Типы привычек",
+    secondaryCalendarTitle: "Второй календарь",
+    secondaryCalendarHint: "Отдельный блок со своим фильтром привычек.",
+    secondaryCalendarEnable: "Показывать второй календарь",
+    secondaryCalendarHistory: "История второго календаря",
+    secondaryCalendarFilter: "Фильтр привычек",
+    secondaryCalendarWeekend: "Показывать выходные",
+    secondaryCalendarTypes: "Типы привычек",
     mobileTitle: "Сегодня на мобильном",
     mobileHint: "Можно скрывать отдельные блоки только в мобильной версии экрана Сегодня.",
     forecastTitle: "Биоритмы",
@@ -366,7 +410,76 @@ export function SettingsView({ state, actions }: { state: AppState; actions: App
               options={["0", "7", "14", "30", "60", "90", "180", "365"]}
               onChange={(value) => actions.updateSetting("calendarHistoryDays", Number(value))}
             />
+            <SelectControl
+              label={text.calendarFilterLabel}
+              value={state.settings.calendarFilterMode}
+              options={calendarFilterModes.map(([value, label]) => ({ value, label: label[language] }))}
+              onChange={(value) => actions.updateSetting("calendarFilterMode", value as CalendarFilterMode)}
+            />
           </div>
+          <Toggle
+            label={text.showWeekends}
+            checked={state.settings.showWeekends}
+            onChange={(checked) => actions.updateSetting("showWeekends", checked)}
+          />
+          {state.settings.calendarFilterMode === "types" ? (
+            <div className="module-toggle-grid type-toggle-grid">
+              {(Object.keys(calendarTypeLabels[language]) as HabitType[]).map((type) => (
+                <Toggle
+                  key={type}
+                  label={calendarTypeLabels[language][type]}
+                  checked={state.settings.calendarFilterTypes[type]}
+                  onChange={(checked) => actions.updateSetting("calendarFilterTypes", {
+                    ...state.settings.calendarFilterTypes,
+                    [type]: checked
+                  })}
+                />
+              ))}
+            </div>
+          ) : null}
+        </div>
+        <div className="panel settings-card">
+          <div className="section-head">
+            <div>
+              <h3>{text.secondaryCalendarTitle}</h3>
+              <p className="muted">{text.secondaryCalendarHint}</p>
+            </div>
+          </div>
+          <Toggle label={text.secondaryCalendarEnable} checked={state.settings.secondaryCalendar.enabled} onChange={(checked) => actions.updateSetting("secondaryCalendar", { ...state.settings.secondaryCalendar, enabled: checked })} />
+          <div className="form-grid">
+            <SelectControl
+              label={text.secondaryCalendarHistory}
+              value={String(state.settings.secondaryCalendar.historyDays)}
+              options={["0", "7", "14", "30", "60", "90", "180", "365"]}
+              onChange={(value) => actions.updateSetting("secondaryCalendar", { ...state.settings.secondaryCalendar, historyDays: Number(value) })}
+            />
+            <SelectControl
+              label={text.secondaryCalendarFilter}
+              value={state.settings.secondaryCalendar.filterMode}
+              options={calendarFilterModes.map(([value, label]) => ({ value, label: label[language] }))}
+              onChange={(value) => actions.updateSetting("secondaryCalendar", { ...state.settings.secondaryCalendar, filterMode: value as CalendarFilterMode })}
+            />
+          </div>
+          <Toggle
+            label={text.secondaryCalendarWeekend}
+            checked={state.settings.secondaryCalendar.showWeekends}
+            onChange={(checked) => actions.updateSetting("secondaryCalendar", { ...state.settings.secondaryCalendar, showWeekends: checked })}
+          />
+          {state.settings.secondaryCalendar.filterMode === "types" ? (
+            <div className="module-toggle-grid type-toggle-grid">
+              {(Object.keys(calendarTypeLabels[language]) as HabitType[]).map((type) => (
+                <Toggle
+                  key={type}
+                  label={calendarTypeLabels[language][type]}
+                  checked={state.settings.secondaryCalendar.selectedTypes[type]}
+                  onChange={(checked) => actions.updateSetting("secondaryCalendar", {
+                    ...state.settings.secondaryCalendar,
+                    selectedTypes: { ...state.settings.secondaryCalendar.selectedTypes, [type]: checked }
+                  })}
+                />
+              ))}
+            </div>
+          ) : null}
         </div>
         <div className="panel settings-card">
           <div className="section-head">

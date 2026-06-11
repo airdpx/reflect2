@@ -96,13 +96,12 @@ export function HabitModal({
           <div className="picker-panel">
             <div>
               <span className="picker-label">Иконка</span>
-              <p className="muted">Подбирается автоматически по названию и категории. Можно выбрать любую ниже.</p>
               <div className="preset-icon-grid">
                 {habitIconPresets.map((item) => <button type="button" key={item} className={icon === item ? "active" : ""} onClick={() => { setManualIcon(true); setIcon(item); }}>{item}</button>)}
               </div>
             </div>
           </div>
-          <Field label="Описание"><textarea className="textarea" name="description" defaultValue={h.description} /></Field>
+          <Field label="Описание"><textarea className="textarea compact-textarea habit-description-textarea" name="description" defaultValue={h.description} /></Field>
           <div className="hint-grid">
             {(Object.keys(habitTypeHints) as HabitType[]).map((itemType) => (
               <div className={`hint-card ${itemType === type ? "active" : ""}`} key={itemType}>

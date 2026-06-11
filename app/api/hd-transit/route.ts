@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { todayKey, toKey } from "../../../src/lib/date";
-import { fetchHumdesTransitDetails, fetchHumdesTransitListings, HUMDES_TRANSIT_PAGES } from "../../../src/lib/humdes";
+import { fetchHumdesTransitDetails, fetchHumdesTransitListings, HUMDES_TRANSIT_PAGES, toEnglishHumdesUrl } from "../../../src/lib/humdes";
 import { localizeHumanDesignTransit } from "../../../src/lib/human-design-i18n";
 import { normalizeLanguage } from "../../../src/lib/i18n";
 import { getPrisma } from "../../../src/server/db";
@@ -24,7 +24,7 @@ export async function GET(request: Request) {
         { status: 404 }
       );
     }
-    return NextResponse.json(localizeHumanDesignTransit(mapTransit(transit, today), language), {
+    return NextResponse.json(localizeHumanDesignTransit(mapTransit(transit, today, language), language), {
       headers: {
         "Cache-Control": "public, max-age=300, stale-while-revalidate=1800"
       }
@@ -56,6 +56,7 @@ export async function POST() {
 
 type TransitDatabaseRecord = {
   title: string;
+  titleEn: string | null;
   periodStart: string;
   periodEnd: string;
   listingUrl: string;
@@ -63,6 +64,11 @@ type TransitDatabaseRecord = {
   fetchedAt: Date | null;
   gates: unknown;
   paragraphs: unknown;
+  paragraphsEn: unknown;
+  helped: unknown;
+  helpedEn: unknown;
+  blocked: unknown;
+  blockedEn: unknown;
 };
 
 type TransitMatch = {
@@ -92,23 +98,37 @@ async function findTransitFromDatabase(prisma: ReturnType<typeof getPrisma>, tod
   return null;
 }
 
-function mapTransit(match: Awaited<ReturnType<typeof findTransitFromDatabase>>, date: string): HumanDesignTransit {
+function mapTransit(match: Awaited<ReturnType<typeof findTransitFromDatabase>>, date: string, language: "ru" | "en"): HumanDesignTransit {
   if (!match) {
     throw new Error("Нет текущего транзита.");
   }
   const { record } = match;
   const gates = Array.isArray(record.gates) ? (record.gates as HumanDesignTransitGate[]) : [];
-  const paragraphs = Array.isArray(record.paragraphs) ? (record.paragraphs as string[]) : [];
+  const paragraphsRu = Array.isArray(record.paragraphs) ? (record.paragraphs as string[]) : [];
+  const paragraphsEn = Array.isArray(record.paragraphsEn) ? (record.paragraphsEn as string[]) : [];
+  const paragraphs = language === "en" && paragraphsEn.length ? paragraphsEn : paragraphsRu;
+  const helpedRu = Array.isArray(record.helped) && record.helped.length
+    ? (record.helped as string[])
+    : extractTransitTraitFromParagraphs(paragraphsRu, "Помогают:");
+  const blockedRu = Array.isArray(record.blocked) && record.blocked.length
+    ? (record.blocked as string[])
+    : extractTransitTraitFromParagraphs(paragraphsRu, "Мешают:");
+  const helpedEn = Array.isArray(record.helpedEn) ? (record.helpedEn as string[]) : [];
+  const blockedEn = Array.isArray(record.blockedEn) ? (record.blockedEn as string[]) : [];
+  const helped = language === "en" && helpedEn.length ? helpedEn : helpedRu;
+  const blocked = language === "en" && blockedEn.length ? blockedEn : blockedRu;
   return {
     date,
     fetchedAt: record.fetchedAt?.toISOString() || new Date().toISOString(),
-    title: record.title,
+    title: language === "en" && record.titleEn ? record.titleEn : record.title,
     periodStart: match.periodStart,
     periodEnd: match.periodEnd,
     listingUrl: record.listingUrl,
     descriptionUrl: record.descriptionUrl,
     gates,
     paragraphs,
+    helped,
+    blocked,
     sourceUrl: record.listingUrl
   };
 }
@@ -138,30 +158,65 @@ function normalizeTransitPeriodForDate(periodStart: string, periodEnd: string, t
   return null;
 }
 
+function extractTransitTraitFromParagraphs(paragraphs: string[], prefix: string) {
+  return paragraphs
+    .filter((paragraph) => paragraph.startsWith(prefix))
+    .flatMap((paragraph) => paragraph.slice(prefix.length).split(/\n|[•·;]/g))
+    .map((item) => item.trim())
+    .filter(Boolean);
+}
+
 function fromIsoKey(value: string) {
   const [year, month, day] = value.split("-").map(Number);
   return new Date(year, month - 1, day);
 }
 
-async function syncHumdesTransits(prisma: ReturnType<typeof getPrisma>) {
+export async function syncHumdesTransits(prisma: ReturnType<typeof getPrisma>) {
   let imported = 0;
   for (let pageNumber = 1; pageNumber <= HUMDES_TRANSIT_PAGES; pageNumber += 1) {
     const listings = await fetchHumdesTransitListings(pageNumber);
     for (const listing of listings) {
       let paragraphs: string[] = [];
+      let titleEn = "";
+      let paragraphsEn: string[] = [];
+      let helped: string[] = [];
+      let helpedEn: string[] = [];
+      let blocked: string[] = [];
+      let blockedEn: string[] = [];
       let publishedAt: Date | null = null;
       try {
         const details = await fetchHumdesTransitDetails(listing.descriptionUrl);
         paragraphs = details.paragraphs;
+        helped = details.helped || [];
+        blocked = details.blocked || [];
         publishedAt = details.publishedAt;
+        try {
+          const detailsEn = await fetchHumdesTransitDetails(toEnglishHumdesUrl(listing.descriptionUrl));
+          titleEn = detailsEn.title || "";
+          paragraphsEn = detailsEn.paragraphs;
+          helpedEn = detailsEn.helped || [];
+          blockedEn = detailsEn.blocked || [];
+        } catch {
+          titleEn = "";
+          paragraphsEn = [];
+          helpedEn = [];
+          blockedEn = [];
+        }
       } catch {
         paragraphs = [];
+        titleEn = "";
+        paragraphsEn = [];
+        helped = [];
+        helpedEn = [];
+        blocked = [];
+        blockedEn = [];
         publishedAt = null;
       }
       await prisma.humanDesignTransitRecord.upsert({
         where: { descriptionUrl: listing.descriptionUrl },
         create: {
           title: listing.title,
+          titleEn,
           periodStart: listing.periodStart,
           periodEnd: listing.periodEnd,
           listingUrl: listing.listingUrl,
@@ -175,11 +230,17 @@ async function syncHumdesTransits(prisma: ReturnType<typeof getPrisma>) {
           gateEarthUrl: listing.gates[1]?.url || "",
           gates: listing.gates,
           paragraphs,
+          paragraphsEn,
+          helped,
+          helpedEn,
+          blocked,
+          blockedEn,
           publishedAt,
           fetchedAt: new Date()
         },
         update: {
           title: listing.title,
+          titleEn,
           periodStart: listing.periodStart,
           periodEnd: listing.periodEnd,
           listingUrl: listing.listingUrl,
@@ -192,6 +253,11 @@ async function syncHumdesTransits(prisma: ReturnType<typeof getPrisma>) {
           gateEarthUrl: listing.gates[1]?.url || "",
           gates: listing.gates,
           paragraphs,
+          paragraphsEn,
+          helped,
+          helpedEn,
+          blocked,
+          blockedEn,
           publishedAt: publishedAt || undefined,
           fetchedAt: new Date()
         }

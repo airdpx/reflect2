@@ -77,11 +77,15 @@ export function localizeHumanDesignTransit(transit: HumanDesignTransit, language
   const lang = normalizeLanguage(language);
   if (lang === "ru") return transit;
   const gates = transit.gates.map(localizeGate);
+  const hasEnglishParagraphs = transit.paragraphs.some((paragraph) => /[A-Za-z]/.test(paragraph) && !/[А-Яа-яЁё]/.test(paragraph));
+  const hasEnglishTraits = (transit.helped || []).concat(transit.blocked || []).some((item) => /[A-Za-z]/.test(item) && !/[А-Яа-яЁё]/.test(item));
   return {
     ...transit,
-    title: "Human Design Transit",
+    title: /[А-Яа-яЁё]/.test(transit.title) ? "Human Design Transit" : transit.title,
     gates,
-    paragraphs: buildEnglishTransitParagraphs(gates, transit.periodStart, transit.periodEnd)
+    paragraphs: hasEnglishParagraphs ? transit.paragraphs : buildEnglishTransitParagraphs(gates, transit.periodStart, transit.periodEnd),
+    helped: hasEnglishTraits ? transit.helped : [],
+    blocked: hasEnglishTraits ? transit.blocked : []
   };
 }
 

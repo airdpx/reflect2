@@ -1,6 +1,6 @@
 import { loadUserState } from "./auth";
 import { getPrisma } from "./db";
-import { loadContactFromEmail, loadResendApiKey } from "./site-settings";
+import { loadContactFromEmail, loadResendApiKey, loadRuntimeKnowledgeContent } from "./site-settings";
 import { getTelegramConnectionForUser, sendTelegramMessage } from "./telegram";
 import { calculateHabitStats, getAttentionHabits, getPeriodDates, getPeriodLabel, isHabitDue, logKey } from "../lib/analytics";
 import { formatDate, toKey, todayKey } from "../lib/date";
@@ -20,6 +20,7 @@ type DeliverNotificationInput = {
 
 export async function dispatchScheduledNotifications(now = new Date()) {
   const prisma = getPrisma();
+  const runtimeContent = await loadRuntimeKnowledgeContent();
   const users = await prisma.user.findMany({
     where: { isBlocked: false },
     orderBy: { createdAt: "asc" },
@@ -37,7 +38,7 @@ export async function dispatchScheduledNotifications(now = new Date()) {
     }
 
     const slotKey = buildSlotKey(state, now);
-    const feed = buildNotificationFeed(state, makeSelectors(state));
+    const feed = buildNotificationFeed(state, makeSelectors(state), runtimeContent);
     const items = feed.filter((item) => item.channels.length > 0);
     for (const item of items) {
       for (const channel of item.channels) {
@@ -74,7 +75,8 @@ export async function dispatchTestNotification(input: {
   channel: NotificationChannel;
   topic?: NotificationTopic;
 }) {
-  const feed = buildNotificationFeed(input.state, makeSelectors(input.state));
+  const runtimeContent = await loadRuntimeKnowledgeContent();
+  const feed = buildNotificationFeed(input.state, makeSelectors(input.state), runtimeContent);
   const item = feed.find((entry) => entry.id === input.notificationId)
     || (input.topic ? feed.find((entry) => entry.topic === input.topic) : null);
   if (!item) {

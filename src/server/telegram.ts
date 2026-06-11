@@ -1,7 +1,7 @@
 import { randomBytes, createHash } from "node:crypto";
 import { getPrisma } from "./db";
 import { loadUserState } from "./auth";
-import { loadTelegramAdminConfig, loadTelegramAdminSettings, normalizeTelegramBotUsername, saveTelegramAdminSettings } from "./site-settings";
+import { loadRuntimeKnowledgeContent, loadTelegramAdminConfig, loadTelegramAdminSettings, normalizeTelegramBotUsername, saveTelegramAdminSettings } from "./site-settings";
 import { buildNotificationFeed } from "../lib/notifications";
 import { calculateHabitStats, getAttentionHabits, getPeriodDates, getPeriodLabel, isHabitDue, logKey } from "../lib/analytics";
 import { formatDate } from "../lib/date";
@@ -271,6 +271,7 @@ export async function sendTelegramMessage(chatId: string, text: string, options?
 export async function dispatchTelegramDigestForAllUsers() {
   const prisma = getPrisma();
   const config = await loadTelegramAdminConfig();
+  const runtimeContent = await loadRuntimeKnowledgeContent();
   const details: TelegramDeliveryResult["details"] = [];
   if (!config.enabled || !config.botToken) {
     return { ok: false, delivered: 0, failed: 0, skipped: 0, details } satisfies TelegramDeliveryResult;
@@ -299,7 +300,7 @@ export async function dispatchTelegramDigestForAllUsers() {
       details.push({ userId: connection.userId, chatId: connection.chatId, status: "skipped" });
       continue;
     }
-    const feed = buildNotificationFeed(state, makeSelectors(state));
+    const feed = buildNotificationFeed(state, makeSelectors(state), runtimeContent);
     const telegramItems = feed.filter((item) => item.channels.includes("telegram"));
     if (!telegramItems.length) {
       await prisma.notificationDeliveryLog.create({

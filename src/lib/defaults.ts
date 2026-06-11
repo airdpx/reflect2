@@ -11,14 +11,16 @@ export const statusMeta: Record<HabitStatus, { label: string; short: string; cla
 
 export const habitTypeLabels: Record<HabitType, string> = {
   boolean: "Обычная",
+  daily: "Каждый день",
   numeric: "Числовая",
   multiple: "Несколько раз в день",
   avoid: "Не делать",
-  reflection: "Самонаблюдение"
+  reflection: "Не каждый день"
 };
 
 export const habitTypeHints: Record<HabitType, string> = {
   boolean: "Простая отметка: сделал или не сделал.",
+  daily: "Ежедневная привычка, которую хочется отмечать каждый день.",
   numeric: "Подходит для шагов, минут, страниц или любого числа.",
   multiple: "Несколько коротких повторов в день, например вода.",
   avoid: "Успех дня — не сделать нежелательное действие.",
@@ -36,6 +38,7 @@ export const habitCategoryPresets = ["Здоровье", "Состояние", "
 const habitIconRules: Array<{ terms: string[]; icon: string }> = [
   { terms: ["сон", "sleep", "спать", "ноч", "bed", "высп"], icon: "🌙" },
   { terms: ["zzz", "сонлив", "sleepy", "поспать"], icon: "💤" },
+  { terms: ["каждый день", "every day", "daily", "ежеднев"], icon: "☀️" },
   { terms: ["чистк зуб", "зуб", "brush", "tooth"], icon: "🪥" },
   { terms: ["велосип", "bike", "cycling", "ride"], icon: "🚴" },
   { terms: ["авто", "car", "машин", "drive", "road"], icon: "🚗" },
@@ -84,6 +87,7 @@ export function suggestHabitIcon(title: string, category = "", type: string = ""
     if (rule.terms.some((term) => haystack.includes(term))) return rule.icon;
   }
   if (type === "avoid") return "🚫";
+  if (type === "daily") return "☀️";
   if (type === "reflection") return "📝";
   if (type === "numeric") return "✨";
   return "⭐";
@@ -342,6 +346,14 @@ export function mergeSettings(base: UserSettings, override?: Partial<UserSetting
       ...base.visibleGrid,
       ...override.visibleGrid
     },
+    secondaryCalendar: {
+      ...base.secondaryCalendar,
+      ...override.secondaryCalendar,
+      selectedTypes: {
+        ...base.secondaryCalendar.selectedTypes,
+        ...override.secondaryCalendar?.selectedTypes
+      }
+    },
     customTheme: {
       ...base.customTheme,
       ...override.customTheme
@@ -353,6 +365,11 @@ export function mergeSettings(base: UserSettings, override?: Partial<UserSetting
     gridColors: {
       ...base.gridColors,
       ...override.gridColors
+    },
+    calendarFilterMode: override.calendarFilterMode || base.calendarFilterMode,
+    calendarFilterTypes: {
+      ...base.calendarFilterTypes,
+      ...override.calendarFilterTypes
     },
     forecast: {
       ...base.forecast,
@@ -439,6 +456,29 @@ export function createDefaults(settingsOverride?: Partial<UserSettings>): AppSta
     gridMarkerShape: "circle",
     gridHabitColorMode: "habit",
     calendarHistoryDays: 7,
+    calendarFilterMode: "types",
+    calendarFilterTypes: {
+      boolean: true,
+      daily: true,
+      numeric: true,
+      multiple: true,
+      avoid: true,
+      reflection: true
+    },
+    secondaryCalendar: {
+      enabled: false,
+      historyDays: 7,
+      showWeekends: true,
+      filterMode: "types",
+      selectedTypes: {
+        boolean: true,
+        daily: true,
+        numeric: true,
+        multiple: true,
+        avoid: true,
+        reflection: true
+      }
+    },
     statusIcons: {
       done: "❤️",
       partial: "◐",

@@ -37,6 +37,7 @@ export type HumanDesignTransitRecordSumAggregateOutputType = {
 export type HumanDesignTransitRecordMinAggregateOutputType = {
   id: string | null
   title: string | null
+  titleEn: string | null
   periodStart: string | null
   periodEnd: string | null
   listingUrl: string | null
@@ -57,6 +58,7 @@ export type HumanDesignTransitRecordMinAggregateOutputType = {
 export type HumanDesignTransitRecordMaxAggregateOutputType = {
   id: string | null
   title: string | null
+  titleEn: string | null
   periodStart: string | null
   periodEnd: string | null
   listingUrl: string | null
@@ -77,6 +79,7 @@ export type HumanDesignTransitRecordMaxAggregateOutputType = {
 export type HumanDesignTransitRecordCountAggregateOutputType = {
   id: number
   title: number
+  titleEn: number
   periodStart: number
   periodEnd: number
   listingUrl: number
@@ -90,6 +93,11 @@ export type HumanDesignTransitRecordCountAggregateOutputType = {
   gateEarthUrl: number
   gates: number
   paragraphs: number
+  paragraphsEn: number
+  helped: number
+  helpedEn: number
+  blocked: number
+  blockedEn: number
   publishedAt: number
   fetchedAt: number
   createdAt: number
@@ -109,6 +117,7 @@ export type HumanDesignTransitRecordSumAggregateInputType = {
 export type HumanDesignTransitRecordMinAggregateInputType = {
   id?: true
   title?: true
+  titleEn?: true
   periodStart?: true
   periodEnd?: true
   listingUrl?: true
@@ -129,6 +138,7 @@ export type HumanDesignTransitRecordMinAggregateInputType = {
 export type HumanDesignTransitRecordMaxAggregateInputType = {
   id?: true
   title?: true
+  titleEn?: true
   periodStart?: true
   periodEnd?: true
   listingUrl?: true
@@ -149,6 +159,7 @@ export type HumanDesignTransitRecordMaxAggregateInputType = {
 export type HumanDesignTransitRecordCountAggregateInputType = {
   id?: true
   title?: true
+  titleEn?: true
   periodStart?: true
   periodEnd?: true
   listingUrl?: true
@@ -162,6 +173,11 @@ export type HumanDesignTransitRecordCountAggregateInputType = {
   gateEarthUrl?: true
   gates?: true
   paragraphs?: true
+  paragraphsEn?: true
+  helped?: true
+  helpedEn?: true
+  blocked?: true
+  blockedEn?: true
   publishedAt?: true
   fetchedAt?: true
   createdAt?: true
@@ -258,6 +274,7 @@ export type HumanDesignTransitRecordGroupByArgs<ExtArgs extends runtime.Types.Ex
 export type HumanDesignTransitRecordGroupByOutputType = {
   id: string
   title: string
+  titleEn: string | null
   periodStart: string
   periodEnd: string
   listingUrl: string
@@ -271,6 +288,11 @@ export type HumanDesignTransitRecordGroupByOutputType = {
   gateEarthUrl: string
   gates: runtime.JsonValue
   paragraphs: runtime.JsonValue
+  paragraphsEn: runtime.JsonValue | null
+  helped: runtime.JsonValue | null
+  helpedEn: runtime.JsonValue | null
+  blocked: runtime.JsonValue | null
+  blockedEn: runtime.JsonValue | null
   publishedAt: Date | null
   fetchedAt: Date | null
   createdAt: Date
@@ -303,6 +325,7 @@ export type HumanDesignTransitRecordWhereInput = {
   NOT?: Prisma.HumanDesignTransitRecordWhereInput | Prisma.HumanDesignTransitRecordWhereInput[]
   id?: Prisma.StringFilter<"HumanDesignTransitRecord"> | string
   title?: Prisma.StringFilter<"HumanDesignTransitRecord"> | string
+  titleEn?: Prisma.StringNullableFilter<"HumanDesignTransitRecord"> | string | null
   periodStart?: Prisma.StringFilter<"HumanDesignTransitRecord"> | string
   periodEnd?: Prisma.StringFilter<"HumanDesignTransitRecord"> | string
   listingUrl?: Prisma.StringFilter<"HumanDesignTransitRecord"> | string
@@ -316,6 +339,11 @@ export type HumanDesignTransitRecordWhereInput = {
   gateEarthUrl?: Prisma.StringFilter<"HumanDesignTransitRecord"> | string
   gates?: Prisma.JsonFilter<"HumanDesignTransitRecord">
   paragraphs?: Prisma.JsonFilter<"HumanDesignTransitRecord">
+  paragraphsEn?: Prisma.JsonNullableFilter<"HumanDesignTransitRecord">
+  helped?: Prisma.JsonNullableFilter<"HumanDesignTransitRecord">
+  helpedEn?: Prisma.JsonNullableFilter<"HumanDesignTransitRecord">
+  blocked?: Prisma.JsonNullableFilter<"HumanDesignTransitRecord">
+  blockedEn?: Prisma.JsonNullableFilter<"HumanDesignTransitRecord">
   publishedAt?: Prisma.DateTimeNullableFilter<"HumanDesignTransitRecord"> | Date | string | null
   fetchedAt?: Prisma.DateTimeNullableFilter<"HumanDesignTransitRecord"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"HumanDesignTransitRecord"> | Date | string
@@ -325,6 +353,7 @@ export type HumanDesignTransitRecordWhereInput = {
 export type HumanDesignTransitRecordOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   title?: Prisma.SortOrder
+  titleEn?: Prisma.SortOrderInput | Prisma.SortOrder
   periodStart?: Prisma.SortOrder
   periodEnd?: Prisma.SortOrder
   listingUrl?: Prisma.SortOrder
@@ -338,6 +367,11 @@ export type HumanDesignTransitRecordOrderByWithRelationInput = {
   gateEarthUrl?: Prisma.SortOrder
   gates?: Prisma.SortOrder
   paragraphs?: Prisma.SortOrder
+  paragraphsEn?: Prisma.SortOrderInput | Prisma.SortOrder
+  helped?: Prisma.SortOrderInput | Prisma.SortOrder
+  helpedEn?: Prisma.SortOrderInput | Prisma.SortOrder
+  blocked?: Prisma.SortOrderInput | Prisma.SortOrder
+  blockedEn?: Prisma.SortOrderInput | Prisma.SortOrder
   publishedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   fetchedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -351,6 +385,7 @@ export type HumanDesignTransitRecordWhereUniqueInput = Prisma.AtLeast<{
   OR?: Prisma.HumanDesignTransitRecordWhereInput[]
   NOT?: Prisma.HumanDesignTransitRecordWhereInput | Prisma.HumanDesignTransitRecordWhereInput[]
   title?: Prisma.StringFilter<"HumanDesignTransitRecord"> | string
+  titleEn?: Prisma.StringNullableFilter<"HumanDesignTransitRecord"> | string | null
   periodStart?: Prisma.StringFilter<"HumanDesignTransitRecord"> | string
   periodEnd?: Prisma.StringFilter<"HumanDesignTransitRecord"> | string
   listingUrl?: Prisma.StringFilter<"HumanDesignTransitRecord"> | string
@@ -363,6 +398,11 @@ export type HumanDesignTransitRecordWhereUniqueInput = Prisma.AtLeast<{
   gateEarthUrl?: Prisma.StringFilter<"HumanDesignTransitRecord"> | string
   gates?: Prisma.JsonFilter<"HumanDesignTransitRecord">
   paragraphs?: Prisma.JsonFilter<"HumanDesignTransitRecord">
+  paragraphsEn?: Prisma.JsonNullableFilter<"HumanDesignTransitRecord">
+  helped?: Prisma.JsonNullableFilter<"HumanDesignTransitRecord">
+  helpedEn?: Prisma.JsonNullableFilter<"HumanDesignTransitRecord">
+  blocked?: Prisma.JsonNullableFilter<"HumanDesignTransitRecord">
+  blockedEn?: Prisma.JsonNullableFilter<"HumanDesignTransitRecord">
   publishedAt?: Prisma.DateTimeNullableFilter<"HumanDesignTransitRecord"> | Date | string | null
   fetchedAt?: Prisma.DateTimeNullableFilter<"HumanDesignTransitRecord"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"HumanDesignTransitRecord"> | Date | string
@@ -372,6 +412,7 @@ export type HumanDesignTransitRecordWhereUniqueInput = Prisma.AtLeast<{
 export type HumanDesignTransitRecordOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   title?: Prisma.SortOrder
+  titleEn?: Prisma.SortOrderInput | Prisma.SortOrder
   periodStart?: Prisma.SortOrder
   periodEnd?: Prisma.SortOrder
   listingUrl?: Prisma.SortOrder
@@ -385,6 +426,11 @@ export type HumanDesignTransitRecordOrderByWithAggregationInput = {
   gateEarthUrl?: Prisma.SortOrder
   gates?: Prisma.SortOrder
   paragraphs?: Prisma.SortOrder
+  paragraphsEn?: Prisma.SortOrderInput | Prisma.SortOrder
+  helped?: Prisma.SortOrderInput | Prisma.SortOrder
+  helpedEn?: Prisma.SortOrderInput | Prisma.SortOrder
+  blocked?: Prisma.SortOrderInput | Prisma.SortOrder
+  blockedEn?: Prisma.SortOrderInput | Prisma.SortOrder
   publishedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   fetchedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -402,6 +448,7 @@ export type HumanDesignTransitRecordScalarWhereWithAggregatesInput = {
   NOT?: Prisma.HumanDesignTransitRecordScalarWhereWithAggregatesInput | Prisma.HumanDesignTransitRecordScalarWhereWithAggregatesInput[]
   id?: Prisma.StringWithAggregatesFilter<"HumanDesignTransitRecord"> | string
   title?: Prisma.StringWithAggregatesFilter<"HumanDesignTransitRecord"> | string
+  titleEn?: Prisma.StringNullableWithAggregatesFilter<"HumanDesignTransitRecord"> | string | null
   periodStart?: Prisma.StringWithAggregatesFilter<"HumanDesignTransitRecord"> | string
   periodEnd?: Prisma.StringWithAggregatesFilter<"HumanDesignTransitRecord"> | string
   listingUrl?: Prisma.StringWithAggregatesFilter<"HumanDesignTransitRecord"> | string
@@ -415,6 +462,11 @@ export type HumanDesignTransitRecordScalarWhereWithAggregatesInput = {
   gateEarthUrl?: Prisma.StringWithAggregatesFilter<"HumanDesignTransitRecord"> | string
   gates?: Prisma.JsonWithAggregatesFilter<"HumanDesignTransitRecord">
   paragraphs?: Prisma.JsonWithAggregatesFilter<"HumanDesignTransitRecord">
+  paragraphsEn?: Prisma.JsonNullableWithAggregatesFilter<"HumanDesignTransitRecord">
+  helped?: Prisma.JsonNullableWithAggregatesFilter<"HumanDesignTransitRecord">
+  helpedEn?: Prisma.JsonNullableWithAggregatesFilter<"HumanDesignTransitRecord">
+  blocked?: Prisma.JsonNullableWithAggregatesFilter<"HumanDesignTransitRecord">
+  blockedEn?: Prisma.JsonNullableWithAggregatesFilter<"HumanDesignTransitRecord">
   publishedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"HumanDesignTransitRecord"> | Date | string | null
   fetchedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"HumanDesignTransitRecord"> | Date | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"HumanDesignTransitRecord"> | Date | string
@@ -424,6 +476,7 @@ export type HumanDesignTransitRecordScalarWhereWithAggregatesInput = {
 export type HumanDesignTransitRecordCreateInput = {
   id?: string
   title: string
+  titleEn?: string | null
   periodStart: string
   periodEnd: string
   listingUrl: string
@@ -437,6 +490,11 @@ export type HumanDesignTransitRecordCreateInput = {
   gateEarthUrl: string
   gates: Prisma.JsonNullValueInput | runtime.InputJsonValue
   paragraphs: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  paragraphsEn?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  helped?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  helpedEn?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  blocked?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  blockedEn?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   publishedAt?: Date | string | null
   fetchedAt?: Date | string | null
   createdAt?: Date | string
@@ -446,6 +504,7 @@ export type HumanDesignTransitRecordCreateInput = {
 export type HumanDesignTransitRecordUncheckedCreateInput = {
   id?: string
   title: string
+  titleEn?: string | null
   periodStart: string
   periodEnd: string
   listingUrl: string
@@ -459,6 +518,11 @@ export type HumanDesignTransitRecordUncheckedCreateInput = {
   gateEarthUrl: string
   gates: Prisma.JsonNullValueInput | runtime.InputJsonValue
   paragraphs: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  paragraphsEn?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  helped?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  helpedEn?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  blocked?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  blockedEn?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   publishedAt?: Date | string | null
   fetchedAt?: Date | string | null
   createdAt?: Date | string
@@ -468,6 +532,7 @@ export type HumanDesignTransitRecordUncheckedCreateInput = {
 export type HumanDesignTransitRecordUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   title?: Prisma.StringFieldUpdateOperationsInput | string
+  titleEn?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   periodStart?: Prisma.StringFieldUpdateOperationsInput | string
   periodEnd?: Prisma.StringFieldUpdateOperationsInput | string
   listingUrl?: Prisma.StringFieldUpdateOperationsInput | string
@@ -481,6 +546,11 @@ export type HumanDesignTransitRecordUpdateInput = {
   gateEarthUrl?: Prisma.StringFieldUpdateOperationsInput | string
   gates?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   paragraphs?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  paragraphsEn?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  helped?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  helpedEn?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  blocked?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  blockedEn?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   publishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   fetchedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -490,6 +560,7 @@ export type HumanDesignTransitRecordUpdateInput = {
 export type HumanDesignTransitRecordUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   title?: Prisma.StringFieldUpdateOperationsInput | string
+  titleEn?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   periodStart?: Prisma.StringFieldUpdateOperationsInput | string
   periodEnd?: Prisma.StringFieldUpdateOperationsInput | string
   listingUrl?: Prisma.StringFieldUpdateOperationsInput | string
@@ -503,6 +574,11 @@ export type HumanDesignTransitRecordUncheckedUpdateInput = {
   gateEarthUrl?: Prisma.StringFieldUpdateOperationsInput | string
   gates?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   paragraphs?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  paragraphsEn?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  helped?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  helpedEn?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  blocked?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  blockedEn?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   publishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   fetchedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -512,6 +588,7 @@ export type HumanDesignTransitRecordUncheckedUpdateInput = {
 export type HumanDesignTransitRecordCreateManyInput = {
   id?: string
   title: string
+  titleEn?: string | null
   periodStart: string
   periodEnd: string
   listingUrl: string
@@ -525,6 +602,11 @@ export type HumanDesignTransitRecordCreateManyInput = {
   gateEarthUrl: string
   gates: Prisma.JsonNullValueInput | runtime.InputJsonValue
   paragraphs: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  paragraphsEn?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  helped?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  helpedEn?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  blocked?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  blockedEn?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   publishedAt?: Date | string | null
   fetchedAt?: Date | string | null
   createdAt?: Date | string
@@ -534,6 +616,7 @@ export type HumanDesignTransitRecordCreateManyInput = {
 export type HumanDesignTransitRecordUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   title?: Prisma.StringFieldUpdateOperationsInput | string
+  titleEn?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   periodStart?: Prisma.StringFieldUpdateOperationsInput | string
   periodEnd?: Prisma.StringFieldUpdateOperationsInput | string
   listingUrl?: Prisma.StringFieldUpdateOperationsInput | string
@@ -547,6 +630,11 @@ export type HumanDesignTransitRecordUpdateManyMutationInput = {
   gateEarthUrl?: Prisma.StringFieldUpdateOperationsInput | string
   gates?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   paragraphs?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  paragraphsEn?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  helped?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  helpedEn?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  blocked?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  blockedEn?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   publishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   fetchedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -556,6 +644,7 @@ export type HumanDesignTransitRecordUpdateManyMutationInput = {
 export type HumanDesignTransitRecordUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   title?: Prisma.StringFieldUpdateOperationsInput | string
+  titleEn?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   periodStart?: Prisma.StringFieldUpdateOperationsInput | string
   periodEnd?: Prisma.StringFieldUpdateOperationsInput | string
   listingUrl?: Prisma.StringFieldUpdateOperationsInput | string
@@ -569,6 +658,11 @@ export type HumanDesignTransitRecordUncheckedUpdateManyInput = {
   gateEarthUrl?: Prisma.StringFieldUpdateOperationsInput | string
   gates?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   paragraphs?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  paragraphsEn?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  helped?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  helpedEn?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  blocked?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  blockedEn?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   publishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   fetchedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -578,6 +672,7 @@ export type HumanDesignTransitRecordUncheckedUpdateManyInput = {
 export type HumanDesignTransitRecordCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   title?: Prisma.SortOrder
+  titleEn?: Prisma.SortOrder
   periodStart?: Prisma.SortOrder
   periodEnd?: Prisma.SortOrder
   listingUrl?: Prisma.SortOrder
@@ -591,6 +686,11 @@ export type HumanDesignTransitRecordCountOrderByAggregateInput = {
   gateEarthUrl?: Prisma.SortOrder
   gates?: Prisma.SortOrder
   paragraphs?: Prisma.SortOrder
+  paragraphsEn?: Prisma.SortOrder
+  helped?: Prisma.SortOrder
+  helpedEn?: Prisma.SortOrder
+  blocked?: Prisma.SortOrder
+  blockedEn?: Prisma.SortOrder
   publishedAt?: Prisma.SortOrder
   fetchedAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -604,6 +704,7 @@ export type HumanDesignTransitRecordAvgOrderByAggregateInput = {
 export type HumanDesignTransitRecordMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
   title?: Prisma.SortOrder
+  titleEn?: Prisma.SortOrder
   periodStart?: Prisma.SortOrder
   periodEnd?: Prisma.SortOrder
   listingUrl?: Prisma.SortOrder
@@ -624,6 +725,7 @@ export type HumanDesignTransitRecordMaxOrderByAggregateInput = {
 export type HumanDesignTransitRecordMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
   title?: Prisma.SortOrder
+  titleEn?: Prisma.SortOrder
   periodStart?: Prisma.SortOrder
   periodEnd?: Prisma.SortOrder
   listingUrl?: Prisma.SortOrder
@@ -645,6 +747,10 @@ export type HumanDesignTransitRecordSumOrderByAggregateInput = {
   pageNumber?: Prisma.SortOrder
 }
 
+export type NullableStringFieldUpdateOperationsInput = {
+  set?: string | null
+}
+
 export type IntFieldUpdateOperationsInput = {
   set?: number
   increment?: number
@@ -658,6 +764,7 @@ export type IntFieldUpdateOperationsInput = {
 export type HumanDesignTransitRecordSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   title?: boolean
+  titleEn?: boolean
   periodStart?: boolean
   periodEnd?: boolean
   listingUrl?: boolean
@@ -671,6 +778,11 @@ export type HumanDesignTransitRecordSelect<ExtArgs extends runtime.Types.Extensi
   gateEarthUrl?: boolean
   gates?: boolean
   paragraphs?: boolean
+  paragraphsEn?: boolean
+  helped?: boolean
+  helpedEn?: boolean
+  blocked?: boolean
+  blockedEn?: boolean
   publishedAt?: boolean
   fetchedAt?: boolean
   createdAt?: boolean
@@ -680,6 +792,7 @@ export type HumanDesignTransitRecordSelect<ExtArgs extends runtime.Types.Extensi
 export type HumanDesignTransitRecordSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   title?: boolean
+  titleEn?: boolean
   periodStart?: boolean
   periodEnd?: boolean
   listingUrl?: boolean
@@ -693,6 +806,11 @@ export type HumanDesignTransitRecordSelectCreateManyAndReturn<ExtArgs extends ru
   gateEarthUrl?: boolean
   gates?: boolean
   paragraphs?: boolean
+  paragraphsEn?: boolean
+  helped?: boolean
+  helpedEn?: boolean
+  blocked?: boolean
+  blockedEn?: boolean
   publishedAt?: boolean
   fetchedAt?: boolean
   createdAt?: boolean
@@ -702,6 +820,7 @@ export type HumanDesignTransitRecordSelectCreateManyAndReturn<ExtArgs extends ru
 export type HumanDesignTransitRecordSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   title?: boolean
+  titleEn?: boolean
   periodStart?: boolean
   periodEnd?: boolean
   listingUrl?: boolean
@@ -715,6 +834,11 @@ export type HumanDesignTransitRecordSelectUpdateManyAndReturn<ExtArgs extends ru
   gateEarthUrl?: boolean
   gates?: boolean
   paragraphs?: boolean
+  paragraphsEn?: boolean
+  helped?: boolean
+  helpedEn?: boolean
+  blocked?: boolean
+  blockedEn?: boolean
   publishedAt?: boolean
   fetchedAt?: boolean
   createdAt?: boolean
@@ -724,6 +848,7 @@ export type HumanDesignTransitRecordSelectUpdateManyAndReturn<ExtArgs extends ru
 export type HumanDesignTransitRecordSelectScalar = {
   id?: boolean
   title?: boolean
+  titleEn?: boolean
   periodStart?: boolean
   periodEnd?: boolean
   listingUrl?: boolean
@@ -737,13 +862,18 @@ export type HumanDesignTransitRecordSelectScalar = {
   gateEarthUrl?: boolean
   gates?: boolean
   paragraphs?: boolean
+  paragraphsEn?: boolean
+  helped?: boolean
+  helpedEn?: boolean
+  blocked?: boolean
+  blockedEn?: boolean
   publishedAt?: boolean
   fetchedAt?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type HumanDesignTransitRecordOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "title" | "periodStart" | "periodEnd" | "listingUrl" | "descriptionUrl" | "pageNumber" | "gateSunNumber" | "gateSunName" | "gateSunUrl" | "gateEarthNumber" | "gateEarthName" | "gateEarthUrl" | "gates" | "paragraphs" | "publishedAt" | "fetchedAt" | "createdAt" | "updatedAt", ExtArgs["result"]["humanDesignTransitRecord"]>
+export type HumanDesignTransitRecordOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "title" | "titleEn" | "periodStart" | "periodEnd" | "listingUrl" | "descriptionUrl" | "pageNumber" | "gateSunNumber" | "gateSunName" | "gateSunUrl" | "gateEarthNumber" | "gateEarthName" | "gateEarthUrl" | "gates" | "paragraphs" | "paragraphsEn" | "helped" | "helpedEn" | "blocked" | "blockedEn" | "publishedAt" | "fetchedAt" | "createdAt" | "updatedAt", ExtArgs["result"]["humanDesignTransitRecord"]>
 
 export type $HumanDesignTransitRecordPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "HumanDesignTransitRecord"
@@ -751,6 +881,7 @@ export type $HumanDesignTransitRecordPayload<ExtArgs extends runtime.Types.Exten
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
     title: string
+    titleEn: string | null
     periodStart: string
     periodEnd: string
     listingUrl: string
@@ -764,6 +895,11 @@ export type $HumanDesignTransitRecordPayload<ExtArgs extends runtime.Types.Exten
     gateEarthUrl: string
     gates: runtime.JsonValue
     paragraphs: runtime.JsonValue
+    paragraphsEn: runtime.JsonValue | null
+    helped: runtime.JsonValue | null
+    helpedEn: runtime.JsonValue | null
+    blocked: runtime.JsonValue | null
+    blockedEn: runtime.JsonValue | null
     publishedAt: Date | null
     fetchedAt: Date | null
     createdAt: Date
@@ -1193,6 +1329,7 @@ export interface Prisma__HumanDesignTransitRecordClient<T, Null = never, ExtArgs
 export interface HumanDesignTransitRecordFieldRefs {
   readonly id: Prisma.FieldRef<"HumanDesignTransitRecord", 'String'>
   readonly title: Prisma.FieldRef<"HumanDesignTransitRecord", 'String'>
+  readonly titleEn: Prisma.FieldRef<"HumanDesignTransitRecord", 'String'>
   readonly periodStart: Prisma.FieldRef<"HumanDesignTransitRecord", 'String'>
   readonly periodEnd: Prisma.FieldRef<"HumanDesignTransitRecord", 'String'>
   readonly listingUrl: Prisma.FieldRef<"HumanDesignTransitRecord", 'String'>
@@ -1206,6 +1343,11 @@ export interface HumanDesignTransitRecordFieldRefs {
   readonly gateEarthUrl: Prisma.FieldRef<"HumanDesignTransitRecord", 'String'>
   readonly gates: Prisma.FieldRef<"HumanDesignTransitRecord", 'Json'>
   readonly paragraphs: Prisma.FieldRef<"HumanDesignTransitRecord", 'Json'>
+  readonly paragraphsEn: Prisma.FieldRef<"HumanDesignTransitRecord", 'Json'>
+  readonly helped: Prisma.FieldRef<"HumanDesignTransitRecord", 'Json'>
+  readonly helpedEn: Prisma.FieldRef<"HumanDesignTransitRecord", 'Json'>
+  readonly blocked: Prisma.FieldRef<"HumanDesignTransitRecord", 'Json'>
+  readonly blockedEn: Prisma.FieldRef<"HumanDesignTransitRecord", 'Json'>
   readonly publishedAt: Prisma.FieldRef<"HumanDesignTransitRecord", 'DateTime'>
   readonly fetchedAt: Prisma.FieldRef<"HumanDesignTransitRecord", 'DateTime'>
   readonly createdAt: Prisma.FieldRef<"HumanDesignTransitRecord", 'DateTime'>

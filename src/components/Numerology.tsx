@@ -1,11 +1,13 @@
 import type { AppState, NumerologyResult } from "../types";
 import { normalizeLanguage } from "../lib/i18n";
 import { getNumerology, numerologyTone } from "../lib/numerology";
+import { useRuntimeContent } from "./RuntimeContent";
 
 export function TodayNumerologyPanel({ state }: { state: AppState }) {
   if (!state.settings.numerology.enabled || !state.settings.numerology.showInToday) return null;
   const language = normalizeLanguage(state.settings.language);
-  const numerology = getNumerology(state.selectedDate, state.profile?.birthDate || "", state.settings.numerology, language);
+  const { content } = useRuntimeContent();
+  const numerology = getNumerology(state.selectedDate, state.profile?.birthDate || "", state.settings.numerology, language, content);
   if (!numerology) return null;
   return <NumerologyShell title={language === "en" ? "Numbers" : "Цифры"} numerology={numerology} displayMode={state.settings.numerology.displayMode} compact={state.settings.numerology.displayMode !== "cards"} visibleMetrics={state.settings.numerology.visibleMetrics} language={language} />;
 }
@@ -13,7 +15,8 @@ export function TodayNumerologyPanel({ state }: { state: AppState }) {
 export function DiaryNumerologyStrip({ state }: { state: AppState }) {
   if (!state.settings.numerology.enabled || !state.settings.numerology.showInDiary) return null;
   const language = normalizeLanguage(state.settings.language);
-  const numerology = getNumerology(state.selectedDate, state.profile?.birthDate || "", state.settings.numerology, language);
+  const { content } = useRuntimeContent();
+  const numerology = getNumerology(state.selectedDate, state.profile?.birthDate || "", state.settings.numerology, language, content);
   if (!numerology) return null;
   const tone = numerologyTone(numerology.summaryScore);
   const visibleMetrics = numerology.metrics.filter((metric) => state.settings.numerology.visibleMetrics[metric.id]);
@@ -35,7 +38,8 @@ export function DiaryNumerologyStrip({ state }: { state: AppState }) {
 export function InspectorNumerologySummary({ state, allowToday = false }: { state: AppState; allowToday?: boolean }) {
   if (!state.settings.numerology.enabled || !state.settings.numerology.showInInspector || (!allowToday && state.view === "today")) return null;
   const language = normalizeLanguage(state.settings.language);
-  const numerology = getNumerology(state.selectedDate, state.profile?.birthDate || "", state.settings.numerology, language);
+  const { content } = useRuntimeContent();
+  const numerology = getNumerology(state.selectedDate, state.profile?.birthDate || "", state.settings.numerology, language, content);
   if (!numerology) return null;
   return (
     <div className="panel inspector-panel numerology-inspector-panel">

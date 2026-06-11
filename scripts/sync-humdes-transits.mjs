@@ -82,14 +82,37 @@ function parseListings(html, pageNumber) {
 
 async function fetchDetails(descriptionUrl) {
   const html = await fetchHtml(descriptionUrl);
+  const title = cleanText(matchFirst(html, /<meta property="og:title" content="([^"]+)"/i) || matchFirst(html, /<title>([^<]+)<\/title>/i));
   const publishedAt = matchFirst(html, /<meta property="article:published_time" content="([^"]+)">/i);
   const transitBody = matchFirst(html, /<div class="transit__text">([\s\S]*?)<\/div>/i);
-  const paragraphs = Array.from(transitBody.matchAll(/<p>([\s\S]*?)<\/p>/gi)).map((item) => cleanText(stripTags(item[1])));
+  const decodedTransitBody = decodeEntities(transitBody);
+  const paragraphs = extractTransitParagraphs(decodedTransitBody, html);
   const traits = Array.from(html.matchAll(/<div class="transit__trait">\s*<span class="transit__trait-lead">([^<]+)<\/span>\s*<div class="transit__trait-text">([\s\S]*?)<\/div>/gi))
-    .map((item) => `${cleanText(item[1])} ${cleanText(stripTags(item[2]))}`.trim())
+    .map((item) => ({ lead: cleanText(item[1]), text: cleanText(stripTags(item[2])) }))
+    .filter((item) => Boolean(item.lead || item.text));
+  const helped = traits
+    .filter((item) => isHelpTrait(item.lead))
+    .flatMap((item) => splitTraitText(item.text))
+    .filter(Boolean);
+  const blocked = traits
+    .filter((item) => isBlockTrait(item.lead))
+    .flatMap((item) => splitTraitText(item.text))
+    .filter(Boolean);
+  const extraParagraphs = traits
+    .filter((item) => !isHelpTrait(item.lead) && !isBlockTrait(item.lead))
+    .map((item) => `${item.lead} ${item.text}`.trim())
+    .filter(Boolean);
+  const helpedFromParagraphs = paragraphs
+    .flatMap((paragraph) => extractPrefixedTransitTrait(paragraph, "Помогают:"))
+    .filter(Boolean);
+  const blockedFromParagraphs = paragraphs
+    .flatMap((paragraph) => extractPrefixedTransitTrait(paragraph, "Мешают:"))
     .filter(Boolean);
   return {
-    paragraphs: [...paragraphs, ...traits],
+    title,
+    paragraphs: [...paragraphs, ...extraParagraphs],
+    helped: helped.length ? helped : helpedFromParagraphs,
+    blocked: blocked.length ? blocked : blockedFromParagraphs,
     publishedAt: publishedAt ? new Date(publishedAt) : null
   };
 }
@@ -127,9 +150,16 @@ function parseDateRange(title, descriptionUrl) {
 }
 
 async function upsertTransit(item, details) {
+  let detailsEn = null;
+  try {
+    detailsEn = await fetchDetails(toEnglishUrl(item.descriptionUrl));
+  } catch {
+    detailsEn = null;
+  }
   const params = [
     randomUUID(),
     item.title,
+    detailsEn?.title || "",
     item.periodStart,
     item.periodEnd,
     item.listingUrl,
@@ -143,6 +173,11 @@ async function upsertTransit(item, details) {
     item.gates[1]?.url || "",
     JSON.stringify(item.gates),
     JSON.stringify(details?.paragraphs || []),
+    JSON.stringify(detailsEn?.paragraphs || []),
+    JSON.stringify(details?.helped || []),
+    JSON.stringify(detailsEn?.helped || []),
+    JSON.stringify(details?.blocked || []),
+    JSON.stringify(detailsEn?.blocked || []),
     details?.publishedAt || null,
     new Date(),
     new Date()
@@ -150,12 +185,13 @@ async function upsertTransit(item, details) {
   await pool.query(
     `
       INSERT INTO "HumanDesignTransitRecord"
-        ("id", "title", "periodStart", "periodEnd", "listingUrl", "descriptionUrl", "pageNumber", "gateSunNumber", "gateSunName", "gateSunUrl", "gateEarthNumber", "gateEarthName", "gateEarthUrl", "gates", "paragraphs", "publishedAt", "fetchedAt", "updatedAt")
+        ("id", "title", "titleEn", "periodStart", "periodEnd", "listingUrl", "descriptionUrl", "pageNumber", "gateSunNumber", "gateSunName", "gateSunUrl", "gateEarthNumber", "gateEarthName", "gateEarthUrl", "gates", "paragraphs", "paragraphsEn", "helped", "helpedEn", "blocked", "blockedEn", "publishedAt", "fetchedAt", "updatedAt")
       VALUES
-        ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14::jsonb, $15::jsonb, $16, $17, $18)
+        ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15::jsonb, $16::jsonb, $17::jsonb, $18::jsonb, $19::jsonb, $20::jsonb, $21::jsonb, $22, $23, $24)
       ON CONFLICT ("descriptionUrl")
       DO UPDATE SET
         "title" = EXCLUDED."title",
+        "titleEn" = EXCLUDED."titleEn",
         "periodStart" = EXCLUDED."periodStart",
         "periodEnd" = EXCLUDED."periodEnd",
         "listingUrl" = EXCLUDED."listingUrl",
@@ -168,6 +204,11 @@ async function upsertTransit(item, details) {
         "gateEarthUrl" = EXCLUDED."gateEarthUrl",
         "gates" = EXCLUDED."gates",
         "paragraphs" = EXCLUDED."paragraphs",
+        "paragraphsEn" = EXCLUDED."paragraphsEn",
+        "helped" = EXCLUDED."helped",
+        "helpedEn" = EXCLUDED."helpedEn",
+        "blocked" = EXCLUDED."blocked",
+        "blockedEn" = EXCLUDED."blockedEn",
         "publishedAt" = EXCLUDED."publishedAt",
         "fetchedAt" = EXCLUDED."fetchedAt",
         "updatedAt" = NOW()
@@ -205,6 +246,44 @@ function stripTags(value) {
     .replace(/<[^>]+>/g, "");
 }
 
+function extractTransitParagraphs(decodedTransitBody, html) {
+  const directParagraphs = Array.from(decodedTransitBody.matchAll(/<p[^>]*>([\s\S]*?)<\/p>/gi))
+    .map((item) => cleanText(stripTags(item[1])))
+    .filter(Boolean);
+  if (directParagraphs.length) return directParagraphs;
+  const ogDescription = decodeEntities(matchFirst(html, /<meta property="og:description" content="([^"]+)"/i));
+  const ogParagraphs = Array.from(ogDescription.matchAll(/<p[^>]*>([\s\S]*?)<\/p>/gi))
+    .map((item) => cleanText(stripTags(item[1])))
+    .filter(Boolean);
+  if (ogParagraphs.length) return ogParagraphs;
+  return cleanText(stripTags(decodedTransitBody))
+    .split(/\n{2,}/)
+    .map((item) => item.trim())
+    .filter(Boolean);
+}
+
+function isHelpTrait(value) {
+  const normalized = String(value || "").toLowerCase();
+  return normalized.includes("помог") || normalized.includes("help");
+}
+
+function isBlockTrait(value) {
+  const normalized = String(value || "").toLowerCase();
+  return normalized.includes("меш") || normalized.includes("hinder") || normalized.includes("block");
+}
+
+function splitTraitText(value) {
+  return String(value || "")
+    .split(/\n|[•·;]/g)
+    .map((item) => cleanText(item))
+    .filter(Boolean);
+}
+
+function extractPrefixedTransitTrait(value, prefix) {
+  if (!String(value || "").startsWith(prefix)) return [];
+  return splitTraitText(String(value || "").slice(prefix.length));
+}
+
 function absolutize(value) {
   if (!value) return "";
   try {
@@ -212,6 +291,10 @@ function absolutize(value) {
   } catch {
     return value;
   }
+}
+
+function toEnglishUrl(value) {
+  return String(value || "").replace("://www.humdes.com/ru/", "://www.humdes.com/en/");
 }
 
 function extractYear(value) {

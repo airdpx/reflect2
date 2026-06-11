@@ -3,11 +3,13 @@ import type { AppActions, AppState, ForecastResult, ForecastScale, HumanDesignTr
 import { formatDate } from "../lib/date";
 import { forecastTone, getForecast } from "../lib/forecast";
 import { normalizeLanguage } from "../lib/i18n";
+import { useRuntimeContent } from "./RuntimeContent";
 
 export function TodayForecastPanel({ state, actions }: { state: AppState; actions: AppActions }) {
   if (!state.settings.forecast.enabled || !state.settings.forecast.showInToday) return null;
   const language = normalizeLanguage(state.settings.language);
-  const forecast = getForecast(state.selectedDate, state.settings.forecast, state.profile?.birthDate || "", language);
+  const { content } = useRuntimeContent();
+  const forecast = getForecast(state.selectedDate, state.settings.forecast, state.profile?.birthDate || "", language, content);
   if (!forecast) return null;
   return <ForecastShell title={language === "en" ? "Biorhythms" : "Биоритмы"} forecast={forecast} />;
 }
@@ -15,7 +17,8 @@ export function TodayForecastPanel({ state, actions }: { state: AppState; action
 export function DiaryForecastStrip({ state, actions }: { state: AppState; actions: AppActions }) {
   if (!state.settings.forecast.enabled || !state.settings.forecast.showInDiary) return null;
   const language = normalizeLanguage(state.settings.language);
-  const forecast = getForecast(state.selectedDate, state.settings.forecast, state.profile?.birthDate || "", language);
+  const { content } = useRuntimeContent();
+  const forecast = getForecast(state.selectedDate, state.settings.forecast, state.profile?.birthDate || "", language, content);
   if (!forecast) return null;
   const tone = forecastTone(forecast.summaryScore);
   return (
@@ -30,7 +33,8 @@ export function DiaryForecastStrip({ state, actions }: { state: AppState; action
 export function InspectorForecastSummary({ state }: { state: AppState }) {
   if (!state.settings.forecast.enabled || !state.settings.forecast.showInInspector || state.view === "today") return null;
   const language = normalizeLanguage(state.settings.language);
-  const forecast = getForecast(state.selectedDate, state.settings.forecast, state.profile?.birthDate || "", language);
+  const { content } = useRuntimeContent();
+  const forecast = getForecast(state.selectedDate, state.settings.forecast, state.profile?.birthDate || "", language, content);
   if (!forecast) return null;
   const tone = forecastTone(forecast.summaryScore);
   return (
@@ -137,6 +141,36 @@ function HumanDesignTransitBlock({ transit, language }: { transit: HumanDesignTr
       {paragraphs.length ? (
         <div className="hd-transit-copy">
           {paragraphs.map((paragraph, index) => <p key={index}>{paragraph}</p>)}
+        </div>
+      ) : null}
+      {(transit.helped?.length || transit.blocked?.length) ? (
+        <div className="hd-transit-traits">
+          {transit.helped?.length ? (
+            <div className="hd-transit-trait-group">
+              <h4>{language === "en" ? "What helps" : "Помогают"}</h4>
+              <div className="hd-transit-trait-lines">
+                {transit.helped.map((item, index) => (
+                  <div key={`help-${index}`} className="hd-transit-trait-line">
+                    <span className="hd-transit-trait-bullet" aria-hidden="true" />
+                    <span>{item}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          ) : null}
+          {transit.blocked?.length ? (
+            <div className="hd-transit-trait-group">
+              <h4>{language === "en" ? "What hinders" : "Мешают"}</h4>
+              <div className="hd-transit-trait-lines">
+                {transit.blocked.map((item, index) => (
+                  <div key={`block-${index}`} className="hd-transit-trait-line">
+                    <span className="hd-transit-trait-bullet" aria-hidden="true" />
+                    <span>{item}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          ) : null}
         </div>
       ) : null}
       <div className="hd-transit-links">

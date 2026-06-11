@@ -41,7 +41,7 @@ export function Toggle({
   onChange: (checked: boolean) => void;
 }) {
   return (
-    <div className={`check-row ${className || ""}`.trim()}>
+    <label className={`check-row ${className || ""}`.trim()}>
       <span>
         {label}
         {hint ? (
@@ -52,7 +52,7 @@ export function Toggle({
         ) : null}
       </span>
       <input type="checkbox" checked={checked} disabled={disabled} onChange={(event) => onChange(event.target.checked)} />
-    </div>
+    </label>
   );
 }
 

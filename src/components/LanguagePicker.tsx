@@ -20,7 +20,11 @@ export function LanguagePicker({ language, onLanguageChange, title = "Language" 
       type="button"
       title={`${title}: ${current.title}. ${next.id === language ? current.title : next.title}`}
       aria-label={`${title}: ${current.title}. ${next.id === language ? current.title : next.title}`}
-      onClick={() => onLanguageChange(next.id)}
+      onClick={(event) => {
+        event.preventDefault();
+        event.stopPropagation();
+        onLanguageChange(next.id);
+      }}
     >
       <AppIcon name="language" />
       <span>{current.label}</span>

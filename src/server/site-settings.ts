@@ -1,5 +1,6 @@
 import { createDefaults, mergeSettings } from "../lib/defaults";
-import type { TelegramAdminSettings, UserSettings } from "../types";
+import { createDefaultRuntimeContent, mergeRuntimeContent } from "../lib/runtime-content";
+import type { RuntimeKnowledgeContent, TelegramAdminSettings, UserSettings } from "../types";
 import { getPrisma } from "./db";
 
 const GLOBAL_USER_DEFAULTS_KEY = "global_user_defaults";
@@ -7,6 +8,7 @@ const SITE_CONTACT_EMAIL_KEY = "site_contact_email";
 const CONTACT_FROM_EMAIL_KEY = "contact_from_email";
 const RESEND_API_KEY_KEY = "resend_api_key";
 const TELEGRAM_ADMIN_SETTINGS_KEY = "telegram_admin_settings";
+const GLOBAL_RUNTIME_CONTENT_KEY = "global_runtime_content";
 
 type TelegramAdminConfig = {
   enabled: boolean;
@@ -41,6 +43,30 @@ export async function saveGlobalUserDefaults(settings: Partial<UserSettings>) {
     where: { key: GLOBAL_USER_DEFAULTS_KEY },
     create: {
       key: GLOBAL_USER_DEFAULTS_KEY,
+      value: merged
+    },
+    update: {
+      value: merged
+    }
+  });
+  return merged;
+}
+
+export async function loadRuntimeKnowledgeContent(): Promise<RuntimeKnowledgeContent> {
+  const prisma = getPrisma();
+  const record = await prisma.appConfig.findUnique({ where: { key: GLOBAL_RUNTIME_CONTENT_KEY } });
+  const base = createDefaultRuntimeContent();
+  if (!record?.value || typeof record.value !== "object") return base;
+  return mergeRuntimeContent(base, record.value as Partial<RuntimeKnowledgeContent>);
+}
+
+export async function saveRuntimeKnowledgeContent(content: Partial<RuntimeKnowledgeContent>) {
+  const prisma = getPrisma();
+  const merged = mergeRuntimeContent(createDefaultRuntimeContent(), content);
+  await prisma.appConfig.upsert({
+    where: { key: GLOBAL_RUNTIME_CONTENT_KEY },
+    create: {
+      key: GLOBAL_RUNTIME_CONTENT_KEY,
       value: merged
     },
     update: {

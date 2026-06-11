@@ -5,15 +5,17 @@ import type {
   NotificationPriority,
   NotificationStateEntry,
   NotificationDeliveryStatus,
-  NotificationTopic
+  NotificationTopic,
+  RuntimeKnowledgeContent
 } from "../types";
 import { formatDate } from "./date";
 import { forecastTone, getForecast } from "./forecast";
+import { createDefaultRuntimeContent } from "./runtime-content";
 import { normalizeLanguage } from "./i18n";
 
 const channelOrder: Array<NotificationItem["channels"][number]> = ["inApp", "browser", "email", "telegram", "push"];
 
-export function buildNotificationFeed(state: AppState, selectors: AppSelectors) {
+export function buildNotificationFeed(state: AppState, selectors: AppSelectors, content: RuntimeKnowledgeContent = createDefaultRuntimeContent()) {
   const items: NotificationItem[] = [];
   const notifications = state.settings.notifications;
   if (!notifications.enabled) return items;
@@ -82,7 +84,7 @@ export function buildNotificationFeed(state: AppState, selectors: AppSelectors) 
   }
 
   if (notifications.topics.forecast && notifications.enabled && state.settings.forecast.enabled && state.settings.forecast.showInToday) {
-    const forecast = getForecast(state.selectedDate, state.settings.forecast, state.profile?.birthDate || "", language);
+    const forecast = getForecast(state.selectedDate, state.settings.forecast, state.profile?.birthDate || "", language, content);
     if (forecast) {
       pushItem(makeItem({
         id: `forecast:${state.selectedDate}`,

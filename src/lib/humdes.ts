@@ -79,16 +79,43 @@ export function parseTransitListings(html: string, pageNumber: number): TransitL
 }
 
 export function parseTransitDetail(html: string, descriptionUrl: string) {
+  const pageTitle = cleanText(matchFirst(html, /<meta property="og:title" content="([^"]+)"/i) || matchFirst(html, /<title>([^<]+)<\/title>/i));
   const publishedAt = matchFirst(html, /<meta property="article:published_time" content="([^"]+)">/i);
   const transitBody = matchFirst(html, /<div class="transit__text">([\s\S]*?)<\/div>/i);
-  const paragraphs = Array.from(transitBody.matchAll(/<p>([\s\S]*?)<\/p>/gi)).map((item) => cleanText(stripTags(item[1])));
+  const decodedTransitBody = decodeEntities(transitBody);
+  const paragraphs = extractTransitParagraphs(decodedTransitBody, html);
   const traits = Array.from(html.matchAll(/<div class="transit__trait">\s*<span class="transit__trait-lead">([^<]+)<\/span>\s*<div class="transit__trait-text">([\s\S]*?)<\/div>/gi))
-    .map((item) => `${cleanText(item[1])} ${cleanText(stripTags(item[2]))}`.trim())
+    .map((item) => {
+      const lead = cleanText(item[1]);
+      const text = cleanText(stripTags(item[2]));
+      return { lead, text };
+    })
+    .filter((item) => Boolean(item.lead || item.text));
+  const helped = traits
+    .filter((item) => isHelpTrait(item.lead))
+    .flatMap((item) => splitTraitText(item.text))
+    .filter(Boolean);
+  const blocked = traits
+    .filter((item) => isBlockTrait(item.lead))
+    .flatMap((item) => splitTraitText(item.text))
+    .filter(Boolean);
+  const extraParagraphs = traits
+    .filter((item) => !isHelpTrait(item.lead) && !isBlockTrait(item.lead))
+    .map((item) => `${item.lead} ${item.text}`.trim())
+    .filter(Boolean);
+  const helpedFromParagraphs = paragraphs
+    .flatMap((paragraph) => extractPrefixedTransitTrait(paragraph, "Помогают:"))
+    .filter(Boolean);
+  const blockedFromParagraphs = paragraphs
+    .flatMap((paragraph) => extractPrefixedTransitTrait(paragraph, "Мешают:"))
     .filter(Boolean);
   return {
+    title: pageTitle,
     descriptionUrl,
     publishedAt: publishedAt ? new Date(publishedAt) : null,
-    paragraphs: [...paragraphs, ...traits]
+    paragraphs: [...paragraphs, ...extraParagraphs],
+    helped: helped.length ? helped : helpedFromParagraphs,
+    blocked: blocked.length ? blocked : blockedFromParagraphs
   };
 }
 
@@ -146,6 +173,7 @@ export async function fetchCurrentTransitFallback(now: Date) {
   ].filter(Boolean).join(" ");
   const gates = normalizeGates(currentTransit.gates);
   const paragraphs = extractParagraphs(currentTransit.text).slice(0, 2);
+  const { helped, blocked } = extractTransitTraits(currentTransit.text, currentTransit);
   return {
     date: toKey(now),
     fetchedAt: now.toISOString(),
@@ -156,8 +184,14 @@ export async function fetchCurrentTransitFallback(now: Date) {
     descriptionUrl: HUMDES_TRANSITS_URL,
     gates,
     paragraphs,
+    helped,
+    blocked,
     sourceUrl: HUMDES_TRANSITS_URL
   } satisfies HumanDesignTransit;
+}
+
+export function toEnglishHumdesUrl(value: string) {
+  return value.replace("://www.humdes.com/ru/", "://www.humdes.com/en/");
 }
 
 export function normalizeTransitRecord(input: {
@@ -200,6 +234,71 @@ function extractParagraphs(value: unknown): string[] {
   return paragraphs.map((paragraph) => paragraph.trim()).filter(Boolean);
 }
 
+function extractTransitTraits(value: unknown, fallback?: Record<string, unknown>) {
+  const helped = normalizeTraitList(
+    fallback?.helped ??
+      fallback?.helps ??
+      fallback?.helpers ??
+      fallback?.good ??
+      extractTraitSection(value, "помог")
+  );
+  const blocked = normalizeTraitList(
+    fallback?.blocked ??
+      fallback?.hinders ??
+      fallback?.bad ??
+      extractTraitSection(value, "меш")
+  );
+  return { helped, blocked };
+}
+
+function extractTraitSection(value: unknown, keyword: string) {
+  const html = String(value || "");
+  const sections = Array.from(html.matchAll(/<div class="transit__trait">\s*<span class="transit__trait-lead">([^<]+)<\/span>\s*<div class="transit__trait-text">([\s\S]*?)<\/div>/gi))
+    .map((item) => ({ lead: cleanText(item[1]), text: cleanText(stripTags(item[2])) }));
+  const match = sections.find((item) => item.lead.toLowerCase().includes(keyword));
+  return match ? `${match.lead}\n${match.text}` : "";
+}
+
+function normalizeTraitList(value: unknown): string[] {
+  if (Array.isArray(value)) {
+    return value
+      .map((item) => {
+        if (typeof item === "string") return cleanText(item);
+        if (item && typeof item === "object") {
+          const raw = item as Record<string, unknown>;
+          return cleanText(String(raw.text || raw.title || raw.name || raw.value || ""));
+        }
+        return cleanText(String(item));
+      })
+      .filter(Boolean);
+  }
+  if (typeof value === "string") {
+    return value
+      .split(/\n|[•·;]/g)
+      .map((item) => cleanText(item))
+      .filter(Boolean);
+  }
+  return [];
+}
+
+function extractTransitParagraphs(decodedTransitBody: string, html: string) {
+  const directParagraphs = Array.from(decodedTransitBody.matchAll(/<p[^>]*>([\s\S]*?)<\/p>/gi))
+    .map((item) => cleanText(stripTags(item[1])))
+    .filter(Boolean);
+  if (directParagraphs.length) return directParagraphs;
+
+  const ogDescription = decodeEntities(matchFirst(html, /<meta property="og:description" content="([^"]+)"/i));
+  const ogParagraphs = Array.from(ogDescription.matchAll(/<p[^>]*>([\s\S]*?)<\/p>/gi))
+    .map((item) => cleanText(stripTags(item[1])))
+    .filter(Boolean);
+  if (ogParagraphs.length) return ogParagraphs;
+
+  return cleanText(stripTags(decodedTransitBody))
+    .split(/\n{2,}/)
+    .map((item) => item.trim())
+    .filter(Boolean);
+}
+
 function stripTags(value: string) {
   return value
     .replace(/<br\s*\/?>/gi, "\n")
@@ -213,6 +312,28 @@ function cleanText(value: string) {
     .replace(/[ \t]+\n/g, "\n")
     .replace(/\s+/g, " ")
     .trim();
+}
+
+function isHelpTrait(value: string) {
+  const normalized = value.toLowerCase();
+  return normalized.includes("помог") || normalized.includes("help");
+}
+
+function isBlockTrait(value: string) {
+  const normalized = value.toLowerCase();
+  return normalized.includes("меш") || normalized.includes("hinder") || normalized.includes("block");
+}
+
+function splitTraitText(value: string) {
+  return value
+    .split(/\n|[•·;]/g)
+    .map((item) => cleanText(item))
+    .filter(Boolean);
+}
+
+function extractPrefixedTransitTrait(value: string, prefix: string) {
+  if (!value.startsWith(prefix)) return [];
+  return splitTraitText(value.slice(prefix.length));
 }
 
 function decodeEntities(value: string) {

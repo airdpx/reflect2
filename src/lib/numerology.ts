@@ -1,4 +1,5 @@
 import { fromKey } from "./date";
+import { createDefaultRuntimeContent } from "./runtime-content";
 import type {
   Language,
   NumerologyMetric,
@@ -8,36 +9,9 @@ import type {
 } from "../types";
 import { normalizeLanguage } from "./i18n";
 
-const metricMeta: Record<NumerologyMetricId, { label: string; order: number }> = {
-  personalDay: { label: "Personal Day", order: 0 },
-  personalMonth: { label: "Personal Month", order: 1 },
-  personalYear: { label: "Personal Year", order: 2 },
-  lifePath: { label: "Life Path", order: 3 }
-};
-
-const interpretations: Record<number, { label: Record<Language, string>; note: Record<Language, string>; score: number }> = {
-  1: { label: { ru: "Инициатива", en: "Initiative" }, note: { ru: "Подойдёт старт без лишних шагов.", en: "Good for starting without unnecessary steps." }, score: 56 },
-  2: { label: { ru: "Согласование", en: "Alignment" }, note: { ru: "Хорошо для диалога и мягкой координации.", en: "Good for dialogue and gentle coordination." }, score: 49 },
-  3: { label: { ru: "Выражение", en: "Expression" }, note: { ru: "Время слов, идей и заметных деталей.", en: "A day for words, ideas and visible details." }, score: 63 },
-  4: { label: { ru: "Структура", en: "Structure" }, note: { ru: "Лучше собирать день в понятный порядок.", en: "Better to arrange the day into a clear order." }, score: 58 },
-  5: { label: { ru: "Перемены", en: "Change" }, note: { ru: "Подходит для гибкости и небольших обновлений.", en: "Supports flexibility and small updates." }, score: 70 },
-  6: { label: { ru: "Забота", en: "Care" }, note: { ru: "День поддерживающих действий и спокойной рутины.", en: "A day for supportive actions and calm routine." }, score: 53 },
-  7: { label: { ru: "Глубина", en: "Depth" }, note: { ru: "Полезно уединение, анализ и вдумчивость.", en: "Useful for solitude, analysis and thoughtfulness." }, score: 61 },
-  8: { label: { ru: "Результат", en: "Result" }, note: { ru: "Хорошо брать задачи с видимым итогом.", en: "Good for tasks with a visible outcome." }, score: 74 },
-  9: { label: { ru: "Завершение", en: "Completion" }, note: { ru: "Уместно закрывать хвосты и подводить итоги.", en: "A fitting day to close loops and summarize." }, score: 67 },
-  11: { label: { ru: "Интуиция", en: "Intuition" }, note: { ru: "День для тонкого чувства и тихих решений.", en: "A day for subtle sensing and quiet decisions." }, score: 86 },
-  22: { label: { ru: "Масштаб", en: "Scale" }, note: { ru: "Можно думать шире и собирать систему.", en: "Good for wider thinking and building systems." }, score: 93 },
-  33: { label: { ru: "Служение", en: "Service" }, note: { ru: "Хорошо делать полезное и заботливое.", en: "Good for doing something useful and caring." }, score: 97 }
-};
-
-const numerologySummaryLabels: Record<Language, { low: string; steady: string; high: string }> = {
-  ru: { low: "низкий", steady: "ровный", high: "сильный" },
-  en: { low: "low", steady: "steady", high: "strong" }
-};
-
 const masterNumbers = new Set([11, 22, 33]);
 
-export function getNumerology(date: string, birthDate: string, settings: NumerologySettings, language: Language = "ru"): NumerologyResult | null {
+export function getNumerology(date: string, birthDate: string, settings: NumerologySettings, language: Language = "ru", content = createDefaultRuntimeContent()): NumerologyResult | null {
   const lang = normalizeLanguage(language);
   const birth = fromKey(birthDate);
   const target = fromKey(date);
@@ -49,19 +23,19 @@ export function getNumerology(date: string, birthDate: string, settings: Numerol
   const personalDay = reduceNumerology(personalMonth + target.getDate());
 
   const metrics: NumerologyMetric[] = [
-    createMetric("personalDay", personalDay, settings.weights.personalDay, lang),
-    createMetric("personalMonth", personalMonth, settings.weights.personalMonth, lang),
-    createMetric("personalYear", personalYear, settings.weights.personalYear, lang),
-    createMetric("lifePath", lifePath, settings.weights.lifePath, lang)
-  ].sort((a, b) => metricMeta[a.id].order - metricMeta[b.id].order);
+    createMetric("personalDay", personalDay, settings.weights.personalDay, lang, content),
+    createMetric("personalMonth", personalMonth, settings.weights.personalMonth, lang, content),
+    createMetric("personalYear", personalYear, settings.weights.personalYear, lang, content),
+    createMetric("lifePath", lifePath, settings.weights.lifePath, lang, content)
+  ].sort((a, b) => metricOrder(a.id) - metricOrder(b.id));
 
   const totalWeight = metrics.reduce((sum, metric) => sum + Math.max(0, metric.weight), 0);
   const summaryScore = totalWeight
     ? Math.round(metrics.reduce((sum, metric) => sum + metric.score * Math.max(0, metric.weight), 0) / totalWeight)
     : 50;
-  const summaryLabel = scoreToLabel(summaryScore, lang);
+  const summaryLabel = scoreToLabel(summaryScore, lang, content);
   const dominant = [...metrics].sort((a, b) => b.score * Math.max(0, b.weight) - a.score * Math.max(0, a.weight))[0];
-  const recommendation = buildRecommendation(numerologyTone(summaryScore), dominant || metrics[0], lang);
+  const recommendation = buildRecommendation(numerologyTone(summaryScore), dominant || metrics[0], lang, content);
   return {
     date,
     summaryScore,
@@ -79,11 +53,11 @@ export function numerologyTone(score: number) {
   return "steady";
 }
 
-function createMetric(id: NumerologyMetricId, value: number, weight: number, language: Language): NumerologyMetric {
-  const meaning = interpretations[value] || interpretations[reduceNumerology(value)] || interpretations[1];
+function createMetric(id: NumerologyMetricId, value: number, weight: number, language: Language, content = createDefaultRuntimeContent()): NumerologyMetric {
+  const meaning = content.numerology.interpretations[value] || content.numerology.interpretations[reduceNumerology(value)] || content.numerology.interpretations[1];
   return {
     id,
-    label: metricMeta[id].label,
+    label: content.numerology.metrics[id].label[language],
     value,
     interpretation: `${meaning.label[language]} · ${meaning.note[language]}`,
     weight,
@@ -91,25 +65,15 @@ function createMetric(id: NumerologyMetricId, value: number, weight: number, lan
   };
 }
 
-function buildRecommendation(tone: ReturnType<typeof numerologyTone>, dominant: NumerologyMetric, language: Language) {
-  if (language === "en") {
-    const lead = tone === "high"
-      ? "You can take on more visible tasks without splitting the day into tiny pieces."
-      : tone === "steady"
-        ? "A good day for calm rhythm, consistency and gentle discipline."
-        : "Keep the pace simpler and rely on one clear step at a time.";
-    return `${lead} Daily anchor — ${dominant.label}: ${dominant.interpretation}`;
-  }
-  const lead = tone === "high"
-    ? "Можно брать более заметные задачи и не дробить день на мелкие куски."
-    : tone === "steady"
-      ? "Хороший день для спокойного ритма, последовательности и мягкой дисциплины."
-      : "Лучше держать темп проще и опираться на один понятный шаг за раз.";
-  return `${lead} Опора дня — ${dominant.label}: ${dominant.interpretation}`;
+function buildRecommendation(tone: ReturnType<typeof numerologyTone>, dominant: NumerologyMetric, language: Language, content = createDefaultRuntimeContent()) {
+  const lead = content.numerology.recommendation[tone][language];
+  return language === "en"
+    ? `${lead} Daily anchor — ${dominant.label}: ${dominant.interpretation}`
+    : `${lead} Опора дня — ${dominant.label}: ${dominant.interpretation}`;
 }
 
-function scoreToLabel(score: number, language: Language) {
-  return numerologySummaryLabels[language][numerologyTone(score)];
+function scoreToLabel(score: number, language: Language, content = createDefaultRuntimeContent()) {
+  return content.numerology.summaryLabels[language][numerologyTone(score)];
 }
 
 function reduceNumerology(value: number) {
@@ -126,4 +90,17 @@ function sumDigits(value: number | string) {
     .replace(/\D/g, "")
     .split("")
     .reduce((sum, digit) => sum + Number(digit), 0);
+}
+
+function metricOrder(id: NumerologyMetricId) {
+  switch (id) {
+    case "personalDay":
+      return 0;
+    case "personalMonth":
+      return 1;
+    case "personalYear":
+      return 2;
+    case "lifePath":
+      return 3;
+  }
 }

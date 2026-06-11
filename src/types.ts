@@ -1,6 +1,6 @@
 export type View = "today" | "grid" | "habits" | "diary" | "analytics" | "notifications" | "settings" | "management";
 export type Language = "ru" | "en";
-export type HabitType = "boolean" | "numeric" | "multiple" | "avoid" | "reflection";
+export type HabitType = "boolean" | "daily" | "numeric" | "multiple" | "avoid" | "reflection";
 export type HabitStatus = "done" | "partial" | "skipped" | "missed" | "planned";
 export type Density = "compact" | "standard" | "comfortable";
 export type InterfaceTheme =
@@ -83,6 +83,15 @@ export type GridColorSettings = {
 
 export type GridHabitColorMode = "habit" | "muted" | "mono" | "alternating";
 export type DiaryHistoryMode = "period" | "all";
+export type CalendarFilterMode = "all" | "avoid" | "nonDaily" | "types";
+
+export type SecondaryCalendarSettings = {
+  enabled: boolean;
+  historyDays: number;
+  showWeekends: boolean;
+  filterMode: CalendarFilterMode;
+  selectedTypes: Record<HabitType, boolean>;
+};
 
 export type Habit = {
   id: string;
@@ -244,6 +253,41 @@ export type ForecastScale = {
   phase: "low" | "steady" | "high";
 };
 
+export type RuntimeTextPair = {
+  ru: string;
+  en: string;
+};
+
+export type RuntimeForecastScaleContent = {
+  label: RuntimeTextPair;
+  note: RuntimeTextPair;
+  cycle: number;
+};
+
+export type RuntimeNumerologyMetricContent = {
+  label: RuntimeTextPair;
+};
+
+export type RuntimeNumerologyInterpretationContent = {
+  label: RuntimeTextPair;
+  note: RuntimeTextPair;
+  score: number;
+};
+
+export type RuntimeKnowledgeContent = {
+  forecast: {
+    summaryLabels: Record<Language, { low: string; steady: string; high: string }>;
+    notes: RuntimeTextPair;
+    scales: Record<ForecastScaleId, RuntimeForecastScaleContent>;
+  };
+  numerology: {
+    summaryLabels: Record<Language, { low: string; steady: string; high: string }>;
+    metrics: Record<NumerologyMetricId, RuntimeNumerologyMetricContent>;
+    interpretations: Record<number, RuntimeNumerologyInterpretationContent>;
+    recommendation: Record<"low" | "steady" | "high", RuntimeTextPair>;
+  };
+};
+
 export type NumerologyMetric = {
   id: NumerologyMetricId;
   label: string;
@@ -279,6 +323,8 @@ export type HumanDesignTransit = {
   descriptionUrl: string;
   gates: HumanDesignTransitGate[];
   paragraphs: string[];
+  helped?: string[];
+  blocked?: string[];
   sourceUrl: string;
 };
 
@@ -312,6 +358,9 @@ export type UserSettings = {
   gridMarkerShape: GridMarkerShape;
   gridHabitColorMode: GridHabitColorMode;
   calendarHistoryDays: number;
+  calendarFilterMode: CalendarFilterMode;
+  calendarFilterTypes: Record<HabitType, boolean>;
+  secondaryCalendar: SecondaryCalendarSettings;
   statusIcons: Record<HabitStatus, string>;
   gridColors: GridColorSettings;
   forecast: ForecastSettings;

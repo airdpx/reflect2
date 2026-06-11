@@ -447,10 +447,6 @@ export type TelegramConnectionUncheckedUpdateManyWithoutUserNestedInput = {
   deleteMany?: Prisma.TelegramConnectionScalarWhereInput | Prisma.TelegramConnectionScalarWhereInput[]
 }
 
-export type NullableStringFieldUpdateOperationsInput = {
-  set?: string | null
-}
-
 export type TelegramConnectionCreateWithoutUserInput = {
   id?: string
   chatId: string

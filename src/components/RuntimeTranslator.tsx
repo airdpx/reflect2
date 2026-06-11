@@ -223,10 +223,12 @@ const ruToEnTranslationEntries = [
   ["Последняя проверка: сегодня", "Last check: today"],
   ["Последняя проверка:", "Last check:"],
   ["Обычная", "Basic"],
+  ["Каждый день", "Every day"],
   ["Числовая", "Numeric"],
   ["Несколько раз в день", "Several times a day"],
   ["Не делать", "Avoid"],
   ["Простая отметка: сделал или не сделал.", "Simple check-in: done or not done."],
+  ["Ежедневная привычка, которую хочется отмечать каждый день.", "An everyday habit you want to mark each day."],
   ["Подходит для шагов, минут, страниц или любого числа.", "Fits steps, minutes, pages or any number."],
   ["Несколько коротких повторов в день, например вода.", "Several short repeats a day, like water intake."],
   ["Успех дня — не сделать нежелательное действие.", "Success means not doing the unwanted action."],
@@ -309,7 +311,7 @@ const ruToEnTranslationEntries = [
   ["Быт", "Home"],
   ["Фокус", "Focus"],
   ["Развитие", "Growth"],
-  ["Самонаблюдение", "Self-observation"],
+  ["Самонаблюдение", "Non-daily"],
   ["Сон", "Sleep"],
   ["Спорт", "Sport"],
   ["Питание", "Nutrition"],
@@ -552,8 +554,6 @@ const ruToEnTranslationEntries = [
 ] as const;
 
 const ruToEnTranslations = createTranslationMap(ruToEnTranslationEntries);
-const enToRuTranslations = createTranslationMap(ruToEnTranslationEntries.map(([ru, en]) => [en, ru] as const));
-
 const attributes = ["placeholder", "title", "aria-label"];
 
 function translateRoot(root: ParentNode, language: Language) {
@@ -565,7 +565,7 @@ function translateRoot(root: ParentNode, language: Language) {
     const current = node.nodeValue || "";
     const trimmed = current.trim();
     if (!trimmed) continue;
-    const nextText = language === "en" ? ruToEnTranslations[trimmed] : enToRuTranslations[trimmed];
+    const nextText = language === "en" ? ruToEnTranslations[trimmed] : undefined;
     if (nextText && nextText !== trimmed) {
       const nextValue = current.replace(trimmed, nextText);
       if (node.nodeValue !== nextValue) node.nodeValue = nextValue;
@@ -578,7 +578,7 @@ function translateRoot(root: ParentNode, language: Language) {
       const current = element.getAttribute(attr);
       if (!current) continue;
       const trimmed = current.trim();
-      const nextText = language === "en" ? ruToEnTranslations[trimmed] : enToRuTranslations[trimmed];
+      const nextText = language === "en" ? ruToEnTranslations[trimmed] : undefined;
       if (nextText && nextText !== trimmed) {
         const nextValue = current.replace(trimmed, nextText);
         if (current !== nextValue) element.setAttribute(attr, nextValue);
@@ -594,6 +594,7 @@ export function RuntimeTranslator({ language, selector = ".app" }: { language: L
     if (!root) return;
     document.documentElement.lang = normalized;
     document.documentElement.dataset.language = normalized;
+    if (normalized !== "en") return;
     translateRoot(root, normalized);
     const observer = new MutationObserver(() => translateRoot(root, normalized));
     observer.observe(root, { childList: true, subtree: true, characterData: true, attributes: true });

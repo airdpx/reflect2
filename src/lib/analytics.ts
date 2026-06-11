@@ -6,6 +6,7 @@ export function logKey(habitId: string, dateKey: string) {
 }
 
 export function isHabitDue(habit: Habit, dateKey: string) {
+  if (habit.type === "daily") return true;
   return habit.schedule.includes(fromKey(dateKey).getDay());
 }
 
@@ -92,6 +93,7 @@ function getBestStreak(habit: Habit, dates: string[], logs: Record<string, Habit
 function isSuccessfulLog(habit: Habit, log: HabitLog | null) {
   if (!log) return false;
   if (habit.type === "avoid") return log.status === "done" || log.status === "skipped";
+  if (habit.type === "daily") return log.status === "done";
   if (habit.type === "numeric") return (log.value || 0) >= habit.target || log.status === "done";
   if (habit.type === "multiple") return (log.completedCount || 0) >= habit.target || log.status === "done";
   if (habit.type === "reflection") return Boolean(log.note) || log.status === "done";

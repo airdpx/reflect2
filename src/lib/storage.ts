@@ -81,6 +81,19 @@ function mergeState(defaults: AppState, stored: Partial<AppState>): AppState {
         ...defaults.settings.visibleGrid,
         ...safeSettings.visibleGrid
       },
+      calendarFilterMode: safeSettings.calendarFilterMode || defaults.settings.calendarFilterMode,
+      calendarFilterTypes: {
+        ...defaults.settings.calendarFilterTypes,
+        ...safeSettings.calendarFilterTypes
+      },
+      secondaryCalendar: {
+        ...defaults.settings.secondaryCalendar,
+        ...safeSettings.secondaryCalendar,
+        selectedTypes: {
+          ...defaults.settings.secondaryCalendar.selectedTypes,
+          ...safeSettings.secondaryCalendar?.selectedTypes
+        }
+      },
       customTheme: {
         ...defaults.settings.customTheme,
         ...safeSettings.customTheme
@@ -263,6 +276,19 @@ function migrateState(state: AppState): AppState {
         ...normalizedGridColors
       },
       gridHabitColorMode: legacySafeSettings.gridHabitColorMode || defaults.settings.gridHabitColorMode,
+      calendarFilterMode: legacySafeSettings.calendarFilterMode || defaults.settings.calendarFilterMode,
+      calendarFilterTypes: {
+        ...defaults.settings.calendarFilterTypes,
+        ...legacySafeSettings.calendarFilterTypes
+      },
+      secondaryCalendar: {
+        ...defaults.settings.secondaryCalendar,
+        ...legacySafeSettings.secondaryCalendar,
+        selectedTypes: {
+          ...defaults.settings.secondaryCalendar.selectedTypes,
+          ...legacySafeSettings.secondaryCalendar?.selectedTypes
+        }
+      },
       forecast: migratedForecast,
       numerology: migratedNumerology,
       notifications: migratedNotifications,

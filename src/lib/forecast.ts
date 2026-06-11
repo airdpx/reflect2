@@ -1,6 +1,8 @@
 import type { ForecastProviderId, ForecastResult, ForecastScale, ForecastScaleId, ForecastSettings, Language } from "../types";
 import { fromKey } from "./date";
+import { createDefaultRuntimeContent } from "./runtime-content";
 import { normalizeLanguage } from "./i18n";
+import type { RuntimeKnowledgeContent } from "../types";
 
 export type ForecastProvider = {
   id: ForecastProviderId;
@@ -37,10 +39,10 @@ export const forecastProviders: ForecastProvider[] = [
   }
 ];
 
-export function getForecast(date: string, settings: ForecastSettings, birthDate: string, language: Language = "ru"): ForecastResult | null {
+export function getForecast(date: string, settings: ForecastSettings, birthDate: string, language: Language = "ru", content: RuntimeKnowledgeContent = createDefaultRuntimeContent()): ForecastResult | null {
   if (!settings.enabled) return null;
   if (!birthDate) return null;
-  return calculateBiorhythmForecast(date, settings, birthDate, language);
+  return calculateBiorhythmForecast(date, settings, birthDate, language, content);
 }
 
 export function forecastTone(score: number) {
@@ -49,7 +51,7 @@ export function forecastTone(score: number) {
   return "steady";
 }
 
-function calculateBiorhythmForecast(date: string, settings: ForecastSettings, birthDate: string, language: Language = "ru"): ForecastResult | null {
+function calculateBiorhythmForecast(date: string, settings: ForecastSettings, birthDate: string, language: Language = "ru", content: RuntimeKnowledgeContent = createDefaultRuntimeContent()): ForecastResult | null {
   const lang = normalizeLanguage(language);
   const birth = fromKey(birthDate);
   const target = fromKey(date);
@@ -59,7 +61,7 @@ function calculateBiorhythmForecast(date: string, settings: ForecastSettings, bi
   const scales = (Object.keys(scaleMeta) as ForecastScaleId[])
     .filter((id) => settings.visibleScales[id])
     .map((id): ForecastScale => {
-      const meta = scaleMeta[id];
+      const meta = content.forecast.scales[id] || scaleMeta[id];
       const wave = Math.sin((2 * Math.PI * days) / meta.cycle);
       const value = Math.round(((wave + 1) / 2) * 100);
       return {
@@ -74,9 +76,9 @@ function calculateBiorhythmForecast(date: string, settings: ForecastSettings, bi
   return {
     date,
     summaryScore,
-    summaryLabel: summaryLabels[lang][forecastTone(summaryScore)],
+    summaryLabel: content.forecast.summaryLabels[lang][forecastTone(summaryScore)],
     scales,
-    notes: [forecastNotes[lang]],
+    notes: [content.forecast.notes[lang]],
     source: "biorhythm"
   };
 }

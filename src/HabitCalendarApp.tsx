@@ -18,18 +18,23 @@ import { SettingsView } from "./views/SettingsView";
 import { ManagementView } from "./views/ManagementView";
 import { AppFooter } from "./components/Footer";
 import { RuntimeTranslator } from "./components/RuntimeTranslator";
+import { RuntimeContentProvider } from "./components/RuntimeContent";
 import { createDefaults, habitTemplates, statusMeta } from "./lib/defaults";
+import { createDefaultRuntimeContent } from "./lib/runtime-content";
 import { calculateHabitStats, getAttentionHabits, getPeriodDates, getPeriodLabel, isHabitDue, logKey } from "./lib/analytics";
 import { clearStoredState, loadLegacyStoredState, markLegacyStateMigrated, parseImportedState, shouldMigrateLegacyState, wasLegacyStateMigrated } from "./lib/storage";
 import { savePublicThemeState } from "./lib/public-theme";
 import { todayKey } from "./lib/date";
+import type { RuntimeKnowledgeContent } from "./types";
 
 type HabitCalendarAppProps = {
   initialState?: AppState;
+  runtimeContent?: RuntimeKnowledgeContent;
 };
 
-export default function HabitCalendarApp({ initialState }: HabitCalendarAppProps) {
+export default function HabitCalendarApp({ initialState, runtimeContent }: HabitCalendarAppProps) {
   const [state, setState] = useState<AppState>(() => initialState || createDefaults());
+  const [runtime, setRuntime] = useState<RuntimeKnowledgeContent>(() => runtimeContent || createDefaultRuntimeContent());
   const [hydrated, setHydrated] = useState(false);
   const skipNextDbSyncRef = useRef(false);
   const legacyMigrationInFlightRef = useRef(false);
@@ -47,6 +52,10 @@ export default function HabitCalendarApp({ initialState }: HabitCalendarAppProps
     setState(nextState);
     setHydrated(true);
   }, [initialState]);
+
+  useEffect(() => {
+    if (runtimeContent) setRuntime(runtimeContent);
+  }, [runtimeContent]);
 
   useEffect(() => {
     latestStateRef.current = state;
@@ -242,30 +251,32 @@ export default function HabitCalendarApp({ initialState }: HabitCalendarAppProps
   const editingHabit = draftHabit || (editingHabitId ? state.habits.find((habit) => habit.id === editingHabitId) || null : null);
 
   return (
-    <div className={appClass} style={customThemeStyle}>
-      <RuntimeTranslator language={state.settings.language} />
-      <Sidebar state={state} view={state.view} onView={actions.setView} />
-      <main className="main">
-        <Topbar
-          state={state}
-          onAdd={() => actions.openHabitModal("new")}
-          actionsSlot={<QuickControls state={state} actions={actions} />}
-        />
-        {state.view === "today" && <TodayView state={state} selectors={selectors} actions={actions} />}
-        {state.view === "grid" && <GridView state={state} selectors={selectors} actions={actions} />}
-        {state.view === "habits" && <HabitsView state={state} selectors={selectors} actions={actions} />}
-        {state.view === "diary" && <DiaryView state={state} actions={actions} />}
-        {state.view === "analytics" && <AnalyticsView state={state} selectors={selectors} actions={actions} />}
-      {state.view === "notifications" && <NotificationsView state={state} selectors={selectors} actions={actions} />}
-      {state.view === "settings" && <SettingsView state={state} actions={actions} />}
-      {state.view === "management" && state.profile?.isAdmin && <ManagementView state={state} />}
-      <AppFooter language={state.settings.language} />
-    </main>
-      {state.settings.rightPanel && !state.settings.focusMode && <Inspector state={state} selectors={selectors} actions={actions} />}
-      <MobileNav state={state} view={state.view} onView={actions.setView} />
-      {editingHabitId && <HabitModal habit={editingHabit} isTemplateDraft={Boolean(draftHabit)} actions={actions} />}
-      {activeCell && <CellSheet cell={activeCell} state={state} selectors={selectors} actions={actions} />}
-    </div>
+    <RuntimeContentProvider content={runtime} setContent={setRuntime}>
+      <div className={appClass} style={customThemeStyle}>
+        <RuntimeTranslator language={state.settings.language} />
+        <Sidebar state={state} view={state.view} onView={actions.setView} />
+        <main className="main">
+          <Topbar
+            state={state}
+            onAdd={() => actions.openHabitModal("new")}
+            actionsSlot={<QuickControls state={state} actions={actions} />}
+          />
+          {state.view === "today" && <TodayView state={state} selectors={selectors} actions={actions} />}
+          {state.view === "grid" && <GridView state={state} selectors={selectors} actions={actions} />}
+          {state.view === "habits" && <HabitsView state={state} selectors={selectors} actions={actions} />}
+          {state.view === "diary" && <DiaryView state={state} actions={actions} />}
+          {state.view === "analytics" && <AnalyticsView state={state} selectors={selectors} actions={actions} />}
+          {state.view === "notifications" && <NotificationsView state={state} selectors={selectors} actions={actions} />}
+          {state.view === "settings" && <SettingsView state={state} actions={actions} />}
+          {state.view === "management" && state.profile?.isAdmin && <ManagementView state={state} />}
+          <AppFooter language={state.settings.language} />
+        </main>
+        {state.settings.rightPanel && !state.settings.focusMode && <Inspector state={state} selectors={selectors} actions={actions} />}
+        <MobileNav state={state} view={state.view} onView={actions.setView} />
+        {editingHabitId && <HabitModal habit={editingHabit} isTemplateDraft={Boolean(draftHabit)} actions={actions} />}
+        {activeCell && <CellSheet cell={activeCell} state={state} selectors={selectors} actions={actions} />}
+      </div>
+    </RuntimeContentProvider>
   );
 
   function setView(view: View) {

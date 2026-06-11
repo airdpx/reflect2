@@ -1,9 +1,10 @@
 import { useEffect, useMemo, useState } from "react";
-import type { AppState, Density, InterfaceTheme, UserSettings, View } from "../types";
+import type { AppState, CalendarFilterMode, Density, HabitType, InterfaceTheme, UserSettings, View } from "../types";
 import { AppIcon } from "../components/AppIcons";
 import { SelectControl, Toggle } from "../components/Common";
 import { createDefaults, statusIconPresets, statusMeta, themeOptions } from "../lib/defaults";
 import { normalizeLanguage, viewText } from "../lib/i18n";
+import { useRuntimeContent } from "../components/RuntimeContent";
 
 type AdminUserRecord = {
   id: string;
@@ -52,12 +53,63 @@ const gridVisibleElementOptions = [
   ["noteMarker", "Маркер заметки"],
   ["moodMarker", "Маркер настроения"]
 ] as const;
+const calendarFilterModes: Array<[CalendarFilterMode, string]> = [
+  ["all", "Все привычки"],
+  ["avoid", "Не делать"],
+  ["nonDaily", "Не каждый день"],
+  ["types", "Выбранные типы"]
+];
+const calendarTypeLabels: Record<"ru" | "en", Record<HabitType, string>> = {
+  ru: {
+    boolean: "Обычные",
+    daily: "Каждый день",
+    numeric: "Числовые",
+    multiple: "Несколько раз",
+    avoid: "Не делать",
+    reflection: "Не каждый день"
+  },
+  en: {
+    boolean: "Boolean",
+    daily: "Every day",
+    numeric: "Numeric",
+    multiple: "Multiple",
+    avoid: "Avoid",
+    reflection: "Non-daily"
+  }
+};
+const secondaryCalendarFilterModes: Array<[CalendarFilterMode, string]> = [
+  ["all", "Все привычки"],
+  ["avoid", "Не делать"],
+  ["nonDaily", "Не каждый день"],
+  ["types", "Выбранные типы"]
+];
+const secondaryCalendarTypeLabels: Record<"ru" | "en", Record<HabitType, string>> = {
+  ru: {
+    boolean: "Обычные",
+    daily: "Каждый день",
+    numeric: "Числовые",
+    multiple: "Несколько раз",
+    avoid: "Не делать",
+    reflection: "Не каждый день"
+  },
+  en: {
+    boolean: "Boolean",
+    daily: "Every day",
+    numeric: "Numeric",
+    multiple: "Multiple",
+    avoid: "Avoid",
+    reflection: "Non-daily"
+  }
+};
 
 export function ManagementView({ state }: { state: AppState }) {
+  const language = normalizeLanguage(state.settings.language);
   return (
     <section className="grid-two management-layout">
       <div className="stack">
         <AdminUsersPanel currentUserId={state.profile?.id || ""} />
+        <RuntimeKnowledgePanel />
+        <TransitLibraryPanel language={language} />
       </div>
       <div className="stack">
         <GlobalDefaultsPanel currentSettings={state.settings} />
@@ -388,11 +440,11 @@ function GlobalDefaultsPanel({ currentSettings }: { currentSettings: AppState["s
         />
         <SelectControl label="Стартовый экран" value={defaults.defaultView} options={defaultViewOptions} onChange={(value) => setDefaults((state) => ({ ...state, defaultView: value as View }))} />
       </div>
-      <div className="panel settings-card inner-settings-card">
-        <div className="section-head">
-          <div>
-            <h3>Календарь и таблица</h3>
-            <p className="muted">Все элементы оформления календаря и таблицы, как в пользовательском разделе.</p>
+        <div className="panel settings-card inner-settings-card">
+          <div className="section-head">
+            <div>
+              <h3>Календарь и таблица</h3>
+              <p className="muted">Все элементы оформления календаря и таблицы, как в пользовательском разделе.</p>
           </div>
         </div>
         <div className="form-grid">
@@ -426,7 +478,29 @@ function GlobalDefaultsPanel({ currentSettings }: { currentSettings: AppState["s
             { value: "180", label: "180" },
             { value: "365", label: "365" }
           ]} onChange={(value) => setDefaults((state) => ({ ...state, calendarHistoryDays: Number(value) }))} />
+          <SelectControl
+            label="Фильтр привычек"
+            value={defaults.calendarFilterMode}
+            options={calendarFilterModes.map(([value, label]) => ({ value, label }))}
+            onChange={(value) => setDefaults((state) => ({ ...state, calendarFilterMode: value as CalendarFilterMode }))}
+          />
         </div>
+        <Toggle label="Показывать выходные" checked={defaults.showWeekends} onChange={(checked) => setDefaults((state) => ({ ...state, showWeekends: checked }))} />
+        {defaults.calendarFilterMode === "types" ? (
+          <div className="module-toggle-grid type-toggle-grid">
+            {(Object.keys(calendarTypeLabels[language]) as HabitType[]).map((type) => (
+              <Toggle
+                key={type}
+                label={calendarTypeLabels[language][type]}
+                checked={defaults.calendarFilterTypes[type]}
+                onChange={(checked) => setDefaults((state) => ({
+                  ...state,
+                  calendarFilterTypes: { ...state.calendarFilterTypes, [type]: checked }
+                }))}
+              />
+            ))}
+          </div>
+        ) : null}
         {defaults.gridColors.mode === "custom" ? (
           <div className="mini-color-grid calendar-color-grid">
             {[
@@ -450,6 +524,52 @@ function GlobalDefaultsPanel({ currentSettings }: { currentSettings: AppState["s
             ))}
           </div>
         ) : null}
+        <div className="panel settings-card inner-settings-card">
+          <div className="section-head">
+            <div>
+              <h3>Второй календарь</h3>
+              <p className="muted">Отдельный блок с собственным фильтром привычек и историей.</p>
+            </div>
+          </div>
+          <Toggle label="Показывать второй календарь" checked={defaults.secondaryCalendar.enabled} onChange={(checked) => setDefaults((state) => ({ ...state, secondaryCalendar: { ...state.secondaryCalendar, enabled: checked } }))} />
+          <div className="form-grid">
+            <SelectControl
+              label="История второго календаря"
+              value={String(defaults.secondaryCalendar.historyDays)}
+              options={["0", "7", "14", "30", "60", "90", "180", "365"]}
+              onChange={(value) => setDefaults((state) => ({ ...state, secondaryCalendar: { ...state.secondaryCalendar, historyDays: Number(value) } }))}
+            />
+            <SelectControl
+              label="Фильтр привычек"
+              value={defaults.secondaryCalendar.filterMode}
+              options={secondaryCalendarFilterModes.map(([value, label]) => ({ value, label }))}
+              onChange={(value) => setDefaults((state) => ({ ...state, secondaryCalendar: { ...state.secondaryCalendar, filterMode: value as CalendarFilterMode } }))}
+            />
+          </div>
+          <Toggle
+            label="Показывать выходные"
+            checked={defaults.secondaryCalendar.showWeekends}
+            onChange={(checked) => setDefaults((state) => ({ ...state, secondaryCalendar: { ...state.secondaryCalendar, showWeekends: checked } }))}
+          />
+          {defaults.secondaryCalendar.filterMode === "types" ? (
+            <div className="module-toggle-grid type-toggle-grid">
+              {(Object.keys(secondaryCalendarTypeLabels[language]) as HabitType[]).map((type) => (
+                <Toggle
+                  key={type}
+                  label={secondaryCalendarTypeLabels[language][type]}
+                  checked={defaults.secondaryCalendar.selectedTypes[type]}
+                  onChange={(checked) => setDefaults((state) => ({
+                    ...state,
+                    secondaryCalendar: {
+                      ...state.secondaryCalendar,
+                      selectedTypes: { ...state.secondaryCalendar.selectedTypes, [type]: checked }
+                    }
+                  }))}
+                />
+              ))}
+            </div>
+          ) : null}
+        </div>
         <details className="quick-subsection" open>
           <summary>Фильтр и видимость</summary>
           <div className="module-controls">
@@ -582,6 +702,368 @@ function SiteContactPanel() {
       <p className="muted">{message || "На странице контактов будет использован именно этот адрес."}</p>
     </div>
   );
+}
+
+function RuntimeKnowledgePanel() {
+  const { content, setContent } = useRuntimeContent();
+  const [draft, setDraft] = useState(() => structuredClone(content));
+  const [loading, setLoading] = useState(false);
+  const [message, setMessage] = useState("");
+
+  useEffect(() => {
+    let mounted = true;
+    fetch("/api/admin/runtime-content")
+      .then(async (response) => {
+        const payload = await response.json();
+        if (!response.ok || payload.ok === false) throw new Error(payload.error || "Не удалось загрузить базу знаний");
+        return payload.content;
+      })
+      .then((saved) => {
+        if (!mounted) return;
+        setDraft(structuredClone(saved));
+      })
+      .catch(() => {
+        if (mounted) setDraft(structuredClone(content));
+      });
+    return () => {
+      mounted = false;
+    };
+  }, [content]);
+
+  async function save() {
+    setLoading(true);
+    setMessage("");
+    try {
+      const response = await fetch("/api/admin/runtime-content", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ content: draft })
+      });
+      const payload = await response.json();
+      if (!response.ok || payload.ok === false) throw new Error(payload.error || "Не удалось сохранить базу знаний");
+      setDraft(structuredClone(payload.content));
+      setContent(structuredClone(payload.content));
+      setMessage("Глобальная база знаний сохранена.");
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : "Не удалось сохранить базу знаний");
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  function updateForecast(path: Array<string | number>, value: string | number) {
+    setDraft((current) => {
+      const next = structuredClone(current);
+      setDeep(next, ["forecast", ...path], value);
+      return next;
+    });
+  }
+
+  function updateNumerology(path: Array<string | number>, value: string | number) {
+    setDraft((current) => {
+      const next = structuredClone(current);
+      setDeep(next, ["numerology", ...path], value);
+      return next;
+    });
+  }
+
+  return (
+    <div className="panel settings-card">
+      <div className="section-head">
+        <div>
+          <h3>База знаний</h3>
+          <p className="muted">Глобальные описания биоритмов, цифр и правил, редактируемые для всей системы.</p>
+        </div>
+      </div>
+      <div className="toolbar preset-toolbar">
+        <button className="btn" onClick={save} disabled={loading}>{loading ? "Сохраняю..." : "Сохранить базу знаний"}</button>
+      </div>
+      <details className="quick-subsection" open>
+        <summary>Биоритмы</summary>
+        <div className="form-grid">
+          {(["low", "steady", "high"] as const).map((tone) => (
+            <div className="field" key={tone}>
+              <label>{tone}</label>
+              <input
+                className="input"
+                value={draft.forecast.summaryLabels.ru[tone]}
+                onChange={(event) => updateForecast(["summaryLabels", "ru", tone], event.target.value)}
+              />
+              <input
+                className="input"
+                value={draft.forecast.summaryLabels.en[tone]}
+                onChange={(event) => updateForecast(["summaryLabels", "en", tone], event.target.value)}
+              />
+            </div>
+          ))}
+          {(["physical", "emotional", "intellectual"] as const).map((scale) => (
+            <div className="panel inner-settings-card" key={scale}>
+              <div className="field">
+                <label>{scale}</label>
+                <input className="input" type="number" min="1" max="365" value={draft.forecast.scales[scale].cycle} onChange={(event) => updateForecast(["scales", scale, "cycle"], Number(event.target.value))} />
+                <input className="input" value={draft.forecast.scales[scale].label.ru} onChange={(event) => updateForecast(["scales", scale, "label", "ru"], event.target.value)} />
+                <input className="input" value={draft.forecast.scales[scale].label.en} onChange={(event) => updateForecast(["scales", scale, "label", "en"], event.target.value)} />
+                <textarea className="input" rows={2} value={draft.forecast.scales[scale].note.ru} onChange={(event) => updateForecast(["scales", scale, "note", "ru"], event.target.value)} />
+                <textarea className="input" rows={2} value={draft.forecast.scales[scale].note.en} onChange={(event) => updateForecast(["scales", scale, "note", "en"], event.target.value)} />
+              </div>
+            </div>
+          ))}
+        </div>
+      </details>
+      <details className="quick-subsection" open>
+        <summary>Цифры</summary>
+        <div className="form-grid">
+          {(["low", "steady", "high"] as const).map((tone) => (
+            <div className="field" key={tone}>
+              <label>{tone}</label>
+              <input className="input" value={draft.numerology.summaryLabels.ru[tone]} onChange={(event) => updateNumerology(["summaryLabels", "ru", tone], event.target.value)} />
+              <input className="input" value={draft.numerology.summaryLabels.en[tone]} onChange={(event) => updateNumerology(["summaryLabels", "en", tone], event.target.value)} />
+            </div>
+          ))}
+          {Object.entries(draft.numerology.metrics).map(([metricId, metric]) => (
+            <div className="panel inner-settings-card" key={metricId}>
+              <div className="field">
+                <label>{metricId}</label>
+                <input className="input" value={metric.label.ru} onChange={(event) => updateNumerology(["metrics", metricId, "label", "ru"], event.target.value)} />
+                <input className="input" value={metric.label.en} onChange={(event) => updateNumerology(["metrics", metricId, "label", "en"], event.target.value)} />
+              </div>
+            </div>
+          ))}
+          {Object.entries(draft.numerology.interpretations)
+            .sort(([a], [b]) => Number(a) - Number(b))
+            .map(([value, interpretation]) => (
+              <div className="panel inner-settings-card" key={value}>
+                <div className="field">
+                  <label>{value}</label>
+                  <input className="input" value={interpretation.label.ru} onChange={(event) => updateNumerology(["interpretations", value, "label", "ru"], event.target.value)} />
+                  <input className="input" value={interpretation.label.en} onChange={(event) => updateNumerology(["interpretations", value, "label", "en"], event.target.value)} />
+                  <textarea className="input" rows={2} value={interpretation.note.ru} onChange={(event) => updateNumerology(["interpretations", value, "note", "ru"], event.target.value)} />
+                  <textarea className="input" rows={2} value={interpretation.note.en} onChange={(event) => updateNumerology(["interpretations", value, "note", "en"], event.target.value)} />
+                  <input className="input" type="number" min="0" max="100" value={interpretation.score} onChange={(event) => updateNumerology(["interpretations", value, "score"], Number(event.target.value))} />
+                </div>
+              </div>
+            ))}
+        </div>
+        <div className="form-grid">
+          {(["low", "steady", "high"] as const).map((tone) => (
+            <div className="field" key={`${tone}-rec`}>
+              <label>{`${tone} recommendation`}</label>
+              <textarea className="input" rows={3} value={draft.numerology.recommendation[tone].ru} onChange={(event) => updateNumerology(["recommendation", tone, "ru"], event.target.value)} />
+              <textarea className="input" rows={3} value={draft.numerology.recommendation[tone].en} onChange={(event) => updateNumerology(["recommendation", tone, "en"], event.target.value)} />
+            </div>
+          ))}
+        </div>
+      </details>
+      <p className="muted">{message || "Эта база используется в прогнозах, цифровой аналитике и уведомлениях."}</p>
+    </div>
+  );
+}
+
+function TransitLibraryPanel({ language }: { language: "ru" | "en" }) {
+  type TransitDraft = {
+    id: string;
+    title: string;
+    titleEn: string;
+    periodStart: string;
+    periodEnd: string;
+    listingUrl: string;
+    descriptionUrl: string;
+    pageNumber: number;
+    gateSunNumber: string;
+    gateSunName: string;
+    gateSunUrl: string;
+    gateEarthNumber: string;
+    gateEarthName: string;
+    gateEarthUrl: string;
+    paragraphs: string;
+    paragraphsEn: string;
+    helped: string;
+    helpedEn: string;
+    blocked: string;
+    blockedEn: string;
+    publishedAt: string;
+  };
+
+  const [records, setRecords] = useState<TransitDraft[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [message, setMessage] = useState("");
+
+  useEffect(() => {
+    let mounted = true;
+    void load();
+    return () => {
+      mounted = false;
+    };
+
+    async function load() {
+      try {
+        const response = await fetch("/api/admin/transits");
+        const payload = await response.json();
+        if (!response.ok || payload.ok === false) throw new Error(payload.error || "Не удалось загрузить транзиты");
+        if (!mounted) return;
+        setRecords((payload.transits || []).map((item: Record<string, unknown>) => ({
+          id: String(item.id || ""),
+          title: String(item.title || ""),
+          titleEn: String(item.titleEn || ""),
+          periodStart: String(item.periodStart || ""),
+          periodEnd: String(item.periodEnd || ""),
+          listingUrl: String(item.listingUrl || ""),
+          descriptionUrl: String(item.descriptionUrl || ""),
+          pageNumber: Number(item.pageNumber || 0),
+          gateSunNumber: String(item.gateSunNumber || ""),
+          gateSunName: String(item.gateSunName || ""),
+          gateSunUrl: String(item.gateSunUrl || ""),
+          gateEarthNumber: String(item.gateEarthNumber || ""),
+          gateEarthName: String(item.gateEarthName || ""),
+          gateEarthUrl: String(item.gateEarthUrl || ""),
+          paragraphs: Array.isArray(item.paragraphs) ? item.paragraphs.join("\n") : "",
+          paragraphsEn: Array.isArray(item.paragraphsEn) ? item.paragraphsEn.join("\n") : "",
+          helped: Array.isArray(item.helped) ? item.helped.join("\n") : "",
+          helpedEn: Array.isArray(item.helpedEn) ? item.helpedEn.join("\n") : "",
+          blocked: Array.isArray(item.blocked) ? item.blocked.join("\n") : "",
+          blockedEn: Array.isArray(item.blockedEn) ? item.blockedEn.join("\n") : "",
+          publishedAt: String(item.publishedAt || "")
+        })));
+      } catch (error) {
+        if (mounted) setMessage(error instanceof Error ? error.message : "Не удалось загрузить транзиты");
+      }
+    }
+  }, []);
+
+  async function syncTransits() {
+    setLoading(true);
+    setMessage("");
+    try {
+      const response = await fetch("/api/admin/transits", { method: "POST" });
+      const payload = await response.json();
+      if (!response.ok || payload.ok === false) throw new Error(payload.error || "Не удалось синхронизировать транзиты");
+      setMessage(`Импортировано: ${payload.result.importedItems}`);
+      await reload();
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : "Не удалось синхронизировать транзиты");
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  async function reload() {
+    const response = await fetch("/api/admin/transits");
+    const payload = await response.json();
+    if (!response.ok || payload.ok === false) throw new Error(payload.error || "Не удалось загрузить транзиты");
+    setRecords((payload.transits || []).map((item: Record<string, unknown>) => ({
+      id: String(item.id || ""),
+      title: String(item.title || ""),
+      titleEn: String(item.titleEn || ""),
+      periodStart: String(item.periodStart || ""),
+      periodEnd: String(item.periodEnd || ""),
+      listingUrl: String(item.listingUrl || ""),
+      descriptionUrl: String(item.descriptionUrl || ""),
+      pageNumber: Number(item.pageNumber || 0),
+      gateSunNumber: String(item.gateSunNumber || ""),
+      gateSunName: String(item.gateSunName || ""),
+      gateSunUrl: String(item.gateSunUrl || ""),
+      gateEarthNumber: String(item.gateEarthNumber || ""),
+      gateEarthName: String(item.gateEarthName || ""),
+      gateEarthUrl: String(item.gateEarthUrl || ""),
+      paragraphs: Array.isArray(item.paragraphs) ? item.paragraphs.join("\n") : "",
+      paragraphsEn: Array.isArray(item.paragraphsEn) ? item.paragraphsEn.join("\n") : "",
+      helped: Array.isArray(item.helped) ? item.helped.join("\n") : "",
+      helpedEn: Array.isArray(item.helpedEn) ? item.helpedEn.join("\n") : "",
+      blocked: Array.isArray(item.blocked) ? item.blocked.join("\n") : "",
+      blockedEn: Array.isArray(item.blockedEn) ? item.blockedEn.join("\n") : "",
+      publishedAt: String(item.publishedAt || "")
+    })));
+  }
+
+  async function saveTransit(record: TransitDraft) {
+    setLoading(true);
+    setMessage("");
+    try {
+      const response = await fetch(`/api/admin/transits/${record.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          ...record,
+          paragraphs: listify(record.paragraphs),
+          paragraphsEn: listify(record.paragraphsEn),
+          helped: listify(record.helped),
+          helpedEn: listify(record.helpedEn),
+          blocked: listify(record.blocked),
+          blockedEn: listify(record.blockedEn)
+        })
+      });
+      const payload = await response.json();
+      if (!response.ok || payload.ok === false) throw new Error(payload.error || "Не удалось сохранить транзит");
+      setMessage("Транзит сохранён.");
+      await reload();
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : "Не удалось сохранить транзит");
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  function updateTransit(id: string, key: keyof TransitDraft, value: string | number) {
+    setRecords((current) => current.map((record) => record.id === id ? { ...record, [key]: value } : record));
+  }
+
+  return (
+    <div className="panel settings-card">
+      <div className="section-head">
+        <div>
+          <h3>База транзитов</h3>
+          <p className="muted">Все транзиты, описания, помогают и мешают — для правок на глобальном уровне.</p>
+        </div>
+      </div>
+      <div className="toolbar preset-toolbar">
+        <button className="btn" onClick={syncTransits} disabled={loading}>{loading ? "Синхронизирую..." : "Синхронизировать Humdes"}</button>
+      </div>
+      <div className="stack">
+        {records.map((record) => (
+          <details className="panel inner-settings-card" key={record.id}>
+            <summary>{(language === "en" ? record.titleEn : record.title) || record.descriptionUrl}</summary>
+            <div className="form-grid">
+              <div className="field"><label>Title (RU)</label><input className="input" value={record.title} onChange={(event) => updateTransit(record.id, "title", event.target.value)} /></div>
+              <div className="field"><label>Title (EN)</label><input className="input" value={record.titleEn} onChange={(event) => updateTransit(record.id, "titleEn", event.target.value)} /></div>
+              <div className="field"><label>Start</label><input className="input" type="date" value={record.periodStart} onChange={(event) => updateTransit(record.id, "periodStart", event.target.value)} /></div>
+              <div className="field"><label>End</label><input className="input" type="date" value={record.periodEnd} onChange={(event) => updateTransit(record.id, "periodEnd", event.target.value)} /></div>
+              <div className="field"><label>Page</label><input className="input" type="number" value={record.pageNumber} onChange={(event) => updateTransit(record.id, "pageNumber", Number(event.target.value))} /></div>
+              <div className="field"><label>Sun gate</label><input className="input" value={record.gateSunNumber} onChange={(event) => updateTransit(record.id, "gateSunNumber", event.target.value)} /><input className="input" value={record.gateSunName} onChange={(event) => updateTransit(record.id, "gateSunName", event.target.value)} /><input className="input" value={record.gateSunUrl} onChange={(event) => updateTransit(record.id, "gateSunUrl", event.target.value)} /></div>
+              <div className="field"><label>Earth gate</label><input className="input" value={record.gateEarthNumber} onChange={(event) => updateTransit(record.id, "gateEarthNumber", event.target.value)} /><input className="input" value={record.gateEarthName} onChange={(event) => updateTransit(record.id, "gateEarthName", event.target.value)} /><input className="input" value={record.gateEarthUrl} onChange={(event) => updateTransit(record.id, "gateEarthUrl", event.target.value)} /></div>
+              <div className="field"><label>Paragraphs (RU)</label><textarea className="input" rows={6} value={record.paragraphs} onChange={(event) => updateTransit(record.id, "paragraphs", event.target.value)} /></div>
+              <div className="field"><label>Paragraphs (EN)</label><textarea className="input" rows={6} value={record.paragraphsEn} onChange={(event) => updateTransit(record.id, "paragraphsEn", event.target.value)} /></div>
+              <div className="field"><label>Помогают / Helps (RU)</label><textarea className="input" rows={4} value={record.helped} onChange={(event) => updateTransit(record.id, "helped", event.target.value)} /></div>
+              <div className="field"><label>Помогают / Helps (EN)</label><textarea className="input" rows={4} value={record.helpedEn} onChange={(event) => updateTransit(record.id, "helpedEn", event.target.value)} /></div>
+              <div className="field"><label>Мешают / Hinders (RU)</label><textarea className="input" rows={4} value={record.blocked} onChange={(event) => updateTransit(record.id, "blocked", event.target.value)} /></div>
+              <div className="field"><label>Мешают / Hinders (EN)</label><textarea className="input" rows={4} value={record.blockedEn} onChange={(event) => updateTransit(record.id, "blockedEn", event.target.value)} /></div>
+              <div className="field"><label>Published</label><input className="input" value={record.publishedAt} onChange={(event) => updateTransit(record.id, "publishedAt", event.target.value)} /></div>
+            </div>
+            <div className="toolbar preset-toolbar">
+              <button className="btn" onClick={() => saveTransit(record)} disabled={loading}>Сохранить</button>
+            </div>
+          </details>
+        ))}
+      </div>
+      <p className="muted">{message || "Если данных в базе не хватает, здесь можно синхронизировать и поправить описания."}</p>
+    </div>
+  );
+}
+
+function setDeep(target: any, path: Array<string | number>, value: unknown) {
+  let current: any = target;
+  for (let index = 0; index < path.length - 1; index += 1) {
+    const key = String(path[index]);
+    if (!current[key] || typeof current[key] !== "object") current[key] = {};
+    current = current[key] as Record<string, unknown>;
+  }
+  current[String(path[path.length - 1])] = value;
+}
+
+function listify(value: string) {
+  return value
+    .split(/\n+/)
+    .map((item) => item.trim())
+    .filter(Boolean);
 }
 
 function TelegramPanel() {
