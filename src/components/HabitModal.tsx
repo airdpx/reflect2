@@ -114,15 +114,15 @@ export function HabitModal({
             <div className="habit-schedule-head">
               <label>Дни недели</label>
             </div>
-            <div className="weekdays">
-              {["Пн", "Вт", "Ср", "Чт", "Пт", "Сб", "Вс"].map((label, index) => {
-                const day = index === 6 ? 0 : index + 1;
-                return (
-                <button type="button" className={`chip ${h.schedule.includes(day) ? "active" : ""}`} data-weekday={day} key={day} onClick={(event) => event.currentTarget.classList.toggle("active")}>{label}</button>
-                );
-              })}
-            </div>
-            <div className="toolbar habit-modal-actions">
+            <div className="habit-schedule-controls">
+              <div className="weekdays habit-weekdays">
+                {["Пн", "Вт", "Ср", "Чт", "Пт", "Сб", "Вс"].map((label, index) => {
+                  const day = index === 6 ? 0 : index + 1;
+                  return (
+                    <button type="button" className={`chip ${h.schedule.includes(day) ? "active" : ""}`} data-weekday={day} key={day} onClick={(event) => event.currentTarget.classList.toggle("active")}>{label}</button>
+                  );
+                })}
+              </div>
               <button className="btn primary habit-save-inline" type="submit">Сохранить</button>
             </div>
           </div>
