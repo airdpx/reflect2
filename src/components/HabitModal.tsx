@@ -110,18 +110,27 @@ export function HabitModal({
               </div>
             ))}
           </div>
-          <div className="field">
-            <label>Дни недели</label>
+          <div className="field habit-schedule-field">
+            <div className="habit-schedule-head">
+              <label>Дни недели</label>
+              <button className="btn primary habit-save-inline" type="submit">Сохранить</button>
+            </div>
             <div className="weekdays">
-              {["Вс", "Пн", "Вт", "Ср", "Чт", "Пт", "Сб"].map((label, day) => (
+              {["Пн", "Вт", "Ср", "Чт", "Пт", "Сб", "Вс"].map((label, index) => {
+                const day = index === 6 ? 0 : index + 1;
+                return (
                 <button type="button" className={`chip ${h.schedule.includes(day) ? "active" : ""}`} data-weekday={day} key={day} onClick={(event) => event.currentTarget.classList.toggle("active")}>{label}</button>
-              ))}
+                );
+              })}
             </div>
           </div>
-          <div className="toolbar">
-            <button className="btn primary" type="submit">Сохранить</button>
-            {habit && !isTemplateDraft && <button className="btn danger" type="button" onClick={() => actions.deleteHabit(habit.id)}>Удалить</button>}
-          </div>
+          {habit && !isTemplateDraft ? (
+            <div className="toolbar habit-modal-actions">
+              <button className="btn danger" type="button" onClick={() => actions.deleteHabit(habit.id)}>
+                Удалить
+              </button>
+            </div>
+          ) : null}
         </form>
       </div>
     </div>

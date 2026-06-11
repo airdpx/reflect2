@@ -80,9 +80,11 @@ export function Topbar({
             </span>
           </div>
         ) : null}
-        <button className="btn primary" onClick={onAdd}>
-          {commonText[language].addHabit}
-        </button>
+        <div className="topbar-add-slot">
+          <button className="btn primary" onClick={onAdd}>
+            {commonText[language].addHabit}
+          </button>
+        </div>
         {actionsSlot ? <div className="topbar-actions-slot">{actionsSlot}</div> : null}
       </div>
     </header>
