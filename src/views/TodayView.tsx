@@ -30,7 +30,7 @@ export function TodayView({
   const mobileBlockVisible = (key: TodayBlockKey) => state.settings.mobileTodayBlocks[key] !== false;
   const isTodayBlockVisible = (key: TodayBlockKey) => state.settings.visibleBlocks[key] && (!isMobile || mobileBlockVisible(key));
 
-  const leftColumn = (
+  const habitsColumn = (
     <section className="stack">
       <TodayModulesPanel state={state} actions={actions} />
       {hasHabits && isTodayBlockVisible("attention") && <AttentionPanel attention={attention} language={language} />}
@@ -43,9 +43,9 @@ export function TodayView({
             </div>
             <div className="section-actions">
               <span className="badge">{completed.length}/{dueHabits.length} {language === "en" ? "done" : "завершено"}</span>
-              <button className="btn ghost" onClick={actions.markDayDone}>{language === "en" ? "All" : "✓ Всё"}</button>
-              <button className="btn ghost" onClick={actions.clearDay}>{language === "en" ? "Clear" : "Очистить"}</button>
-              <button className="btn ghost" onClick={actions.undoLastBulkAction}>{language === "en" ? "Undo" : "↶ Undo"}</button>
+              <button type="button" className="btn ghost" onClick={actions.markDayDone}>{language === "en" ? "All" : "✓ Всё"}</button>
+              <button type="button" className="btn ghost" onClick={actions.clearDay}>{language === "en" ? "Clear" : "Очистить"}</button>
+              <button type="button" className="btn ghost" onClick={actions.undoLastBulkAction}>{language === "en" ? "Undo" : "↶ Undo"}</button>
             </div>
           </div>
           {hasHabits && dueHabits.length ? (
@@ -66,9 +66,9 @@ export function TodayView({
                 <span>{language === "en" ? "You can add a habit, choose a template, or open the day diary." : "Можно добавить привычку, выбрать шаблон или перейти к дневнику дня."}</span>
               </div>
               <div className="quick-actions">
-                <button className="btn primary" onClick={() => actions.openHabitModal("new")}>{language === "en" ? "Create habit" : "Создать привычку"}</button>
-                <button className="btn ghost" onClick={() => actions.openHabitTemplate("journal")}>{language === "en" ? "Diary template" : "Шаблон дневника"}</button>
-                <button className="btn ghost" onClick={() => actions.setView("diary")}>{language === "en" ? "Open diary" : "Открыть дневник"}</button>
+                <button type="button" className="btn primary" onClick={() => actions.openHabitModal("new")}>{language === "en" ? "Create habit" : "Создать привычку"}</button>
+                <button type="button" className="btn ghost" onClick={() => actions.openHabitTemplate("journal")}>{language === "en" ? "Diary template" : "Шаблон дневника"}</button>
+                <button type="button" className="btn ghost" onClick={() => actions.setView("diary")}>{language === "en" ? "Open diary" : "Открыть дневник"}</button>
               </div>
             </div>
           )}
@@ -82,13 +82,22 @@ export function TodayView({
   if (isTodayBlockVisible("numerology")) rightPanels.push(<TodayNumerologyPanel key="numerology" state={state} />);
   if (isTodayBlockVisible("transit")) rightPanels.push(<TransitPanel key="transit" state={state} />);
 
+  if (isMobile) {
+    return (
+      <div className="stack">
+        {rightPanels.length ? <section className="stack observation-column">{rightPanels}</section> : null}
+        {habitsColumn}
+      </div>
+    );
+  }
+
   if (!rightPanels.length || todayLayout === "single") {
-    return <div className="stack">{leftColumn}{rightPanels.length ? <section className="stack observation-column">{rightPanels}</section> : null}</div>;
+    return <div className="stack">{habitsColumn}{rightPanels.length ? <section className="stack observation-column">{rightPanels}</section> : null}</div>;
   }
 
   return (
     <div className="grid-two">
-      {leftColumn}
+      {habitsColumn}
       {rightPanels.length ? <section className="stack observation-column">{rightPanels}</section> : null}
     </div>
   );

@@ -117,6 +117,7 @@ function HabitList({
     edit: string;
     archiveAction: string;
     restore: string;
+    drag: string;
   };
 }) {
   return (

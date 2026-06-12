@@ -1,7 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { AppActions, AppState, DailyNote } from "../types";
 import { addDays, formatDate, fromKey, todayKey, toKey } from "../lib/date";
-import { DiaryNumerologyStrip } from "../components/Numerology";
 import { normalizeLanguage } from "../lib/i18n";
 
 export function DiaryPanel({ state, actions }: { state: AppState; actions: AppActions }) {
@@ -77,12 +76,26 @@ export function DiaryPanel({ state, actions }: { state: AppState; actions: AppAc
         </div>
         <div className="section-actions">
           <div className="segmented">
-            <button className={state.settings.diaryLayout === "compact" ? "active" : ""} onClick={() => actions.updateSetting("diaryLayout", "compact")}>{text.compact}</button>
-            <button className={state.settings.diaryLayout === "full" ? "active" : ""} onClick={() => actions.updateSetting("diaryLayout", "full")}>{text.full}</button>
+            <button type="button" className={state.settings.diaryLayout === "compact" ? "active" : ""} onClick={() => actions.updateSetting("diaryLayout", "compact")}>{text.compact}</button>
+            <button type="button" className={state.settings.diaryLayout === "full" ? "active" : ""} onClick={() => actions.updateSetting("diaryLayout", "full")}>{text.full}</button>
           </div>
           <div className="segmented">
-            <button className={state.settings.diaryHistoryMode === "period" ? "active" : ""} onClick={() => actions.updateSetting("diaryHistoryMode", "period")}>{text.period}</button>
-            <button className={state.settings.diaryHistoryMode === "all" ? "active" : ""} onClick={() => actions.updateSetting("diaryHistoryMode", "all")}>{text.all}</button>
+            <button
+              type="button"
+              className={state.settings.diaryHistoryMode === "period" ? "active" : ""}
+              aria-pressed={state.settings.diaryHistoryMode === "period"}
+              onClick={() => actions.updateSetting("diaryHistoryMode", "period")}
+            >
+              {text.period}
+            </button>
+            <button
+              type="button"
+              className={state.settings.diaryHistoryMode === "all" ? "active" : ""}
+              aria-pressed={state.settings.diaryHistoryMode === "all"}
+              onClick={() => actions.updateSetting("diaryHistoryMode", "all")}
+            >
+              {text.all}
+            </button>
           </div>
         </div>
       </div>
@@ -104,8 +117,7 @@ export function DiaryPanel({ state, actions }: { state: AppState; actions: AppAc
           ))}
         </div>
       </details>
-        <div className="stack">
-        <DiaryNumerologyStrip state={state} />
+      <div className="stack">
         <div className="form-grid diary-scales-grid">
           <RangeField name="mood" label={language === "en" ? "Mood" : "Настроение"} value={note.mood ?? 3} state={state} actions={actions} />
           <RangeField name="energy" label={language === "en" ? "Energy" : "Энергия"} value={note.energy ?? 3} state={state} actions={actions} />
@@ -134,7 +146,7 @@ export function DiaryPanel({ state, actions }: { state: AppState; actions: AppAc
             {state.settings.diaryHistoryMode === "period" ? (
               <div className="diary-history-strip">
                 {[7, 14, 30, 90, 180].map((days) => (
-                  <button key={days} className={historyDays === days ? "active" : ""} onClick={() => actions.updateSetting("diaryHistoryDays", days)}>
+                  <button type="button" key={days} className={historyDays === days ? "active" : ""} onClick={() => actions.updateSetting("diaryHistoryDays", days)}>
                     {days} {language === "en" ? "d" : "д"}
                   </button>
                 ))}
