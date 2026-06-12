@@ -9,6 +9,11 @@ export function QuickControls({ state, actions }: { state: AppState; actions: Ap
   const common = commonText[language];
   return (
     <div className="quick-control-dock">
+      <LanguagePicker
+        language={language}
+        onLanguageChange={(nextLanguage) => actions.updateSetting("language", nextLanguage)}
+        title={common.language}
+      />
       <ThemePicker
         className=""
         theme={state.settings.interfaceTheme}
@@ -17,11 +22,6 @@ export function QuickControls({ state, actions }: { state: AppState; actions: Ap
         onCustomThemeChange={(theme) => actions.updateSetting("customTheme", theme)}
         title={common.theme}
         language={language}
-      />
-      <LanguagePicker
-        language={language}
-        onLanguageChange={(nextLanguage) => actions.updateSetting("language", nextLanguage)}
-        title={common.language}
       />
       {state.profile?.isAdmin ? (
         <button className="quick-icon quick-management" onClick={() => actions.setView("management")} title={viewText[language].management.label} aria-label={viewText[language].management.label}>

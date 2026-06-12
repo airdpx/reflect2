@@ -150,6 +150,11 @@ export function AuthScreen() {
     <main className="auth-shell" style={shellStyle}>
       <RuntimeTranslator language={language} selector=".auth-shell" />
       <div className="auth-theme-dock">
+        <LanguagePicker
+          language={language}
+          onLanguageChange={(nextLanguage: Language) => setThemeState((current) => ({ ...current, language: nextLanguage }))}
+          title={common.language}
+        />
         <ThemePicker
           className="auth-theme-picker"
           panelClassName="quick-panel-narrow"
@@ -159,11 +164,6 @@ export function AuthScreen() {
           onThemeChange={(nextTheme) => setThemeState((current) => ({ ...current, theme: nextTheme }))}
           title={common.theme}
           language={language}
-        />
-        <LanguagePicker
-          language={language}
-          onLanguageChange={(nextLanguage: Language) => setThemeState((current) => ({ ...current, language: nextLanguage }))}
-          title={common.language}
         />
       </div>
       <div className="auth-layout">

@@ -59,6 +59,11 @@ export function StaticPageShell({
     <main className={`static-page theme-${theme} ${className}`.trim()} style={shellStyle} data-language={language}>
       <RuntimeTranslator language={language} selector=".static-page" />
       <div className="page-theme-dock">
+        <LanguagePicker
+          language={language}
+          onLanguageChange={(nextLanguage) => setThemeState((current) => ({ ...current, language: nextLanguage }))}
+          title={common.language}
+        />
         <ThemePicker
           className="static-theme-picker"
           panelClassName="quick-panel-narrow"
@@ -70,11 +75,6 @@ export function StaticPageShell({
           }}
           title={common.theme}
           language={language}
-        />
-        <LanguagePicker
-          language={language}
-          onLanguageChange={(nextLanguage) => setThemeState((current) => ({ ...current, language: nextLanguage }))}
-          title={common.language}
         />
       </div>
       <div className="static-page-grid">
