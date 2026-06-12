@@ -4195,7 +4195,7 @@ button {
 }
 
 .compact-template-grid .template-card {
-  min-height: 104px;
+  min-height: 88px;
   padding: 10px;
 }
 
@@ -4203,13 +4203,34 @@ button {
 .hint-card {
   display: grid;
   gap: 7px;
-  min-height: 116px;
+  min-height: 96px;
   padding: 12px;
   border: 1px solid var(--line);
   border-radius: var(--radius);
   background: var(--surface-soft);
   color: var(--text);
   text-align: left;
+}
+
+.template-card {
+  grid-template-columns: 34px minmax(0, 1fr);
+  align-items: center;
+}
+
+.template-card > i {
+  grid-column: 1;
+  grid-row: 1;
+}
+
+.template-card > b {
+  grid-column: 2;
+  grid-row: 1;
+  min-width: 0;
+}
+
+.template-card > span {
+  grid-column: 1 / -1;
+  grid-row: 2;
 }
 
 .template-card span,
@@ -4566,6 +4587,12 @@ button {
 
 .theme-dark .empty {
   background: rgba(30, 33, 29, 0.52);
+}
+
+.theme-custom .empty {
+  background: color-mix(in srgb, var(--surface) 88%, var(--bg));
+  color: color-mix(in srgb, var(--text) 68%, var(--surface));
+  border-color: color-mix(in srgb, var(--text) 24%, var(--surface));
 }
 
 .theme-dark .habit-meta .signal {
@@ -5373,11 +5400,12 @@ button {
 }
 
 .mini-color-grid input {
-  width: 100%;
-  height: 30px;
+  width: 42px;
+  height: 22px;
+  justify-self: start;
   padding: 2px;
   border: 1px solid var(--line);
-  border-radius: 7px;
+  border-radius: 5px;
   background: var(--surface-soft);
 }
 
@@ -8932,8 +8960,9 @@ body:has(.theme-custom) { background: #111827; }
   .auth-shell > .app-footer {
     flex-direction: row;
     align-items: center;
-    justify-content: center;
+    justify-content: space-between;
     gap: 8px;
+    width: 100%;
     padding: 6px 10px;
     font-size: 10px;
     line-height: 1;
@@ -8971,6 +9000,16 @@ body:has(.theme-custom) { background: #111827; }
   .footer-links a {
     font-size: 10px;
     white-space: nowrap;
+  }
+
+  .onboarding-actions {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .onboarding-actions .btn {
+    width: auto;
+    max-width: 100%;
   }
 
   .transit-panel .section-head {
