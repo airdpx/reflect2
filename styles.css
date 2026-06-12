@@ -8972,7 +8972,7 @@ body:has(.theme-custom) { background: #111827; }
     margin-top: 12px;
     padding: 10px 0 2px;
     border-radius: 999px;
-    border: 1px solid color-mix(in srgb, var(--line) 55%, transparent);
+    border: 0;
   }
 
   .static-page {
@@ -8995,6 +8995,8 @@ body:has(.theme-custom) { background: #111827; }
   .footer-links {
     gap: 8px;
     flex-wrap: nowrap;
+    margin-left: auto;
+    justify-content: flex-end;
   }
 
   .footer-links a {
@@ -9010,6 +9012,12 @@ body:has(.theme-custom) { background: #111827; }
   .onboarding-actions .btn {
     width: auto;
     max-width: 100%;
+  }
+
+  .habit-save-inline {
+    justify-self: center;
+    width: min(240px, 100%);
+    margin-inline: auto;
   }
 
   .transit-panel .section-head {

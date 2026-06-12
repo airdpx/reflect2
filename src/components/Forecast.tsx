@@ -60,7 +60,7 @@ export function TransitPanel({ state }: { state: AppState }) {
     <div className="panel transit-panel">
       <div className="section-head">
         <div>
-          <h3 className="transit-panel-title">{language === "en" ? "Transit" : "Транзит"} <span>({periodStart} — {periodEnd})</span></h3>
+          <h3 className="transit-panel-title">{language === "en" ? "Transit HD" : "Транзит HD"} <span>({periodStart} — {periodEnd})</span></h3>
         </div>
       </div>
       <HumanDesignTransitBlock transit={transit} language={language} />
