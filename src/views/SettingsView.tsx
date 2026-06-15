@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import type { AppActions, AppState, CalendarFilterMode, Density, ForecastDisplayMode, ForecastScaleId, ForecastSettings, HabitStatus, HabitType, NumerologyDisplayMode, NumerologyMetricId, NumerologySettings, TodayBlockKey, UserSettings, View } from "../types";
 import { SelectControl, Toggle } from "../components/Common";
 import { statusMeta } from "../lib/defaults";
@@ -45,7 +45,7 @@ function getSettingsCopy(language: "ru" | "en") {
   if (language === "en") {
     return {
       viewTitle: "View",
-      viewHint: "Presets change the layout, data stays put.",
+      viewHint: "Layout and behavior for the current screen.",
       displayPresetLabel: "Display preset",
       densityLabel: "Density",
       startViewLabel: "Start screen",
@@ -100,6 +100,8 @@ function getSettingsCopy(language: "ru" | "en") {
       exportImportLabel: "Import JSON",
       exportPlaceholder: "JSON for export or import",
       exportResetLabel: "Reset settings only",
+      savedPresetLabel: "Saved preset",
+      savedPresetApplyLabel: "Apply",
       blocks: {
         today: "Today",
         attention: "Needs attention",
@@ -180,7 +182,7 @@ function getSettingsCopy(language: "ru" | "en") {
 
   return {
     viewTitle: "Вид",
-    viewHint: "Пресеты меняют отображение, данные остаются на месте.",
+    viewHint: "Настройки отображения и поведения текущего экрана.",
     displayPresetLabel: "Пресет отображения",
     densityLabel: "Плотность",
     startViewLabel: "Стартовый экран",
@@ -235,6 +237,8 @@ function getSettingsCopy(language: "ru" | "en") {
     exportImportLabel: "Импортировать JSON",
     exportPlaceholder: "JSON для экспорта или импорта",
     exportResetLabel: "Сбросить только настройки",
+    savedPresetLabel: "Сохранённый пресет",
+    savedPresetApplyLabel: "Применить",
     blocks: {
       today: "Сегодня",
       attention: "Требует внимания",
@@ -315,13 +319,11 @@ function getSettingsCopy(language: "ru" | "en") {
 
 export function SettingsView({ state, actions }: { state: AppState; actions: AppActions }) {
   const [presetName, setPresetName] = useState("");
+  const [selectedPresetName, setSelectedPresetName] = useState("");
   const [importText, setImportText] = useState("");
   const [exportText, setExportText] = useState("");
   const language = normalizeLanguage(state.settings.language);
   const text = getSettingsCopy(language);
-  const displayPresetOptions = language === "en"
-    ? ["Simple", "Balanced", "Journal", "Analytical", "Focus"]
-    : ["Простой", "Сбалансированный", "Журнал", "Аналитический", "Фокус"];
   const densityOptions = language === "en"
     ? [
         { value: "compact", label: "Compact" },
@@ -343,6 +345,17 @@ export function SettingsView({ state, actions }: { state: AppState; actions: App
     { value: "settings", label: viewText[language].settings.label },
     ...(state.profile?.isAdmin ? [{ value: "management", label: viewText[language].management.label }] : [])
   ];
+  const savedPresetNames = useMemo(() => Object.keys(state.settings.customPresets).sort((a, b) => a.localeCompare(b, language)), [language, state.settings.customPresets]);
+
+  useEffect(() => {
+    if (!savedPresetNames.length) {
+      if (selectedPresetName) setSelectedPresetName("");
+      return;
+    }
+    if (!selectedPresetName || !savedPresetNames.includes(selectedPresetName)) {
+      setSelectedPresetName(savedPresetNames[0]);
+    }
+  }, [savedPresetNames, selectedPresetName]);
 
   return (
     <section className="grid-two">
@@ -355,7 +368,9 @@ export function SettingsView({ state, actions }: { state: AppState; actions: App
             </div>
           </div>
           <div className="form-grid">
-            <SelectControl label={text.displayPresetLabel} value={state.settings.preset} options={displayPresetOptions} onChange={(value) => actions.applyPreset(value as UserSettings["preset"])} />
+            <div className="settings-preset-selector">
+              <SelectControl label={text.displayPresetLabel} value={state.settings.preset} options={["Simple", "Balanced", "Journal", "Analytical", "Focus"]} onChange={(value) => actions.applyPreset(value as UserSettings["preset"])} />
+            </div>
             <SelectControl label={text.densityLabel} value={state.settings.density} options={densityOptions} onChange={(value) => actions.updateSetting("density", value as Density)} />
             <SelectControl label={text.startViewLabel} value={state.settings.defaultView} options={defaultViewOptions} onChange={(value) => actions.updateSetting("defaultView", value as View)} />
           </div>
@@ -592,9 +607,20 @@ export function SettingsView({ state, actions }: { state: AppState; actions: App
             <input className="input" value={presetName} placeholder={text.presetInputPlaceholder} onChange={(event) => setPresetName(event.target.value)} />
             <button className="btn" onClick={() => { actions.saveCustomPreset(presetName); setPresetName(""); }}>{text.presetSaveLabel}</button>
           </div>
+          <div className="toolbar preset-toolbar preset-apply-toolbar">
+            <select className="select" value={selectedPresetName} onChange={(event) => setSelectedPresetName(event.target.value)} disabled={!savedPresetNames.length}>
+              {!savedPresetNames.length ? (
+                <option value="">{text.presetEmpty}</option>
+              ) : null}
+              {savedPresetNames.map((name) => (
+                <option key={name} value={name}>{name}</option>
+              ))}
+            </select>
+            <button className="btn" disabled={!selectedPresetName || !savedPresetNames.length} onClick={() => actions.applyCustomPreset(selectedPresetName)}>{text.savedPresetApplyLabel}</button>
+          </div>
           <div className="chips">
-            {Object.keys(state.settings.customPresets).length ? Object.keys(state.settings.customPresets).map((name) => (
-              <button key={name} className="chip" onClick={() => actions.applyCustomPreset(name)}>{name}</button>
+            {savedPresetNames.length ? savedPresetNames.map((name) => (
+              <button key={name} className="chip" onClick={() => { setSelectedPresetName(name); actions.applyCustomPreset(name); }}>{name}</button>
             )) : <span className="muted">{text.presetEmpty}</span>}
           </div>
         </div>
@@ -624,20 +650,6 @@ export function SettingsView({ state, actions }: { state: AppState; actions: App
                 </div>
               </details>
             ))}
-          </div>
-          <div className="settings-mini-grid">
-            <div className="settings-mini-card">
-              <b>{text.navigationTitle}</b>
-              <span>{text.navigationHint}</span>
-            </div>
-            <div className="settings-mini-card">
-              <b>{text.calendarCardTitle}</b>
-              <span>{text.calendarCardHint}</span>
-            </div>
-            <div className="settings-mini-card">
-              <b>{text.diaryCardTitle}</b>
-              <span>{text.diaryCardHint}</span>
-            </div>
           </div>
           <div className="danger-zone">
             <button className="btn ghost" onClick={actions.resetSettings}>{text.exportResetLabel}</button>

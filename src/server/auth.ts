@@ -1,5 +1,5 @@
 import { cookies } from "next/headers";
-import { createDefaults } from "../lib/defaults";
+import { createDefaults, normalizeCustomPresets } from "../lib/defaults";
 import { getPrisma } from "./db";
 import { createToken, hashPassword, hashToken, verifyPassword } from "./password";
 import type { AppState, UserProfile } from "../types";
@@ -184,7 +184,7 @@ export async function loadUserState(userId: string, profile?: UserProfile): Prom
       gridHabitColorMode: raw.settings?.gridHabitColorMode || defaults.settings.gridHabitColorMode,
       forecast: migratedForecast,
       numerology: migratedNumerology,
-      customPresets: raw.settings?.customPresets || defaults.settings.customPresets,
+      customPresets: normalizeCustomPresets(raw.settings?.customPresets as Record<string, Partial<typeof defaults.settings>> | undefined, defaults.settings),
       analyticsHistoryDays: raw.settings?.analyticsHistoryDays || defaults.settings.analyticsHistoryDays
     },
     habits: raw.habits || defaults.habits,

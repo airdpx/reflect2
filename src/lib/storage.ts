@@ -1,5 +1,5 @@
 import type { AppState } from "../types";
-import { createDefaults } from "./defaults";
+import { createDefaults, normalizeCustomPresets } from "./defaults";
 
 export const STORAGE_KEY = "habit-calendar-next-mvp-v1";
 export const LEGACY_MIGRATION_FLAG_PREFIX = "habit-calendar-next-mvp-v1:migrated:";
@@ -303,7 +303,7 @@ function migrateState(state: AppState): AppState {
       analyticsHistoryDays: legacySafeSettings.analyticsHistoryDays || defaults.settings.analyticsHistoryDays,
       todayLayout: legacySafeSettings.todayLayout || defaults.settings.todayLayout,
       diaryLayout: legacySafeSettings.diaryLayout || defaults.settings.diaryLayout,
-      customPresets: legacySafeSettings.customPresets || {}
+      customPresets: normalizeCustomPresets(legacySafeSettings.customPresets as Record<string, Partial<AppState["settings"]>> | undefined, defaults.settings)
     },
     profile,
     notificationStates: state.notificationStates || defaults.notificationStates

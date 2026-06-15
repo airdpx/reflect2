@@ -410,6 +410,20 @@ export function mergeSettings(base: UserSettings, override?: Partial<UserSetting
   };
 }
 
+export function normalizeCustomPresets(
+  customPresets: Record<string, Partial<UserSettings>> | Record<string, UserSettings["customPresets"][string]> | undefined,
+  baseSettings: UserSettings
+): UserSettings["customPresets"] {
+  if (!customPresets) return {};
+  return Object.fromEntries(
+    Object.entries(customPresets).map(([name, preset]) => {
+      const merged = mergeSettings(baseSettings, preset);
+      const { customPresets: _customPresets, ...snapshot } = merged;
+      return [name, snapshot];
+    })
+  ) as UserSettings["customPresets"];
+}
+
 export function createDefaults(settingsOverride?: Partial<UserSettings>): AppState {
   const defaultSettings: UserSettings = {
     language: "ru",

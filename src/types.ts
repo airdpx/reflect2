@@ -390,8 +390,10 @@ export type UserSettings = {
     missed: string;
     planned: string;
   };
-  customPresets: Record<string, Partial<UserSettings>>;
+  customPresets: Record<string, SavedUserSettingsPreset>;
 };
+
+export type SavedUserSettingsPreset = Omit<UserSettings, "customPresets">;
 
 export type AppState = {
   schemaVersion: number;

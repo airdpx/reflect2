@@ -465,44 +465,8 @@ export default function HabitCalendarApp({ initialState, runtimeContent }: Habit
     const cleanName = name.trim();
     if (!cleanName) return;
     updateState((draft) => {
-      draft.settings.customPresets[cleanName] = {
-        activeStatuses: [...draft.settings.activeStatuses],
-        visibleBlocks: { ...draft.settings.visibleBlocks },
-        visibleGrid: { ...draft.settings.visibleGrid },
-        density: draft.settings.density,
-        interfaceTheme: draft.settings.interfaceTheme,
-        gridTheme: draft.settings.gridTheme,
-        focusMode: draft.settings.focusMode,
-        rightPanel: draft.settings.rightPanel,
-        showWeekends: draft.settings.showWeekends,
-        gridClickAction: draft.settings.gridClickAction,
-        defaultView: draft.settings.defaultView,
-        gridDisplayMode: draft.settings.gridDisplayMode,
-        gridMarkerShape: draft.settings.gridMarkerShape,
-        selectedCategory: draft.settings.selectedCategory,
-        diaryHistoryDays: draft.settings.diaryHistoryDays,
-        analyticsHistoryDays: draft.settings.analyticsHistoryDays,
-        customTheme: { ...draft.settings.customTheme },
-        calendarHistoryDays: draft.settings.calendarHistoryDays,
-        iconSuggestionsCheckedAt: draft.settings.iconSuggestionsCheckedAt,
-        statusIcons: { ...draft.settings.statusIcons },
-        gridColors: { ...draft.settings.gridColors },
-        forecast: {
-          ...draft.settings.forecast,
-          visibleScales: { ...draft.settings.forecast.visibleScales }
-        },
-        numerology: {
-          ...draft.settings.numerology,
-          visibleMetrics: { ...draft.settings.numerology.visibleMetrics },
-          weights: { ...draft.settings.numerology.weights }
-        },
-        notifications: {
-          ...draft.settings.notifications,
-          channels: { ...draft.settings.notifications.channels },
-          topics: { ...draft.settings.notifications.topics },
-          quietHours: { ...draft.settings.notifications.quietHours }
-        }
-      };
+      const { customPresets: _customPresets, ...snapshot } = structuredClone(draft.settings);
+      draft.settings.customPresets[cleanName] = snapshot;
       return draft;
     });
     void syncStateNow();
@@ -511,7 +475,12 @@ export default function HabitCalendarApp({ initialState, runtimeContent }: Habit
   function applyCustomPreset(name: string) {
     updateState((draft) => {
       const preset = draft.settings.customPresets[name];
-      if (preset) draft.settings = { ...draft.settings, ...preset };
+      if (preset) {
+        draft.settings = {
+          ...structuredClone(preset),
+          customPresets: draft.settings.customPresets
+        };
+      }
       return draft;
     });
     void syncStateNow();
