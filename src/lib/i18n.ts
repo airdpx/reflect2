@@ -148,3 +148,19 @@ export const authText = {
 export function normalizeLanguage(language?: string): Language {
   return language === "en" ? "en" : "ru";
 }
+
+export function detectLanguageFromLocale(locale?: string | null): Language | undefined {
+  const normalized = String(locale || "").trim().toLowerCase();
+  if (!normalized) return undefined;
+  if (normalized.startsWith("en")) return "en";
+  if (normalized.startsWith("ru")) return "ru";
+  return undefined;
+}
+
+export function detectPreferredLanguage(acceptLanguage?: string | null): Language {
+  const firstLocale = String(acceptLanguage || "")
+    .split(",")
+    .map((part) => part.trim().split(";")[0])
+    .find(Boolean);
+  return detectLanguageFromLocale(firstLocale) || "ru";
+}

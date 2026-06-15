@@ -35,6 +35,10 @@ export async function loadGlobalUserDefaults(): Promise<Partial<UserSettings>> {
   return record.value as Partial<UserSettings>;
 }
 
+export async function loadEffectiveGlobalUserDefaults(): Promise<UserSettings> {
+  return createDefaults(await loadGlobalUserDefaults()).settings;
+}
+
 export async function saveGlobalUserDefaults(settings: Partial<UserSettings>) {
   const prisma = getPrisma();
   const defaults = createDefaults().settings;

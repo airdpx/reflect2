@@ -20,6 +20,7 @@ type StaticPageShellProps = {
   aside?: React.ReactNode;
   className?: string;
   showFooter?: boolean;
+  initialLanguage?: Language;
 };
 
 export function StaticPageShell({
@@ -29,9 +30,10 @@ export function StaticPageShell({
   children,
   aside,
   className = "",
-  showFooter = true
+  showFooter = true,
+  initialLanguage
 }: StaticPageShellProps) {
-  const [themeState, setThemeState] = useState(() => loadPublicThemeState("dark"));
+  const [themeState, setThemeState] = useState(() => loadPublicThemeState("dark", initialLanguage));
   const theme = themeState.theme;
   const language = normalizeLanguage(themeState.language);
   const common = commonText[language];

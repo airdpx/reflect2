@@ -45,30 +45,34 @@ const themeIds: InterfaceTheme[] = [
   "custom"
 ];
 
-export function loadPublicThemeState(defaultTheme: InterfaceTheme = "dark"): PublicThemeState {
-  if (typeof window === "undefined") return { theme: defaultTheme };
+export function loadPublicThemeState(defaultTheme: InterfaceTheme = "dark", defaultLanguage?: Language): PublicThemeState {
+  if (typeof window === "undefined") return { theme: defaultTheme, language: defaultLanguage };
   const saved = window.localStorage.getItem(PUBLIC_THEME_STORAGE_KEY);
-  if (!saved) return { theme: defaultTheme };
+  if (!saved) {
+    return { theme: defaultTheme, language: defaultLanguage };
+  }
 
   try {
     const parsed = JSON.parse(saved) as Partial<PublicThemeState> | string;
     if (typeof parsed === "string") {
-      return themeIds.includes(parsed as InterfaceTheme) ? { theme: parsed as InterfaceTheme } : { theme: defaultTheme };
+      return themeIds.includes(parsed as InterfaceTheme)
+        ? { theme: parsed as InterfaceTheme, language: defaultLanguage }
+        : { theme: defaultTheme, language: defaultLanguage };
     }
     if (parsed && typeof parsed === "object" && parsed.theme && themeIds.includes(parsed.theme)) {
       return {
         theme: parsed.theme,
-        language: parsed.language === "en" ? "en" : parsed.language === "ru" ? "ru" : undefined,
+        language: parsed.language === "en" ? "en" : parsed.language === "ru" ? "ru" : defaultLanguage,
         customTheme: parsed.customTheme
       };
     }
   } catch {
     if (themeIds.includes(saved as InterfaceTheme)) {
-      return { theme: saved as InterfaceTheme };
+      return { theme: saved as InterfaceTheme, language: defaultLanguage };
     }
   }
 
-  return { theme: defaultTheme };
+  return { theme: defaultTheme, language: defaultLanguage };
 }
 
 export function savePublicThemeState(state: PublicThemeState) {

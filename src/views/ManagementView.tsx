@@ -402,6 +402,35 @@ function GlobalDefaultsPanel({ currentSettings }: { currentSettings: AppState["s
     setDefaults(structuredClone(currentSettings));
   }
 
+  async function applyDefaultsToCurrentTheme() {
+    setLoading(true);
+    setMessage("");
+    try {
+      const response = await fetch("/api/account/state");
+      const payload = await response.json();
+      if (!response.ok || payload.ok === false) throw new Error(payload.error || "Не удалось загрузить текущее состояние");
+      const currentState = payload.state as AppState;
+      const responseApply = await fetch("/api/account/state", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          state: {
+            ...currentState,
+            settings: defaults
+          }
+        })
+      });
+      const payloadApply = await responseApply.json();
+      if (!responseApply.ok || payloadApply.ok === false) throw new Error(payloadApply.error || "Не удалось применить тему");
+      setMessage("Дефолтные настройки применены к текущему аккаунту.");
+      window.location.reload();
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : "Не удалось применить тему");
+    } finally {
+      setLoading(false);
+    }
+  }
+
   return (
     <div className="panel settings-card">
       <div className="section-head">
@@ -413,6 +442,7 @@ function GlobalDefaultsPanel({ currentSettings }: { currentSettings: AppState["s
       <div className="toolbar preset-toolbar">
         <button className="btn ghost" onClick={useCurrentSettings}>Взять текущие как дефолт</button>
         <button className="btn" onClick={saveDefaults} disabled={loading}>{loading ? "Сохраняю..." : "Сохранить дефолт"}</button>
+        <button className="btn ghost" onClick={() => void applyDefaultsToCurrentTheme()} disabled={loading}>{language === "en" ? "Apply to current theme" : "Применить к текущей теме"}</button>
       </div>
       <div className="form-grid">
         <SelectControl label="Тема" value={defaults.interfaceTheme} options={themeOptions.map((item) => ({ value: item.id, label: item.title }))} onChange={(value) => setDefaults((state) => ({ ...state, interfaceTheme: value as InterfaceTheme }))} />

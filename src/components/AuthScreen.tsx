@@ -16,7 +16,11 @@ import { RuntimeTranslator } from "./RuntimeTranslator";
 
 type Mode = "login" | "register" | "reset";
 
-export function AuthScreen() {
+type AuthScreenProps = {
+  initialLanguage?: Language;
+};
+
+export function AuthScreen({ initialLanguage }: AuthScreenProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const initialResetToken = searchParams.get("reset") || "";
@@ -29,7 +33,7 @@ export function AuthScreen() {
   const [message, setMessage] = useState("");
   const [busy, setBusy] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-  const [themeState, setThemeState] = useState(() => loadPublicThemeState("dark"));
+  const [themeState, setThemeState] = useState(() => loadPublicThemeState("dark", initialLanguage));
   const theme = themeState.theme;
   const language = normalizeLanguage(themeState.language);
   const text = authText[language];

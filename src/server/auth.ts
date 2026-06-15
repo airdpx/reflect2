@@ -4,6 +4,7 @@ import { getPrisma } from "./db";
 import { createToken, hashPassword, hashToken, verifyPassword } from "./password";
 import type { AppState, UserProfile } from "../types";
 import { loadGlobalUserDefaults } from "./site-settings";
+import { normalizeLanguage } from "../lib/i18n";
 
 const SESSION_COOKIE = "reflect2_session";
 const SESSION_DAYS = 30;
@@ -92,19 +93,23 @@ export async function logoutUser(token?: string) {
 
 export async function saveUserState(userId: string, state: AppState) {
   const prisma = getPrisma();
-  const profile = state.profile || (await prisma.user.findUnique({ where: { id: userId }, select: { id: true, email: true, name: true, birthDate: true, isAdmin: true, isBlocked: true } }));
+  const sanitizedState = structuredClone(state);
+  if (sanitizedState.settings) {
+    sanitizedState.settings.language = normalizeLanguage(sanitizedState.settings.language);
+  }
+  const profile = sanitizedState.profile || (await prisma.user.findUnique({ where: { id: userId }, select: { id: true, email: true, name: true, birthDate: true, isAdmin: true, isBlocked: true } }));
   await prisma.userState.upsert({
     where: { userId },
     create: {
       userId,
       state: {
-        ...state,
+        ...sanitizedState,
         profile
       }
     },
     update: {
       state: {
-        ...state,
+        ...sanitizedState,
         profile
       }
     }
@@ -157,6 +162,7 @@ export async function loadUserState(userId: string, profile?: UserProfile): Prom
     settings: {
       ...defaults.settings,
       ...raw.settings,
+      language: normalizeLanguage(raw.settings?.language || defaults.settings.language),
       defaultPeriod: {
         ...defaults.settings.defaultPeriod,
         ...raw.settings?.defaultPeriod

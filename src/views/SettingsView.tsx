@@ -1,8 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
-import type { AppActions, AppState, CalendarFilterMode, Density, ForecastDisplayMode, ForecastScaleId, ForecastSettings, HabitStatus, HabitType, NumerologyDisplayMode, NumerologyMetricId, NumerologySettings, TodayBlockKey, UserSettings, View } from "../types";
+import type { AppActions, AppState, CalendarFilterMode, Density, ForecastDisplayMode, ForecastScaleId, ForecastSettings, HabitType, NumerologyDisplayMode, NumerologyMetricId, NumerologySettings, TodayBlockKey, UserSettings, View } from "../types";
 import { SelectControl, Toggle } from "../components/Common";
-import { statusMeta } from "../lib/defaults";
-import { normalizeLanguage, statusText, viewText } from "../lib/i18n";
+import { normalizeLanguage, viewText } from "../lib/i18n";
 
 const sectionGroups = [
   { id: "today", keys: ["today", "attention", "forecast", "numerology", "transit", "analytics"] as const },
@@ -55,8 +54,6 @@ function getSettingsCopy(language: "ru" | "en") {
       profileHint: "Birth date is set during registration and powers forecasts and recommendations.",
       accountLabel: "Account",
       birthDateLabel: "Birth date",
-      statusesTitle: "Statuses",
-      statusesHint: "\"Done\" is always on, the rest can be hidden.",
       calendarTitle: "Calendar",
       calendarHint: "How much history to show in the calendar.",
       historyLabel: "Calendar history",
@@ -99,7 +96,7 @@ function getSettingsCopy(language: "ru" | "en") {
       exportPrepareLabel: "Prepare export",
       exportImportLabel: "Import JSON",
       exportPlaceholder: "JSON for export or import",
-      exportResetLabel: "Reset settings only",
+      exportResetLabel: "Reset settings",
       savedPresetLabel: "Saved preset",
       savedPresetApplyLabel: "Apply",
       blocks: {
@@ -192,8 +189,6 @@ function getSettingsCopy(language: "ru" | "en") {
     profileHint: "Дата рождения задаётся при регистрации и используется для прогноза и рекомендаций.",
     accountLabel: "Аккаунт",
     birthDateLabel: "Дата рождения",
-    statusesTitle: "Статусы",
-    statusesHint: "“Выполнено” всегда включено, остальные можно скрыть.",
     calendarTitle: "Календарь",
     calendarHint: "Сколько истории показывать в календаре.",
     historyLabel: "История календаря",
@@ -236,7 +231,7 @@ function getSettingsCopy(language: "ru" | "en") {
     exportPrepareLabel: "Подготовить экспорт",
     exportImportLabel: "Импортировать JSON",
     exportPlaceholder: "JSON для экспорта или импорта",
-    exportResetLabel: "Сбросить только настройки",
+    exportResetLabel: "Сбросить настройки",
     savedPresetLabel: "Сохранённый пресет",
     savedPresetApplyLabel: "Применить",
     blocks: {
@@ -358,25 +353,9 @@ export function SettingsView({ state, actions }: { state: AppState; actions: App
   }, [savedPresetNames, selectedPresetName]);
 
   return (
-    <section className="grid-two">
-      <div className="stack">
-        <div className="panel settings-card">
-          <div className="section-head">
-            <div>
-              <h3>{text.viewTitle}</h3>
-              <p className="muted">{text.viewHint}</p>
-            </div>
-          </div>
-          <div className="form-grid">
-            <div className="settings-preset-selector">
-              <SelectControl label={text.displayPresetLabel} value={state.settings.preset} options={["Simple", "Balanced", "Journal", "Analytical", "Focus"]} onChange={(value) => actions.applyPreset(value as UserSettings["preset"])} />
-            </div>
-            <SelectControl label={text.densityLabel} value={state.settings.density} options={densityOptions} onChange={(value) => actions.updateSetting("density", value as Density)} />
-            <SelectControl label={text.startViewLabel} value={state.settings.defaultView} options={defaultViewOptions} onChange={(value) => actions.updateSetting("defaultView", value as View)} />
-          </div>
-          <Toggle label={text.focusModeLabel} checked={state.settings.focusMode} onChange={(checked) => actions.updateSetting("focusMode", checked)} />
-          <Toggle label={text.rightPanelLabel} checked={state.settings.rightPanel} onChange={(checked) => actions.updateSetting("rightPanel", checked)} />
-        </div>
+    <>
+      <section className="grid-two">
+        <div className="stack">
         <div className="panel settings-card">
           <div className="section-head">
             <div>
@@ -396,20 +375,21 @@ export function SettingsView({ state, actions }: { state: AppState; actions: App
         <div className="panel settings-card">
           <div className="section-head">
             <div>
-              <h3>{text.statusesTitle}</h3>
-              <p className="muted">{text.statusesHint}</p>
+              <h3>{text.viewTitle}</h3>
+              <p className="muted">{text.viewHint}</p>
             </div>
           </div>
-          {(Object.keys(statusMeta) as HabitStatus[]).map((status) => (
-            <Toggle
-              key={status}
-              label={`${state.settings.statusIcons[status] || statusMeta[status].short} ${statusText[language][status]}`}
-              hint={status === "done" ? text.statusDesc.done : undefined}
-              checked={state.settings.activeStatuses.includes(status)}
-              disabled={status === "done"}
-              onChange={(checked) => actions.toggleStatus(status, checked)}
-            />
-          ))}
+          <div className="form-grid">
+            <SelectControl label={text.startViewLabel} value={state.settings.defaultView} options={defaultViewOptions} onChange={(value) => actions.updateSetting("defaultView", value as View)} />
+            <SelectControl label={text.densityLabel} value={state.settings.density} options={densityOptions} onChange={(value) => actions.updateSetting("density", value as Density)} />
+          </div>
+          <div className="form-grid">
+            <div className="settings-preset-selector">
+              <SelectControl label={text.displayPresetLabel} value={state.settings.preset} options={["Simple", "Balanced", "Journal", "Analytical", "Focus"]} onChange={(value) => actions.applyPreset(value as UserSettings["preset"])} />
+            </div>
+          </div>
+          <Toggle label={text.focusModeLabel} checked={state.settings.focusMode} onChange={(checked) => actions.updateSetting("focusMode", checked)} />
+          <Toggle label={text.rightPanelLabel} checked={state.settings.rightPanel} onChange={(checked) => actions.updateSetting("rightPanel", checked)} />
         </div>
         <div className="panel settings-card">
           <div className="section-head">
@@ -601,29 +581,6 @@ export function SettingsView({ state, actions }: { state: AppState; actions: App
             ))}
           </div>
         </div>
-        <div className="panel settings-card">
-          <h3>{text.presetsTitle}</h3>
-          <div className="toolbar preset-toolbar">
-            <input className="input" value={presetName} placeholder={text.presetInputPlaceholder} onChange={(event) => setPresetName(event.target.value)} />
-            <button className="btn" onClick={() => { actions.saveCustomPreset(presetName); setPresetName(""); }}>{text.presetSaveLabel}</button>
-          </div>
-          <div className="toolbar preset-toolbar preset-apply-toolbar">
-            <select className="select" value={selectedPresetName} onChange={(event) => setSelectedPresetName(event.target.value)} disabled={!savedPresetNames.length}>
-              {!savedPresetNames.length ? (
-                <option value="">{text.presetEmpty}</option>
-              ) : null}
-              {savedPresetNames.map((name) => (
-                <option key={name} value={name}>{name}</option>
-              ))}
-            </select>
-            <button className="btn" disabled={!selectedPresetName || !savedPresetNames.length} onClick={() => actions.applyCustomPreset(selectedPresetName)}>{text.savedPresetApplyLabel}</button>
-          </div>
-          <div className="chips">
-            {savedPresetNames.length ? savedPresetNames.map((name) => (
-              <button key={name} className="chip" onClick={() => { setSelectedPresetName(name); actions.applyCustomPreset(name); }}>{name}</button>
-            )) : <span className="muted">{text.presetEmpty}</span>}
-          </div>
-        </div>
       </div>
       <div className="stack">
         <div className="panel settings-card">
@@ -664,6 +621,30 @@ export function SettingsView({ state, actions }: { state: AppState; actions: App
           <textarea className="textarea export-box" value={exportText || importText} placeholder={text.exportPlaceholder} onChange={(event) => { setImportText(event.target.value); setExportText(""); }} />
         </div>
       </div>
-    </section>
+      </section>
+      <div className="panel settings-card settings-presets-card">
+        <h3>{text.presetsTitle}</h3>
+        <div className="toolbar preset-toolbar">
+          <input className="input" value={presetName} placeholder={text.presetInputPlaceholder} onChange={(event) => setPresetName(event.target.value)} />
+          <button className="btn" onClick={() => { actions.saveCustomPreset(presetName); setPresetName(""); }}>{text.presetSaveLabel}</button>
+        </div>
+        <div className="toolbar preset-toolbar preset-apply-toolbar">
+          <select className="select" value={selectedPresetName} onChange={(event) => setSelectedPresetName(event.target.value)} disabled={!savedPresetNames.length}>
+            {!savedPresetNames.length ? (
+              <option value="">{text.presetEmpty}</option>
+            ) : null}
+            {savedPresetNames.map((name) => (
+              <option key={name} value={name}>{name}</option>
+            ))}
+          </select>
+          <button className="btn" disabled={!selectedPresetName || !savedPresetNames.length} onClick={() => actions.applyCustomPreset(selectedPresetName)}>{text.savedPresetApplyLabel}</button>
+        </div>
+        <div className="chips">
+          {savedPresetNames.length ? savedPresetNames.map((name) => (
+            <button key={name} className="chip" onClick={() => { setSelectedPresetName(name); actions.applyCustomPreset(name); }}>{name}</button>
+          )) : <span className="muted">{text.presetEmpty}</span>}
+        </div>
+      </div>
+    </>
   );
 }

@@ -25,6 +25,7 @@ import { calculateHabitStats, getAttentionHabits, getPeriodDates, getPeriodLabel
 import { clearStoredState, loadLegacyStoredState, markLegacyStateMigrated, parseImportedState, shouldMigrateLegacyState, wasLegacyStateMigrated } from "./lib/storage";
 import { savePublicThemeState } from "./lib/public-theme";
 import { todayKey } from "./lib/date";
+import { normalizeLanguage } from "./lib/i18n";
 import type { RuntimeKnowledgeContent } from "./types";
 
 type HabitCalendarAppProps = {
@@ -43,6 +44,7 @@ export default function HabitCalendarApp({ initialState, runtimeContent }: Habit
   const [draftHabit, setDraftHabit] = useState<Habit | null>(null);
   const [activeCell, setActiveCell] = useState<{ habitId: string; date: string } | null>(null);
   const [bulkUndo, setBulkUndo] = useState<Record<string, HabitLog | undefined> | null>(null);
+  const language = normalizeLanguage(state.settings.language);
 
   useEffect(() => {
     const stored = initialState || createDefaults();
@@ -562,12 +564,25 @@ export default function HabitCalendarApp({ initialState, runtimeContent }: Habit
     setEditingHabitId("new");
   }
 
-  function resetSettings() {
-    if (!window.confirm("Сбросить только настройки интерфейса?")) return;
-    updateState((draft) => {
-      draft.settings = createDefaults().settings;
-      return draft;
-    });
+  async function resetSettings() {
+    if (!window.confirm(language === "en" ? "Reset settings?" : "Сбросить настройки?")) return;
+    try {
+      const response = await fetch("/api/account/defaults");
+      const payload = await response.json();
+      const fallbackSettings = createDefaults().settings;
+      const settings = response.ok && payload.ok !== false && payload.settings ? payload.settings : fallbackSettings;
+      updateState((draft) => {
+        draft.settings = settings;
+        return draft;
+      });
+      await syncStateNow();
+    } catch {
+      updateState((draft) => {
+        draft.settings = createDefaults().settings;
+        return draft;
+      });
+      await syncStateNow();
+    }
   }
 
   function resetAll() {

@@ -1,11 +1,16 @@
+import { headers } from "next/headers";
 import { StaticPageShell } from "../../src/components/StaticPageShell";
+import { detectPreferredLanguage } from "../../src/lib/i18n";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
-export default function AboutPage() {
+export default async function AboutPage() {
+  const requestHeaders = await headers();
+  const preferredLanguage = detectPreferredLanguage(requestHeaders.get("accept-language"));
   return (
     <StaticPageShell
+      initialLanguage={preferredLanguage}
       kicker={{ ru: "О проекте", en: "About" }}
       title="PractWay"
       intro={{

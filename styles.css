@@ -3832,6 +3832,10 @@ button {
   box-shadow: none;
 }
 
+.settings-presets-card {
+  margin-top: 18px;
+}
+
 .settings-section-list {
   display: grid;
   gap: 8px;
