@@ -1,11 +1,11 @@
 import { useEffect, useMemo, useState } from "react";
-import type { AppActions, AppState, CalendarFilterMode, Density, ForecastDisplayMode, ForecastScaleId, ForecastSettings, HabitType, NumerologyDisplayMode, NumerologyMetricId, NumerologySettings, TodayBlockKey, UserSettings, View } from "../types";
+import type { AppActions, AppState, CalendarFilterMode, ForecastDisplayMode, ForecastScaleId, ForecastSettings, HabitType, NumerologyDisplayMode, NumerologyMetricId, NumerologySettings, TodayBlockKey, UserSettings, View } from "../types";
 import { SelectControl, Toggle } from "../components/Common";
 import { normalizeLanguage, viewText } from "../lib/i18n";
 
 const sectionGroups = [
   { id: "today", keys: ["today", "attention", "forecast", "numerology", "transit", "analytics"] as const },
-  { id: "diary", keys: ["diary", "mood", "energy", "stress", "noteText", "helped", "blocked"] as const },
+  { id: "diary", keys: ["diary", "mood", "energy", "stress", "noteText", "helped", "blocked", "health", "finance"] as const },
   { id: "habits", keys: [] as const },
   { id: "calendar", gridKeys: ["color", "icon", "category", "type", "target", "statusText", "completion", "daysSince"] as const }
 ] as const;
@@ -82,8 +82,9 @@ function getSettingsCopy(language: "ru" | "en") {
       presetsHint: "Quick start without an empty form. Any preset can be changed before saving.",
       presetInputPlaceholder: "Preset name",
       presetSaveLabel: "Save",
-      presetEmpty: "No saved presets yet.",
-      blocksTitle: "Blocks",
+    presetEmpty: "No saved presets yet.",
+    systemPresetsTitle: "Built-in presets",
+    blocksTitle: "Blocks",
       blocksHint: "What information is visible in the dashboard and compact surfaces.",
       navigationTitle: "Navigation",
       navigationHint: "Start screen and focus mode are configured here too.",
@@ -107,8 +108,10 @@ function getSettingsCopy(language: "ru" | "en") {
         energy: "Energy",
         stress: "Stress",
         noteText: "Short note",
-        helped: "What helped",
-        blocked: "What got in the way",
+        helped: "What was done",
+        blocked: "What was not done",
+        health: "Health",
+        finance: "Finance",
         forecast: "Biorhythms",
         numerology: "Numbers",
         transit: "Transit",
@@ -218,6 +221,7 @@ function getSettingsCopy(language: "ru" | "en") {
     presetInputPlaceholder: "Название пресета",
     presetSaveLabel: "Сохранить",
     presetEmpty: "Пока нет сохранённых пресетов.",
+    systemPresetsTitle: "Готовые пресеты",
     blocksTitle: "Блоки",
     blocksHint: "Какие данные видны в панели и компактных экранах.",
     navigationTitle: "Навигация",
@@ -234,19 +238,21 @@ function getSettingsCopy(language: "ru" | "en") {
     exportResetLabel: "Сбросить настройки",
     savedPresetLabel: "Сохранённый пресет",
     savedPresetApplyLabel: "Применить",
-    blocks: {
-      today: "Сегодня",
-      attention: "Требует внимания",
-      diary: "Дневник",
-      mood: "Настроение",
-      energy: "Энергия",
-      stress: "Стресс",
-      noteText: "Короткая заметка",
-      helped: "Что помогло",
-      blocked: "Что мешало",
-      forecast: "Биоритмы",
-      numerology: "Цифры",
-      transit: "Транзит",
+      blocks: {
+        today: "Сегодня",
+        attention: "Требует внимания",
+        diary: "Дневник",
+        mood: "Настроение",
+        energy: "Энергия",
+        stress: "Стресс",
+        noteText: "Короткая заметка",
+        helped: "Что сделано",
+        blocked: "Что не сделано",
+        health: "Здоровье",
+        finance: "Финансы",
+        forecast: "Биоритмы",
+        numerology: "Цифры",
+        transit: "Транзит",
       analytics: "Аналитика",
       completion: "Процент выполнения",
       lastDone: "Последнее выполнение"
@@ -314,22 +320,11 @@ function getSettingsCopy(language: "ru" | "en") {
 
 export function SettingsView({ state, actions }: { state: AppState; actions: AppActions }) {
   const [presetName, setPresetName] = useState("");
-  const [selectedPresetName, setSelectedPresetName] = useState("");
+  const [selectedPresetValue, setSelectedPresetValue] = useState("");
   const [importText, setImportText] = useState("");
   const [exportText, setExportText] = useState("");
   const language = normalizeLanguage(state.settings.language);
   const text = getSettingsCopy(language);
-  const densityOptions = language === "en"
-    ? [
-        { value: "compact", label: "Compact" },
-        { value: "standard", label: "Standard" },
-        { value: "comfortable", label: "Comfortable" }
-      ]
-    : [
-        { value: "compact", label: "Компактная" },
-        { value: "standard", label: "Стандартная" },
-        { value: "comfortable", label: "Комфортная" }
-      ];
   const defaultViewOptions = [
     { value: "today", label: viewText[language].today.label },
     { value: "grid", label: viewText[language].grid.label },
@@ -340,23 +335,48 @@ export function SettingsView({ state, actions }: { state: AppState; actions: App
     { value: "settings", label: viewText[language].settings.label },
     ...(state.profile?.isAdmin ? [{ value: "management", label: viewText[language].management.label }] : [])
   ];
+  const presetOptions = language === "en"
+    ? [
+        { value: "Simple", label: "Simple" },
+        { value: "Balanced", label: "Balanced" },
+        { value: "Journal", label: "Journal" },
+        { value: "Analytical", label: "Analytical" },
+        { value: "Focus", label: "Focus" }
+      ]
+    : [
+        { value: "Simple", label: "Простой" },
+        { value: "Balanced", label: "Баланс" },
+        { value: "Journal", label: "Дневник" },
+        { value: "Analytical", label: "Аналитический" },
+        { value: "Focus", label: "Фокус" }
+      ];
   const savedPresetNames = useMemo(() => Object.keys(state.settings.customPresets).sort((a, b) => a.localeCompare(b, language)), [language, state.settings.customPresets]);
+  const combinedPresetOptions = useMemo(() => [
+    ...presetOptions.map((option) => ({ value: `system:${option.value}`, label: `${text.systemPresetsTitle} · ${option.label}` })),
+    ...savedPresetNames.map((name) => ({ value: `custom:${name}`, label: `${text.presetsTitle} · ${name}` }))
+  ], [presetOptions, savedPresetNames, text.presetsTitle, text.systemPresetsTitle]);
 
   useEffect(() => {
-    if (!savedPresetNames.length) {
-      if (selectedPresetName) setSelectedPresetName("");
+    const currentSystemValue = `system:${state.settings.preset}`;
+    if (!selectedPresetValue || !combinedPresetOptions.some((option) => option.value === selectedPresetValue)) {
+      setSelectedPresetValue(currentSystemValue);
+    }
+  }, [combinedPresetOptions, selectedPresetValue, state.settings.preset]);
+
+  function applyCombinedPreset(value: string) {
+    setSelectedPresetValue(value);
+    if (value.startsWith("custom:")) {
+      actions.applyCustomPreset(value.slice("custom:".length));
       return;
     }
-    if (!selectedPresetName || !savedPresetNames.includes(selectedPresetName)) {
-      setSelectedPresetName(savedPresetNames[0]);
-    }
-  }, [savedPresetNames, selectedPresetName]);
+    actions.applyPreset(value.replace("system:", "") as UserSettings["preset"]);
+  }
 
   return (
     <>
       <section className="grid-two">
         <div className="stack">
-        <div className="panel settings-card">
+        <div className="panel settings-card settings-modern-card" data-settings-icon="profile">
           <div className="section-head">
             <div>
               <h3>{text.profileTitle}</h3>
@@ -372,7 +392,7 @@ export function SettingsView({ state, actions }: { state: AppState; actions: App
             <span className="badge">{state.profile?.birthDate || (language === "en" ? "not set" : "не задана")}</span>
           </div>
         </div>
-        <div className="panel settings-card">
+        <div className="panel settings-card settings-modern-card" data-settings-icon="view">
           <div className="section-head">
             <div>
               <h3>{text.viewTitle}</h3>
@@ -381,17 +401,11 @@ export function SettingsView({ state, actions }: { state: AppState; actions: App
           </div>
           <div className="form-grid">
             <SelectControl label={text.startViewLabel} value={state.settings.defaultView} options={defaultViewOptions} onChange={(value) => actions.updateSetting("defaultView", value as View)} />
-            <SelectControl label={text.densityLabel} value={state.settings.density} options={densityOptions} onChange={(value) => actions.updateSetting("density", value as Density)} />
-          </div>
-          <div className="form-grid">
-            <div className="settings-preset-selector">
-              <SelectControl label={text.displayPresetLabel} value={state.settings.preset} options={["Simple", "Balanced", "Journal", "Analytical", "Focus"]} onChange={(value) => actions.applyPreset(value as UserSettings["preset"])} />
-            </div>
           </div>
           <Toggle label={text.focusModeLabel} checked={state.settings.focusMode} onChange={(checked) => actions.updateSetting("focusMode", checked)} />
           <Toggle label={text.rightPanelLabel} checked={state.settings.rightPanel} onChange={(checked) => actions.updateSetting("rightPanel", checked)} />
         </div>
-        <div className="panel settings-card">
+        <div className="panel settings-card settings-modern-card" data-settings-icon="calendar">
           <div className="section-head">
             <div>
               <h3>{text.calendarTitle}</h3>
@@ -433,7 +447,7 @@ export function SettingsView({ state, actions }: { state: AppState; actions: App
             </div>
           ) : null}
         </div>
-        <div className="panel settings-card">
+        <div className="panel settings-card settings-modern-card" data-settings-icon="secondary">
           <div className="section-head">
             <div>
               <h3>{text.secondaryCalendarTitle}</h3>
@@ -476,7 +490,7 @@ export function SettingsView({ state, actions }: { state: AppState; actions: App
             </div>
           ) : null}
         </div>
-        <div className="panel settings-card">
+        <div className="panel settings-card settings-modern-card" data-settings-icon="mobile">
           <div className="section-head">
             <div>
               <h3>{text.mobileTitle}</h3>
@@ -494,97 +508,105 @@ export function SettingsView({ state, actions }: { state: AppState; actions: App
             ))}
           </div>
         </div>
-        <div className="panel settings-card">
-          <div className="section-head">
-            <div>
-              <h3>{text.forecastTitle}</h3>
-              <p className="muted">{text.forecastHint}</p>
+        <details className="panel settings-card settings-accordion settings-modern-card" data-settings-icon="forecast">
+          <summary className="settings-accordion-summary">
+            <div className="section-head">
+              <div>
+                <h3>{text.forecastTitle}</h3>
+                <p className="muted">{text.forecastHint}</p>
+              </div>
+            </div>
+          </summary>
+          <div className="settings-accordion-body">
+            <Toggle label={text.forecastEnableLabel} checked={state.settings.forecast.enabled} onChange={(checked) => actions.updateSetting("forecast", { ...state.settings.forecast, enabled: checked })} />
+            <div className="form-grid">
+              <SelectControl label={text.forecastDisplayLabel} value={state.settings.forecast.displayMode} options={["compact", "cards", "minimal"]} onChange={(value) => actions.updateSetting("forecast", { ...state.settings.forecast, displayMode: value as ForecastDisplayMode })} />
+            </div>
+            <p className="muted">{text.forecastBirthHint}</p>
+            <div className="module-toggle-grid">
+              {forecastPlacementKeys.map((key) => (
+                <label key={key}>
+                  <input type="checkbox" checked={state.settings.forecast[key]} onChange={(event) => actions.updateSetting("forecast", { ...state.settings.forecast, [key]: event.target.checked })} />
+                  <span>{text.forecastPlacement[key]}</span>
+                </label>
+              ))}
+            </div>
+            <div className="module-toggle-grid">
+              {forecastScaleKeys.map((key) => (
+                <label key={key}>
+                  <input type="checkbox" checked={state.settings.forecast.visibleScales[key]} onChange={(event) => actions.updateSetting("forecast", { ...state.settings.forecast, visibleScales: { ...state.settings.forecast.visibleScales, [key]: event.target.checked } })} />
+                  <span>{text.forecastScales[key]}</span>
+                </label>
+              ))}
             </div>
           </div>
-          <Toggle label={text.forecastEnableLabel} checked={state.settings.forecast.enabled} onChange={(checked) => actions.updateSetting("forecast", { ...state.settings.forecast, enabled: checked })} />
-          <div className="form-grid">
-            <SelectControl label={text.forecastDisplayLabel} value={state.settings.forecast.displayMode} options={["compact", "cards", "minimal"]} onChange={(value) => actions.updateSetting("forecast", { ...state.settings.forecast, displayMode: value as ForecastDisplayMode })} />
-          </div>
-          <p className="muted">{text.forecastBirthHint}</p>
-          <div className="module-toggle-grid">
-            {forecastPlacementKeys.map((key) => (
-              <label key={key}>
-                <input type="checkbox" checked={state.settings.forecast[key]} onChange={(event) => actions.updateSetting("forecast", { ...state.settings.forecast, [key]: event.target.checked })} />
-                <span>{text.forecastPlacement[key]}</span>
-              </label>
-            ))}
-          </div>
-          <div className="module-toggle-grid">
-            {forecastScaleKeys.map((key) => (
-              <label key={key}>
-                <input type="checkbox" checked={state.settings.forecast.visibleScales[key]} onChange={(event) => actions.updateSetting("forecast", { ...state.settings.forecast, visibleScales: { ...state.settings.forecast.visibleScales, [key]: event.target.checked } })} />
-                <span>{text.forecastScales[key]}</span>
-              </label>
-            ))}
-          </div>
-        </div>
-        <div className="panel settings-card">
-          <div className="section-head">
-            <div>
-              <h3>{text.numerologyTitle}</h3>
-              <p className="muted">{text.numerologyHint}</p>
+        </details>
+        <details className="panel settings-card settings-accordion settings-modern-card" data-settings-icon="numbers">
+          <summary className="settings-accordion-summary">
+            <div className="section-head">
+              <div>
+                <h3>{text.numerologyTitle}</h3>
+                <p className="muted">{text.numerologyHint}</p>
+              </div>
+            </div>
+          </summary>
+          <div className="settings-accordion-body">
+            <Toggle label={text.numerologyEnableLabel} checked={state.settings.numerology.enabled} onChange={(checked) => actions.updateSetting("numerology", { ...state.settings.numerology, enabled: checked })} />
+            <div className="form-grid">
+              <SelectControl label={text.numerologyDisplayLabel} value={state.settings.numerology.displayMode} options={["compact", "cards", "minimal"]} onChange={(value) => actions.updateSetting("numerology", { ...state.settings.numerology, displayMode: value as NumerologyDisplayMode })} />
+            </div>
+            <div className="module-toggle-grid">
+              {numerologyPlacementKeys.map((key) => (
+                <label key={key}>
+                  <input
+                    type="checkbox"
+                    checked={state.settings.numerology[key]}
+                    onChange={(event) => actions.updateSetting("numerology", { ...state.settings.numerology, [key]: event.target.checked })}
+                  />
+                  <span>{text.numerologyPlacement[key]}</span>
+                </label>
+              ))}
+            </div>
+            <div className="module-toggle-grid">
+              {numerologyMetricKeys.map((key) => (
+                <label key={key}>
+                  <input
+                    type="checkbox"
+                    checked={state.settings.numerology.visibleMetrics[key]}
+                    onChange={(event) => actions.updateSetting("numerology", {
+                      ...state.settings.numerology,
+                      visibleMetrics: { ...state.settings.numerology.visibleMetrics, [key]: event.target.checked }
+                    })}
+                  />
+                  <span>{text.numerologyMetrics[key]}</span>
+                </label>
+              ))}
+            </div>
+            <div className="numerology-weight-grid">
+              {numerologyMetricKeys.map((key) => (
+                <label key={key} className="field numerology-weight-field">
+                  <span className="picker-label">{text.numerologyMetrics[key]} · {language === "en" ? "weight" : "вес"}</span>
+                  <input
+                    className="input"
+                    type="number"
+                    min="0"
+                    max="5"
+                    step="0.5"
+                    value={state.settings.numerology.weights[key]}
+                    onChange={(event) => actions.updateSetting("numerology", {
+                      ...state.settings.numerology,
+                      weights: { ...state.settings.numerology.weights, [key]: Number(event.target.value) }
+                    })}
+                  />
+                </label>
+              ))}
             </div>
           </div>
-          <Toggle label={text.numerologyEnableLabel} checked={state.settings.numerology.enabled} onChange={(checked) => actions.updateSetting("numerology", { ...state.settings.numerology, enabled: checked })} />
-          <div className="form-grid">
-            <SelectControl label={text.numerologyDisplayLabel} value={state.settings.numerology.displayMode} options={["compact", "cards", "minimal"]} onChange={(value) => actions.updateSetting("numerology", { ...state.settings.numerology, displayMode: value as NumerologyDisplayMode })} />
-          </div>
-          <div className="module-toggle-grid">
-            {numerologyPlacementKeys.map((key) => (
-              <label key={key}>
-                <input
-                  type="checkbox"
-                  checked={state.settings.numerology[key]}
-                  onChange={(event) => actions.updateSetting("numerology", { ...state.settings.numerology, [key]: event.target.checked })}
-                />
-                <span>{text.numerologyPlacement[key]}</span>
-              </label>
-            ))}
-          </div>
-          <div className="module-toggle-grid">
-            {numerologyMetricKeys.map((key) => (
-              <label key={key}>
-                <input
-                  type="checkbox"
-                  checked={state.settings.numerology.visibleMetrics[key]}
-                  onChange={(event) => actions.updateSetting("numerology", {
-                    ...state.settings.numerology,
-                    visibleMetrics: { ...state.settings.numerology.visibleMetrics, [key]: event.target.checked }
-                  })}
-                />
-                <span>{text.numerologyMetrics[key]}</span>
-              </label>
-            ))}
-          </div>
-          <div className="numerology-weight-grid">
-            {numerologyMetricKeys.map((key) => (
-              <label key={key} className="field numerology-weight-field">
-                <span className="picker-label">{text.numerologyMetrics[key]} · {language === "en" ? "weight" : "вес"}</span>
-                <input
-                  className="input"
-                  type="number"
-                  min="0"
-                  max="5"
-                  step="0.5"
-                  value={state.settings.numerology.weights[key]}
-                  onChange={(event) => actions.updateSetting("numerology", {
-                    ...state.settings.numerology,
-                    weights: { ...state.settings.numerology.weights, [key]: Number(event.target.value) }
-                  })}
-                />
-              </label>
-            ))}
-          </div>
-        </div>
+        </details>
       </div>
       <div className="stack">
-        <div className="panel settings-card">
-          <h3>{text.blocksTitle}</h3>
+        <div className="panel settings-card settings-modern-card" data-settings-icon="blocks">
+          <div className="section-head"><div><h3>{text.blocksTitle}</h3><p className="muted">{text.blocksHint}</p></div></div>
           <div className="settings-section-list">
             {sectionGroups.map((group) => (
               <details key={group.id} className="settings-section-group" open={group.id === "today" || group.id === "diary"}>
@@ -599,6 +621,14 @@ export function SettingsView({ state, actions }: { state: AppState; actions: App
                   {"gridKeys" in group && group.gridKeys ? group.gridKeys.map((key) => (
                     <Toggle key={key} label={text.grid[key]} checked={state.settings.visibleGrid[key]} onChange={(checked) => actions.updateVisible("visibleGrid", key, checked)} />
                   )) : null}
+                  {group.id === "diary" ? state.settings.diaryCustomFields.map((field) => (
+                    <Toggle
+                      key={field.id}
+                      label={field.label}
+                      checked={field.enabled}
+                      onChange={(checked) => actions.updateSetting("diaryCustomFields", state.settings.diaryCustomFields.map((item) => item.id === field.id ? { ...item, enabled: checked } : item))}
+                    />
+                  )) : null}
                   {group.id === "habits" ? (
                     <div className="settings-section-note">
                       <p className="muted">{language === "en" ? "The habit list is managed on the <b>Habits</b> screen. Here we keep only the shared display and navigation modes." : "Список привычек управляется на экране <b>Привычки</b>. Здесь остаются только общие режимы отображения и навигации."}</p>
@@ -612,8 +642,8 @@ export function SettingsView({ state, actions }: { state: AppState; actions: App
             <button className="btn ghost" onClick={actions.resetSettings}>{text.exportResetLabel}</button>
           </div>
         </div>
-        <div className="panel settings-card">
-          <h3>{text.exportTitle}</h3>
+        <div className="panel settings-card settings-modern-card" data-settings-icon="transfer">
+          <div className="section-head"><div><h3>{text.exportTitle}</h3><p className="muted">{text.exportHint}</p></div></div>
           <div className="toolbar preset-toolbar">
             <button className="btn" onClick={() => setExportText(actions.exportData())}>{text.exportPrepareLabel}</button>
             <button className="btn" onClick={async () => { if (!(await actions.importData(importText))) alert(language === "en" ? "Could not import JSON" : "Не удалось импортировать JSON"); }}>{text.exportImportLabel}</button>
@@ -622,26 +652,22 @@ export function SettingsView({ state, actions }: { state: AppState; actions: App
         </div>
       </div>
       </section>
-      <div className="panel settings-card settings-presets-card">
-        <h3>{text.presetsTitle}</h3>
+      <div className="panel settings-card settings-presets-card settings-modern-card" data-settings-icon="presets">
+        <div className="section-head"><div><h3>{text.presetsTitle}</h3><p className="muted">{text.presetsHint}</p></div></div>
+        <div className="toolbar preset-toolbar preset-apply-toolbar">
+          <select className="select" value={selectedPresetValue || `system:${state.settings.preset}`} onChange={(event) => applyCombinedPreset(event.target.value)}>
+            {combinedPresetOptions.map((option) => (
+              <option key={option.value} value={option.value}>{option.label}</option>
+            ))}
+          </select>
+        </div>
         <div className="toolbar preset-toolbar">
           <input className="input" value={presetName} placeholder={text.presetInputPlaceholder} onChange={(event) => setPresetName(event.target.value)} />
           <button className="btn" onClick={() => { actions.saveCustomPreset(presetName); setPresetName(""); }}>{text.presetSaveLabel}</button>
         </div>
-        <div className="toolbar preset-toolbar preset-apply-toolbar">
-          <select className="select" value={selectedPresetName} onChange={(event) => setSelectedPresetName(event.target.value)} disabled={!savedPresetNames.length}>
-            {!savedPresetNames.length ? (
-              <option value="">{text.presetEmpty}</option>
-            ) : null}
-            {savedPresetNames.map((name) => (
-              <option key={name} value={name}>{name}</option>
-            ))}
-          </select>
-          <button className="btn" disabled={!selectedPresetName || !savedPresetNames.length} onClick={() => actions.applyCustomPreset(selectedPresetName)}>{text.savedPresetApplyLabel}</button>
-        </div>
         <div className="chips">
           {savedPresetNames.length ? savedPresetNames.map((name) => (
-            <button key={name} className="chip" onClick={() => { setSelectedPresetName(name); actions.applyCustomPreset(name); }}>{name}</button>
+            <button key={name} className="chip" onClick={() => applyCombinedPreset(`custom:${name}`)}>{name}</button>
           )) : <span className="muted">{text.presetEmpty}</span>}
         </div>
       </div>

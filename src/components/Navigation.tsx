@@ -68,7 +68,7 @@ export function Topbar({
     <header className="topbar">
       <div className="topbar-heading">
         <h2>{title}</h2>
-        {subtitle ? <p>{subtitle}</p> : null}
+        {subtitle ? <p className={state.view === "today" ? "topbar-date-line" : undefined}>{subtitle}</p> : null}
       </div>
       <div className="toolbar topbar-toolbar">
         {state.profile ? (

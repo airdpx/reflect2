@@ -313,7 +313,7 @@ export default function HabitCalendarApp({ initialState, runtimeContent }: Habit
     void syncStateNow();
   }
 
-  function setNoteField(key: keyof DailyNote, value: string | number) {
+  function setNoteField<K extends keyof DailyNote>(key: K, value: DailyNote[K]) {
     updateState((draft) => {
       draft.notes[draft.selectedDate] = { ...(draft.notes[draft.selectedDate] || {}), [key]: value };
       return draft;

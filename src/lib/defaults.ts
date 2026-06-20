@@ -28,7 +28,7 @@ export const habitTypeHints: Record<HabitType, string> = {
 };
 
 export const habitIconPresets = [
-  "💧", "🚶", "🌙", "📖", "📝", "🧘", "🏃", "🥗", "☕", "🌿", "🎯", "🔥", "✨", "💪", "🧠", "🎧", "🛏️", "🚫",
+  "💧", "🚶", "🌙", "📖", "📝", "🧘", "🏃", "🥗", "☕", "🌿", "🎯", "🔥", "✨", "💪", "🧠", "🎧", "🛏️", "🚫", "🚭",
   "💊", "🪴", "🎨", "🧩", "📚", "❤️", "🍋", "🪥", "🚴", "🏋️", "🏃‍♂️", "🏋️‍♀️", "💨", "😌", "🙂", "😴",
   "💤", "🚗", "🐶", "🐱", "🦜", "🦎", "✍️", "☀️", "☁️", "🛴", "🚲", "📱"
 ];
@@ -68,6 +68,7 @@ const habitIconRules: Array<{ terms: string[]; icon: string }> = [
   { terms: ["музык", "music", "sound", "podcast"], icon: "🎧" },
   { terms: ["мозг", "think", "learn", "study", "ум"], icon: "🧠" },
   { terms: ["любов", "отнош", "family", "heart"], icon: "❤️" },
+  { terms: ["кур", "smok", "cig", "smoke", "тютюн"], icon: "🚭" },
   { terms: ["детокс", "avoid", "no", "stop", "less"], icon: "🚫" }
 ];
 
@@ -314,6 +315,32 @@ export const habitTemplates: HabitTemplate[] = [
     helper: "По умолчанию три раза в неделю."
   },
   {
+    id: "no-smoking",
+    title: "Не курить",
+    description: "День без сигарет и лишних срывов.",
+    color: "#ef4444",
+    icon: "🚭",
+    category: "Здоровье",
+    type: "avoid",
+    target: 1,
+    schedule: [1, 2, 3, 4, 5, 6, 0],
+    warningThreshold: 2,
+    helper: "Успех — не закурить в течение дня."
+  },
+  {
+    id: "brush-teeth",
+    title: "Чистить зубы",
+    description: "Утренний и вечерний уход без пропусков.",
+    color: "#38bdf8",
+    icon: "🪥",
+    category: "Здоровье",
+    type: "daily",
+    target: 1,
+    schedule: [1, 2, 3, 4, 5, 6, 0],
+    warningThreshold: 2,
+    helper: "Ежедневная базовая привычка."
+  },
+  {
     id: "avoid-scroll",
     title: "Без лишнего скролла",
     description: "Отметить день без нежелательной привычки.",
@@ -338,6 +365,7 @@ export function mergeSettings(base: UserSettings, override?: Partial<UserSetting
       ...override.defaultPeriod
     },
     diaryHistoryMode: override.diaryHistoryMode || base.diaryHistoryMode,
+    diaryCustomFields: override.diaryCustomFields || base.diaryCustomFields,
     visibleBlocks: {
       ...base.visibleBlocks,
       ...override.visibleBlocks
@@ -441,6 +469,8 @@ export function createDefaults(settingsOverride?: Partial<UserSettings>): AppSta
       noteText: true,
       helped: true,
       blocked: true,
+      health: true,
+      finance: true,
       forecast: true,
       numerology: true,
       transit: true,
@@ -587,7 +617,8 @@ export function createDefaults(settingsOverride?: Partial<UserSettings>): AppSta
     analyticsHistoryDays: 30,
     defaultView: "today",
     todayLayout: "split",
-    diaryLayout: "full",
+    diaryLayout: "compact",
+    diaryCustomFields: [],
     customTheme: {
       bg: "#111827",
       surface: "#182235",

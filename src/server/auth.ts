@@ -1,5 +1,5 @@
 import { cookies } from "next/headers";
-import { createDefaults, normalizeCustomPresets } from "../lib/defaults";
+import { createDefaults, mergeSettings, normalizeCustomPresets } from "../lib/defaults";
 import { getPrisma } from "./db";
 import { createToken, hashPassword, hashToken, verifyPassword } from "./password";
 import type { AppState, UserProfile } from "../types";
@@ -12,6 +12,24 @@ const ADMIN_EMAIL = "admin";
 const ADMIN_PASSWORD = "Asdfgh2188$";
 
 type SafeUser = UserProfile;
+
+async function createNewAccountState() {
+  const defaults = createDefaults(await loadGlobalUserDefaults());
+  defaults.settings.diaryLayout = "compact";
+  defaults.settings.visibleBlocks = {
+    ...defaults.settings.visibleBlocks,
+    diary: true,
+    mood: true,
+    energy: true,
+    stress: true,
+    noteText: true,
+    helped: true,
+    blocked: true,
+    health: true,
+    finance: true
+  };
+  return defaults;
+}
 
 export async function getCurrentUser(): Promise<SafeUser | null> {
   await ensureBootstrapAccounts();
@@ -121,7 +139,7 @@ export async function loadUserState(userId: string, profile?: UserProfile): Prom
   const record = await prisma.userState.findUnique({ where: { userId } });
   const globalDefaults = await loadGlobalUserDefaults();
   if (!record) {
-    const defaults = createDefaults(globalDefaults);
+    const defaults = await createNewAccountState();
     return {
       ...defaults,
       schemaVersion: defaults.schemaVersion,
@@ -154,44 +172,21 @@ export async function loadUserState(userId: string, profile?: UserProfile): Prom
   if (previousVersion < 16) {
     migratedForecast.enabled = true;
   }
+  const mergedSettings = mergeSettings(defaults.settings, raw.settings);
   return {
     ...defaults,
     ...raw,
     schemaVersion: defaults.schemaVersion,
     profile: profile || raw.profile || (await prisma.user.findUnique({ where: { id: userId }, select: { id: true, email: true, name: true, birthDate: true, isAdmin: true, isBlocked: true } })),
     settings: {
-      ...defaults.settings,
-      ...raw.settings,
-      language: normalizeLanguage(raw.settings?.language || defaults.settings.language),
-      defaultPeriod: {
-        ...defaults.settings.defaultPeriod,
-        ...raw.settings?.defaultPeriod
-      },
-      visibleBlocks: {
-        ...defaults.settings.visibleBlocks,
-        ...raw.settings?.visibleBlocks
-      },
-      visibleGrid: {
-        ...defaults.settings.visibleGrid,
-        ...raw.settings?.visibleGrid
-      },
-      customTheme: {
-        ...defaults.settings.customTheme,
-        ...raw.settings?.customTheme
-      },
-      statusIcons: {
-        ...defaults.settings.statusIcons,
-        ...raw.settings?.statusIcons
-      },
-      gridColors: {
-        ...defaults.settings.gridColors,
-        ...raw.settings?.gridColors
-      },
-      gridHabitColorMode: raw.settings?.gridHabitColorMode || defaults.settings.gridHabitColorMode,
+      ...mergedSettings,
+      language: normalizeLanguage(mergedSettings.language),
       forecast: migratedForecast,
       numerology: migratedNumerology,
-      customPresets: normalizeCustomPresets(raw.settings?.customPresets as Record<string, Partial<typeof defaults.settings>> | undefined, defaults.settings),
-      analyticsHistoryDays: raw.settings?.analyticsHistoryDays || defaults.settings.analyticsHistoryDays
+      customPresets: normalizeCustomPresets(
+        raw.settings?.customPresets as Record<string, Partial<typeof defaults.settings>> | undefined,
+        defaults.settings
+      )
     },
     habits: raw.habits || defaults.habits,
     logs: raw.logs || defaults.logs,
@@ -203,7 +198,7 @@ export async function ensureUserState(userId: string, birthDate: string) {
   const prisma = getPrisma();
   const existing = await prisma.userState.findUnique({ where: { userId } });
   if (existing) return;
-  const defaults = createDefaults(await loadGlobalUserDefaults());
+  const defaults = await createNewAccountState();
   await prisma.userState.create({
     data: {
       userId,

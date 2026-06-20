@@ -77,11 +77,15 @@ function NumerologyShell({
 }) {
   const tone = numerologyTone(numerology.summaryScore);
   const metrics = numerology.metrics.filter((metric) => visibleMetrics[metric.id]);
+  const compactTitle = `${title} (${numerology.summaryScore}% ${numerology.summaryLabel})`;
   return (
     <div className={`panel forecast-panel numerology-panel numerology-mode-${displayMode} ${compact ? "compact-numerology-panel" : ""}`}>
       <div className="section-head">
         <div>
-          <h3>{title}</h3>
+          <h3>
+            <span className="panel-title-main">{title}</span>
+            <span className="panel-title-inline">{compactTitle}</span>
+          </h3>
         </div>
         <div className={`forecast-score forecast-tone-${tone}`}>
           <strong>{numerology.summaryScore}%</strong>

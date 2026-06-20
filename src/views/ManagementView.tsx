@@ -1,8 +1,8 @@
 import { useEffect, useMemo, useState } from "react";
-import type { AppState, CalendarFilterMode, Density, HabitType, InterfaceTheme, UserSettings, View } from "../types";
+import type { AppState, CalendarFilterMode, Density, HabitStatus, HabitType, InterfaceTheme, UserSettings, View } from "../types";
 import { AppIcon } from "../components/AppIcons";
 import { SelectControl, Toggle } from "../components/Common";
-import { createDefaults, statusIconPresets, statusMeta, themeOptions } from "../lib/defaults";
+import { createDefaults, habitCategoryPresets, mergeSettings, statusIconPresets, statusMeta, themeOptions } from "../lib/defaults";
 import { normalizeLanguage, viewText } from "../lib/i18n";
 import { useRuntimeContent } from "../components/RuntimeContent";
 
@@ -20,24 +20,22 @@ type AdminUserRecord = {
 };
 
 const gridAppearancePresets = [
-  { value: "classic-square", label: "Классика", theme: "classic", shape: "square" },
-  { value: "neon-board-square", label: "Неоновая доска", theme: "neonBoard", shape: "square" },
-  { value: "week-checks-ring", label: "Чек-лист недели", theme: "weekChecks", shape: "ring" },
-  { value: "signal-cards-square", label: "Сигнальные карточки", theme: "signalCards", shape: "square" },
-  { value: "compact-square", label: "Компактные плашки", theme: "compact", shape: "square" },
-  { value: "ledger-micro", label: "Ledger micro", theme: "micro", shape: "square" },
-  { value: "glass-frame", label: "Стеклянная сетка", theme: "glass", shape: "frame" },
-  { value: "heatmap-circle", label: "Тепло-акцент", theme: "heatmap", shape: "circle" },
-  { value: "hybrid-ring", label: "Гибридное кольцо", theme: "hybrid", shape: "ring" },
-  { value: "soft-circle", label: "Мягкий круг", theme: "soft", shape: "circle" },
-  { value: "soft-ring", label: "Мягкое кольцо", theme: "soft", shape: "ring" },
-  { value: "ledger-square", label: "Ledger Flat", theme: "ledger", shape: "square" },
-  { value: "outline-ring", label: "Outline Ring", theme: "outline", shape: "ring" },
-  { value: "slate-pill", label: "Slate Pills", theme: "slate", shape: "pill" },
-  { value: "calm-frame", label: "Calm Frame", theme: "calm", shape: "frame" },
-  { value: "journal-star", label: "Дневник со звездой", theme: "journal", shape: "star" },
-  { value: "minimal-hex", label: "Минимум", theme: "minimal", shape: "hex" },
-  { value: "minimal-pill", label: "Минимум-пилюля", theme: "minimal", shape: "pill" }
+  { value: "classic-square", label: { ru: "Классика", en: "Classic" }, theme: "classic", shape: "square" },
+  { value: "neon-board-square", label: { ru: "Неоновая доска", en: "Neon Board" }, theme: "neonBoard", shape: "square" },
+  { value: "week-checks-ring", label: { ru: "Чек-лист недели", en: "Weekly Checklist" }, theme: "weekChecks", shape: "ring" },
+  { value: "signal-cards-square", label: { ru: "Сигнальные карточки", en: "Signal Cards" }, theme: "signalCards", shape: "square" },
+  { value: "compact-square", label: { ru: "Компактные плашки", en: "Compact Chips" }, theme: "compact", shape: "square" },
+  { value: "ledger-micro", label: { ru: "Леджер микро", en: "Ledger Micro" }, theme: "micro", shape: "square" },
+  { value: "glass-frame", label: { ru: "Стеклянная сетка", en: "Glass Grid" }, theme: "glass", shape: "frame" },
+  { value: "heatmap-circle", label: { ru: "Тепло-акцент", en: "Heat Accent" }, theme: "heatmap", shape: "circle" },
+  { value: "hybrid-ring", label: { ru: "Гибридное кольцо", en: "Hybrid Ring" }, theme: "hybrid", shape: "ring" },
+  { value: "soft-ring", label: { ru: "Мягкое кольцо", en: "Soft Ring" }, theme: "soft", shape: "ring" },
+  { value: "ledger-square", label: { ru: "Леджер плоский", en: "Ledger Flat" }, theme: "ledger", shape: "square" },
+  { value: "slate-pill", label: { ru: "Сланцевая плашка", en: "Slate Pill" }, theme: "slate", shape: "pill" },
+  { value: "calm-frame", label: { ru: "Спокойная рамка", en: "Calm Frame" }, theme: "calm", shape: "frame" },
+  { value: "journal-star", label: { ru: "Звезды", en: "Stars" }, theme: "journal", shape: "star" },
+  { value: "minimal-hex", label: { ru: "Шестиугольники", en: "Hexagons" }, theme: "minimal", shape: "hex" },
+  { value: "minimal-pill", label: { ru: "Обычное кольцо", en: "Regular Ring" }, theme: "minimal", shape: "pill" }
 ] as const;
 
 const gridVisibleElementOptions = [
@@ -324,24 +322,6 @@ function GlobalDefaultsPanel({ currentSettings }: { currentSettings: AppState["s
     { value: "settings", label: viewText[language].settings.label },
     { value: "management", label: viewText[language].management.label }
   ];
-  const gridThemeOptions = [
-    ["classic", "Классика"],
-    ["neonBoard", "Неоновая доска"],
-    ["weekChecks", "Чек-лист недели"],
-    ["signalCards", "Сигнальные карточки"],
-    ["soft", "Мягкий"],
-    ["minimal", "Мини"],
-    ["journal", "Дневник"],
-    ["ledger", "Таблица"],
-    ["outline", "Контур"],
-    ["slate", "Сланец"],
-    ["calm", "Нейтральный"],
-    ["compact", "Компактные плашки"],
-    ["micro", "Ledger micro"],
-    ["glass", "Стеклянная сетка"],
-    ["heatmap", "Тепло-акцент"],
-    ["hybrid", "Гибридное кольцо"]
-  ] as const;
   const gridDisplayModeOptions = [
     ["matrix", "Таблица"],
     ["calendar", "Календарь"],
@@ -357,6 +337,46 @@ function GlobalDefaultsPanel({ currentSettings }: { currentSettings: AppState["s
     ["mono", "Моно"],
     ["alternating", "Чередование"]
   ] as const;
+  const densityOptions = language === "en"
+    ? [
+        { value: "compact", label: "Compact" },
+        { value: "standard", label: "Standard" },
+        { value: "comfortable", label: "Comfortable" }
+      ]
+    : [
+        { value: "compact", label: "Компактная" },
+        { value: "standard", label: "Стандартная" },
+        { value: "comfortable", label: "Комфортная" }
+      ];
+  const clickOptions = language === "en"
+    ? [
+        { value: "cycle", label: "Cycle" },
+        { value: "details", label: "Details" }
+      ]
+    : [
+        { value: "cycle", label: "По кругу" },
+        { value: "details", label: "Открыть детали" }
+      ];
+  const tableColorOptions = language === "en"
+    ? [
+        { value: "theme", label: "By theme" },
+        { value: "custom", label: "Custom colors" }
+      ]
+    : [
+        { value: "theme", label: "По теме" },
+        { value: "custom", label: "Свои цвета" }
+      ];
+  const categoryOptions = [
+    { value: "all", label: language === "en" ? "All categories" : "Все категории" },
+    ...habitCategoryPresets.map((category) => ({ value: category, label: category }))
+  ];
+  const diaryFieldOptions = [
+    { key: "noteText", label: language === "en" ? "Short note" : "Короткая заметка" },
+    { key: "helped", label: language === "en" ? "What got done" : "Что сделано" },
+    { key: "blocked", label: language === "en" ? "What stayed undone" : "Что не сделано" },
+    { key: "health", label: language === "en" ? "Health" : "Здоровье" },
+    { key: "finance", label: language === "en" ? "Finance" : "Финансы" }
+  ] as const;
   const appearanceValue = gridAppearancePresets.find((preset) => preset.theme === defaults.gridTheme && preset.shape === defaults.gridMarkerShape)?.value || "classic-square";
 
   useEffect(() => {
@@ -369,7 +389,7 @@ function GlobalDefaultsPanel({ currentSettings }: { currentSettings: AppState["s
       })
       .then((saved) => {
         if (!mounted) return;
-        setDefaults({ ...createDefaults().settings, ...saved });
+        setDefaults(mergeSettings(createDefaults().settings, saved));
       })
       .catch(() => {
         if (mounted) setDefaults(createDefaults().settings);
@@ -400,6 +420,28 @@ function GlobalDefaultsPanel({ currentSettings }: { currentSettings: AppState["s
 
   function useCurrentSettings() {
     setDefaults(structuredClone(currentSettings));
+  }
+
+  function renderSelectRow(
+    label: string,
+    value: string,
+    options: Array<{ value: string; label: string }>,
+    onChange: (value: string) => void,
+    icon?: string
+  ) {
+    return (
+      <div className="calendar-settings-row">
+        <label>{label}</label>
+        <div className={`calendar-settings-control ${icon ? "has-icon" : ""}`.trim()}>
+          {icon ? <span className="calendar-settings-inline-icon" aria-hidden="true">{icon}</span> : null}
+          <select className="select" value={value} onChange={(event) => onChange(event.target.value)}>
+            {options.map((option) => (
+              <option key={option.value} value={option.value}>{option.label}</option>
+            ))}
+          </select>
+        </div>
+      </div>
+    );
   }
 
   async function applyDefaultsToCurrentTheme() {
@@ -452,53 +494,115 @@ function GlobalDefaultsPanel({ currentSettings }: { currentSettings: AppState["s
           options={language === "en" ? ["Simple", "Balanced", "Journal", "Analytical", "Focus"] : ["Простой", "Сбалансированный", "Журнал", "Аналитический", "Фокус"]}
           onChange={(value) => setDefaults((state) => ({ ...state, preset: value as UserSettings["preset"] }))}
         />
-        <SelectControl
-          label={language === "en" ? "Density" : "Плотность"}
-          value={defaults.density}
-          options={language === "en"
-            ? [
-                { value: "compact", label: "Compact" },
-                { value: "standard", label: "Standard" },
-                { value: "comfortable", label: "Comfortable" }
-              ]
-            : [
-                { value: "compact", label: "Компактная" },
-                { value: "standard", label: "Стандартная" },
-                { value: "comfortable", label: "Комфортная" }
-              ]}
-          onChange={(value) => setDefaults((state) => ({ ...state, density: value as Density }))}
-        />
+        <SelectControl label={language === "en" ? "Density" : "Плотность"} value={defaults.density} options={densityOptions} onChange={(value) => setDefaults((state) => ({ ...state, density: value as Density }))} />
         <SelectControl label="Стартовый экран" value={defaults.defaultView} options={defaultViewOptions} onChange={(value) => setDefaults((state) => ({ ...state, defaultView: value as View }))} />
       </div>
-        <div className="panel settings-card inner-settings-card">
+      <div className="panel settings-card inner-settings-card">
           <div className="section-head">
             <div>
               <h3>Календарь и таблица</h3>
               <p className="muted">Все элементы оформления календаря и таблицы, как в пользовательском разделе.</p>
           </div>
         </div>
-        <div className="form-grid">
-          <SelectControl label="Оформление таблицы" value={appearanceValue} options={gridAppearancePresets.map(({ value, label }) => ({ value, label }))} onChange={(value) => {
-            const preset = gridAppearancePresets.find((item) => item.value === value);
-            if (!preset) return;
-            setDefaults((state) => ({ ...state, gridTheme: preset.theme as UserSettings["gridTheme"], gridMarkerShape: preset.shape as UserSettings["gridMarkerShape"] }));
-          }} />
-          <SelectControl label="Режим таблицы" value={defaults.gridDisplayMode} options={gridDisplayModeOptions.map(([value, label]) => ({ value, label }))} onChange={(value) => setDefaults((state) => ({ ...state, gridDisplayMode: value as UserSettings["gridDisplayMode"] }))} />
-          <SelectControl label="Цвет привычек" value={defaults.gridHabitColorMode} options={gridHabitColorModeOptions.map(([value, label]) => ({ value, label }))} onChange={(value) => setDefaults((state) => ({ ...state, gridHabitColorMode: value as UserSettings["gridHabitColorMode"] }))} />
-          <SelectControl label="Цвета таблицы" value={defaults.gridColors.mode} options={[
-            { value: "theme", label: "По теме" },
-            { value: "custom", label: "Свои цвета" }
-          ]} onChange={(value) => setDefaults((state) => ({ ...state, gridColors: { ...state.gridColors, mode: value as "theme" | "custom" } }))} />
-          <SelectControl label="Плотность сетки" value={defaults.gridDensity} options={[
-            { value: "compact", label: "Компактная" },
-            { value: "standard", label: "Стандартная" },
-            { value: "comfortable", label: "Комфортная" }
-          ]} onChange={(value) => setDefaults((state) => ({ ...state, gridDensity: value as Density }))} />
-          <SelectControl label="Клик по ячейке" value={defaults.gridClickAction} options={[
-            { value: "cycle", label: "cycle" },
-            { value: "details", label: "details" }
-          ]} onChange={(value) => setDefaults((state) => ({ ...state, gridClickAction: value as "cycle" | "details" }))} />
-          <SelectControl label="История календаря" value={String(defaults.calendarHistoryDays)} options={[
+        <div className="module-controls">
+          <details className="quick-subsection calendar-settings-section calendar-settings-card calendar-style-section">
+            <summary>
+              <span className="calendar-settings-card-icon" aria-hidden="true">▦</span>
+              <strong>{language === "en" ? "Table style" : "Оформление таблицы"}</strong>
+            </summary>
+            <div className="calendar-settings-card-body">
+              {renderSelectRow(
+                language === "en" ? "Table style" : "Стиль таблицы",
+                appearanceValue,
+                gridAppearancePresets.map(({ value, label }) => ({ value, label: label[language] })),
+                (value) => {
+                  const preset = gridAppearancePresets.find((item) => item.value === value);
+                  if (!preset) return;
+                  setDefaults((state) => ({ ...state, gridTheme: preset.theme as UserSettings["gridTheme"], gridMarkerShape: preset.shape as UserSettings["gridMarkerShape"] }));
+                },
+                "▦"
+              )}
+              {renderSelectRow(
+                language === "en" ? "Display mode" : "Режим таблицы",
+                defaults.gridDisplayMode,
+                gridDisplayModeOptions.map(([value, label]) => ({ value, label })),
+                (value) => setDefaults((state) => ({ ...state, gridDisplayMode: value as UserSettings["gridDisplayMode"] })),
+                "◫"
+              )}
+              {renderSelectRow(
+                language === "en" ? "Habit color" : "Цвет привычек",
+                defaults.gridHabitColorMode,
+                gridHabitColorModeOptions.map(([value, label]) => ({ value, label })),
+                (value) => setDefaults((state) => ({ ...state, gridHabitColorMode: value as UserSettings["gridHabitColorMode"] })),
+                "◐"
+              )}
+              {renderSelectRow(
+                language === "en" ? "Table colors" : "Цвета таблицы",
+                defaults.gridColors.mode,
+                tableColorOptions,
+                (value) => setDefaults((state) => ({ ...state, gridColors: { ...state.gridColors, mode: value as "theme" | "custom" } })),
+                "◫"
+              )}
+              {renderSelectRow(
+                language === "en" ? "Grid density" : "Плотность сетки",
+                defaults.gridDensity,
+                densityOptions,
+                (value) => setDefaults((state) => ({ ...state, gridDensity: value as Density })),
+                "⋮"
+              )}
+              {renderSelectRow(
+                language === "en" ? "Cell click" : "Клик по ячейке",
+                defaults.gridClickAction,
+                clickOptions,
+                (value) => setDefaults((state) => ({ ...state, gridClickAction: value as "cycle" | "details" })),
+                "◎"
+              )}
+            </div>
+          </details>
+          {defaults.gridColors.mode === "custom" ? (
+            <div className="mini-color-grid calendar-color-grid">
+              {[
+                ["bg", "Фон"],
+                ["head", "Шапка"],
+                ["cell", "Ячейки"],
+                ["today", "Сегодня"],
+                ["line", "Линии"],
+                ["habitSingle", "Привычки: один цвет"],
+                ["habitAltA", "Привычки: цвет A"],
+                ["habitAltB", "Привычки: цвет B"]
+              ].map(([key, label]) => (
+                <label key={key}>
+                  <span>{label}</span>
+                  <input
+                    type="color"
+                    value={defaults.gridColors[key as keyof typeof defaults.gridColors] as string}
+                    onChange={(event) => setDefaults((state) => ({ ...state, gridColors: { ...state.gridColors, [key]: event.target.value } }))}
+                  />
+                </label>
+              ))}
+            </div>
+          ) : null}
+          <details className="quick-subsection calendar-settings-section calendar-filter-section">
+            <summary>{language === "en" ? "Filter and visibility" : "Фильтр и видимость"}</summary>
+            <div className="calendar-settings-card-body">
+              {renderSelectRow(
+                language === "en" ? "Category" : "Категория",
+                defaults.selectedCategory,
+                categoryOptions,
+                (value) => setDefaults((state) => ({ ...state, selectedCategory: value })),
+                "⌂"
+              )}
+              {renderSelectRow(
+                language === "en" ? "Habit filter" : "Фильтр привычек",
+                defaults.calendarFilterMode,
+                calendarFilterModes.map(([value, label]) => ({ value, label })),
+                (value) => setDefaults((state) => ({ ...state, calendarFilterMode: value as CalendarFilterMode })),
+                "⌁"
+              )}
+              {renderSelectRow(
+                language === "en" ? "Calendar history" : "История календаря",
+                String(defaults.calendarHistoryDays),
+                [
             { value: "0", label: "0" },
             { value: "7", label: "7" },
             { value: "14", label: "14" },
@@ -507,54 +611,94 @@ function GlobalDefaultsPanel({ currentSettings }: { currentSettings: AppState["s
             { value: "90", label: "90" },
             { value: "180", label: "180" },
             { value: "365", label: "365" }
-          ]} onChange={(value) => setDefaults((state) => ({ ...state, calendarHistoryDays: Number(value) }))} />
-          <SelectControl
-            label="Фильтр привычек"
-            value={defaults.calendarFilterMode}
-            options={calendarFilterModes.map(([value, label]) => ({ value, label }))}
-            onChange={(value) => setDefaults((state) => ({ ...state, calendarFilterMode: value as CalendarFilterMode }))}
-          />
+                ],
+                (value) => setDefaults((state) => ({ ...state, calendarHistoryDays: Number(value) })),
+                "◷"
+              )}
+              <Toggle label={language === "en" ? "Show weekends" : "Показывать выходные"} checked={defaults.showWeekends} onChange={(checked) => setDefaults((state) => ({ ...state, showWeekends: checked }))} className="compact-check-row calendar-weekend-toggle" />
+            </div>
+            {defaults.calendarFilterMode === "types" ? (
+              <div className="module-toggle-grid type-toggle-grid">
+                {(Object.keys(calendarTypeLabels[language]) as HabitType[]).map((type) => (
+                  <Toggle
+                    key={type}
+                    label={calendarTypeLabels[language][type]}
+                    checked={defaults.calendarFilterTypes[type]}
+                    onChange={(checked) => setDefaults((state) => ({
+                      ...state,
+                      calendarFilterTypes: { ...state.calendarFilterTypes, [type]: checked }
+                    }))}
+                  />
+                ))}
+              </div>
+            ) : null}
+          </details>
+          <details className="quick-subsection calendar-settings-section calendar-visible-section">
+            <summary>{language === "en" ? "Visible elements" : "Видимые элементы"}</summary>
+            <div className="calendar-visible-list">
+              {gridVisibleElementOptions.map(([key, label]) => (
+                <label key={key} className="calendar-visible-row">
+                  <span className="calendar-visible-name">
+                    <b aria-hidden="true">{key === "color" ? "■" : key === "icon" ? "☆" : key === "statusText" ? "✓" : key === "completion" ? "%" : key === "daysSince" ? "◷" : "•"}</b>
+                    <span>{label}</span>
+                  </span>
+                  <input type="checkbox" checked={defaults.visibleGrid[key]} onChange={(event) => setDefaults((state) => ({ ...state, visibleGrid: { ...state.visibleGrid, [key]: event.target.checked } }))} />
+                </label>
+              ))}
+            </div>
+          </details>
+          <details className="quick-subsection calendar-settings-section calendar-icons-section">
+            <summary>{language === "en" ? "Statuses and check-in icons" : "Статусы и иконки отметок"}</summary>
+            <div className="calendar-settings-section-label inline-section-label">{language === "en" ? "Statuses" : "Статусы"}</div>
+            <div className="status-preview-strip">
+              {(Object.keys(statusMeta) as HabitStatus[]).map((status) => {
+                const activeStatuses = defaults.activeStatuses;
+                return (
+                  <button
+                    key={status}
+                    className={`${statusMeta[status].className} ${activeStatuses.includes(status) ? "active" : ""}`}
+                    onClick={() => setDefaults((state) => ({
+                      ...state,
+                      activeStatuses: state.activeStatuses.includes(status)
+                        ? state.activeStatuses.filter((item) => item !== status)
+                        : [...state.activeStatuses, status]
+                    }))}
+                  >
+                    <b>{defaults.statusIcons[status]}</b>
+                    <span>{statusMeta[status].label}</span>
+                  </button>
+                );
+              })}
+            </div>
+            <div className="calendar-settings-section-label inline-section-label">{language === "en" ? "Check-in icons" : "Иконки отметок"}</div>
+            <div className="status-icon-grid">
+              {(Object.keys(defaults.statusIcons) as (keyof typeof defaults.statusIcons)[]).map((status) => (
+                <label key={status}>
+                  <span>{statusMeta[status].label}</span>
+                  <input
+                    maxLength={4}
+                    value={defaults.statusIcons[status]}
+                    onChange={(event) => setDefaults((state) => ({ ...state, statusIcons: { ...state.statusIcons, [status]: event.target.value.slice(0, 4) } }))}
+                  />
+                  <div className="tiny-preset-row">
+                    {statusIconPresets[status].map((icon) => (
+                      <button
+                        type="button"
+                        key={`${status}-${icon}`}
+                        className={defaults.statusIcons[status] === icon ? "active" : ""}
+                        onClick={() => setDefaults((state) => ({ ...state, statusIcons: { ...state.statusIcons, [status]: icon } }))}
+                      >
+                        {icon}
+                      </button>
+                    ))}
+                  </div>
+                </label>
+              ))}
+            </div>
+          </details>
         </div>
-        <Toggle label="Показывать выходные" checked={defaults.showWeekends} onChange={(checked) => setDefaults((state) => ({ ...state, showWeekends: checked }))} />
-        {defaults.calendarFilterMode === "types" ? (
-          <div className="module-toggle-grid type-toggle-grid">
-            {(Object.keys(calendarTypeLabels[language]) as HabitType[]).map((type) => (
-              <Toggle
-                key={type}
-                label={calendarTypeLabels[language][type]}
-                checked={defaults.calendarFilterTypes[type]}
-                onChange={(checked) => setDefaults((state) => ({
-                  ...state,
-                  calendarFilterTypes: { ...state.calendarFilterTypes, [type]: checked }
-                }))}
-              />
-            ))}
-          </div>
-        ) : null}
-        {defaults.gridColors.mode === "custom" ? (
-          <div className="mini-color-grid calendar-color-grid">
-            {[
-              ["bg", "Фон"],
-              ["head", "Шапка"],
-              ["cell", "Ячейки"],
-              ["today", "Сегодня"],
-              ["line", "Линии"],
-              ["habitSingle", "Привычки: один цвет"],
-              ["habitAltA", "Привычки: цвет A"],
-              ["habitAltB", "Привычки: цвет B"]
-            ].map(([key, label]) => (
-              <label key={key}>
-                <span>{label}</span>
-                <input
-                  type="color"
-                  value={defaults.gridColors[key as keyof typeof defaults.gridColors] as string}
-                  onChange={(event) => setDefaults((state) => ({ ...state, gridColors: { ...state.gridColors, [key]: event.target.value } }))}
-                />
-              </label>
-            ))}
-          </div>
-        ) : null}
-        <div className="panel settings-card inner-settings-card">
+      </div>
+      <div className="panel settings-card inner-settings-card">
           <div className="section-head">
             <div>
               <h3>Второй календарь</h3>
@@ -599,59 +743,35 @@ function GlobalDefaultsPanel({ currentSettings }: { currentSettings: AppState["s
               ))}
             </div>
           ) : null}
+      </div>
+      <div className="panel settings-card inner-settings-card">
+        <div className="section-head">
+          <div>
+            <h3>{language === "en" ? "Diary defaults" : "Дефолты дневника"}</h3>
+            <p className="muted">{language === "en" ? "Compact view and field visibility for new accounts." : "Компактный вид и набор полей для новых аккаунтов."}</p>
+          </div>
         </div>
-        <details className="quick-subsection" open>
-          <summary>Фильтр и видимость</summary>
-          <div className="module-controls">
-            <SelectControl
-              label="Категория"
-              value={defaults.selectedCategory}
-              options={[{ value: "all", label: "all" }]}
-              onChange={(value) => setDefaults((state) => ({ ...state, selectedCategory: value }))}
+        <div className="form-grid">
+          <SelectControl
+            label={language === "en" ? "Diary layout" : "Вид дневника"}
+            value={defaults.diaryLayout}
+            options={[
+              { value: "compact", label: language === "en" ? "Compact" : "Компактный" },
+              { value: "full", label: language === "en" ? "Full" : "Полный" }
+            ]}
+            onChange={(value) => setDefaults((state) => ({ ...state, diaryLayout: value as UserSettings["diaryLayout"] }))}
+          />
+        </div>
+        <div className="module-toggle-grid">
+          {diaryFieldOptions.map(({ key, label }) => (
+            <Toggle
+              key={key}
+              label={label}
+              checked={defaults.visibleBlocks[key]}
+              onChange={(checked) => setDefaults((state) => ({ ...state, visibleBlocks: { ...state.visibleBlocks, [key]: checked } }))}
             />
-            <Toggle label="Показывать выходные" checked={defaults.showWeekends} className="compact-check-row" onChange={(checked) => setDefaults((state) => ({ ...state, showWeekends: checked }))} />
-          </div>
-        </details>
-        <details className="quick-subsection" open>
-          <summary>Видимые элементы</summary>
-          <div className="module-toggle-grid">
-            {gridVisibleElementOptions.map(([key, label]) => (
-              <Toggle
-                key={key}
-                label={label}
-                checked={defaults.visibleGrid[key]}
-                onChange={(checked) => setDefaults((state) => ({ ...state, visibleGrid: { ...state.visibleGrid, [key]: checked } }))}
-              />
-            ))}
-          </div>
-        </details>
-        <details className="quick-subsection" open>
-          <summary>Иконки отметок</summary>
-          <div className="status-icon-grid">
-            {(Object.keys(defaults.statusIcons) as (keyof typeof defaults.statusIcons)[]).map((status) => (
-              <label key={status}>
-                <span>{statusMeta[status].label}</span>
-                <input
-                  maxLength={4}
-                  value={defaults.statusIcons[status]}
-                  onChange={(event) => setDefaults((state) => ({ ...state, statusIcons: { ...state.statusIcons, [status]: event.target.value.slice(0, 4) } }))}
-                />
-                <div className="tiny-preset-row">
-                  {statusIconPresets[status].map((icon) => (
-                    <button
-                      type="button"
-                      key={`${status}-${icon}`}
-                      className={defaults.statusIcons[status] === icon ? "active" : ""}
-                      onClick={() => setDefaults((state) => ({ ...state, statusIcons: { ...state.statusIcons, [status]: icon } }))}
-                    >
-                      {icon}
-                    </button>
-                  ))}
-                </div>
-              </label>
-            ))}
-          </div>
-        </details>
+          ))}
+        </div>
       </div>
       <div className="module-toggle-grid">
         <Toggle label="Правая панель" checked={defaults.rightPanel} onChange={(checked) => setDefaults((state) => ({ ...state, rightPanel: checked }))} />

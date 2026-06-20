@@ -1,14 +1,30 @@
 import { useEffect, useMemo, useState } from "react";
 import type { AppActions, AppSelectors, AppState, HabitStatus } from "../types";
 import { addDays, fromKey, rangeDates, todayKey, toKey, formatDate } from "../lib/date";
-import { calculateAverageHabitsPerDay } from "../lib/analytics";
+import { calculateAverageHabitsPerDay, getAttentionHabits, logKey } from "../lib/analytics";
 import { statusMeta } from "../lib/defaults";
 import { normalizeLanguage } from "../lib/i18n";
 
 type StatsPanelMode = "compact" | "full";
 
-export function StatsPanel({ selectors, state, mode = "full" }: { selectors: AppSelectors; state: AppState; mode?: StatsPanelMode }) {
+export function StatsPanel({
+  selectors,
+  state,
+  mode = "full",
+  title,
+  habitsOverride,
+  datesOverride
+}: {
+  selectors: AppSelectors;
+  state: AppState;
+  mode?: StatsPanelMode;
+  title?: string;
+  habitsOverride?: AppState["habits"];
+  datesOverride?: string[];
+}) {
   const language = normalizeLanguage(state.settings.language);
+  const habits = habitsOverride || selectors.activeHabits;
+  const dates = datesOverride || selectors.periodDates;
   const text = language === "en" ? {
     title: "Digital Analytics",
     emptyTitle: "Analytics will appear after your first check-ins",
@@ -53,10 +69,12 @@ export function StatsPanel({ selectors, state, mode = "full" }: { selectors: App
     chooseHabitText: "График станет наглядным, когда здесь появится хотя бы одна линия."
   };
 
-  if (!selectors.hasAnyLogs) {
+  const hasAnyLogs = habits.some((habit) => dates.some((date) => Boolean(state.logs[logKey(habit.id, date)])));
+
+  if (!hasAnyLogs) {
     return (
       <div className="panel analytics-summary-panel analytics-summary-panel-prominent">
-        <h3>{text.title}</h3>
+        <h3>{title || text.title}</h3>
         <div className="analytics-summary-banner analytics-summary-banner-empty">
           <strong>{text.emptyTitle}</strong>
           <span>{text.emptyText}</span>
@@ -82,17 +100,17 @@ export function StatsPanel({ selectors, state, mode = "full" }: { selectors: App
       </div>
     );
   }
-  const rows = selectors.activeHabits.map((habit) => selectors.calculateStats(habit));
+  const rows = habits.map((habit) => selectors.calculateStats(habit, dates));
   const avg = rows.length ? Math.round(rows.reduce((sum, item) => sum + item.completion, 0) / rows.length) : 0;
   const series = rows.reduce((max, item) => Math.max(max, item.streak), 0);
   const best = rows.reduce((max, item) => Math.max(max, item.bestStreak), 0);
-  const attention = selectors.getAttentionHabits().length;
-  const averageHabitsPerDay = calculateAverageHabitsPerDay(selectors.activeHabits, state.logs, 30);
+  const attention = getAttentionHabits(habits, dates, state.logs).length;
+  const averageHabitsPerDay = calculateAverageHabitsPerDay(habits, state.logs, 30);
   const averageHabitsPerDayLabel = new Intl.NumberFormat(language === "en" ? "en-US" : "ru-RU", { maximumFractionDigits: 1 }).format(averageHabitsPerDay);
   const summary = summarizeAnalytics(language, avg, series, best, attention);
   return (
     <div className="panel analytics-summary-panel analytics-summary-panel-prominent">
-      <h3>{text.title}</h3>
+      <h3>{title || text.title}</h3>
       <div className="analytics-summary-banner">
         <strong>{text.summaryTitle}</strong>
         <span>{summary || text.summaryFallback}</span>
@@ -136,7 +154,6 @@ export function AnalyticsView({ state, selectors, actions }: { state: AppState; 
   const start = toKey(addDays(fromKey(todayKey()), -(chartDays - 1)));
   const dates = rangeDates(start, todayKey());
   const visibleStatuses: HabitStatus[] = state.settings.activeStatuses.length ? [...state.settings.activeStatuses] : ["done", "partial", "skipped"];
-
   useEffect(() => {
     setSelectedHabitIds((current) => {
       const valid = current.filter((habitId) => selectors.activeHabits.some((habit) => habit.id === habitId));

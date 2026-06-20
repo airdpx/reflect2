@@ -2,7 +2,7 @@ import { Fragment, useEffect, useState } from "react";
 import type React from "react";
 import type { AppActions, AppSelectors, AppState, CalendarFilterMode, Density, GridDisplayMode, GridHabitColorMode, Habit, HabitStatus, HabitType, SecondaryCalendarSettings } from "../types";
 import { addDays, formatDate, fromKey, rangeDates, todayKey, weekdayShort } from "../lib/date";
-import { statusIconPresets, statusMeta } from "../lib/defaults";
+import { habitCategoryPresets, statusIconPresets, statusMeta } from "../lib/defaults";
 import { forecastTone, getForecast } from "../lib/forecast";
 import { normalizeLanguage } from "../lib/i18n";
 import { useRuntimeContent } from "../components/RuntimeContent";
@@ -12,22 +12,115 @@ import { SelectControl, Toggle } from "../components/Common";
 const gridAppearancePresets = [
   { value: "classic-square", label: { ru: "Классика", en: "Classic" }, theme: "classic", shape: "square" },
   { value: "neon-board-square", label: { ru: "Неоновая доска", en: "Neon Board" }, theme: "neonBoard", shape: "square" },
+  {
+    value: "split-weeks-ring",
+    label: { ru: "Недели раздельно", en: "Split Weeks" },
+    theme: "splitWeeks",
+    shape: "ring",
+    habitColorMode: "habit",
+    gridColors: {
+      mode: "custom",
+      bg: "#071722",
+      head: "#0b1f2d",
+      cell: "#0a1823",
+      today: "#0b2d36",
+      line: "#173448",
+      habitSingle: "#14b8a6",
+      habitMuted: "#1f6f7a",
+      habitAltA: "#14b8a6",
+      habitAltB: "#f59e0b"
+    }
+  },
+  {
+    value: "teal-cards-square",
+    label: { ru: "Бирюзовые карточки", en: "Teal Cards" },
+    theme: "tealCards",
+    shape: "square",
+    habitColorMode: "alternating",
+    gridColors: {
+      mode: "custom",
+      bg: "#061520",
+      head: "#071b28",
+      cell: "#0a1c28",
+      today: "#062a34",
+      line: "#122c3c",
+      habitSingle: "#14b8a6",
+      habitMuted: "#1f7771",
+      habitAltA: "#18b89d",
+      habitAltB: "#c98312"
+    }
+  },
+  {
+    value: "thin-checks-ring",
+    label: { ru: "Тонкие отметки", en: "Thin Checks" },
+    theme: "thinChecks",
+    shape: "ring",
+    habitColorMode: "habit",
+    gridColors: {
+      mode: "custom",
+      bg: "#071722",
+      head: "#071a25",
+      cell: "#081924",
+      today: "#092d36",
+      line: "#183044",
+      habitSingle: "#22d3ee",
+      habitMuted: "#256d7a",
+      habitAltA: "#22d3ee",
+      habitAltB: "#f59e0b"
+    }
+  },
+  {
+    value: "glass-cards-square",
+    label: { ru: "Стеклянные карточки", en: "Glass Cards" },
+    theme: "glassCards",
+    shape: "square",
+    habitColorMode: "alternating",
+    gridColors: {
+      mode: "custom",
+      bg: "#06141e",
+      head: "#0b1e2b",
+      cell: "#0c1f2b",
+      today: "#082b34",
+      line: "#193449",
+      habitSingle: "#24c6b4",
+      habitMuted: "#2c7f85",
+      habitAltA: "#1fbda7",
+      habitAltB: "#c88816"
+    }
+  },
+  {
+    value: "calm-data-square",
+    label: { ru: "Спокойные данные", en: "Calm Data" },
+    theme: "calmData",
+    shape: "square",
+    habitColorMode: "muted",
+    gridColors: {
+      mode: "custom",
+      bg: "#07131d",
+      head: "#0b1a26",
+      cell: "#0c1b26",
+      today: "#092832",
+      line: "#203344",
+      habitSingle: "#2dd4bf",
+      habitMuted: "#246b68",
+      habitAltA: "#2dd4bf",
+      habitAltB: "#d89a1d"
+    }
+  },
   { value: "week-checks-ring", label: { ru: "Чек-лист недели", en: "Weekly Checklist" }, theme: "weekChecks", shape: "ring" },
   { value: "signal-cards-square", label: { ru: "Сигнальные карточки", en: "Signal Cards" }, theme: "signalCards", shape: "square" },
   { value: "compact-square", label: { ru: "Компактные плашки", en: "Compact Pills" }, theme: "compact", shape: "square" },
-  { value: "ledger-micro", label: { ru: "Ledger micro", en: "Ledger Micro" }, theme: "micro", shape: "square" },
+  { value: "ledger-micro", label: { ru: "Леджер микро", en: "Ledger Micro" }, theme: "micro", shape: "square" },
   { value: "glass-frame", label: { ru: "Стеклянная сетка", en: "Glass Grid" }, theme: "glass", shape: "frame" },
   { value: "heatmap-circle", label: { ru: "Тепло-акцент", en: "Heat Accent" }, theme: "heatmap", shape: "circle" },
   { value: "hybrid-ring", label: { ru: "Гибридное кольцо", en: "Hybrid Ring" }, theme: "hybrid", shape: "ring" },
-  { value: "soft-circle", label: { ru: "Мягкий круг", en: "Soft Circle" }, theme: "soft", shape: "circle" },
   { value: "soft-ring", label: { ru: "Мягкое кольцо", en: "Soft Ring" }, theme: "soft", shape: "ring" },
-  { value: "ledger-square", label: { ru: "Ledger Flat", en: "Ledger Flat" }, theme: "ledger", shape: "square" },
-  { value: "outline-ring", label: { ru: "Outline Ring", en: "Outline Ring" }, theme: "outline", shape: "ring" },
-  { value: "slate-pill", label: { ru: "Slate Pills", en: "Slate Pills" }, theme: "slate", shape: "pill" },
-  { value: "calm-frame", label: { ru: "Calm Frame", en: "Calm Frame" }, theme: "calm", shape: "frame" },
-  { value: "journal-star", label: { ru: "Дневник со звездой", en: "Journal Star" }, theme: "journal", shape: "star" },
-  { value: "minimal-hex", label: { ru: "Минимум", en: "Minimal" }, theme: "minimal", shape: "hex" },
-  { value: "minimal-pill", label: { ru: "Минимум-пилюля", en: "Minimal Pill" }, theme: "minimal", shape: "pill" }
+  { value: "ledger-square", label: { ru: "Леджер плоский", en: "Ledger Flat" }, theme: "ledger", shape: "square" },
+  { value: "slate-pill", label: { ru: "Сланцевая плашка", en: "Slate Pill" }, theme: "slate", shape: "pill" },
+  { value: "calm-frame", label: { ru: "Спокойная рамка", en: "Calm Frame" }, theme: "calm", shape: "frame" },
+  { value: "journal-star", label: { ru: "Звезды", en: "Stars" }, theme: "journal", shape: "star" },
+  { value: "minimal-hex", label: { ru: "Шестиугольники", en: "Hexagons" }, theme: "minimal", shape: "hex" },
+  { value: "minimal-pill", label: { ru: "Обычное кольцо", en: "Regular Ring" }, theme: "minimal", shape: "pill" }
 ] as const;
 
 const gridLabels: Record<string, { ru: string; en: string }> = {
@@ -237,51 +330,51 @@ export function GridView({
   const secondaryHabitIndexMap = new Map(secondaryVisibleHabits.map((habit, index) => [habit.id, index]));
   return (
     <section className="stack">
-      <div className="panel period-panel">
-        <div className="section-head">
-          <div>
-            <h3>{t.period}</h3>
-            <p className="muted">{selectors.periodLabel()} · {selectors.periodDates.length} {t.daysSuffix}</p>
-          </div>
-        </div>
-        <div className="period-layout compact-period-layout">
-          <div className="chips">
-            {[7, 14, 30, 90].map((days) => (
-              <button className={`chip ${p.mode === "last" && p.days === days ? "active" : ""}`} key={days} onClick={() => actions.setPeriod({ mode: "last", days })}>
-                {days} {t.daysSuffix}
-              </button>
-            ))}
-            <button className={`chip ${p.mode === "week" ? "active" : ""}`} onClick={() => actions.setPeriod({ mode: "week" })}>{language === "en" ? "Week" : "Неделя"}</button>
-            <button className={`chip ${p.mode === "month" ? "active" : ""}`} onClick={() => actions.setPeriod({ mode: "month" })}>{language === "en" ? "Month" : "Месяц"}</button>
-          </div>
-          <div className="period-custom compact-period-field">
-            <label>{language === "en" ? "N days" : "N дней"}</label>
-            <input className="input" type="number" min="1" max="365" value={p.days} onChange={(event) => actions.setPeriod({ mode: "last", days: clampDays(event.target.value) })} />
-          </div>
-          <div className="period-custom compact-period-field calendar-history-field">
-            <label>{t.dayHistory}</label>
-            <select
-              className="input"
-              value={String(state.settings.calendarHistoryDays)}
-              onChange={(event) => actions.updateSetting("calendarHistoryDays", Number(event.target.value))}
-            >
-              {["0", "7", "14", "30", "60", "90", "180", "365"].map((days) => (
-                <option key={days} value={days}>{days} {t.daysSuffix}</option>
+      <details className="panel module-panel calendar-settings-panel calendar-period-panel">
+        <summary className="calendar-settings-summary">
+          <span className="calendar-settings-summary-icon calendar-period-icon" aria-hidden="true">▦</span>
+          <span>{t.period}</span>
+        </summary>
+        <div className="module-controls calendar-period-controls">
+          <div className="period-layout compact-period-layout">
+            <div className="chips period-chip-row">
+              {[7, 14, 30, 90].map((days) => (
+                <button className={`chip ${p.mode === "last" && p.days === days ? "active" : ""}`} key={days} onClick={() => actions.setPeriod({ mode: "last", days })}>
+                  {days} {t.daysSuffix}
+                </button>
               ))}
-            </select>
-          </div>
-          <details className="period-range-details">
-            <summary>{language === "en" ? "Range" : "Диапазон"}</summary>
-            <div className="period-range">
-              <input className="input" type="date" value={p.start} onChange={(event) => actions.setPeriod({ mode: "custom", start: event.target.value })} />
-              <input className="input" type="date" value={p.end} onChange={(event) => actions.setPeriod({ mode: "custom", end: event.target.value })} />
+              <button className={`chip ${p.mode === "week" ? "active" : ""}`} onClick={() => actions.setPeriod({ mode: "week" })}>{language === "en" ? "Week" : "Неделя"}</button>
+              <button className={`chip ${p.mode === "month" ? "active" : ""}`} onClick={() => actions.setPeriod({ mode: "month" })}>{language === "en" ? "Month" : "Месяц"}</button>
+              <details className="period-range-details calendar-range-details">
+                <summary>{language === "en" ? "Range" : "Диапазон"}</summary>
+                <div className="period-range">
+                  <input className="input" type="date" value={p.start} onChange={(event) => actions.setPeriod({ mode: "custom", start: event.target.value })} />
+                  <input className="input" type="date" value={p.end} onChange={(event) => actions.setPeriod({ mode: "custom", end: event.target.value })} />
+                </div>
+              </details>
             </div>
-          </details>
+            <div className="period-custom compact-period-field">
+              <label>{language === "en" ? "N days" : "N дней"}</label>
+              <input className="input" type="number" min="1" max="365" value={p.days} onChange={(event) => actions.setPeriod({ mode: "last", days: clampDays(event.target.value) })} />
+            </div>
+            <div className="period-custom compact-period-field calendar-history-field">
+              <label>{t.dayHistory}</label>
+              <select
+                className="input"
+                value={String(state.settings.calendarHistoryDays)}
+                onChange={(event) => actions.updateSetting("calendarHistoryDays", Number(event.target.value))}
+              >
+                {["0", "7", "14", "30", "60", "90", "180", "365"].map((days) => (
+                  <option key={days} value={days}>{days} {t.daysSuffix}</option>
+                ))}
+              </select>
+            </div>
+          </div>
+          <p className="muted period-total-note">
+            {t.displayed}: {historyDays} {t.daysSuffix} {language === "en" ? "of history" : "истории"} + {periodDays} {t.daysSuffix} {language === "en" ? "of period" : "периода"}.
+          </p>
         </div>
-        <p className="muted period-total-note">
-          {t.displayed}: {historyDays} {t.daysSuffix} {language === "en" ? "of history" : "истории"} + {periodDays} {t.daysSuffix} {language === "en" ? "of period" : "периода"}.
-        </p>
-      </div>
+      </details>
       <CalendarSettingsPanel state={state} selectors={selectors} actions={actions} />
       <CalendarGrid state={state} selectors={selectors} actions={actions} dates={gridDates} viewportWidth={viewportWidth} habitIndexMap={habitIndexMap} habitsOverride={visibleHabits} />
       {secondarySettings.enabled ? (
@@ -303,96 +396,161 @@ export function GridView({
 function CalendarSettingsPanel({ state, selectors, actions }: { state: AppState; selectors: AppSelectors; actions: AppActions }) {
   const language = normalizeLanguage(state.settings.language);
   const appearanceValue = gridAppearancePresets.find((preset) => preset.theme === state.settings.gridTheme && preset.shape === state.settings.gridMarkerShape)?.value || "classic-square";
+  const tableColorOptions = [
+    { value: "theme", label: language === "en" ? "By theme" : "По теме" },
+    { value: "custom", label: language === "en" ? "Custom colors" : "Свои цвета" }
+  ];
+  const densityOptions = [
+    { value: "compact", label: language === "en" ? "Compact" : "Компактная" },
+    { value: "standard", label: language === "en" ? "Standard" : "Стандартная" },
+    { value: "comfortable", label: language === "en" ? "Comfortable" : "Комфортная" }
+  ];
+  const clickOptions = [
+    { value: "cycle", label: language === "en" ? "Cycle" : "По кругу" },
+    { value: "details", label: language === "en" ? "Details" : "Открыть детали" }
+  ];
+  const categoryOptions = [
+    { value: "all", label: language === "en" ? "All categories" : "Все категории" },
+    ...Array.from(new Set([...selectors.categories, ...habitCategoryPresets])).map((category) => ({ value: category, label: category }))
+  ];
+  function renderSelectRow(label: string, value: string, options: Array<{ value: string; label: string }>, onChange: (value: string) => void, icon?: string) {
+    return (
+      <div className="calendar-settings-row">
+        <label>{label}</label>
+        <div className={`calendar-settings-control ${icon ? "has-icon" : ""}`.trim()}>
+          {icon ? <span className="calendar-settings-inline-icon" aria-hidden="true">{icon}</span> : null}
+          <select className="select" value={value} onChange={(event) => onChange(event.target.value)}>
+            {options.map((option) => (
+              <option key={option.value} value={option.value}>{option.label}</option>
+            ))}
+          </select>
+        </div>
+      </div>
+    );
+  }
+  function renderColorField(key: keyof AppState["settings"]["gridColors"], label: string) {
+    return (
+      <label key={key} className="calendar-color-field">
+        <span>{label}</span>
+        <input
+          type="color"
+          value={state.settings.gridColors[key] as string}
+          onChange={(event) => actions.updateSetting("gridColors", { ...state.settings.gridColors, [key]: event.target.value })}
+        />
+      </label>
+    );
+  }
   return (
     <details className="panel module-panel calendar-settings-panel">
-      <summary>{gridText[language].configure}</summary>
+      <summary className="calendar-settings-summary">
+        <span className="calendar-settings-summary-icon" aria-hidden="true">☷</span>
+        <span>{gridText[language].configure}</span>
+      </summary>
       <div className="module-controls">
-        <div className="calendar-settings-grid">
-          <SelectControl
-            label={gridText[language].tableStyle}
-            value={appearanceValue}
-            options={gridAppearancePresets.map(({ value, label }) => ({ value, label: label[language] }))}
-            onChange={(value) => {
-              const preset = gridAppearancePresets.find((item) => item.value === value);
-              if (!preset) return;
-              actions.updateSetting("gridTheme", preset.theme as AppState["settings"]["gridTheme"]);
-              actions.updateSetting("gridMarkerShape", preset.shape as AppState["settings"]["gridMarkerShape"]);
-            }}
-          />
-          <SelectControl
-            label={gridText[language].habitColor}
-            value={state.settings.gridHabitColorMode}
-            options={gridHabitColorOptions.map(([value, label]) => ({ value, label: label[language] }))}
-            onChange={(value) => actions.updateSetting("gridHabitColorMode", value as GridHabitColorMode)}
-          />
-          <SelectControl
-            label={gridText[language].tableColors}
-            value={state.settings.gridColors.mode}
-            options={[
-              { value: "theme", label: language === "en" ? "By theme" : "По теме" },
-              { value: "custom", label: language === "en" ? "Custom colors" : "Свои цвета" }
-            ]}
-            onChange={(value) => actions.updateSetting("gridColors", { ...state.settings.gridColors, mode: value as "theme" | "custom" })}
-          />
-          <SelectControl
-            label={gridText[language].gridDensity}
-            value={state.settings.gridDensity}
-            options={[
-              { value: "compact", label: language === "en" ? "Compact" : "compact" },
-              { value: "standard", label: language === "en" ? "Standard" : "standard" },
-              { value: "comfortable", label: language === "en" ? "Comfortable" : "comfortable" }
-            ]}
-            onChange={(value) => actions.updateSetting("gridDensity", value as Density)}
-          />
-          <SelectControl
-            label={gridText[language].cellClick}
-            value={state.settings.gridClickAction}
-            options={[
-              { value: "cycle", label: language === "en" ? "Cycle" : "cycle" },
-              { value: "details", label: language === "en" ? "Details" : "details" }
-            ]}
-            onChange={(value) => actions.updateSetting("gridClickAction", value as "cycle" | "details")}
-          />
-        </div>
-        {state.settings.gridColors.mode === "custom" && (
-          <div className="mini-color-grid calendar-color-grid">
-            {[
-              ["bg", "Фон"],
-              ["head", "Шапка"],
-              ["cell", "Ячейки"],
-              ["today", "Сегодня"],
-              ["line", "Линии"],
-              ["habitSingle", "Привычки: один цвет"],
-              ["habitAltA", "Привычки: цвет A"],
-              ["habitAltB", "Привычки: цвет B"]
-            ].map(([key, label]) => (
-              <label key={key}>
-                <span>{label}</span>
-                <input
-                  type="color"
-                  value={state.settings.gridColors[key as keyof typeof state.settings.gridColors] as string}
-                  onChange={(event) => actions.updateSetting("gridColors", { ...state.settings.gridColors, [key]: event.target.value })}
-                />
-              </label>
+        <div className="calendar-settings-section calendar-mode-section">
+          <div className="calendar-settings-section-label">{language === "en" ? "Display modes" : "Режимы отображения"}</div>
+          <div className="calendar-mode-row">
+            {gridModes.map(([mode, label]) => (
+              <button
+                key={mode}
+                className={state.settings.gridDisplayMode === mode ? "active" : ""}
+                title={label[language]}
+                onClick={() => actions.updateSetting("gridDisplayMode", mode)}
+              >
+                <b>{modeIcon(mode)}</b>
+                <span>{label[language]}</span>
+              </button>
             ))}
           </div>
-        )}
-        <details className="quick-subsection">
+        </div>
+        <details className="quick-subsection calendar-settings-section calendar-settings-card calendar-style-section">
+          <summary>
+            <span className="calendar-settings-card-icon" aria-hidden="true">▦</span>
+            <strong>{gridText[language].tableStyle}</strong>
+          </summary>
+          <div className="calendar-settings-card-body calendar-two-row-grid calendar-style-grid">
+            {renderSelectRow(
+              language === "en" ? "Table style" : "Стиль таблицы",
+              appearanceValue,
+              gridAppearancePresets.map(({ value, label }) => ({ value, label: label[language] })),
+              (value) => {
+                const preset = gridAppearancePresets.find((item) => item.value === value);
+                if (!preset) return;
+                actions.updateSetting("gridTheme", preset.theme as AppState["settings"]["gridTheme"]);
+                actions.updateSetting("gridMarkerShape", preset.shape as AppState["settings"]["gridMarkerShape"]);
+                if ("habitColorMode" in preset) actions.updateSetting("gridHabitColorMode", preset.habitColorMode as GridHabitColorMode);
+                if ("gridColors" in preset) actions.updateSetting("gridColors", { ...state.settings.gridColors, ...preset.gridColors });
+              },
+              "▦"
+            )}
+            {renderSelectRow(
+              gridText[language].habitColor,
+              state.settings.gridHabitColorMode,
+              gridHabitColorOptions.map(([value, label]) => ({ value, label: label[language] })),
+              (value) => actions.updateSetting("gridHabitColorMode", value as GridHabitColorMode),
+              "◐"
+            )}
+            {renderSelectRow(
+              gridText[language].tableColors,
+              state.settings.gridColors.mode,
+              tableColorOptions,
+              (value) => actions.updateSetting("gridColors", { ...state.settings.gridColors, mode: value as "theme" | "custom" }),
+              "◫"
+            )}
+            {renderSelectRow(
+              gridText[language].gridDensity,
+              state.settings.gridDensity,
+              densityOptions,
+              (value) => actions.updateSetting("gridDensity", value as Density),
+              "⋮"
+            )}
+            {renderSelectRow(
+              gridText[language].cellClick,
+              state.settings.gridClickAction,
+              clickOptions,
+              (value) => actions.updateSetting("gridClickAction", value as "cycle" | "details"),
+              "◎"
+            )}
+            {state.settings.gridHabitColorMode === "mono" ? (
+              <div className="calendar-context-colors">
+                {renderColorField("habitSingle", language === "en" ? "Habit color" : "Цвет привычек")}
+              </div>
+            ) : null}
+            {state.settings.gridHabitColorMode === "alternating" ? (
+              <div className="calendar-context-colors calendar-context-colors-double">
+                {renderColorField("habitAltA", language === "en" ? "First color" : "Первый цвет")}
+                {renderColorField("habitAltB", language === "en" ? "Second color" : "Второй цвет")}
+              </div>
+            ) : null}
+            {state.settings.gridColors.mode === "custom" ? (
+              <div className="calendar-context-colors calendar-table-color-controls">
+                {renderColorField("bg", language === "en" ? "Background" : "Фон")}
+                {renderColorField("head", language === "en" ? "Header" : "Шапка")}
+                {renderColorField("cell", language === "en" ? "Cells" : "Ячейки")}
+                {renderColorField("today", language === "en" ? "Today" : "Сегодня")}
+                {renderColorField("line", language === "en" ? "Lines" : "Линии")}
+              </div>
+            ) : null}
+          </div>
+        </details>
+        <details className="quick-subsection calendar-settings-section calendar-filter-section">
           <summary>{gridText[language].filterVisibility}</summary>
-          <div className="module-controls">
-            <SelectControl
-              label={language === "en" ? "Category" : "Категория"}
-              value={state.settings.selectedCategory}
-              options={[{ value: "all", label: language === "en" ? "All categories" : "all" }, ...selectors.categories.map((category) => ({ value: category, label: category }))]}
-              onChange={(value) => actions.updateSetting("selectedCategory", value)}
-            />
-            <SelectControl
-              label={gridText[language].calendarFilter}
-              value={state.settings.calendarFilterMode}
-              options={calendarFilterModes.map(([value, label]) => ({ value, label: label[language] }))}
-              onChange={(value) => actions.updateSetting("calendarFilterMode", value as CalendarFilterMode)}
-            />
-            <Toggle label={gridText[language].showWeekends} checked={state.settings.showWeekends} className="compact-check-row" onChange={(checked) => actions.updateSetting("showWeekends", checked)} />
+          <div className="calendar-settings-card-body calendar-two-row-grid calendar-filter-grid">
+            {renderSelectRow(
+              language === "en" ? "Category" : "Категория",
+              state.settings.selectedCategory,
+              categoryOptions,
+              (value) => actions.updateSetting("selectedCategory", value),
+              "⌂"
+            )}
+            {renderSelectRow(
+              gridText[language].calendarFilter,
+              state.settings.calendarFilterMode,
+              calendarFilterModes.map(([value, label]) => ({ value, label: label[language] })),
+              (value) => actions.updateSetting("calendarFilterMode", value as CalendarFilterMode),
+              "⌁"
+            )}
+            <Toggle label={gridText[language].showWeekends} checked={state.settings.showWeekends} className="compact-check-row calendar-weekend-toggle" onChange={(checked) => actions.updateSetting("showWeekends", checked)} />
           </div>
           {state.settings.calendarFilterMode === "types" ? (
             <div className="module-toggle-grid type-toggle-grid">
@@ -410,49 +568,39 @@ function CalendarSettingsPanel({ state, selectors, actions }: { state: AppState;
             </div>
           ) : null}
         </details>
-        <div className="calendar-mode-row">
-          {gridModes.map(([mode, label]) => (
-            <button
-              key={mode}
-              className={state.settings.gridDisplayMode === mode ? "active" : ""}
-              title={label[language]}
-              onClick={() => actions.updateSetting("gridDisplayMode", mode)}
-            >
-              <b>{modeIcon(mode)}</b>
-              <span>{label[language]}</span>
-            </button>
-          ))}
-        </div>
-        <div className="status-preview-strip">
-          {(Object.keys(statusMeta) as HabitStatus[]).map((status) => (
-            <button
-              key={status}
-              className={`${statusMeta[status].className} ${state.settings.activeStatuses.includes(status) ? "active" : ""}`}
-              onClick={() => actions.toggleStatus(status, !state.settings.activeStatuses.includes(status))}
-              title={language === "en" ? "Enable or disable status" : "Включить или выключить статус"}
-            >
-              <b>{state.settings.statusIcons[status] || statusMeta[status].short}</b>
-              <span>{statusLabels[language][status]}</span>
-            </button>
-          ))}
-        </div>
-        <details className="quick-subsection">
+        <details className="quick-subsection calendar-settings-section calendar-visible-section">
           <summary>{gridText[language].visibleElements}</summary>
-          <div className="module-toggle-grid">
+          <div className="calendar-visible-list calendar-visible-grid">
             {Object.entries(gridLabels).map(([key, label]) => (
-              <label key={key}>
+              <label key={key} className="calendar-visible-row">
+                <span className="calendar-visible-name">
+                  <b aria-hidden="true">{visibleElementIcon(key)}</b>
+                  <span>{label[language]}</span>
+                </span>
                 <input type="checkbox" checked={state.settings.visibleGrid[key]} onChange={(event) => actions.updateVisible("visibleGrid", key, event.target.checked)} />
-                <span>{label[language]}</span>
               </label>
             ))}
           </div>
         </details>
-        <details className="quick-subsection">
-          <summary>{gridText[language].checkInIcons}</summary>
+        <details className="quick-subsection calendar-settings-section calendar-icons-section">
+          <summary>{language === "en" ? "Statuses and icons" : "Статусы и иконки"}</summary>
+          <div className="status-preview-strip">
+            {(Object.keys(statusMeta) as HabitStatus[]).map((status) => (
+              <button
+                key={status}
+                className={`${statusMeta[status].className} ${state.settings.activeStatuses.includes(status) ? "active" : ""}`}
+                onClick={() => actions.toggleStatus(status, !state.settings.activeStatuses.includes(status))}
+                title={statusLabels[language][status]}
+                aria-label={statusLabels[language][status]}
+              >
+                <b>{state.settings.statusIcons[status] || statusMeta[status].short}</b>
+                <span>{statusLabels[language][status]}</span>
+              </button>
+            ))}
+          </div>
           <div className="status-icon-grid">
             {(Object.keys(statusMeta) as HabitStatus[]).map((status) => (
-              <label key={status}>
-                <span>{statusLabels[language][status]}</span>
+              <label key={status} aria-label={statusLabels[language][status]} title={statusLabels[language][status]}>
                 <input
                   maxLength={4}
                   value={state.settings.statusIcons[status] || statusMeta[status].short}
@@ -479,54 +627,109 @@ function CalendarSettingsPanel({ state, selectors, actions }: { state: AppState;
   );
 }
 
+function visibleElementIcon(key: string) {
+  switch (key) {
+    case "color":
+      return "■";
+    case "icon":
+      return "☆";
+    case "statusText":
+      return "✓";
+    case "completion":
+      return "%";
+    case "daysSince":
+      return "◷";
+    default:
+      return "•";
+  }
+}
+
 function SecondaryCalendarPanel({ state, actions }: { state: AppState; actions: AppActions }) {
   const language = normalizeLanguage(state.settings.language);
   const text = gridText[language];
   const secondary = state.settings.secondaryCalendar;
+  const densityOptions = [
+    { value: "compact", label: language === "en" ? "Compact" : "Компактная" },
+    { value: "standard", label: language === "en" ? "Standard" : "Стандартная" },
+    { value: "comfortable", label: language === "en" ? "Comfortable" : "Комфортная" }
+  ];
+  function renderSelectRow(label: string, value: string, options: Array<{ value: string; label: string }>, onChange: (value: string) => void, icon?: string) {
+    return (
+      <div className="calendar-settings-row">
+        <label>{label}</label>
+        <div className={`calendar-settings-control ${icon ? "has-icon" : ""}`.trim()}>
+          {icon ? <span className="calendar-settings-inline-icon" aria-hidden="true">{icon}</span> : null}
+          <select className="select" value={value} onChange={(event) => onChange(event.target.value)}>
+            {options.map((option) => (
+              <option key={option.value} value={option.value}>{option.label}</option>
+            ))}
+          </select>
+        </div>
+      </div>
+    );
+  }
   return (
     <details className="panel module-panel calendar-settings-panel secondary-calendar-settings-panel">
-      <summary>{text.secondaryCalendar}</summary>
+      <summary className="calendar-settings-summary">
+        <span className="calendar-settings-summary-icon" aria-hidden="true">▥</span>
+        <span>{text.secondaryCalendar}</span>
+      </summary>
       <div className="module-controls">
-        <Toggle
-          label={text.secondaryCalendarToggle}
-          checked={secondary.enabled}
-          onChange={(checked) => actions.updateSetting("secondaryCalendar", { ...secondary, enabled: checked })}
-        />
-        <div className="calendar-settings-grid">
-          <SelectControl
-            label={text.secondaryHistory}
-            value={String(secondary.historyDays)}
-            options={["0", "7", "14", "30", "60", "90", "180", "365"]}
-            onChange={(value) => actions.updateSetting("secondaryCalendar", { ...secondary, historyDays: Number(value) })}
-          />
-          <SelectControl
-            label={text.secondaryFilter}
-            value={secondary.filterMode}
-            options={calendarFilterModes.map(([value, label]) => ({ value, label: label[language] }))}
-            onChange={(value) => actions.updateSetting("secondaryCalendar", { ...secondary, filterMode: value as CalendarFilterMode })}
-          />
-        </div>
-        <Toggle
-          label={gridText[language].showWeekends}
-          checked={secondary.showWeekends}
-          onChange={(checked) => actions.updateSetting("secondaryCalendar", { ...secondary, showWeekends: checked })}
-        />
-        {secondary.filterMode === "types" ? (
-          <div className="module-toggle-grid type-toggle-grid">
-            {(Object.keys(calendarTypeLabels[language]) as HabitType[]).map((type) => (
-              <Toggle
-                key={type}
-                label={calendarTypeLabels[language][type]}
-                checked={secondary.selectedTypes[type]}
-                onChange={(checked) => actions.updateSetting("secondaryCalendar", {
-                  ...secondary,
-                  selectedTypes: { ...secondary.selectedTypes, [type]: checked }
-                })}
-              />
-            ))}
+        <div className="calendar-settings-section calendar-filter-section secondary-calendar-filter-section">
+          <div className="calendar-settings-section-label">{text.secondaryFilter}</div>
+          <div className="calendar-settings-card-body secondary-calendar-settings-body">
+            <Toggle
+              label={text.secondaryCalendarToggle}
+              checked={secondary.enabled}
+              onChange={(checked) => actions.updateSetting("secondaryCalendar", { ...secondary, enabled: checked })}
+              className="compact-check-row"
+            />
+            {renderSelectRow(
+              text.secondaryHistory,
+              String(secondary.historyDays),
+              ["0", "7", "14", "30", "60", "90", "180", "365"].map((value) => ({ value, label: `${value} ${language === "en" ? "days" : "дней"}` })),
+              (value) => actions.updateSetting("secondaryCalendar", { ...secondary, historyDays: Number(value) }),
+              "◷"
+            )}
+            {renderSelectRow(
+              text.secondaryFilter,
+              secondary.filterMode,
+              calendarFilterModes.map(([value, label]) => ({ value, label: label[language] })),
+              (value) => actions.updateSetting("secondaryCalendar", { ...secondary, filterMode: value as CalendarFilterMode }),
+              "⌁"
+            )}
+            {renderSelectRow(
+              gridText[language].gridDensity,
+              state.settings.gridDensity,
+              densityOptions,
+              (value) => actions.updateSetting("gridDensity", value as Density),
+              "⋮"
+            )}
+            <Toggle
+              label={gridText[language].showWeekends}
+              checked={secondary.showWeekends}
+              onChange={(checked) => actions.updateSetting("secondaryCalendar", { ...secondary, showWeekends: checked })}
+              className="compact-check-row calendar-weekend-toggle"
+            />
           </div>
-        ) : null}
-        <p className="muted secondary-calendar-note">{text.secondaryCalendarHint}</p>
+          {secondary.filterMode === "types" ? (
+            <div className="module-toggle-grid type-toggle-grid secondary-calendar-type-grid">
+              {(Object.keys(calendarTypeLabels[language]) as HabitType[]).map((type) => (
+                <Toggle
+                  key={type}
+                  label={calendarTypeLabels[language][type]}
+                  checked={secondary.selectedTypes[type]}
+                  onChange={(checked) => actions.updateSetting("secondaryCalendar", {
+                    ...secondary,
+                    selectedTypes: { ...secondary.selectedTypes, [type]: checked }
+                  })}
+                />
+              ))}
+            </div>
+          ) : (
+            <p className="muted secondary-calendar-note">{text.secondaryCalendarHint}</p>
+          )}
+        </div>
       </div>
     </details>
   );
@@ -609,10 +812,10 @@ function CalendarMonthGrid({
     <div>
       <div className={`month-calendar ${compact ? "compact-calendar" : ""}`}>
         {["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"].map((day, index) => (
-          <div className="month-week-head" key={index}>{language === "en" ? day : ["Пн", "Вт", "Ср", "Чт", "Пт", "Сб", "Вс"][index]}</div>
+          <div className={`month-week-head ${index >= 5 ? "weekend" : ""}`} key={index}>{language === "en" ? day : ["Пн", "Вт", "Ср", "Чт", "Пт", "Сб", "Вс"][index]}</div>
         ))}
         {weeks.flat().map((date, index) => date ? (
-          <div className={`calendar-day ${date === todayKey() ? "today" : ""}`} key={date}>
+          <div className={`calendar-day ${date === todayKey() ? "today" : ""} ${isWeekendDate(date) ? "weekend" : ""}`} key={date}>
             <div className="calendar-day-head">
               <b>{formatDate(date, "short", language)}</b>
               <span>{weekdayShort(date, language)}</span>
@@ -710,7 +913,7 @@ function WeekMatrixGrid({
   selectors: AppSelectors;
   actions: AppActions;
 }) {
-  const chunkSize = getMatrixChunkSize(viewportWidth);
+  const chunkSize = state.settings.gridTheme === "splitWeeks" ? 7 : getMatrixChunkSize(viewportWidth);
   const weeks = chunkByCount(dates, chunkSize);
   const language = normalizeLanguage(state.settings.language);
   return (
@@ -720,7 +923,7 @@ function WeekMatrixGrid({
           <div className="week-matrix" key={index}>
             <div className="week-matrix-grid" style={{ "--days": week.length } as React.CSSProperties & Record<"--days", number>}>
               <div className="grid-head">{gridText[language].habitColumn}</div>
-              {week.map((date) => <div className={`grid-head ${date === todayKey() ? "today" : ""}`} key={date}><span>{weekdayShort(date, language)}</span><b>{formatDate(date, "short", language)}</b></div>)}
+              {week.map((date) => <div className={`grid-head ${date === todayKey() ? "today" : ""} ${isWeekendDate(date) ? "weekend" : ""}`} key={date}><span>{weekdayShort(date, language)}</span><b>{formatDate(date, "short", language)}</b></div>)}
               {habits.map((habit) => (
                 <Fragment key={`${habit.id}-${index}`}>
                   <div className="grid-name matrix-name" style={getHabitMarkStyle(state, habit, habitIndexMap.get(habit.id) || 0, "row")}>
@@ -763,7 +966,7 @@ function WeekFocusGrid({
     <div>
       <div className="week-focus-grid">
         {focusDates.map((date) => (
-          <div className={`week-focus-day ${date === todayKey() ? "today" : ""}`} key={date}>
+          <div className={`week-focus-day ${date === todayKey() ? "today" : ""} ${isWeekendDate(date) ? "weekend" : ""}`} key={date}>
             <div className="calendar-day-head">
               <b>{formatDate(date, "short", language)}</b>
               <span>{weekdayShort(date, language)}</span>
@@ -825,7 +1028,7 @@ function HabitTimelineGrid({
           <div className="habit-strip-row" key={index}>
             {group.map((date) => (
               <button
-                className={`habit-day-chip ${statusClass(getDisplayStatus(selectors.getLog(habit.id, date)?.status || (selectors.isDue(habit, date) ? "planned" : undefined), state))}`}
+                className={`habit-day-chip ${statusClass(getDisplayStatus(selectors.getLog(habit.id, date)?.status || (selectors.isDue(habit, date) ? "planned" : undefined), state))} ${isWeekendDate(date) ? "weekend" : ""}`}
                 key={date}
                 title={`${habit.title} · ${formatDate(date, "long", language)}`}
                 style={getHabitMarkStyle(state, habit, habitIndexMap.get(habit.id) || 0, "tile")}
@@ -864,7 +1067,7 @@ function TimelineGrid({
     <div>
       <div className="timeline-grid">
         {dates.map((date) => (
-          <div className={`timeline-day ${date === todayKey() ? "today" : ""}`} key={date}>
+          <div className={`timeline-day ${date === todayKey() ? "today" : ""} ${isWeekendDate(date) ? "weekend" : ""}`} key={date}>
             <div className="timeline-date">
               <b>{formatDate(date, "short", language)}</b>
               <span>{weekdayShort(date, language)}</span>
@@ -915,7 +1118,7 @@ function HeatGrid({
           const done = dueHabits.filter((habit) => selectors.getLog(habit.id, date)?.status === "done").length;
           const intensity = dueHabits.length ? Math.max(1, Math.ceil((done / dueHabits.length) * 4)) : 0;
           return (
-            <div className={`heat-day heat-${intensity} ${date === todayKey() ? "today" : ""}`} key={date}>
+            <div className={`heat-day heat-${intensity} ${date === todayKey() ? "today" : ""} ${isWeekendDate(date) ? "weekend" : ""}`} key={date}>
               <div className="calendar-day-head">
                 <b>{formatDate(date, "short", language)}</b>
                 <span>{done}/{dueHabits.length}</span>
@@ -979,11 +1182,16 @@ function GridCell({
     "micro",
     "neonBoard",
     "weekChecks",
-    "signalCards"
+    "signalCards",
+    "splitWeeks",
+    "tealCards",
+    "thinChecks",
+    "glassCards",
+    "calmData"
   ].includes(state.settings.gridTheme) ? state.settings.gridTheme : "";
   const markStyle = getHabitMarkStyle(state, habit, habitIndex, "cell");
   return (
-    <div className={`grid-cell ${date === todayKey() ? "today" : ""} ${themeClass}`}>
+    <div className={`grid-cell ${date === todayKey() ? "today" : ""} ${themeClass} ${isWeekendDate(date) ? "weekend" : ""}`}>
       <button
         className={`${className} shape-${state.settings.gridMarkerShape}`}
         style={markStyle}
@@ -1154,7 +1362,14 @@ function chunkByCount(dates: string[], size: number) {
 
 function getMatrixChunkSize(width: number) {
   if (width < 920) return 7;
-  return 14;
+  if (width < 1500) return 14;
+  if (width < 1900) return 21;
+  return 28;
+}
+
+function isWeekendDate(date: string) {
+  const day = new Date(`${date}T00:00:00`).getDay();
+  return day === 0 || day === 6;
 }
 
 function useViewportWidth() {

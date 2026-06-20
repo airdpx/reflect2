@@ -43,6 +43,89 @@ export default async function AboutPage() {
             <b>Who it is for</b>
             <span>For people who want to track rhythm, state, workload, repetition and daily patterns with less noise.</span>
           </div>
+          <section className="content-page-section about-side-section i18n-ru">
+            <h2>План развития</h2>
+            <p>
+              Дальше проект будет развиваться в сторону более глубокого самонаблюдения и более умной поддержки
+              пользователя. Ближайшие шаги — расширение аналитики, улучшение календарных сценариев, развитие
+              уведомлений и запуск мобильного приложения с теми же принципами спокойного интерфейса.
+            </p>
+            <div className="about-feature-grid">
+              <div>
+                <b>AI-анализ дневника и календаря</b>
+                <span>Система сможет анализировать записи и ритм дня, а затем предлагать выводы и идеи для действий.</span>
+              </div>
+              <div>
+                <b>Только по согласию</b>
+                <span>Анализ запускается только после согласия пользователя. По умолчанию данные никуда не передаются.</span>
+              </div>
+              <div>
+                <b>Рекомендации и контекст</b>
+                <span>AI сможет подсвечивать повторяющиеся закономерности, указывать на слабые места и предлагать варианты улучшений.</span>
+              </div>
+              <div>
+                <b>Новые режимы и отчёты</b>
+                <span>В планах — дальше развивать таблицы, графики, прогнозирование, выявление закономерностей и компактные отчётные блоки.</span>
+              </div>
+            </div>
+          </section>
+          <section className="content-page-section about-side-section i18n-en">
+            <h2>Roadmap</h2>
+            <p>
+              Next, the project will move toward deeper self-observation and smarter user support. The next steps
+              include richer analytics, better calendar workflows, stronger notifications and a mobile app that keeps
+              the same calm interface principles.
+            </p>
+            <div className="about-feature-grid">
+              <div>
+                <b>AI analysis of diary and calendar</b>
+                <span>The system will analyze notes and daily rhythm, then offer insights and ideas for action.</span>
+              </div>
+              <div>
+                <b>Consent first</b>
+                <span>Analysis starts only after the user consents. By default, no data is sent anywhere.</span>
+              </div>
+              <div>
+                <b>Suggestions and context</b>
+                <span>AI can highlight recurring patterns, point to weak spots and suggest ways to improve them.</span>
+              </div>
+              <div>
+                <b>New modes and reports</b>
+                <span>Planned work includes more table modes, charts, forecasting, pattern detection and compact report blocks.</span>
+              </div>
+            </div>
+          </section>
+          <section className="content-page-section about-side-section i18n-ru">
+            <h2>Отказ от ответственности</h2>
+            <p>
+              Информация в проекте предоставляется только в ознакомительных целях и не является рекомендацией к
+              действию, медицинским советом, юридическим заключением или финансовым прогнозом.
+            </p>
+            <p>
+              Любое использование данных и выводов пользователь принимает на свой риск и самостоятельно оценивает
+              уместность их применения, а также возможные последствия.
+            </p>
+            <p>
+              Используя проект, пользователь соглашается с тем, что владельцы сервиса не несут претензий и
+              ответственности за решения, принятые на основе предоставленной информации. Материалы используются
+              как есть.
+            </p>
+          </section>
+          <section className="content-page-section about-side-section i18n-en">
+            <h2>Disclaimer</h2>
+            <p>
+              The information in this project is provided for informational purposes only and is not a recommendation,
+              medical advice, legal opinion or financial forecast.
+            </p>
+            <p>
+              Any use of the data and conclusions is at the user's own risk, and the user independently evaluates how
+              appropriate it is to apply them and what consequences may follow.
+            </p>
+            <p>
+              By using the project, the user agrees that the service owners are not liable for claims or for decisions
+              made on the basis of the provided information. The material is used as is.
+            </p>
+          </section>
         </div>
       )}
     >
@@ -82,18 +165,24 @@ export default async function AboutPage() {
           </div>
         </section>
         <section className="content-page-section">
-          <h2>Как устроен проект</h2>
+          <h2>Как это работает</h2>
           <p>
-            Практика строится вокруг личного ритма дня. Пользователь отмечает привычки, пишет короткие наблюдения,
-            смотрит историю по датам и видит не только текущий день, но и контекст вокруг него.
+            Сначала добавьте привычку - вручную или из шаблона. После этого каждый день отмечайте её в календаре
+            в выбранном ритме: каждый день, по дням недели, несколько раз в день, как числовую задачу или как
+            привычку, которую важно не делать.
           </p>
           <p>
-            В проекте уже заложены гибкие темы, разные режимы календаря, управление блоками интерфейса,
-            оповещения, экспорт данных, админский раздел и отдельные страницы для справочной информации.
+            Раздел привычек отвечает за создание, редактирование, категории, иконки, расписание и шаблоны. Здесь
+            пользователь настраивает основу, с которой потом работает календарь.
           </p>
           <p>
-            Это не жёсткий трекер с красными провалами, а спокойная среда для наблюдения за собой: с календарём,
-            дневником, прогнозами, цифрами и аккуратной аналитикой, которая помогает видеть повторяющиеся паттерны.
+            Раздел дневника заполнен несколькими блоками: короткая заметка, состояние, здоровье, финансы и история
+            записей. Такая структура помогает последовательно фиксировать важные темы, не перегружая один большой
+            текстовый блок.
+          </p>
+          <p>
+            Календарь показывает, как привычки складываются во времени, а аналитика помогает заметить повторяющиеся
+            паттерны, сильные серии и места, где привычкам нужна мягкая поддержка.
           </p>
         </section>
       </div>
@@ -135,16 +224,21 @@ export default async function AboutPage() {
         <section className="content-page-section">
           <h2>How It Works</h2>
           <p>
-            The product is built around the personal rhythm of the day. You mark habits, write short observations,
-            review notes by date and compare your actual state with the surrounding context.
+            Start by adding a habit, either manually or from a template. After that, check it in every day in the
+            rhythm you chose: every day, on selected weekdays, several times a day, as a numeric goal or as a habit
+            that should not happen.
           </p>
           <p>
-            The project includes flexible themes, multiple calendar modes, interface block settings, notifications,
-            data export, an admin area and public information pages.
+            The Habits section is where you create, edit, categorize, assign icons, set schedules and keep templates.
+            It is the starting point for the whole workflow, because the calendar uses that structure later.
           </p>
           <p>
-            PractWay is a personal observation environment with a calendar, diary, forecasts, numbers and compact
-            analytics that help reveal recurring patterns.
+            The Diary is split into several blocks: a short note, state, health, finances and note history. This makes
+            it easier to fill in important topics step by step instead of putting everything into one large text field.
+          </p>
+          <p>
+            The calendar shows how habits accumulate over time, and analytics helps spot recurring patterns, strong
+            streaks and places where a habit needs gentle support.
           </p>
         </section>
       </div>

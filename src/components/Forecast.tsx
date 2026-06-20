@@ -76,11 +76,15 @@ function ForecastShell({
   forecast: ForecastResult;
   }) {
   const tone = forecastTone(forecast.summaryScore);
+  const compactTitle = `${title} (${forecast.summaryScore}% ${forecast.summaryLabel})`;
   return (
     <div className="panel forecast-panel">
       <div className="section-head">
         <div>
-          <h3>{title}</h3>
+          <h3>
+            <span className="panel-title-main">{title}</span>
+            <span className="panel-title-inline">{compactTitle}</span>
+          </h3>
         </div>
         <div className={`forecast-score forecast-tone-${tone}`}>
           <strong>{forecast.summaryScore}%</strong>

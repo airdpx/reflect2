@@ -221,9 +221,18 @@ export function AuthScreen({ initialLanguage }: AuthScreenProps) {
                 </div>
                 <div className="field">
                   <label>{text.birthDate}</label>
-                  <div className="auth-input-shell">
+                  <div className="auth-input-shell auth-date-shell">
                     <span className="auth-field-icon"><AppIcon name="calendar" /></span>
-                    <input className="input auth-input" type="date" value={birthDate} onChange={(event) => setBirthDate(event.target.value)} />
+                    <input
+                      className="input auth-input auth-date-input"
+                      type="date"
+                      value={birthDate}
+                      onChange={(event) => setBirthDate(event.target.value)}
+                      onClick={(event) => {
+                        const input = event.currentTarget as HTMLInputElement & { showPicker?: () => void };
+                        input.showPicker?.();
+                      }}
+                    />
                   </div>
                 </div>
               </div>

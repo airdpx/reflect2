@@ -13,7 +13,7 @@ export const viewText: Record<Language, Record<View, { label: string; title: str
     diary: { label: "Дневник", title: "Дневник", subtitle: "Настроение, энергия и заметки за день" },
     notifications: { label: "Оповещения", title: "Оповещения", subtitle: "Интерфейсные и внешние каналы доставки" },
     analytics: { label: "Аналитика", title: "Аналитика", subtitle: "" },
-    settings: { label: "Настройки", title: "Настройки", subtitle: "Профиль, статусы, прогноз и видимость блоков" },
+    settings: { label: "Настройки", title: "Настройки", subtitle: "" },
     management: { label: "Управление", title: "Управление", subtitle: "Пользователи, экспорт и глобальные настройки" }
   },
   en: {
@@ -23,7 +23,7 @@ export const viewText: Record<Language, Record<View, { label: string; title: str
     diary: { label: "Diary", title: "Diary", subtitle: "Mood, energy and notes for the day" },
     notifications: { label: "Alerts", title: "Alerts", subtitle: "In-app and external delivery channels" },
     analytics: { label: "Analytics", title: "Analytics", subtitle: "" },
-    settings: { label: "Settings", title: "Settings", subtitle: "Profile, statuses, forecast and visible blocks" },
+    settings: { label: "Settings", title: "Settings", subtitle: "" },
     management: { label: "Admin", title: "Admin", subtitle: "Users, export and global settings" }
   }
 };

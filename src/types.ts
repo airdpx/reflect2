@@ -54,7 +54,12 @@ export type GridTheme =
   | "micro"
   | "neonBoard"
   | "weekChecks"
-  | "signalCards";
+  | "signalCards"
+  | "splitWeeks"
+  | "tealCards"
+  | "thinChecks"
+  | "glassCards"
+  | "calmData";
 export type GridMarkerShape = "circle" | "square" | "diamond" | "star" | "frame" | "ring" | "hex" | "pill";
 export type GridDisplayMode = "calendar" | "compact" | "matrix" | "week" | "habit" | "timeline" | "heat";
 export type PeriodMode = "last" | "week" | "month" | "custom";
@@ -133,6 +138,17 @@ export type HabitLog = {
   updatedAt?: string;
 };
 
+export type DiaryCustomFieldDefinition = {
+  id: string;
+  label: string;
+  enabled: boolean;
+};
+
+export type DiaryCustomFieldValue = {
+  label: string;
+  value: string;
+};
+
 export type DailyNote = {
   mood?: number;
   energy?: number;
@@ -140,6 +156,9 @@ export type DailyNote = {
   text?: string;
   helped?: string;
   blocked?: string;
+  health?: string;
+  finance?: string;
+  customFields?: Record<string, DiaryCustomFieldValue>;
 };
 
 export type ForecastSettings = {
@@ -379,6 +398,7 @@ export type UserSettings = {
   defaultView: View;
   todayLayout: "split" | "single" | "reverse";
   diaryLayout: "compact" | "full";
+  diaryCustomFields: DiaryCustomFieldDefinition[];
   customTheme: {
     bg: string;
     surface: string;
@@ -423,7 +443,7 @@ export type AppActions = {
   setSelectedDate: (date: string) => void;
   setLog: (habitId: string, date: string, patch: Partial<HabitLog>) => void;
   clearLog: (habitId: string, date: string) => void;
-  setNoteField: (key: keyof DailyNote, value: string | number) => void;
+  setNoteField: <K extends keyof DailyNote>(key: K, value: DailyNote[K]) => void;
   deleteNote: (date: string) => void;
   setPeriod: (patch: Partial<UserSettings["defaultPeriod"]>) => void;
   applyPreset: (preset: UserSettings["preset"]) => void;
